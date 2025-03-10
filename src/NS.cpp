@@ -344,7 +344,7 @@ void NS::CalculateAndSetPulsarParameters() {
     }
     else {                                                                                                                      // no - calculate values
         m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
-        m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod ;                                         
+        m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod;                                         
 
         m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
         m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
@@ -373,8 +373,8 @@ void NS::CalculateAndSetPulsarParameters() {
  */
 void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
 
-    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {    // NS spinning?
-        return ;                                                                                                              // no - return 0.0
+    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {               // NS spinning?
+        return ;                                                                                                                            // no - nothing to do
     }
     
     double radius_IN_CM      = m_Radius * RSOL_TO_KM * KM_TO_CM;
@@ -391,7 +391,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     if (utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
         // if magnetic field is already lower than the lower limit, 
         // set it to the value at the beginning of the timestep.
-        m_PulsarDetails.magneticField = initialMagField ;
+        m_PulsarDetails.magneticField = initialMagField;
     }
     else {
         m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
@@ -491,7 +491,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         // not spinning - set all pulsar attributes to 0.0, spin period to infinity, and return
         m_PulsarDetails.spinDownRate  = 0.0;
         m_PulsarDetails.spinFrequency = 0.0;
-        m_PulsarDetails.spinPeriod    = _2_PI / m_PulsarDetails.spinFrequency;
+        m_PulsarDetails.spinPeriod    = std::numeric_limits<float>::infinity();
         m_PulsarDetails.magneticField = 0.0;
         return; 
     }
@@ -502,15 +502,15 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // spin down
     }
     else if (p_CommonEnvelope && (OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::SURFACE)) {                                    // mass transfer through CE when accretion happens at the surface of the NS
-        double massG                  = m_Mass * MSOL_TO_G;                                                                                 // mass in g
-        double radiusCM               = m_Radius * RSOL_TO_CM;                                                                              // radius in cm
-        m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS(); 
-        double jAcc                   = m_MomentOfInertia_CGS * std::sqrt(G_CGS * massG / (radiusCM * radiusCM * radiusCM)) * p_MassGain / G_TO_KG / massG;    
-        m_AngularMomentum_CGS        += jAcc;                                                                                               // angular momentum of the accreted material as it falls onto the surface of the NS
+        double massG           = m_Mass * MSOL_TO_G;                                                                                        // mass in g
+        double radiusCM        = m_Radius * RSOL_TO_CM;                                                                                     // radius in cm
+        m_MomentOfInertia_CGS  = CalculateMomentOfInertiaCGS(); 
+        double jAcc            = m_MomentOfInertia_CGS * std::sqrt(G_CGS * massG / (radiusCM * radiusCM * radiusCM)) * p_MassGain / G_TO_KG / massG;    
+        m_AngularMomentum_CGS += jAcc;                                                                                                      // angular momentum of the accreted material as it falls onto the surface of the NS
         if (utils::Compare(m_PulsarDetails.magneticField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
             // set it to the value at the beginning of the timestep.
-            m_PulsarDetails.magneticField = m_PulsarDetails.magneticField ;
+            m_PulsarDetails.magneticField = m_PulsarDetails.magneticField;
         }
         else {
             m_PulsarDetails.magneticField = (m_PulsarDetails.magneticField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / G_TO_KG / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT; // eq. 12 in arxiv:1912.02415 
@@ -541,8 +541,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
 
 
         // calculate initial mass slice size for integration
-        double jAcc         = DeltaJByAccretion_Static(initialMass, radius_6, m_PulsarDetails.magneticField, m_PulsarDetails.spinFrequency, mDot, p_Epsilon);
-        double massSlice    = std::fabs(m_AngularMomentum_CGS / 1000.0 / jAcc);                                                             // abs(Jx10^-3 / dJdM)
+        double jAcc      = DeltaJByAccretion_Static(initialMass, radius_6, m_PulsarDetails.magneticField, m_PulsarDetails.spinFrequency, mDot, p_Epsilon);
+        double massSlice = std::fabs(m_AngularMomentum_CGS / 1000.0 / jAcc);                                                                // abs(Jx10^-3 / dJdM)
 
         // use the boost ODE solver for speed and accuracy
 
