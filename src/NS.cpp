@@ -328,27 +328,27 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
  */
 void NS::CalculateAndSetPulsarParameters() {
 
-    m_PulsarDetails.magneticField = PPOW(10.0, CalculateBirthMagneticField());                                              // magnetic field in Gauss 
-    m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                             // spin period in ms
-    m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS();                                                          // MoI in CGS g cm^2
+    m_PulsarDetails.magneticField = PPOW(10.0, CalculateBirthMagneticField());                                                  // magnetic field in Gauss 
+    m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                                 // spin period in ms
+    m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
-    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {  // Not spinning or magnetic field 0.0?
-                                                                                                                               // yes - set all pulsar parameters (except for spin period) to 0.0 and spin period to infinity 
+    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {   // Not spinning or magnetic field 0.0?
+                                                                                                                                // yes - set all pulsar parameters (except for spin period) to 0.0 and spin period to infinity 
         m_PulsarDetails.spinDownRate      = 0.0;
         m_PulsarDetails.birthSpinDownRate = 0.0;
         m_PulsarDetails.spinFrequency     = 0.0;
-        m_PulsarDetails.spinPeriod        = _2_PI / m_PulsarDetails.spinFrequency;
+        m_PulsarDetails.spinPeriod        = std::numeric_limits<float>::infinity();
         m_PulsarDetails.birthPeriod       = 0.0;
         m_PulsarDetails.magneticField     = 0.0;
         m_AngularMomentum_CGS             = 0.0;
     }
-    else {                                                                                                                  // no - calculate values
+    else {                                                                                                                      // no - calculate values
         m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
         m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod ;                                         
 
         m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
         m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
-        m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;                          // in CGS g cm^2 s^-1
+        m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;                              // in CGS g cm^2 s^-1
     }
 }
 
