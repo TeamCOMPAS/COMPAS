@@ -211,33 +211,14 @@ private:
     //       is only shown once per COMPAS run).
 
     std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "black-hole-kicks",                            "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",            "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                              "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",         "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                               "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",        "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                                "OB-mass-loss-prescription",                       false },
-        { "retain-core-mass-during-caseA-mass-transfer", "",                                                false },
-        { "RSG-mass-loss",                               "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                               "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                                "WR-mass-loss-prescription",                       false }
+        { "retain-core-mass-during-caseA-mass-transfer", "", false }
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",    "GE20", "GE", false },
-        { "critical-mass-ratio-prescription",    "GE20_IC", "GE_IC", false },
-        { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
+        { "critical-mass-ratio-prescription",          "GE20", "GE", false },
+        { "critical-mass-ratio-prescription",          "GE20_IC", "GE_IC", false },
         { "pulsational-pair-instability-prescription", "COMPAS", "WOOSLEY", false},
-        { "OB-mass-loss",                        "NONE", "ZERO", false },
-        { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
-        { "RSG-mass-loss",                       "NONE", "ZERO", false },
-        { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "VMS-mass-loss",                       "NONE", "ZERO", false },
-        { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "WR-mass-loss",                        "NONE", "ZERO", false },
-        { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
+	{ "pulsar-birth-spin-period-distribution",     "ZERO", "NOSPIN", false }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
