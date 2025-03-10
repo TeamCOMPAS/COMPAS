@@ -5,17 +5,23 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **03.15.00 Mar 5, 2025**
 
-Updated neutron star recycling/spin-up treatments.
-* New command line option `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in common envelope. 
-* New command line options `----pulsar-birth-magnetic-field-distribution-mean` and `----pulsar-birth-magnetic-field-distribution-sigma` to determine the birth distribution of pulsar magnetic field when it's normal or lognormal. 
-* New command line options `----pulsar-birth-spin-period-distribution-mean` and `----pulsar-birth-spin-period-distribution-sigma` to determine the birth distribution of pulsar period when it's normal or lognormal.  
-* Default for pulsar birth spin period distribution is now "NORMAL" distribution instead of "ZERO". Non-spinning neutron star now have spin period of infinity instead of zero. 
-* Default for pulsar birth magnetic field distribution is now "LOGNORMAL" instead of "ZERO".
-* Pulsar magnetic field strength in BSE_Pulsar_Evolution file is now recorded in Gauss instead of Tesla 
-* Pulsar spin down rate is now tracking period derivative instead of frequency derivative.
-* SSE/BSE_Pulsar_Evolution file by default now records pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added as an output in the logfiles.
-* New safeguard protocols in to check the inputs for birth distributions of pulsar spin period and magnetic field are valid. If not, prompt error messages and stop the run. 
-* Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
+Changes to the treatment of Neutron Star evolution.
+
+New command line options:
+* `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in a common envelope
+* `--pulsar-birth-magnetic-field-distribution-mean` and `--pulsar-birth-magnetic-field-distribution-sigma` to determine the birth distribution of the pulsar magnetic field (only relevant when the `--pulsar-birth-magnetic-field-distribution` option value is `NORMAL` or `LOGNORMAL`) 
+* `--pulsar-birth-spin-period-distribution-mean` and `--pulsar-birth-spin-period-distribution-sigma` to determine the birth distribution of the pulsar period (only relevant when the `--pulsar-birth-spin-period-distribution` option value is `NORMAL` or `LOGNORMAL`)
+
+Changed command line option values and defaults:
+* `--pulsar-birth-spin-period-distribution` option value `ZERO` is now deprecated in favour of the new value `NOSPIN`.  Please use `NOSPIN` in future
+* `--pulsar-birth-spin-period-distribution` default option value is now `NORMAL` (was `ZERO`)
+* `--pulsar-birth-magnetic-field-distribution` default option value is now `LOGNORMAL` (was `ZERO`)
+
+Changes to the NS-related values in log files:
+* The pulsar magnetic field strength is now recorded in `Gauss` (was `Tesla`) 
+* The pulsar spin down rate now tracks the pulsar spin period derivative (was spin frequency derivative).
+* The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the `logfile-definitions` option
+* The period of non-spinning neutron stars is now reported as infinity instead of zero
 
 **03.14.00 Mar 3, 2025**
 
