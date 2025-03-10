@@ -2040,7 +2040,7 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
         // This function should not be called if the OPTION WIND_ACCRETION_PRESCRIPTION is not YUNGELSON1995 or HIRAI2021. Does this need an THROW_ERROR?
 
-	default: { windVelocity = 0; break;}
+	    default: { windVelocity = 0; break;}
 
 	}
 
@@ -2087,8 +2087,8 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
     
         double aSquared = m_SemiMajorAxis * m_SemiMajorAxis; // use multiplication - pow() is slow
     
-        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v2Squared, 3/2) * m_Star2->MassLossDiff();
-        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v1Squared, 3/2) * m_Star1->MassLossDiff();
+        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star1->Mass() / windVelocity2Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v2Squared, 3/2) * m_Star2->MassLossDiff() / m_Dt;
+        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star2->Mass() / windVelocity1Squared, 2) * xi_w / (2 * aSquared) / PPOW(1 + v1Squared, 3/2) * m_Star1->MassLossDiff() / m_Dt;
 
         double radiusBondi1 = 2 * G_AU_Msol_yr * m_Star1->Mass() / (windVelocity2Squared + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius in Rsol
         double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1Squared + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius in Rsol
