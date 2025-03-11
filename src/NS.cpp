@@ -359,7 +359,7 @@ void NS::CalculateAndSetPulsarParameters() {
  * Users should note that when pulsar is not spinning, 
  * this function exits without changing anything. 
  * Note that we assume the rotational and magnetic axis 
- * are orthagonal and are not evolved in the current model.
+ * are orthogonal and are not evolved in the current model.
  * A model with evolving alpha will be implemented in a future version. 
  *
  * Modifies the following class member variables:
