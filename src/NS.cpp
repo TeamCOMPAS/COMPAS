@@ -509,8 +509,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_AngularMomentum_CGS += jAcc;                                                                                                      // angular momentum of the accreted material as it falls onto the surface of the NS
         if (utils::Compare(m_PulsarDetails.magneticField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
-            // set it to the value at the beginning of the timestep.
-            m_PulsarDetails.magneticField = m_PulsarDetails.magneticField;
+            // set it to the lower limit value.
+            m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT;
         }
         else {
             m_PulsarDetails.magneticField = (m_PulsarDetails.magneticField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / G_TO_KG / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT; // eq. 12 in arxiv:1912.02415 
@@ -577,8 +577,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_MomentOfInertia_CGS = CalculateMomentOfInertiaCGS_Static(massFinal, radius);
         if (utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
-            // set it to the value at the beginning of the timestep.
-            m_PulsarDetails.magneticField = initialMagField;
+            // set it to the lower limit value.
+            m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT;
         }
         else {
             m_PulsarDetails.magneticField = (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
