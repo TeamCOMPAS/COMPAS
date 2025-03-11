@@ -2804,14 +2804,20 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
  *
  * @return                                      calculated mass (mSol)
  */
-double BaseStar::CalculateMassGainValues() {
+double BaseStar::CalculateMassGainValues(double m_accretorRLradius) {
 
+    double massGainRate = 0;
     double massGain = 0;
+
+    double betaThermal = 0;
     if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
         
         // only if using wind accretion (program option)
                                                                             
         double windAccretionRate = m_WindAccretionRate;
+
+        std::tie(massGainRate, betaThermal) = CalculateMassAcceptanceRate(windAccretionRate,CalculateThermalMassAcceptanceRate(m_accretorRLradius));
+
         massGain = m_Dt * windAccretionRate * 1.0E6;                     // calculate mass loss - unlimited, should add a check later
     }
     return massGain;
