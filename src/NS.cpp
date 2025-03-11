@@ -149,9 +149,8 @@ double NS::CalculateBirthSpinPeriod() {
 
     switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                     // which distribution?
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NOSPIN: {                                                   // Set pulsar spin frequency to 0 if pulsar not spinning. 
-            double pSpinFrequency = 0.0;
-            pSpin = _2_PI/pSpinFrequency;
+        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NOSPIN: {                                                   // Set pulsar spin period to infinity if pulsar not spinning. 
+            pSpin = std::numeric_limits<float>::infinity();
             } break;
 
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
@@ -278,7 +277,9 @@ double NS::CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double 
  * Calculate the spin down rate for isolated Neutron Stars in cgs
  *
  * See Equation 5 in https://arxiv.org/abs/2406.11428
- *
+ * Note that magnetic and rotational axes are orthogonal, leading to sin^2(alpha) = 1 in this equation. 
+ * A model with evolving alpha will be implemented in a future version. 
+ * 
  * Calculates spindown with P and Pdot, then converts to OmegaDot for recording in the log file.
  * Evolution of the inclination between pulsar magnetic and rotational axes will be considered in a future version. 
  *
@@ -329,10 +330,10 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
 void NS::CalculateAndSetPulsarParameters() {
 
     m_PulsarDetails.magneticField = PPOW(10.0, CalculateBirthMagneticField());                                                  // magnetic field in Gauss 
-    m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                                 // spin period in ms
+    m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                                 // spin period in s
     m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
-    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {   // Not spinning or magnetic field 0.0?
+    if (m_PulsarDetails.spinPeriod == INFINITY || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {   // Not spinning or magnetic field 0.0?
                                                                                                                                 // yes - set all pulsar parameters (except for spin period) to 0.0 and spin period to infinity 
         m_PulsarDetails.spinDownRate      = 0.0;
         m_PulsarDetails.birthSpinDownRate = 0.0;
@@ -357,6 +358,9 @@ void NS::CalculateAndSetPulsarParameters() {
  * Update the magnetic field and spins of isolated pulsar
  * Users should note that when pulsar is not spinning, 
  * this function exits without changing anything. 
+ * Note that we assume the rotational and magnetic axis 
+ * are orthagonal and are not evolved in the current model.
+ * A model with evolving alpha will be implemented in a future version. 
  *
  * Modifies the following class member variables:
  *
@@ -398,6 +402,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     }
     // calculate the spin down rate for isolated neutron stars
     // see Equation 3 in arxiv:2406.11428
+    // Note that magnetic and rotational axes are orthogonal, leading to sin^2(alpha) = 1 in this equation. 
     // The rest of the calculations are carried out in cgs.   
     double constant2              = (_8_PI_2 * radius_6) / (_3_C_3 * m_MomentOfInertia_CGS);
     double term1                  = NS::NS_MAG_FIELD_LOWER_LIMIT * NS::NS_MAG_FIELD_LOWER_LIMIT * p_Stepsize;
