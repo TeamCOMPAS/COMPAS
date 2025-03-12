@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Mar  7 17:41:06 2025 by COMPAS v03.15.00
+##~!!~## File Created Wed Mar 12 14:41:45 2025 by COMPAS v03.15.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -278,8 +278,8 @@ stringChoices:
 #    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['DISK','SURFACE','ZERO']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
-#    --pulsar-birth-magnetic-field-distribution: 'LOGNORMAL'               # Default: 'LOGNORMAL'                   # Options: ['LOGNORMAL','UNIFORM','FLATINLOG','ZERO']
-#    --pulsar-birth-spin-period-distribution: 'NORMAL'                     # Default: 'NORMAL'                      # Options: ['NORMAL','UNIFORM','INF']
+#    --pulsar-birth-magnetic-field-distribution: 'LOGNORMAL'               # Default: 'LOGNORMAL'                   # Options: ['LOGNORMAL','UNIFORM','FLATINLOG']
+#    --pulsar-birth-spin-period-distribution: 'NORMAL'                     # Default: 'NORMAL'                      # Options: ['NORMAL','UNIFORM']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['MALTSEV2024','SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
     ### LOGFILES AND OUTPUTS 

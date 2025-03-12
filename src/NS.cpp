@@ -149,10 +149,6 @@ double NS::CalculateBirthSpinPeriod() {
 
     switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                     // which distribution?
 
-        case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NOSPIN: {                                                   // Set pulsar spin period to infinity if pulsar not spinning. 
-            pSpin = std::numeric_limits<float>::infinity();
-            } break;
-
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
                                                                                                                 // and also Kiel et al 2008 https://arxiv.org/abs/0805.0059 (default Pmin = 10 ms and Pmax 100 ms, section 3.4)
             double maximum = OPTIONS->PulsarBirthSpinPeriodDistributionMax();
@@ -202,10 +198,6 @@ double NS::CalculateBirthMagneticField() {
 	double log10B;
 
     switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
-
-        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO:                                                    // ZERO
-            log10B = 0.0;
-            break;
 
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
 
@@ -329,28 +321,16 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
  */
 void NS::CalculateAndSetPulsarParameters() {
 
-    m_PulsarDetails.magneticField = PPOW(10.0, CalculateBirthMagneticField());                                                  // magnetic field in Gauss 
-    m_PulsarDetails.spinPeriod    = CalculateBirthSpinPeriod();                                                                 // spin period in s
-    m_MomentOfInertia_CGS         = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
+    m_PulsarDetails.magneticField     = PPOW(10.0, CalculateBirthMagneticField());                                                  // magnetic field in Gauss 
+    m_PulsarDetails.spinPeriod        = CalculateBirthSpinPeriod();                                                                 // spin period in s
+    m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
-    if (m_PulsarDetails.spinPeriod == INFINITY || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {   // Not spinning or magnetic field 0.0?
-                                                                                                                                // yes - set all pulsar parameters (except for spin period) to 0.0 and spin period to infinity 
-        m_PulsarDetails.spinDownRate      = 0.0;
-        m_PulsarDetails.birthSpinDownRate = 0.0;
-        m_PulsarDetails.spinFrequency     = 0.0;
-        m_PulsarDetails.spinPeriod        = std::numeric_limits<float>::infinity();
-        m_PulsarDetails.birthPeriod       = 0.0;
-        m_PulsarDetails.magneticField     = 0.0;
-        m_AngularMomentum_CGS             = 0.0;
-    }
-    else {                                                                                                                      // no - calculate values
-        m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
-        m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod;                                         
+    m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
+    m_PulsarDetails.birthPeriod       = m_PulsarDetails.spinPeriod;                                         
 
-        m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
-        m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
-        m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;                              // in CGS g cm^2 s^-1
-    }
+    m_PulsarDetails.spinDownRate      = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM);  
+    m_PulsarDetails.birthSpinDownRate = m_PulsarDetails.spinDownRate; 
+    m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;                              // in CGS g cm^2 s^-1
 }
 
 
@@ -377,10 +357,6 @@ void NS::CalculateAndSetPulsarParameters() {
  */
 void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
 
-    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {               // NS spinning?
-        return ;                                                                                                                            // no - nothing to do
-    }
-    
     double radius_IN_CM      = m_Radius * RSOL_TO_KM * KM_TO_CM;
     double radius_3          = radius_IN_CM * radius_IN_CM * radius_IN_CM;
     double radius_6          = radius_3 * radius_3;
@@ -431,17 +407,13 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
  * @param   [IN]    p_Mass                      Initial mass of the NS (g)
  * @param   [IN]    p_Radius_6                  (Radius of the NS (cm))^6 (for performance - so it isn't calculated at every integration step)
  * @param   [IN]    p_MagField                  NS magnetic field strength at the beginning of accretion (Gauss)
- * @param   [IN]    p_SpinFrequency             Spin frequency for the NS at the beginning of accretion (Hz)
+ * @param   [IN]    p_SpinFrequency             Angular frequency for the NS at the beginning of accretion (rad/s)
  * @param   [IN]    p_mDot                      Mass transfer rate (g s^-1)
  * @param   [IN]    p_Epsilon                   Efficiency factor allowing for uncertainties of coupling magnetic field and matter
  * @return                                      Change in angular momentum wrt mass (dJ/dM) of NS due to accretion
  */
 double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon)  {
 
-    if (utils::Compare(p_SpinFrequency, 0.0) == 0 || utils::Compare(p_MagField, 0.0) == 0) {    // NS spinning?
-        return 0.0;                                                                             // no - return 0.0
-    }
-    
     // calculate the Alfven radius for an accreting neutron star
     // see eq 10 in arxiv:1912.02415 
     double p              = p_Radius_6 * p_Radius_6 / (p_mDot * p_mDot * p_Mass);
@@ -450,8 +422,8 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
     
     // calculate the difference in the keplerian angular velocity at the magnetic radius and surface angular velocity of the NS
     // see eq 2 in 1994MNRAS.269..455J / eq 9 in arxiv:1912.02415 
-    double omegaK = std::sqrt(G_CGS * p_Mass / magneticRadius) / magneticRadius;                // Hz
-    double vDiff  = omegaK - p_SpinFrequency;                                                   // Hz
+    double omegaK = std::sqrt(G_CGS * p_Mass / magneticRadius) / magneticRadius;                // rad/s
+    double vDiff  = omegaK - p_SpinFrequency;                                                   // rad/s
 
     return p_Epsilon * vDiff * magneticRadius * magneticRadius;                                 // eq 12 in arXiv:0805.0059 / eq 8 in arxiv:1912.02415
 }
@@ -492,21 +464,11 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, double p_Stepsize, double p_MassGain, const double p_Epsilon) {
 
-    if (utils::Compare(m_PulsarDetails.spinFrequency, 0.0) == 0 || utils::Compare(m_PulsarDetails.magneticField, 0.0) == 0) {                                 // NS spinning?
-        // not spinning - set all pulsar attributes to 0.0, spin period to infinity, and return
-        m_PulsarDetails.spinDownRate  = 0.0;
-        m_PulsarDetails.spinFrequency = 0.0;
-        m_PulsarDetails.spinPeriod    = std::numeric_limits<float>::infinity();
-        m_PulsarDetails.magneticField = 0.0;
-        return; 
-    }
-  
-    // NS is spinning - update magnetic field and spin
-
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGain, 0.0) == 0 )) {                                 // 'classical' isolated pulsars
         SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // spin down
     }
     else if (p_CommonEnvelope && (OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::SURFACE)) {                                    // mass transfer through CE when accretion happens at the surface of the NS
+
         double massG           = m_Mass * MSOL_TO_G;                                                                                        // mass in g
         double radiusCM        = m_Radius * RSOL_TO_CM;                                                                                     // radius in cm
         m_MomentOfInertia_CGS  = CalculateMomentOfInertiaCGS(); 
@@ -526,7 +488,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_PulsarDetails.spinDownRate  = -fDot * m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod / _2_PI;
     } 
     else if (utils::Compare(p_MassGain, 0.0) > 0                                                                          &&
-             utils::Compare(m_PulsarDetails.spinFrequency, _2_PI * 1000.0) < 0                                            && 
+             utils::Compare(m_PulsarDetails.spinPeriod, 0.001) > 0                                                        && 
              (!p_CommonEnvelope || (p_CommonEnvelope && OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::DISK))) {                // pulsar recycling through accretion
 
         // recycling happens for pulsars with spin period larger than 1 ms and in a binary system with mass transfer

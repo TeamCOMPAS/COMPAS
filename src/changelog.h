@@ -1485,9 +1485,9 @@
 //                                      - Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
 //                                      - Changes in program options:
 //                                        1). Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
-//                                        2). Default pulsar birth spin period distribution is set to NORMAL instead of ZERO; and non-spinning pulsars now have spin period of inifinty instead of zero. 
+//                                        2). Default pulsar birth spin period distribution is set to NORMAL instead of ZERO; ZERO is now deprecated, and non-spinning pulsars are no longer allowed when evolving pulsars. 
 //                                        3). Added program options "--pulsar-birth-spin-period-distribution-mean" (default 75ms) and "--"pulsar-birth-spin-period-distribution-sigma" (default 25ms) to determine the birth distribution of pulsar period when it's normal or lognormal. 
-//                                        4). Default pulsar birth magnetic field distribution is set to LOGNORMAL
+//                                        4). Default pulsar birth magnetic field distribution is set to LOGNORMAL instead of ZERO; ZERO is now deprecated, and pulsars with zero magnetic field are no longer allowed when evolving pulsars. 
 //                                        5). New command line options "--pulsar-birth-magnetic-field-distribution-mean" (default 12.65)  and "--"pulsar-birth-magnetic-field-distribution-sigma" (default 0.55) to determine the birth distribution of pulsar magnetic field when it's normal or lognormal. 
 //                                      - Changes to SSE/BSE_Pulsar_Evolution file:
 //                                        1). Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
