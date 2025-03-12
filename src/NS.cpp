@@ -164,7 +164,7 @@ double NS::CalculateBirthSpinPeriod() {
 
             // this should terminate naturally, but just in case we add a guard
             std::size_t iterations = 0;
-            do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) < 0);
+            do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) <= 0);
             if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);
 
             } break;
@@ -223,9 +223,9 @@ double NS::CalculateBirthMagneticField() {
 
             log10B = RAND->RandomGaussian(sigma) + mean;
 
-            // this should terminate naturally, but just in case we add a guard
+            // add a guard to make sure magnetic field is always larger than the value set by --ulsar-minimum-magnetic-field
             std::size_t iterations = 0;
-            do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, 0.0) < 0);
+            do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
             if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
             } break;
 
@@ -472,7 +472,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         double massG           = m_Mass * MSOL_TO_G;                                                                                        // mass in g
         double radiusCM        = m_Radius * RSOL_TO_CM;                                                                                     // radius in cm
         m_MomentOfInertia_CGS  = CalculateMomentOfInertiaCGS(); 
-        double jAcc            = m_MomentOfInertia_CGS * std::sqrt(G_CGS * massG / (radiusCM * radiusCM * radiusCM)) * p_MassGain / G_TO_KG / massG;    
+        double jAcc            = std::sqrt(G_CGS * massG * radiusCM) * p_MassGain;    
         m_AngularMomentum_CGS += jAcc;                                                                                                      // angular momentum of the accreted material as it falls onto the surface of the NS
         if (utils::Compare(m_PulsarDetails.magneticField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
@@ -482,9 +482,12 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         else {
             m_PulsarDetails.magneticField = (m_PulsarDetails.magneticField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / G_TO_KG / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT; // eq. 12 in arxiv:1912.02415 
         }
+        
+        double previousSpinFrequency  = m_PulsarDetails.spinFrequency;
         m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / m_MomentOfInertia_CGS;
         m_PulsarDetails.spinPeriod    = _2_PI / m_PulsarDetails.spinFrequency;
-        double fDot                   = jAcc / p_Stepsize / m_MomentOfInertia_CGS;
+        double fDot                   = (m_PulsarDetails.spinFrequency - previousSpinFrequency) / p_Stepsize;
+        
         m_PulsarDetails.spinDownRate  = -fDot * m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod / _2_PI;
     } 
     else if (utils::Compare(p_MassGain, 0.0) > 0                                                                          &&
