@@ -1097,7 +1097,7 @@ Default = FALSE
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
-Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL } |br|
+Options: { FLATINLOG, UNIFORM, LOGNORMAL } |br|
 Default = LOGNORMAL
 
 **--pulsar-birth-magnetic-field-distribution-max** |br|
@@ -1117,8 +1117,8 @@ Sigma of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
 Default = 0.55
 
 **--pulsar-birth-spin-period-distribution** |br|
-Pulsar birth spin period distribution. When choosing NOSPIN, pulsar spin frequency is zero and spin period is infinity. |br|
-Options: { NOSPIN, UNIFORM, NORMAL } |br|
+Pulsar birth spin period distribution. |br|
+Options: { UNIFORM, NORMAL } |br|
 Default = NORMAL
 
 **--pulsar-birth-spin-period-distribution-max** |br|

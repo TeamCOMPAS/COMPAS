@@ -13,7 +13,8 @@ New command line options:
 * `--pulsar-birth-spin-period-distribution-mean` and `--pulsar-birth-spin-period-distribution-sigma` to determine the birth distribution of the pulsar period (only relevant when the `--pulsar-birth-spin-period-distribution` option value is `NORMAL` or `LOGNORMAL`)
 
 Changed command line option values and defaults:
-* `--pulsar-birth-spin-period-distribution` option value `ZERO` is now deprecated in favour of the new value `NOSPIN`.  Please use `NOSPIN` in future
+* `--pulsar-birth-spin-period-distribution` option value `ZERO` is now deprecated.
+* `--pulsar-birth-magnetic-field-distribution` option value `ZERO` is now deprecated.
 * `--pulsar-birth-spin-period-distribution` default option value is now `NORMAL` (was `ZERO`)
 * `--pulsar-birth-magnetic-field-distribution` default option value is now `LOGNORMAL` (was `ZERO`)
 
