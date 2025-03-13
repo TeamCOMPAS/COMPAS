@@ -564,7 +564,7 @@ protected:
 
     virtual double              CalculateLambdaDewi() const                                                             { return 1.0; }                                                             // Default for stellar types with no LamdaDewi definitions - 1.0 is benign
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
-            double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
+            double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const bool p_IsMassLoss = false) const;
     virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return 1.0; }                                                             // Default for stellar types with no LamdaNanjing definitions - 1.0 is benign
     virtual double              CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return 1.0; }                                                  // Default for stellar types with no LamdaNanjing definitions - 1.0 is benign
 

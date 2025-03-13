@@ -1475,7 +1475,26 @@
 //                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
 // 03.14.01   IM - Mar 9, 2025     - Defect Repair:
 //                                      - Added a check to prevent a divide-by-zero error from the previous PR (resolves issue #1345)
+// 03.15.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
+//                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes created a negative spin period
+//                                      - Updated NS::UpdateMagneticFieldAndSpin() for spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
+//                                      - Fix for issue #1002
+//                                      - Fix for issue #1257
+//                                      - Updated references to pulsar calculations. 
+//                                      - Added safeguards to make sure the inputs of birth spin period and magnetic field inputs are valid. If not, raise error messages and stop run. 
+//                                      - Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
+//                                      - Changes in program options:
+//                                        1). Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
+//                                        2). Default pulsar birth spin period distribution is set to NORMAL instead of ZERO; ZERO is now deprecated, and non-spinning pulsars are no longer allowed when evolving pulsars. 
+//                                        3). Added program options "--pulsar-birth-spin-period-distribution-mean" (default 75ms) and "--"pulsar-birth-spin-period-distribution-sigma" (default 25ms) to determine the birth distribution of pulsar period when it's normal or lognormal. 
+//                                        4). Default pulsar birth magnetic field distribution is set to LOGNORMAL instead of ZERO; ZERO is now deprecated, and pulsars with zero magnetic field are no longer allowed when evolving pulsars. 
+//                                        5). New command line options "--pulsar-birth-magnetic-field-distribution-mean" (default 12.65)  and "--"pulsar-birth-magnetic-field-distribution-sigma" (default 0.55) to determine the birth distribution of pulsar magnetic field when it's normal or lognormal. 
+//                                      - Changes to SSE/BSE_Pulsar_Evolution file:
+//                                        1). Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
+//                                        2). Spin of pulsar is now by default recorded with period (s) instead of frequency (Hz). Spin frequency is still tracked and can be added as an output in the logfiles.
+//                                        3). Spin-down of pulsar (m_PulsarDetails.spinDownRate) is now tracking period derivative (p-dot, s/s) instead of frequency derivative (omega-dot, rad/s^2)
+//                                      - Fixed incorrect declarations of BaseStar::CalculateLambdaLoveridgeEnergyFormalism()
 
-const std::string VERSION_STRING = "03.14.01";
+const std::string VERSION_STRING = "03.15.00";
 
 # endif // __changelog_h__
