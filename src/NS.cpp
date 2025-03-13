@@ -223,7 +223,7 @@ double NS::CalculateBirthMagneticField() {
 
             log10B = RAND->RandomGaussian(sigma) + mean;
 
-            // add a guard to make sure magnetic field is always larger than the value set by --ulsar-minimum-magnetic-field
+            // add a guard to make sure magnetic field is always larger than the value set by --pulsar-minimum-magnetic-field
             std::size_t iterations = 0;
             do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
             if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
