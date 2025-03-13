@@ -8,26 +8,28 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 Changes to the treatment of Neutron Star evolution.
 
 New command line options:
-* `--neutron-star-accretion-in-ce` to determine how a NS accretes mass in a common envelope
-* `--pulsar-birth-magnetic-field-distribution-mean` and `--pulsar-birth-magnetic-field-distribution-sigma` to determine the birth distribution of the pulsar magnetic field (only relevant when the `--pulsar-birth-magnetic-field-distribution` option value is `NORMAL` or `LOGNORMAL`) 
-* `--pulsar-birth-spin-period-distribution-mean` and `--pulsar-birth-spin-period-distribution-sigma` to determine the birth distribution of the pulsar period (only relevant when the `--pulsar-birth-spin-period-distribution` option value is `NORMAL` or `LOGNORMAL`)
+
+* ``--neutron-star-accretion-in-ce`` to determine how a NS accretes mass in a common envelope
+* ``--pulsar-birth-magnetic-field-distribution-mean`` and ``--pulsar-birth-magnetic-field-distribution-sigma`` to determine the birth distribution of the pulsar magnetic field (only relevant when the ``--pulsar-birth-magnetic-field-distribution`` option value is ``NORMAL`` or ``LOGNORMAL``) 
+* ``--pulsar-birth-spin-period-distribution-mean`` and ``--pulsar-birth-spin-period-distribution-sigma`` to determine the birth distribution of the pulsar period (only relevant when the ``--pulsar-birth-spin-period-distribution`` option value is ```NORMAL`` or ``LOGNORMAL``)
 
 Changed command line option values and defaults:
-* `--pulsar-birth-spin-period-distribution` option value `ZERO` is now deprecated.
-* `--pulsar-birth-magnetic-field-distribution` option value `ZERO` is now deprecated.
-* `--pulsar-birth-spin-period-distribution` default option value is now `NORMAL` (was `ZERO`)
-* `--pulsar-birth-magnetic-field-distribution` default option value is now `LOGNORMAL` (was `ZERO`)
+
+* ``--pulsar-birth-spin-period-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-magnetic-field-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-spin-period-distribution`` default option value is now ``NORMAL`` (was ``ZERO``)
+* ``--pulsar-birth-magnetic-field-distribution`` default option value is now ``LOGNORMAL`` (was ``ZERO``)
 
 Changes to the NS-related values in log files:
-* The pulsar magnetic field strength is now recorded in `Gauss` (was `Tesla`) 
+
+* The pulsar magnetic field strength is now recorded in ``Gauss`` (was ``Tesla``) 
 * The pulsar spin down rate now tracks the pulsar spin period derivative (was spin frequency derivative).
-* The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the `logfile-definitions` option
+* The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the ``logfile-definitions`` option
 * The period of non-spinning neutron stars is now reported as infinity instead of zero
 
 **03.14.00 Mar 3, 2025**
 
-* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions 
-per time step and their usage
+* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
 * Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
 * Changed order of calls in SSE evolution to better match BSE evolution
 
