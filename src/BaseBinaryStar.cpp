@@ -1989,11 +1989,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
                     newMassAfterWinds1 += m_Star1->CalculateMassGainValues(accretorRLradius1);                                  // calculate new values assuming mass gain applied
                     newMassAfterWinds2 += m_Star2->CalculateMassGainValues(accretorRLradius2);                                                   // calculate new values assuming mass gain applied
 
-                    // Print WRLOF
-                    (void) PrintWRLOFParameters();                                                                                            // print (log) RLOF parameters
                 }
             }
-
 
             double aWinds  = m_SemiMajorAxisPrev * (m_Star1->Mass() + m_Star2->Mass()) 
                              / (newMassAfterWinds1 + newMassAfterWinds2);                                                       // new semi-major axis after wind mass loss, integrated to ensure a*M conservation
@@ -2005,6 +2002,18 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
             m_Star2->ResolveShellChange(m_Star2->MassLossDiff()); // does this need to be behind a IF statement
 
             m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                     // change to orbit (semi-major axis) due to winds mass loss
+        
+            if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
+
+                if (HasOneOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, 
+                              STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, 
+                              STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF})) {                                                        // Only do this if one star is a WD. This can be removed later when the option is generalized later
+            
+                                // Print WRLOF
+                                (void) PrintWRLOFParameters();                                                                                            // print (log) RLOF parameters
+                                
+                }
+            }
         }
     }
 }
