@@ -278,6 +278,7 @@ constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR_FRAC      = 1.0;                  
 constexpr int    MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS = 1000;                                                   // Maximum number of iterations to find remnant mass in GiantBranch::CalculateRemnantMassByMullerMandel()
 
 constexpr int    PULSAR_SPIN_ITERATIONS                 = 100;                                                      // Maximum number of iterations to find pulsar birth spin period in NS::CalculatePulsarBirthSpinPeriod()
+constexpr int    PULSAR_MAG_ITERATIONS                  = 100;                                                      // Maximum number of iterations to find pulsar birth magnetic field in NS::CalculateBirthMagneticField()
 
 constexpr int    SEMI_MAJOR_AXIS_SAMPLES                = 100;                                                      // Maximum number of samples when sampling period/semi-major axis in utils::SampleSemiMajorAxis()
 
