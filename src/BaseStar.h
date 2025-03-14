@@ -267,7 +267,7 @@ public:
     
             double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
-            double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
+            double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false);
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
@@ -284,8 +284,8 @@ public:
     
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
     
-    virtual double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const            { return 0.0; }                                                     // Only defined for MS stars
-    
+    virtual double          CalculateRadiusOnMassChange(double p_dM)                                            { return Radius(); } // NO-OP
+        
     virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }                                                // Relevant for MS stars, over-written for GB stars
 
 
@@ -306,7 +306,7 @@ public:
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
     
-            double          CalculateZetaEquilibrium();
+            double          CalculateZetaEquilibrium()                                                          { return 0.0; }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
             void            ClearSupernovaStash()                                                               { LOGGING->ClearSSESupernovaStash(); }                              // Clear contents of SSE supernova stash
@@ -340,13 +340,15 @@ public:
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                           { return m_StellarType; }
 
-    virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
+    virtual void            ResolveMassLoss(double p_Dt);
 
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
        
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
             bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
+
+    virtual void            SpinDownIsolatedPulsar(const double p_Stepsize)                                     { }                                                                 // Default is NO-OP
 
             void            StashSupernovaDetails(const STELLAR_TYPE p_StellarType,
                                                   const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) { LOGGING->StashSSESupernovaDetails(this, p_StellarType, p_RecordType); }
@@ -377,6 +379,10 @@ public:
     // printing functions
     bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
         return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id, p_RecordType) : true;                                                                          // Write record to SSE Detailed Output log file
+    }
+
+    bool PrintPulsarEvolutionParameters(const SSE_PULSAR_RECORD_TYPE p_RecordType = SSE_PULSAR_RECORD_TYPE::DEFAULT) const {
+        return OPTIONS->EvolvePulsars() ? LOGGING->LogSSEPulsarEvolutionParameters(this, p_RecordType) : true;
     }
 
     bool PrintSupernovaDetails(const SSE_SN_RECORD_TYPE p_RecordType = SSE_SN_RECORD_TYPE::DEFAULT) const {
@@ -568,7 +574,7 @@ protected:
 
     virtual double              CalculateLambdaDewi() const                                                             { return 1.0; }                                                             // Default for stellar types with no LamdaDewi definitions - 1.0 is benign
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
-            double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
+            double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const bool p_IsMassLoss = false) const;
     virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return 1.0; }                                                             // Default for stellar types with no LamdaNanjing definitions - 1.0 is benign
     virtual double              CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return 1.0; }                                                  // Default for stellar types with no LamdaNanjing definitions - 1.0 is benign
 
@@ -596,8 +602,6 @@ protected:
                                                                     const double       p_DtPrev);
     
             void                CalculateMassCutoffs(const double p_Metallicity, const double p_LogMetallicityXi, DBL_VECTOR &p_MassCutoffs);
-
-    static  double              CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt);
 
     virtual double              CalculateMassLossRate();
     virtual double              CalculateMassLossRateHurley();

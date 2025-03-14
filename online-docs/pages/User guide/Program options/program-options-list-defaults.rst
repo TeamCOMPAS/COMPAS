@@ -815,12 +815,11 @@ Default = 4.2
 
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
-Options: {ZERO, MANDEL, SHIKAUCHI} |br|
-``ZERO``      : No core mass treatment, set to zero |br|
-``MANDEL``    : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star
- with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
-``SHIKAUCHI`` : Core mass according to Shikauchi et al. (2024) |br|
-Default = MANDEL |br|
+Options: {ZERO, MANDEL, BRCEK} |br|
+``ZERO``   : No core mass treatment, set to zero |br|
+``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
+``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
+Default = MANDEL
 
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
@@ -995,6 +994,14 @@ Default = FIXED_MASS
 Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
 Default = 0.1
 
+**--neutron-star-accretion-in-ce** |br|
+Assumption about neutron star accretion in CE. |br|
+ZERO indicates no accretion onto NS in CE. |br|
+DISK indicates a RLOF like disk accretion onto NS at Alfven radius. |br|
+SURFACE indicates mass is directly accreted onto the surface of the NS. |br|
+Options: { ZERO, DISK, SURFACE } |br|
+Default = ZERO
+
 **--neutron-star-equation-of-state** |br|
 Neutron star equation of state. |br|
 Options: { SSE, ARP3 } |br|
@@ -1108,8 +1115,8 @@ Default = FALSE
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
-Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL } |br|
-Default = ZERO
+Options: { FLATINLOG, UNIFORM, LOGNORMAL } |br|
+Default = LOGNORMAL
 
 **--pulsar-birth-magnetic-field-distribution-max** |br|
 Maximum (:math:`log_{10}`) pulsar birth magnetic field. |br|
@@ -1119,10 +1126,18 @@ Default = 13.0
 Minimum (:math:`log_{10}`) pulsar birth magnetic field. |br|
 Default = 11.0
 
+**--pulsar-birth-magnetic-field-distribution-mean** |br|
+Mean of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
+Default = 12.65
+
+**--pulsar-birth-magnetic-field-distribution-sigma** |br|
+Sigma of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
+Default = 0.55
+
 **--pulsar-birth-spin-period-distribution** |br|
 Pulsar birth spin period distribution. |br|
-Options: { ZERO, UNIFORM, NORMAL } |br|
-Default = ZERO
+Options: { UNIFORM, NORMAL } |br|
+Default = NORMAL
 
 **--pulsar-birth-spin-period-distribution-max** |br|
 Maximum pulsar birth spin period (ms). |br|
@@ -1131,6 +1146,14 @@ Default = 100.0
 **--pulsar-birth-spin-period-distribution-min** |br|
 Minimum pulsar birth spin period (ms). |br|
 Default = 10.0
+
+**--pulsar-birth-spin-period-distribution-mean** |br|
+Mean of normal pulsar birth spin period (ms) distribution. |br|
+Default = 75.0
+
+**--pulsar-birth-spin-period-distribution-sigma** |br|
+Sigma of normal pulsar birth spin period (ms) distribution. |br|
+Default = 25.0
 
 **--pulsar-magnetic-field-decay-massscale** |br|
 Mass scale on which magnetic field decays during accretion (:math:`M_\odot`). |br|
@@ -1150,9 +1173,9 @@ Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
 Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
-Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+Options: { HENDRIKS, WOOSLEY, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+``WOOSLEY``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
 all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT

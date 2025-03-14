@@ -32,6 +32,11 @@ This file (``COMPAS_Output_Definitions.txt``) is also delivered as part of the C
     
     sse_sysparms_rec -= { STAR_PROPERTY::MASS_0, STAR_PROPERTY::MDOT }
     
+    # SSE Pulsars
+    
+    # line ignored (comment). SSE Pulsars specification will be default
+    
+    # SSE_Pulsars_Rec = { STAR_PROPERTY::MASS }
     
     # BSE System Parameters
     

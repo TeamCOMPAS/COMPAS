@@ -207,9 +207,9 @@ void Options::OptionValues::Initialise() {
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepsFileName                                             = "";
 
+    m_MassChangeFraction                                            = MAXIMUM_MASS_LOSS_FRACTION;
+    m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
     m_TimestepMultiplier                                            = 1.0;
-    m_RadialChangeFraction                                          = 0.0;
-    m_MassChangeFraction                                            = 0.0;
     
     // Initial mass options
     m_InitialMass                                                   = 5.0;
@@ -546,23 +546,32 @@ void Options::OptionValues::Initialise() {
     m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
+    // Neutron star accretion scenario in common envelope
+    m_NeutronStarAccretionInCE.type                                 = NS_ACCRETION_IN_CE::ZERO;
+    m_NeutronStarAccretionInCE.typeString                           = NS_ACCRETION_IN_CE_LABEL.at(m_NeutronStarAccretionInCE.type);
+
+
     // Neutron star equation of state
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
-    m_NeutronStarEquationOfState.typeString                         = NS_EOSLabel.at(m_NeutronStarEquationOfState.type);
+    m_NeutronStarEquationOfState.typeString                         = NS_EOS_LABEL.at(m_NeutronStarEquationOfState.type);
 
 
     // Pulsar birth magnetic field distribution
-    m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
+    m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
     m_PulsarBirthMagneticFieldDistributionMax                       = 13.0;
+    m_PulsarBirthMagneticFieldDistributionMean                      = 12.65;
+    m_PulsarBirthMagneticFieldDistributionSigma                     = 0.55;
 
 
     // Pulsar birth spin period distribution string
-    m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO;
+    m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL;
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
     m_PulsarBirthSpinPeriodDistributionMin                          = 10.0;
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
+    m_PulsarBirthSpinPeriodDistributionMean                         = 75.0;
+    m_PulsarBirthSpinPeriodDistributionSigma                        = 25.0;
 
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
@@ -1512,6 +1521,15 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
             ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
+        )(
+            "pulsar-birth-magnetic-field-distribution-mean",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMean)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMean),                                        
+            ("Mean of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "pulsar-birth-magnetic-field-distribution-sigma",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionSigma)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionSigma),                                        
+            ("Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-max",                   
@@ -1522,6 +1540,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-spin-period-distribution-min",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMin)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMin),                                              
             ("Minimum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-mean",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMean)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMean),                                              
+            ("Mean of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-sigma",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionSigma)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionSigma),                                              
+            ("Standard deviation of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-massscale",                       
@@ -1865,6 +1893,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "neutrino-mass-loss-BH-formation",                             
             po::value<std::string>(&p_Options->m_NeutrinoMassLossAssumptionBH.typeString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBH.typeString),                                                  
             ("Assumption about neutrino mass loss during BH formation (" + AllowedOptionValuesFormatted("neutrino-mass-loss-BH-formation") + ", default = '" + p_Options->m_NeutrinoMassLossAssumptionBH.typeString + "')").c_str()
+        )
+        (
+            "neutron-star-accretion-in-ce",                              
+            po::value<std::string>(&p_Options->m_NeutronStarAccretionInCE.typeString)->default_value(p_Options->m_NeutronStarAccretionInCE.typeString),                                                      
+            ("Neutron star accretion in common envelope to use (" + AllowedOptionValuesFormatted("neutron-star-accretion-in-ce") + ", default = '" + p_Options->m_NeutronStarAccretionInCE.typeString + "')").c_str()
         )
         (
             "neutron-star-equation-of-state",                              
@@ -2329,8 +2362,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
         }
 
+        if (!DEFAULTED("neutron-star-accretion-in-ce")) {                                                                         // neutron star accretion in common envelope
+            std::tie(found, m_NeutronStarAccretionInCE.type) = utils::GetMapKey(m_NeutronStarAccretionInCE.typeString, NS_ACCRETION_IN_CE_LABEL, m_NeutronStarAccretionInCE.type);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Accretion in Common Envelope");
+        }
+
         if (!DEFAULTED("neutron-star-equation-of-state")) {                                                                         // neutron star equation of state
-            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOSLabel, m_NeutronStarEquationOfState.type);
+            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOS_LABEL, m_NeutronStarEquationOfState.type);
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
@@ -2436,7 +2474,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
-        COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
+        COMPLAIN_IF(m_MassChangeFraction <= 0.0, "Mass change fraction per timestep (--mass-change-fraction) <= 0");
         
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
 
@@ -2475,9 +2513,15 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
-        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
-        COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMax <= m_PulsarBirthMagneticFieldDistributionMin, "Pulsar birth magnetic field max (--pulsar-birth-magnetic-field-distribution-max) <= min (--pulsar-birth-magnetic-field-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= m_PulsarLog10MinimumMagneticField, "Pulsar birth magnetic field min (--pulsar-birth-magnetic-field-distribution-min) <= lower limit (--pulsar-minimum-magnetic-field)");
+        
+        COMPLAIN_IF(m_PulsarBirthSpinPeriodDistributionMax <= m_PulsarBirthSpinPeriodDistributionMin, "Pulsar birth spin period max (--pulsar-birth-spin-period-distribution-max) <= min (--pulsar-birth-spin-period-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= 0.0, "Pulsar birth magnetic field min (--pulsar-birth-spin-period-distribution-min) <= 0");
+
+        COMPLAIN_IF(m_RadialChangeFraction <= 0.0, "Radial change fraction per timestep (--radial-change-fraction) <= 0");
         
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
@@ -2641,7 +2685,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
-        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                       break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                   break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
@@ -4761,6 +4806,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::NOTES                                          : value = Notes();                                                              break;
 
+        case PROGRAM_OPTION::NS_ACCRETION_IN_CE                             : value = static_cast<int>(NeutronStarAccretionInCE());                         break;
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 
         case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = OrbitalPeriod();                                                      break;
