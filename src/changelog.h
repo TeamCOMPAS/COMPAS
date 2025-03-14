@@ -1494,7 +1494,10 @@
 //                                        2). Spin of pulsar is now by default recorded with period (s) instead of frequency (Hz). Spin frequency is still tracked and can be added as an output in the logfiles.
 //                                        3). Spin-down of pulsar (m_PulsarDetails.spinDownRate) is now tracking period derivative (p-dot, s/s) instead of frequency derivative (omega-dot, rad/s^2)
 //                                      - Fixed incorrect declarations of BaseStar::CalculateLambdaLoveridgeEnergyFormalism()
+//  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
+//                                      - Fix to issue #1348
+//                                      - Modified suggested timescales for compact objects
 
-const std::string VERSION_STRING = "03.15.00";
+const std::string VERSION_STRING = "03.15.01";
 
 # endif // __changelog_h__
