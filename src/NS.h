@@ -121,7 +121,7 @@ protected:
 
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
     
-            void            CalculateTimescales() { }                                                   // bnot a meaningful calculation for NS and BH
+            void            CalculateTimescales() { }                                                   // not a meaningful calculation for NS and BH
 
             double          ChooseTimestep(const double p_Time) const;
 
