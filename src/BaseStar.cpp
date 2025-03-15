@@ -188,9 +188,11 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SupernovaDetails.events.past             = SN_EVENT::NONE;
 
     m_SupernovaDetails.coreMassAtCOFormation   = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.coreRadiusAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.COCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.HeCoreMassAtCOFormation = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.totalMassAtCOFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SupernovaDetails.totalRadiusAtCOFormation= DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_SupernovaDetails.drawnKickMagnitude      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_SupernovaDetails.kickMagnitude           = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -308,6 +310,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
         case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
         case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
+        case ANY_STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION:            value = SN_CoreRadiusAtCOFormation();                           break; 
         case ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE:                               value = SN_DrawnKickMagnitude();                                break;
         case ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE:                            value = DominantMassLossRate();                                 break;
         case ANY_STAR_PROPERTY::DT:                                                 value = Dt();                                                   break;
@@ -396,6 +399,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::TIME:                                               value = Time();                                                 break;
         case ANY_STAR_PROPERTY::TIMESCALE_MS:                                       value = Timescale(TIMESCALE::tMS);                              break;
         case ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION:             value = SN_TotalMassAtCOFormation();                            break;
+        case ANY_STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION:           value = SN_TotalRadiusAtCOFormation();                          break;
         case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
         case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS() * TSOL;                                         break;
         case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;

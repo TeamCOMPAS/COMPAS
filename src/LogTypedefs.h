@@ -159,6 +159,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     CORE_MASS,                                       \
     CORE_MASS_AT_COMMON_ENVELOPE,                    \
     CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           \
+    CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,         \
     DRAWN_KICK_MAGNITUDE,                            \
     DOMINANT_MASS_LOSS_RATE,                         \
     DT,                                              \
@@ -267,6 +268,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     TIME,                                            \
     TIMESCALE_MS,                                    \
     TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          \
+    TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,        \
     TRUE_ANOMALY,                                    \
     TZAMS,                                           \
     ZETA_HURLEY,                                     \
@@ -304,6 +306,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::CORE_MASS,                                       "CORE_MASS" },
     { STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                    "CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           "CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,         "CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                            "DRAWN_KICK_MAGNITUDE" },
     { STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,                         "DOMINANT_MASS_LOSS_RATE"},
     { STAR_PROPERTY::DT,                                              "DT" },
@@ -413,6 +416,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TIME,                                            "TIME" },
     { STAR_PROPERTY::TIMESCALE_MS,                                    "TIMESCALE_MS" },
     { STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          "TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,        "TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
     { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
@@ -1229,6 +1233,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::CORE_MASS,                                         { TYPENAME::DOUBLE,           "Mass_Core",                       "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                      { TYPENAME::DOUBLE,           "Mass_Core@CE",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,             { TYPENAME::DOUBLE,           "Mass_Core@CO",                    "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,           { TYPENAME::DOUBLE,           "Radius_Core@CO",                  "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                              { TYPENAME::DOUBLE,           "Drawn_Kick_Magnitude",            "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,                           { TYPENAME::INT,              "Dominant_Mass_Loss_Rate",         "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::DT,                                                { TYPENAME::DOUBLE,           "dT",                              "Myr",              24, 15}},
@@ -1337,6 +1342,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TIME,                                              { TYPENAME::DOUBLE,           "Time",                            "Myr",              24, 15 }},
     { ANY_STAR_PROPERTY::TIMESCALE_MS,                                      { TYPENAME::DOUBLE,           "tMS",                             "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,            { TYPENAME::DOUBLE,           "Mass_Total@CO",                   "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Radius_Total@CO",                 "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                24, 15}},
@@ -2109,9 +2115,11 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::STELLAR_TYPE_PREV,
     COMPANION_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
+    SUPERNOVA_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    SUPERNOVA_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::EXPERIENCED_RLOF,
     SUPERNOVA_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,
@@ -2227,11 +2235,13 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
     STAR_PROPERTY::MEAN_ANOMALY,				
     STAR_PROPERTY::SN_TYPE,
     STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::STELLAR_TYPE,
     STAR_PROPERTY::STELLAR_TYPE_PREV,
     STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::TIME,
     STAR_PROPERTY::IS_HYDROGEN_POOR
