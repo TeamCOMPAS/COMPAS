@@ -1497,7 +1497,13 @@
 //  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
 //                                      - Fix to issue #1348
 //                                      - Modified suggested timescales for compact objects
+//  03.16.00    VK - Mar 15, 2025   - Defect repairs, Enhancements:
+//                                      - Placed a maximum limit on how much the KAPIL2024 Tides prescription can change spins and orbital parameters in a single timestep. 
+//                                        If too large of a timestep is taken for any reason, tides will only take an effeective timestep such that the change is within the TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC limit.
+//                                      - Updated BaseStar::CalculateImKlmDynamical() to allow for GW dissiopation from a radiative core + convective envelope as long as the convective core radius is negligible, regardless of convective core mass. Required for expected behavior for massive stars on the MS.
+//                                      - Added STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION and STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION to the default log files, stored pre supernova.
+//                                      - Fixed a small typo in the TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME constant for tides.
 
-const std::string VERSION_STRING = "03.15.01";
+const std::string VERSION_STRING = "03.16.00";
 
 # endif // __changelog_h__
