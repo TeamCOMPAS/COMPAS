@@ -3487,7 +3487,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKlmDynamical(const double p_Omega, const do
         double alpha_2_3Minus_1 = (alpha * 2.0 / 3.0) - 1.0;
 
         // Assume GW dissipation from the envelope boundary only acts if the radiative zone extends to the core, i.e. if there is no convective core.
-        if ((utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) && (utils::Compare(coreMass/m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0)) {                              
+        if (utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) {                              
             double Epsilon       = alpha_11 * envMass / m_Mass * oneMinusGamma_2 * alpha_2_3Minus_1 * alpha_2_3Minus_1 / beta_2 / oneMinusAlpha_3 / oneMinusAlpha_2;
 
             // (l=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m=0.0
