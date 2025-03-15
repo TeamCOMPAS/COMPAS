@@ -1497,7 +1497,9 @@
 //  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
 //                                      - Fix to issue #1348
 //                                      - Modified suggested timescales for compact objects
+//  03.15.02    RTW - Mar 15, 2025  - Enhancement:
+//                                      - Added orbital AM vector and system velocity vector to SN output
 
-const std::string VERSION_STRING = "03.15.01";
+const std::string VERSION_STRING = "03.15.02";
 
 # endif // __changelog_h__
