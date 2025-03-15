@@ -2928,7 +2928,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
 
     dt *= p_Multiplier;	
 
-    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MNIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
+    return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
 }
 
 
