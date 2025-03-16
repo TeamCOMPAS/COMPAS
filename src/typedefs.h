@@ -1150,6 +1150,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     KickParameters initialKickParameters;                   // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
     
     double         coreMassAtCOFormation;                   // Core mass of this star when it formed a compact object
+    double         coreRadiusAtCOFormation;                 // Core radius of this star when it formed a compact object
     double         COCoreMassAtCOFormation;                 // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
     double         drawnKickMagnitude;                      // Kick magnitude the system received during the supernova (km s^-1)
     double         eccentricAnomaly;                        // Eccentric anomaly at instataneous time of the SN
@@ -1167,6 +1168,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     SN_STATE       supernovaState;                          // Indicates which star (or stars) are undergoing / have undergone a supernova event
     double         theta;                                   // Kick angle out of the orbital plane, toward the orbital angular momentum axis (rad) [-pi/2, pi/2]
     double         totalMassAtCOFormation;                  // Total mass of the star when it goes supernova and forms a compact object
+    double         totalRadiusAtCOFormation;                // Total radius of the star when it goes supernova and forms a compact object
     double         trueAnomaly;                             // True anomaly at instantaneous time of the SN
 } SupernovaDetailsT;
 
