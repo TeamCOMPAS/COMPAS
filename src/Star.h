@@ -134,6 +134,7 @@ public:
     double              SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double              SN_Theta() const                                                                            { return m_Star->SN_Theta(); }
     double              SN_TotalMassAtCOFormation() const                                                           { return m_Star->SN_TotalMassAtCOFormation(); }
+    double              SN_TotalRadiusAtCOFormation() const                                                         { return m_Star->SN_TotalRadiusAtCOFormation(); }
     double              SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
     double              SN_EccentricAnomaly() const                                                                 { return m_Star->SN_EccentricAnomaly(); }
     SN_EVENT            SN_Type() const                                                                             { return m_Star->SN_Type(); }
