@@ -2606,36 +2606,28 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                 DBL_DBL_DBL_DBL ImKlm1   = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
                 DBL_DBL_DBL_DBL ImKlm2   = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
 
-                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);                                     // change in semi-major axis from star1
-                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);                                     // change in semi-major axis from star2
+                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);                                                                        // change in semi-major axis from star1
+                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);                                                                        // change in semi-major axis from star2
 
-                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);                                      // change in eccentricity from star1
-                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);                                      // change in eccentricity from star2
+                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);                                                                         // change in eccentricity from star1
+                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);                                                                         // change in eccentricity from star2
 
-                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);                                             // change in spin from star1
-                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);                                             // change in spin from star2
-                
-                double tides_Dt = p_Dt * MYR_TO_YEAR;                                                                           // convert timestep to years
-
-                if (utils::Compare(DOmega1Dt * tides_Dt, TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity()) > 0) {   // check for maximum change in orbital angular velocity
-                    tides_Dt = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / DOmega1Dt;                        // limit change in orbital angular velocity
-                }
-                if (utils::Compare(DOmega2Dt * tides_Dt, TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity()) > 0) {   // check for maximum change in orbital angular velocity
-                    tides_Dt = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / DOmega2Dt;                        // limit change in orbital angular velocity
-                }
-                if (utils::Compare((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * tides_Dt, TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis) > 0) { // check for maximum change in semi-major axis
-                    tides_Dt = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / (DSemiMajorAxis1Dt + DSemiMajorAxis2Dt);    // limit change in semi-major axis
-                }
-                if (utils::Compare((DEccentricity1Dt + DEccentricity2Dt) * tides_Dt, TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis) > 0) { // check for maximum change in eccentricity
-                    tides_Dt = TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / (DEccentricity1Dt + DEccentricity2Dt);      // limit change in eccentricity
-                }
+                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);                                                                                // change in spin from star1
+                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);                                                                                // change in spin from star2
+                                
+                // limit change in stellar and orbital properties from tides to a maximum fraction of the current value
+                double fraction_tidal_change = 1.0;
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega1Dt * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega2Dt * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR)));
                
-                m_Star1->SetOmega(m_Star1->Omega() + (DOmega1Dt * tides_Dt));                                                    // evolve star 1 spin
-                m_Star2->SetOmega(m_Star2->Omega() + (DOmega2Dt * tides_Dt));                                                    // evolve star 2 spin
-
-                m_SemiMajorAxis          = m_SemiMajorAxis + ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * tides_Dt);               // evolve separation
-                m_Eccentricity           = m_Eccentricity + ((DEccentricity1Dt + DEccentricity2Dt) * tides_Dt);                  // evolve eccentricity
-                m_TotalAngularMomentum   = CalculateAngularMomentum();                                                           // re-calculate total angular momentum
+                m_Star1->SetOmega(m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt * p_Dt * MYR_TO_YEAR));                                                    // evolve star 1 spin
+                m_Star2->SetOmega(m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt * p_Dt * MYR_TO_YEAR));                                                    // evolve star 2 spin
+                m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR);               // evolve separation
+                m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                  // evolve eccentricity
+                
+                m_TotalAngularMomentum   = CalculateAngularMomentum();                                                                                             // re-calculate angular momenta
                 m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
 
             } break;
