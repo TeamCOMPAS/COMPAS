@@ -1503,11 +1503,14 @@
 //                                      - Updated BaseStar::CalculateImKlmDynamical() to allow for GW dissiopation from a radiative core + convective envelope as long as the convective core radius is negligible, regardless of convective core mass. Required for expected behavior for massive stars on the MS.
 //                                      - Added STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION and STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION to the default log files, stored pre supernova.
 //                                      - Fixed a small typo in the TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME constant for tides.
-// 03.16.01     SS - Mar 19, 2025   - Defect repair:
+//  03.16.01    JR - Mar 17, 2025   - Defect repair
+//                                      - Added prototype for CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) to NS.h to reinstate proper inheritance (compiler warning -Woverloaded-virtual; introduced in v03.15.01)
+//                                      - Removed call to CalculateTimescales() from both NS::Initialise() and BH::Initialise() (superfluous since v03.15.01)
+//  03.16.02    SS - Mar 19, 2025   - Defect repair:
 //                                      - Removed deprecated wind mass-loss options
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
 //
 
-const std::string VERSION_STRING = "03.16.01";
+const std::string VERSION_STRING = "03.16.02";
 
 # endif // __changelog_h__
