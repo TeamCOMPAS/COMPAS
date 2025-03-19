@@ -537,75 +537,22 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
  * Hurley et al. 2000, eq 13
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS)
- *
- * @param   [IN]    p_Mass                      Mass in Msol
- * @param   [IN]    p_Time                      Time (after ZAMS) in Myr
- * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
- * @return                                      Radius on the Main Sequence in Rsol
- */
-double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const {
-#define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
-#define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-    
-    // If BRCEK core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG,
-    // valid for stars with MZAMS >= BRCEK_LOWER_MASS_LIMIT
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
-        double tMS = timescales(tMS);
-        if (utils::Compare(p_Time, 0.99 * tMS) > 0)                                                                             // star in MS hook?
-            return CalculateRadiusTransitionToHG(p_Mass, p_Time, p_RZAMS);
-    }
-        
-    const double epsilon = 0.01;
-
-    double RTMS   = CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
-    double alphaR = CalculateAlphaR(p_Mass);
-    double betaR  = CalculateBetaR(p_Mass);
-    double deltaR = CalculateDeltaR(p_Mass);
-    double gamma  = CalculateGamma(p_Mass);
-
-    double mu     = std::max(0.5, (1.0 - (0.01 * std::max((a[6] / PPOW(p_Mass, a[7])), (a[8] + (a[9] / PPOW(p_Mass, a[10]))))))); // Hurley et al. 2000, eq 7
-    double tHook  = mu * timescales(tBGB);                                                                                      // Hurley et al. 2000, just after eq 5
-    double tau    = p_Time / timescales(tMS);                                                                                   // Hurley et al. 2000, eq 11
-    double tau1   = std::min(1.0, (p_Time / tHook));                                                                            // Hurley et al. 2000, eq 14
-    double tau2   = std::max(0.0, std::min(1.0, (p_Time - ((1.0 - epsilon) * tHook)) / (epsilon * tHook)));                     // Hurley et al. 2000, eq 15
-
-    // pow() is slow - use multiplication where it makes sense
-    double tau_3  = tau * tau * tau;
-    double tau_10 = tau < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_3 * tau_3 * tau_3 * tau;                                          // direct comparison, to avoid underflow
-    double tau_40 = tau_10 < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_10 * tau_10 * tau_10 * tau_10;                                 // direct comparison, to avoid underflow
-    
-    double tau1_3 = tau1 * tau1 * tau1;
-    double tau2_3 = tau2 * tau2 * tau2;
-
-    double logRMS_RZAMS  = alphaR * tau;                                                                                        // Hurley et al. 2000, eq 13, part 1
-           logRMS_RZAMS += betaR * tau_10;                                                                                      // Hurley et al. 2000, eq 13, part 2
-           logRMS_RZAMS += gamma * tau_40;                                                                                      // Hurley et al. 2000, eq 13, part 3
-           logRMS_RZAMS += (log10(RTMS / p_RZAMS) - alphaR - betaR - gamma) * tau_3;                                            // Hurley et al. 2000, eq 13, part 4
-           logRMS_RZAMS -= deltaR * (tau1_3 - tau2_3);                                                                          // Hurley et al. 2000, eq 13, part 5
-
-    return p_RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                   // rewrite Hurley et al. 2000, eq 13 for R(t)
-
-#undef timescales
-#undef a
-}
-
-
-/*
- * Calculate radius on the Main Sequence
- *
- * Hurley et al. 2000, eq 13
- *
- *
- * double CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau)
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Tau                       Fractional age on Main Sequence
  * @return                                      Radius on the Main Sequence in Rsol
  */
-double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const {
+double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau) const {
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 
+    // If BRCEK core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG,
+    // valid for stars with MZAMS >= BRCEK_LOWER_MASS_LIMIT
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+        if (utils::Compare(p_Tau, 0.99) > 0)                                                                             // star in MS hook?
+            return CalculateRadiusTransitionToHG(p_Mass, p_Tau);
+    }
+    
     const double epsilon = 0.01;
     double tBGB = CalculateLifetimeToBGB(p_Mass);
     double tMS  = CalculateLifetimeOnPhase(p_Mass, tBGB);
@@ -623,10 +570,10 @@ double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double
     double tau1   = std::min(1.0, (time / tHook));                                                                                  // ibid, eq 14
     double tau2   = std::max(0.0, std::min(1.0, (time - ((1.0 - epsilon) * tHook)) / (epsilon * tHook)));                           // ibid, eq 15
 
-    // pow() is slow - use multipliaction where it makes sense
+    // pow() is slow - use multiplication where it makes sense
     double tau_3  = p_Tau * p_Tau * p_Tau;
-    double tau_10 = tau_3 * tau_3 * tau_3 * p_Tau;
-    double tau_40 = tau_10 * tau_10 * tau_10 * tau_10;
+    double tau_10 = p_Tau < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_3 * tau_3 * tau_3 * p_Tau;                                              // direct comparison, to avoid underflow
+    double tau_40 = tau_10 < FLOAT_TOLERANCE_ABSOLUTE ? 0.0: tau_10 * tau_10 * tau_10 * tau_10;                                     // direct comparison, to avoid underflow
     double tau1_3 = tau1 * tau1 * tau1;
     double tau2_3 = tau2 * tau2 * tau2;
 
@@ -656,17 +603,15 @@ double MainSequence::CalculateRadiusOnPhaseTau(const double p_Mass, const double
  * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Main Sequence (for age between tHook and tMS)
  */
-double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const {
+double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Tau) const {
     HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
     double radiusTAMS = clone->Radius();                                                                                        // Get radius from clone (with updated Mass0)
     delete clone; clone = nullptr;                                                                                              // Return the memory allocated for the clone
     
-    double tMS               = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
     double tauAtHookStart    = 0.99;
-    double ageAtHookStart    = tauAtHookStart * tMS;
-    double radiusAtHookStart = CalculateRadiusOnPhaseTau(p_Mass, tauAtHookStart);
+    double radiusAtHookStart = CalculateRadiusOnPhase(p_Mass, tauAtHookStart);
     
-    return (radiusAtHookStart * (tMS - p_Age) + radiusTAMS * (p_Age - ageAtHookStart)) / (tMS - ageAtHookStart);                // Linear interpolation
+    return (radiusAtHookStart * (1 - p_Tau) + radiusTAMS * (p_Tau - tauAtHookStart)) / (1 - tauAtHookStart);                    // Linear interpolation
 }
 
 
