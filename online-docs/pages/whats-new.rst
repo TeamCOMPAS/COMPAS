@@ -3,6 +3,14 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.16.02 Mar 19, 2025**
+
+New output options for supernova:
+
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_X, ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y, ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,
+* SYSTEMIC_VELOCITY_X, SYSTEMIC_VELOCITY_Y, SYSTEMIC_VELOCITY_Z,
+* These allow for full characterization of the binary orientation post-SN
+
 **03.15.00 Mar 5, 2025**
 
 Changes to the treatment of Neutron Star evolution.
