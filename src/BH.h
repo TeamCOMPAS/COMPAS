@@ -46,7 +46,7 @@ public:
 protected:
     
     void Initialise() {
-        CalculateTimescales();                                                                                                                          // Initialise timescales
+
         // set internal properties to zero to avoid meaningless values
         m_Age        = 0.0;
         m_COCoreMass = 0.0;

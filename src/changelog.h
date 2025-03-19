@@ -1497,9 +1497,18 @@
 //  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
 //                                      - Fix to issue #1348
 //                                      - Modified suggested timescales for compact objects
-//  03.15.02    RTW - Mar 15, 2025  - Enhancement:
+//  03.16.00    VK - Mar 15, 2025   - Defect repairs, Enhancements:
+//                                      - Placed a maximum limit on how much the KAPIL2024 Tides prescription can change spins and orbital parameters in a single timestep. 
+//                                        If too large of a timestep is taken for any reason, tides will only take an effeective timestep such that the change is within the TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC limit.
+//                                      - Updated BaseStar::CalculateImKlmDynamical() to allow for GW dissiopation from a radiative core + convective envelope as long as the convective core radius is negligible, regardless of convective core mass. Required for expected behavior for massive stars on the MS.
+//                                      - Added STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION and STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION to the default log files, stored pre supernova.
+//                                      - Fixed a small typo in the TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME constant for tides.
+//  03.16.01    JR - Mar 17, 2025   - Defect repair
+//                                      - Added prototype for CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) to NS.h to reinstate proper inheritance (compiler warning -Woverloaded-virtual; introduced in v03.15.01)
+//                                      - Removed call to CalculateTimescales() from both NS::Initialise() and BH::Initialise() (superfluous since v03.15.01)
+//  03.16.02    RTW - Mar 15, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
 
-const std::string VERSION_STRING = "03.15.02";
+const std::string VERSION_STRING = "03.16.02";
 
 # endif // __changelog_h__
