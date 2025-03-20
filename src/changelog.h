@@ -1509,8 +1509,11 @@
 //  03.16.02    SS - Mar 19, 2025   - Defect repair:
 //                                      - Removed deprecated wind mass-loss options
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
+//  03.16.03    RTW - Mar 31, 2025  - Enhancement:
+//                                      - Added orbital AM vector and system velocity vector to SN output
 //
 
-const std::string VERSION_STRING = "03.16.02";
+
+const std::string VERSION_STRING = "03.16.03";
 
 # endif // __changelog_h__
