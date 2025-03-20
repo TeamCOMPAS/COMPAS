@@ -1506,9 +1506,14 @@
 //  03.16.01    JR - Mar 17, 2025   - Defect repair
 //                                      - Added prototype for CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) to NS.h to reinstate proper inheritance (compiler warning -Woverloaded-virtual; introduced in v03.15.01)
 //                                      - Removed call to CalculateTimescales() from both NS::Initialise() and BH::Initialise() (superfluous since v03.15.01)
-//  03.16.02    RTW - Mar 15, 2025  - Enhancement:
+//  03.16.02    SS - Mar 19, 2025   - Defect repair:
+//                                      - Removed deprecated wind mass-loss options
+//                                      - Added ZERO as a new option for WR-mass-loss-prescription
+//  03.16.03    RTW - Mar 31, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
+//
 
-const std::string VERSION_STRING = "03.16.02";
+
+const std::string VERSION_STRING = "03.16.03";
 
 # endif // __changelog_h__

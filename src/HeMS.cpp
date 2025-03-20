@@ -411,6 +411,10 @@ double HeMS::CalculateMassLossRateMerritt2024() {
 
     switch (OPTIONS->WRMassLossPrescription()) {                                                                // which WR mass loss prescription?
 
+        case WR_MASS_LOSS_PRESCRIPTION::ZERO: {
+            MdotWR = 0.0;   // No mass loss for WR stars
+        } break;
+
         case WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023: {
             // calculate Sander & Vink 2020 mass-loss rate
             double MdotSanderVink2020 = CalculateMassLossRateWolfRayetSanderVink2020(0.0);
