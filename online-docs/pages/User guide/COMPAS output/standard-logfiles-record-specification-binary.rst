@@ -518,8 +518,7 @@ Binary Properties
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.xValue()  
    * - Description:
-     - x-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to 
-birth orbital AM, and x parallel to the LRL vector)
+     - x-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
    * - Header String:
      - Orbital_AM_Vector>SN_X
 
@@ -535,8 +534,7 @@ birth orbital AM, and x parallel to the LRL vector)
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.yValue()  
    * - Description:
-     - y-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to 
-birth orbital AM, and x parallel to the LRL vector)
+     - y-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
    * - Header String:
      - Orbital_AM_Vector>SN_Y
 
@@ -552,8 +550,7 @@ birth orbital AM, and x parallel to the LRL vector)
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.zValue()  
    * - Description:
-     - z-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to 
-birth orbital AM, and x parallel to the LRL vector)
+     - z-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
    * - Header String:
      - Orbital_AM_Vector>SN_Z
 
