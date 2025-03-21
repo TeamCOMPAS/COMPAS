@@ -52,7 +52,8 @@ enum class TYPENAME: int {
     SN_EVENT,
     SN_STATE,
     STRING_VECTOR,
-    EVOLUTION_STATUS
+    EVOLUTION_STATUS,
+    ACCRETION_REGIME
 };
 // labels (long and short) for typenames
 // unordered_map - key is integer typename (from enum class TYPENAME above)
@@ -80,7 +81,8 @@ const COMPASUnorderedMap<TYPENAME, STR_STR> TYPENAME_LABEL = {
     { TYPENAME::SN_EVENT,         { "SN_EVENT",               "INT"            }},
     { TYPENAME::SN_STATE,         { "SN_STATE",               "INT"            }},
     { TYPENAME::STRING_VECTOR,    { "STRING_VECTOR",          "VECTOR<STRING>" }},
-    { TYPENAME::EVOLUTION_STATUS, { "EVOLUTION_STATUS",       "INT"            }}
+    { TYPENAME::EVOLUTION_STATUS, { "EVOLUTION_STATUS",       "INT"            }},
+    { TYPENAME::ACCRETION_REGIME, { "ACCRETION_REGIME",       "INT"            }}
 };
 
 
@@ -269,6 +271,8 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          \
     TRUE_ANOMALY,                                    \
     TZAMS,                                           \
+    WHITE_DWARF_ACCRETION_REGIME,                    \
+    WHITE_DWARF_ACCRETION_REGIME_NAME,               \
     WIND_ACCRETION_RATE,                             \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
@@ -416,6 +420,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          "TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
     { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
+    { STAR_PROPERTY::WHITE_DWARF_ACCRETION_REGIME,                    "WHITE_DWARF_ACCRETION_REGIME"},
+    { STAR_PROPERTY::WHITE_DWARF_ACCRETION_REGIME_NAME,               "WHITE_DWARF_ACCRETION_REGIME_NAME"},
     { STAR_PROPERTY::WIND_ACCRETION_RATE,                             "WIND_ACCRETION_RATE"},
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
@@ -1339,7 +1345,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,            { TYPENAME::DOUBLE,           "Mass_Total@CO",                   "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                24, 15}},
-    { ANY_STAR_PROPERTY::WIND_ACCRETION_RATE,                               { TYPENAME::DOUBLE,           "dmWindAccretion",                 "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::WHITE_DWARF_ACCRETION_REGIME,                      { TYPENAME::ACCRETION_REGIME, "WD_accretion_regime",             "-",                 4,  1}},
+    { ANY_STAR_PROPERTY::WHITE_DWARF_ACCRETION_REGIME_NAME,                 { TYPENAME::STRING,           "WD_accretion_regime",             "-",                42,  1}},
+    { ANY_STAR_PROPERTY::WIND_ACCRETION_RATE,                               { TYPENAME::DOUBLE,           "dmWindAccretion",                 "Msol/yr",          24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,           "Zeta_Hurley_He",                  "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,           "Zeta_Soberman",                   "-",                24, 15}},

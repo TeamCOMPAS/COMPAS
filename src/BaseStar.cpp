@@ -2806,7 +2806,7 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
  */
 double BaseStar::CalculateMassGainValues(double m_accretorRLradius) {
 
-    double massGainRate = 0;
+    double windAccumulationRate = 0;
     double massGain = 0;
 
     double betaThermal = 0;
@@ -2816,7 +2816,7 @@ double BaseStar::CalculateMassGainValues(double m_accretorRLradius) {
                                                                             
         double windAccretionRate = m_WindAccretionRate;
 
-        std::tie(massGainRate, betaThermal) = CalculateMassAcceptanceRate(windAccretionRate,CalculateThermalMassAcceptanceRate(m_accretorRLradius));
+        std::tie(windAccumulationRate, betaThermal) = CalculateMassAcceptanceRate(windAccretionRate,CalculateThermalMassAcceptanceRate(m_accretorRLradius));
 
         massGain = m_Dt * windAccretionRate * 1.0E6;                     // calculate mass loss - unlimited, should add a check later
     }
