@@ -1974,9 +1974,13 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 
             double newMassAfterWinds1 = m_Star1->CalculateMassLossValues(true);
             double accretorRLradius1 = CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
+            bool donorIsHeRich1      = m_Star2->IsOneOf(He_RICH_TYPES);
+
             // calculate new values assuming mass loss applied
             double newMassAfterWinds2 = m_Star2->CalculateMassLossValues(true);  
             double accretorRLradius2 = CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
+            bool donorIsHeRich2      = m_Star1->IsOneOf(He_RICH_TYPES);
+
             // calculate new values assuming mass loss applied
 
             if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
@@ -1986,8 +1990,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
                               STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF})) {                                                        // Only do this if one star is a WD. This can be removed later when the option is generalized later
 
                     CalculateWindAccretionRate();
-                    newMassAfterWinds1 += m_Star1->CalculateMassGainValues(accretorRLradius1);                                  // calculate new values assuming mass gain applied
-                    newMassAfterWinds2 += m_Star2->CalculateMassGainValues(accretorRLradius2);                                                   // calculate new values assuming mass gain applied
+                    newMassAfterWinds1 += m_Star1->CalculateMassGainValues(accretorRLradius1, donorIsHeRich1);                                  // calculate new values assuming mass gain applied
+                    newMassAfterWinds2 += m_Star2->CalculateMassGainValues(accretorRLradius2, donorIsHeRich2);                                                   // calculate new values assuming mass gain applied
 
                 }
             }

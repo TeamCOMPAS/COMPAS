@@ -189,7 +189,7 @@ public:
                                                 const bool   p_IsHeRich)                                            { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate, p_IsHeRich); }
 
     double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
-    double          CalculateMassGainValues(double accretorRLradius)                                                { return m_Star->CalculateMassGainValues(accretorRLradius); }
+    double          CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich)                             { return m_Star->CalculateMassGainValues(p_accretorRLradius, p_isHeRich); }
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
