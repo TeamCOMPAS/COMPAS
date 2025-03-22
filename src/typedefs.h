@@ -1180,43 +1180,6 @@ typedef struct PulsarDetails {
 } PulsarDetailsT;
 
 
-// struct for Lambdas
-typedef struct Lambdas {
-	double dewi;                                            // JR: todo: description?
-    double fixed;                                           // Set to OPTIONS->commonEnvelopeLambda
-	double kruckow;                                         // Calculated using m_Radius and OPTIONS->commonEnvelopeSlopeKruckow
-	double kruckowBottom;                                   // Calculated using m_Radius and -1
-	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
-	double kruckowTop;                                      // Calculated using m_Radius and -2/3
-	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss
-	double nanjing;                                         // JR: todo: description?
-} LambdasT;
-
-
-// struct for Zetas
-// JR: add descriptive comments
-typedef struct Zetas {                                      // JR: todo: descriptions for these?
-	double hurley;
-	double hurleyHe;
-	double nuclear;
-	double soberman;
-	double sobermanHe;
-	double thermal;
-} ZetasT;
-
-
-// struct for binding energies
-typedef struct BindingEnergies {
-    double fixed;                                           // Calculated using lambda = OPTIONS->commonEnvelopeLambda
-	double nanjing;                                         // Calculated using lambda = m_Lambdas.nanjing
-	double loveridge;                                       // Calculated using lambda = m_Lambdas.loveridge
-	double loveridgeWinds;                                  // Calculated using lambda = m_Lambdas.loveridgeWinds
-	double kruckow;                                         // Calculated using lambda = m_Lambdas.kruckow
-    double dewi;                                            // Calculated using lambda = m_Lambdas.dewi
-} BindingEnergiesT;
-
-
 // RLOF properties
 // JR: add descriptive comments
 typedef struct RLOFProperties {

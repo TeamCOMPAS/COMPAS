@@ -1509,11 +1509,13 @@
 //  03.16.02    SS - Mar 19, 2025   - Defect repair:
 //                                      - Removed deprecated wind mass-loss options
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
-//  03.16.03    RTW - Mar 31, 2025  - Enhancement:
+//  03.16.03    RTW - Mar 21, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
+//  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
+//                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
+//                                      - All binding energies and lambdas are now computed on request, not stored  in memory
 //
 
-
-const std::string VERSION_STRING = "03.16.03";
+const std::string VERSION_STRING = "03.17.00";
 
 # endif // __changelog_h__
