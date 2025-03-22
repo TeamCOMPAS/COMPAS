@@ -2792,7 +2792,7 @@ double BaseStar::CalculateMassLossValues(const bool p_UpdateMDot, const bool p_U
  * Calculate values for dt, mDot and mass assuming wind mass gain is applied
  * Copied somewhat from CalculateMassLossValues above
  *
- * Class member variables m_Mass and m_Dt are not updated directly by this function - the calculated mass is returned as the functional return
+ * Class member variables m_Mass and m_Dt are not updated directly by this f$unction - the calculated mass is returned as the functional return
  *
  * - calculates mass gain from winds
  * - calculates new mass based on mass gain
@@ -2814,11 +2814,11 @@ double BaseStar::CalculateMassGainValues(double p_accretorRLradius, bool p_isHeR
         
         // only if using wind accretion (program option)
                                                                             
-        double windAccretionRate = m_WindAccretionRate;
+        double windAccretionRate = m_WindAccretionRate / YEAR_TO_MYR; // wind accretion in Msun / Myr
 
         std::tie(windAccumulationRate, betaThermal) = CalculateMassAcceptanceRate(windAccretionRate,CalculateThermalMassAcceptanceRate(p_accretorRLradius),p_isHeRich);
 
-        massGain = m_Dt * windAccretionRate * 1.0E6;                     // calculate mass loss - unlimited, should add a check later
+        massGain = m_Dt * windAccumulationRate;                     // calculate mass loss - unlimited, should add a check later, Msun / yr
     }
     return massGain;
 }
