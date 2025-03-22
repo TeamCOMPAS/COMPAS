@@ -1064,9 +1064,10 @@ public:
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
-
+            ENUM_OPT<RESPONSE_TO_SPIN_UP>                       m_ResponseToSpinUp;                                             // Response to super-critical spin-up prescription
+        
             // Tides
-            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1627,6 +1628,8 @@ public:
     
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
+    
+    RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
     
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     

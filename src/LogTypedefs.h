@@ -902,6 +902,8 @@ enum class PROGRAM_OPTION: int {
     RANDOM_SEED_CMDLINE,
 
     REMNANT_MASS_PRESCRIPTION,
+    
+    RESPONSE_TO_SPIN_UP,
 
     ROCKET_KICK_MAGNITUDE_1,
     ROCKET_KICK_MAGNITUDE_2,
@@ -1669,6 +1671,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                      { TYPENAME::ULONGINT,   "PO_SEED(CMDLINE)",                          "-",         12, 1 }},
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Remnant_Mass_Prscrptn",                  "-",          4, 1 }},
+    
+    { PROGRAM_OPTION::RESPONSE_TO_SPIN_UP,                                { TYPENAME::INT,        "PO_Response_To_Spin_Up",                           "-",          4, 1 }},
 
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(1)",               "kms^-1",    24, 15}},
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(2)",               "kms^-1",    24, 15}},

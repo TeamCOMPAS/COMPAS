@@ -572,7 +572,10 @@ void Options::OptionValues::Initialise() {
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
-
+    // Response to super-critical spin-up prescription
+    m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT;
+    m_ResponseToSpinUp.typeString                                   = RESPONSE_TO_SPIN_UP_LABEL.at(m_ResponseToSpinUp.type);
+    
     // Rotational velocity distribution options
     m_RotationalVelocityDistribution.type                           = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
     m_RotationalVelocityDistribution.typeString                     = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(m_RotationalVelocityDistribution.type);
@@ -1931,6 +1934,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Choose remnant mass prescription (" + AllowedOptionValuesFormatted("remnant-mass-prescription") + ", default = '" + p_Options->m_RemnantMassPrescription.typeString + "')").c_str()
         )
         (
+            "response-to-spin-up",
+            po::value<std::string>(&p_Options->m_ResponseToSpinUp.typeString)->default_value(p_Options->m_ResponseToSpinUp.typeString),
+            ("Response to spin-up prescription (" + AllowedOptionValuesFormatted("response-to-spin-up") + ", default = '" + p_Options->m_ResponseToSpinUp.typeString + "')").c_str()
+        )
+        (
             "rotational-velocity-distribution",                            
             po::value<std::string>(&p_Options->m_RotationalVelocityDistribution.typeString)->default_value(p_Options->m_RotationalVelocityDistribution.typeString),                                              
             ("Initial rotational velocity distribution (" + AllowedOptionValuesFormatted("rotational-velocity-distribution") + ", default = '" + p_Options->m_RotationalVelocityDistribution.typeString + "')").c_str()
@@ -2365,6 +2373,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("remnant-mass-prescription")) {                                                                              // remnant mass prescription
             std::tie(found, m_RemnantMassPrescription.type) = utils::GetMapKey(m_RemnantMassPrescription.typeString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
+        }
+        
+        if (!DEFAULTED("response-to-spin-up")) {                                                                              // prescription for response to super-critical spin-up
+            std::tie(found, m_ResponseToSpinUp.type) = utils::GetMapKey(m_ResponseToSpinUp.typeString, RESPONSE_TO_SPIN_UP_LABEL, m_ResponseToSpinUp.type);
+            COMPLAIN_IF(!found, "Unknown Response-to-spin-up Prescription");
         }
 
         if (!DEFAULTED("rotational-velocity-distribution")) {                                                                       // rotational velocity distribution
@@ -4810,6 +4823,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
 
         case PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION                      : value = static_cast<int>(RemnantMassPrescription());                          break;
+            
+        case PROGRAM_OPTION::RESPONSE_TO_SPIN_UP                            : value = static_cast<int>(ResponseToSpinUp());                                 break;
 
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1                        : value = RocketKickMagnitude1();                                               break;
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2                        : value = RocketKickMagnitude2();                                               break;

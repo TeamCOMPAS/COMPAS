@@ -1598,7 +1598,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             // stage 2: radiative envelope removal on a thermal timescale; assumed to be fully non-conservative
             // transfer the radiative intershell first from the star that is initially in RLOF (i.e., initiating CE)
             // note that in the case where both stars are in RLOF (m_RLOFDetails.simultaneousRLOF), star 1 is arbitrarily first to transfer its radiative intershell
-            
             if (m_Star1->IsRLOF()) {
                 if (utils::Compare(endOfFirstStageMass1 - m_Mass1Final, 0.0) > 0) {
                     m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), endOfFirstStageMass2, m_Star2->IsDegenerate(), 0.0);
@@ -2467,28 +2466,26 @@ void BaseBinaryStar::ResolveMassChanges() {
 
     STELLAR_TYPE stellarType1 = m_Star1->StellarTypePrev();                                             // star 1 stellar type before updating attributes
     STELLAR_TYPE stellarType2 = m_Star2->StellarTypePrev();                                             // star 2 stellar type before updating attributes
+    
+    double extraAngularMomentumChangeOrbit = 0.0;
 
     // star1
     // determine if the star's mass has already been updated
     // (a sign that ResolveEnvelopeLossAndSwitch() has been called after the full envelope was stripped)
     // no need to resolve mass changes if the mass has already been updated
-    if (utils::Compare(m_Star1->MassPrev(), m_Star1->Mass()) == 0) {                                    // mass already updated?
-                                                                                                        // no - resolve mass changes      
+    if (utils::Compare(m_Star1->MassPrev(), m_Star1->Mass()) == 0) {                                    // resolve mass changes if mass not already updated
         double massChange = m_Star1->MassLossDiff() + m_Star1->MassTransferDiff();                      // mass change due to winds and mass transfer
     
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
-            // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
-            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0)
-		                                    ? massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU)
-		                                    : (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
-
-            // update mass of star according to mass loss and mass transfer, then update age accordingly
-            (void)m_Star1->UpdateAttributes(massChange, 0.0);                                           // update mass for star
-            m_Star1->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
-            m_Star1->UpdateAgeAfterMassLoss();                                                          // update age of star
-            m_Star1->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
-            m_Star1->UpdateAttributes(0.0, 0.0, true);
-            m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChange);
+            // yes - calculate new angular momentum
+            double angularMomentumChangeStar = 0.0;
+            if(utils::Compare(massChange, 0.0) < 0) {
+                angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
+                extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
+            }
+            
+            if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
+                extraAngularMomentumChangeOrbit += ResolveAccretionAngularMomentumGain(m_Star1, m_Star2, massChange);
         }
     }
         
@@ -2496,31 +2493,37 @@ void BaseBinaryStar::ResolveMassChanges() {
     // determine if the star's mass has already been updated
     // (a sign that ResolveEnvelopeLossAndSwitch() has been called after the full envelope was stripped)
     // no need to resolve mass changes if the mass has already been updated
-    // calculate mass change due to winds and mass transfer
-    if (utils::Compare(m_Star2->MassPrev(), m_Star2->Mass()) == 0) {                                    // mass already updated?
-                                                                                                        // no - resolve mass changes
+    if (utils::Compare(m_Star2->MassPrev(), m_Star2->Mass()) == 0) {                                    // resolve mass changes if mass not already updated
         double massChange = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
-            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0)
-		                                    ? massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU)
-		                                    : (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
-
-            // update mass of star according to mass loss and mass transfer, then update age accordingly
-            (void)m_Star2->UpdateAttributes(massChange, 0.0);                                           // update mass for star
-            m_Star2->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
-            m_Star2->UpdateAgeAfterMassLoss();                                                          // update age of star
-            m_Star2->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
-            m_Star2->UpdateAttributes(0.0, 0.0, true);
-            m_Star2->SetAngularMomentum(m_Star2->AngularMomentum() + angularMomentumChange);
+            double angularMomentumChangeStar = 0.0;
+            if(utils::Compare(massChange, 0.0) < 0) {
+                angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
+                extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
+            }
+            
+            if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
+                extraAngularMomentumChangeOrbit += ResolveAccretionAngularMomentumGain(m_Star2, m_Star1, massChange);
         }
     }
 
     // update binary separation, but only if semimajor axis not already infinite and binary does not contain a massless remnant
     // JR: note, this will (probably) fail if option --fp-error-mode is not OFF (the calculation that resulted in m_SemiMajorAxis = inf will (probably) result in a trap)
     // Maybe use std::isfinite(p_SemiMajorAxis) to ensure p_SemiMajorAxis is not NaN or inf
-    if (!isinf(m_SemiMajorAxis) && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}))
+    if (!isinf(m_SemiMajorAxis) && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT})) {
         m_SemiMajorAxis = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
+        // account for the angular momentum change of the stars to really conserve total angular momentum
+        // this could mean that a donor no longer precisely fills its Roche lobe
+        double orbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
+        double fractionalChangeAngularMomentum = extraAngularMomentumChangeOrbit / orbitalAngularMomentum;
+        if (utils::Compare(fractionalChangeAngularMomentum, -1.0) <= 0) {
+            THROW_ERROR(ERROR::ADDED_EXCESS_AM_TO_STARS);                                                                           // throw error
+        }
+        else {
+            m_SemiMajorAxis = m_SemiMajorAxis * (1.0 + fractionalChangeAngularMomentum) * (1.0 + fractionalChangeAngularMomentum);  // angular momentum is proportional to the square root of the semimajor axis
+        }
+    }
     
     // envelope ejection for convective envelope stars exceeding threshold luminosity to mass ratio: 
     // assume the entire envelope was lost on timescales long relative to the orbit
@@ -2536,6 +2539,73 @@ void BaseBinaryStar::ResolveMassChanges() {
     if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MASS_RESOLUTION); // yes - print (log) detailed output
     }
+}
+
+
+/*
+ * Resolve stellar gain of angular momentum through accretion
+ *
+ * Assume accretor is adding angular momentum from a circular orbit at the stellar radius
+ *
+ * Adjust stellar rotation and determine how much excess angular momentum is deposited into the orbit (or removed from it to spin up the accretor)
+ * May limit the amount of accreted mass depending on the ResponseToSpinUp():
+ * KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+ * Under TRANSFER_TO_ORBIT,  the star continues to accrete, but excess angular momentum is deposited in the orbit
+ *
+ * double ResolveAccretionAngularMomentumGain(BinaryConstituentStar * p_Accretor, BinaryConstituentStar * p_Donor, double p_MassChange)
+ *
+ * @param   [IN]    p_Accretor                  Pointer to accretor
+ * @param   [IN]    p_Donor                     Pointer to donor
+ * @param   [IN]    p_MassChange                Desired amount of mass gain
+ * @return                                      Change in orbital angular momentum due to accretion-induced spin-up
+ */
+double BaseBinaryStar::ResolveAccretionAngularMomentumGain(BinaryConstituentStar * p_Accretor, BinaryConstituentStar * p_Donor, double p_MassChange){
+    
+    double angularMomentumChangeStar, extraAngularMomentumChangeOrbit;
+    switch (OPTIONS->ResponseToSpinUp()) {
+        
+        case RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT: {
+            double keplerianFrequency = sqrt(G_AU_Msol_yr * p_Accretor->Mass() /p_Accretor->Radius() / RSOL_TO_AU / p_Accretor->Radius() / RSOL_TO_AU / p_Accretor->Radius() / RSOL_TO_AU);                                           // ignore mass and radius change at this stage
+            double maxAngularMomentumGain = p_Accretor->CalculateMomentOfInertiaAU() * keplerianFrequency - p_Accretor->AngularMomentum();
+            double maxMassGain = maxAngularMomentumGain / sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            double massLost = std::max(p_MassChange - maxMassGain, 0.0);
+            p_MassChange = std::min(p_MassChange, maxMassGain);
+            angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            extraAngularMomentumChangeOrbit = - angularMomentumChangeStar - massLost * (p_Donor->Mass()/p_Accretor->Mass()) * CalculateOrbitalAngularMomentum(p_Accretor->Mass(), p_Donor->Mass(), m_SemiMajorAxis, m_Eccentricity) / (p_Accretor->Mass()+p_Donor->Mass());                  // assumes isotropic re-emission of excess mass loss from the accretor; does not account for changing orbital angular momentum (second-order)
+            (void)p_Accretor->UpdateAttributes(p_MassChange, 0.0);                                         // update mass for star
+            p_Accretor->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
+            p_Accretor->UpdateAgeAfterMassLoss();                                                          // update age of star
+            p_Accretor->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
+            p_Accretor->UpdateAttributes(0.0, 0.0, true);
+            p_Accretor->SetAngularMomentum(p_Accretor->AngularMomentum() + angularMomentumChangeStar);        // note that because stellar properties have been updated, the actual angular momentum may be slightly over or under the Keplerian limit
+        } break;
+        
+        case RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT: {
+            double initialAngularMomentum = p_Accretor->AngularMomentum();
+            (void)p_Accretor->UpdateAttributes(p_MassChange, 0.0);                                         // update mass for star
+            p_Accretor->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
+            p_Accretor->UpdateAgeAfterMassLoss();                                                          // update age of star
+            p_Accretor->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
+            p_Accretor->UpdateAttributes(0.0, 0.0, true);
+            double keplerianFrequency = sqrt(G_AU_Msol_yr * p_Accretor->Mass() / p_Accretor->Radius() / RSOL_TO_AU / p_Accretor->Radius() / RSOL_TO_AU / p_Accretor->Radius() / RSOL_TO_AU);
+            double maxAngularMomentum = p_Accretor->CalculateMomentOfInertiaAU() * keplerianFrequency;
+            angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            p_Accretor->SetAngularMomentum(std::min(m_Accretor->AngularMomentum() + angularMomentumChangeStar, maxAngularMomentum));
+            extraAngularMomentumChangeOrbit = - (p_Accretor->AngularMomentum() - initialAngularMomentum);
+        } break;
+        
+        default:                                                                                        // unknown prescription
+            // the only way this can happen is if someone added a RESPONSE_TO_SPIN_UP
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+        
+            THROW_ERROR(ERROR::UNKNOWN_RESPONSE_TO_SPIN_UP);
+    }
+
+    return extraAngularMomentumChangeOrbit;
 }
 
 
