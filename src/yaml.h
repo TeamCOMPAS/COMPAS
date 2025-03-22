@@ -215,6 +215,7 @@ namespace yaml {
             "    --mass-transfer-jloss-macleod-linear-fraction-degen",
             "    --mass-transfer-jloss-macleod-linear-fraction-non-degen",
             "    --mass-transfer-thermal-limit-C",
+            "    --response-to-spin-up",
             "    --zeta-adiabatic-arbitrary",
             "    --zeta-main-sequence",
             "    --zeta-radiative-envelope-giant",
