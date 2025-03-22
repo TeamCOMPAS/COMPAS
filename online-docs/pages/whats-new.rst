@@ -5,8 +5,14 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **03.17.00 Mar 22, 2025**
 
-Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope 
+* Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope 
 convective is 0.1, can be set with --convective-envelope-mass-threshold)
+* Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars
+* Imposed Keplerian rotation limit on mass-gaining stars:
+* Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass  transfer to become non-conservative 
+once star (approximately) reaches super-critical rotation
+* alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the 
+orbit
 
 **03.16.02 Mar 19, 2025**
 

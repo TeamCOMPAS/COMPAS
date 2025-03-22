@@ -212,7 +212,7 @@ Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Go
 Default = −0.833333
 
 **--convective-envelope-mass-threshold** |br|
-Mass threshold of envelope which should be convective, above which the envelopes of giants are labeled convective.
+Mass threshold of envelope which should be convective, above which the envelopes of giants are labeled convective. |br|
 Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
 Default = 0.1
 
@@ -1189,6 +1189,13 @@ Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
 
+**--response-to-spin-up** |br|
+Response of the star to super-critical accretion-induced spin-up |br|
+Options: { KEPLERIAN_LIMIT, TRANSFER_TO_ORBIT} |br|
+KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation |br|
+Under TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit |br|
+Default = KEPLERIAN_LIMIT
+
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
 The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
@@ -1461,7 +1468,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---case-bb-stability-prescription, --convective-envelope-temperature-threshold, --critical-mass-ratio-prescription,
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
+--convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
@@ -1472,7 +1480,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 

@@ -544,6 +544,8 @@ private:
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
     }
     
+    double ResolveAccretionAngularMomentumGain(BinaryConstituentStar * p_Accretor, BinaryConstituentStar * p_Donor, double p_MassChange);
+    
     void ResolveMainSequenceMerger();
 
     bool ShouldResolveNeutrinoRocketMechanism() const { 
