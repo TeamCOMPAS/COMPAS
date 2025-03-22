@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.17.00 Mar 22, 2025**
+
+Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope 
+convective is 0.1, can be set with --convective-envelope-mass-threshold)
+
 **03.16.02 Mar 19, 2025**
 
 New output options for supernova:

@@ -232,6 +232,7 @@ constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
 
+constexpr double CONVECTIVE_BOUNDARY_MASS_THRESHOLD_ROMAGNOLO = 0.1;                                               // Threshold fraction of envelope mass that should be convective for the envelope to be labeled convective
 constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI = 5.37E3;                                               // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
 
 constexpr double MINIMUM_BLUE_LOOP_FRACTION             = 1.0E-10;                                                  // minimum fraction blue loop can be of He burning before we ignore it for HG radius calculation (see HG::CalculateRadiusOnPhase())
