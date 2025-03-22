@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Sat Mar 22 19:48:28 2025 by COMPAS v03.17.00
+##~!!~## File Created Sun Mar 23 00:13:52 2025 by COMPAS v03.17.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -302,3 +302,7 @@ listChoices:
 
 #    --log-classes: { }                                                    # Default: { }
 #    --debug-classes: { }                                                  # Default: { }
+
+
+### Additional COMPAS options not found in YAML template ###
+#    --response-to-spin-up: 'KEPLERIAN_LIMIT'                              # Default: 'KEPLERIAN_LIMIT'

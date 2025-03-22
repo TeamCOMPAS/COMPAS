@@ -1516,7 +1516,7 @@
 //                                      - All binding energies and lambdas are now computed on request, not stored  in memory
 //                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
 //                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
-//                                      - Imposed Keplerian rotation limit on mass-gaining stars:
+//                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
 //                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
 //                                      - alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
 
