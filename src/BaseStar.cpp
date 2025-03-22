@@ -4092,12 +4092,9 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
     double bindingEnergy = 0.0;                                                         // default
 
 	if (p_Radius <= 0.0) {                                                              // positive radius?
-        SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive JR: should this throw an error? **Ilya**
         THROW_ERROR_STATIC(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");
 	}
 	else if (p_Lambda <= 0.0) {                                                         // positive lambda?
-        // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter. JR: let's look at this... **Ilya**
-        SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
         THROW_ERROR_STATIC(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");
 	}
 	else {                                                                              // calculate binding energy
