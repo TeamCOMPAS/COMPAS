@@ -1514,7 +1514,7 @@
 //  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
 //                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
 //                                      - All binding energies and lambdas are now computed on request, not stored  in memory
-//
+//                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
 
 const std::string VERSION_STRING = "03.17.00";
 
