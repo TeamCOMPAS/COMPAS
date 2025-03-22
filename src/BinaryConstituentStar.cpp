@@ -182,28 +182,23 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                                                      // which common envelope lambda prescription?
 
         case CE_LAMBDA_PRESCRIPTION::FIXED:
-            m_CEDetails.lambda        = LambdaFixed();
-            m_CEDetails.bindingEnergy = BindingEnergyFixed();
+            m_CEDetails.lambda        = OPTIONS->CommonEnvelopeLambda();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::LOVERIDGE:
-            m_CEDetails.lambda        = LambdaLoveridge();
-            m_CEDetails.bindingEnergy = BindingEnergyLoveridge();
+            m_CEDetails.lambda        = CalculateLambdaLoveridge();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::NANJING:
-            m_CEDetails.lambda        = LambdaNanjing();
-            m_CEDetails.bindingEnergy = BindingEnergyNanjing();
+            m_CEDetails.lambda        = CalculateLambdaNanjing();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
-            m_CEDetails.lambda        = LambdaKruckow();
-            m_CEDetails.bindingEnergy = BindingEnergyKruckow();
+            m_CEDetails.lambda        = CalculateLambdaKruckow();
             break;
             
         case CE_LAMBDA_PRESCRIPTION::DEWI:
-            m_CEDetails.lambda        = LambdaDewi();
-            m_CEDetails.bindingEnergy = BindingEnergyDewi();
+            m_CEDetails.lambda        = CalculateLambdaDewi();
             break;
 
         default:                                                                                                // unknown prescription
@@ -220,6 +215,8 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0;                                 // force non-positive lambda to 0
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();                                            // multiply by constant (program option, default = 1.0)
+                                                                        
+    m_CEDetails.bindingEnergy = CalculateBindingEnergy(CoreMass(), Mass() - CoreMass(), Radius(), m_CEDetails.lambda);
     
     // properties relevant for the Hirai & Mandel (2022) formalism
     double maxConvectiveEnvelopeMass;

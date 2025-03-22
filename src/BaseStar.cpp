@@ -161,25 +161,6 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_RadiusPrev                               = m_RZAMS;
     m_DtPrev                                   = DEFAULT_INITIAL_DOUBLE_VALUE;
     
-    // Lambdas
-	m_Lambdas.dewi                             = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.fixed                            = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.kruckow                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.kruckowBottom                    = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.kruckowMiddle                    = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.kruckowTop                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.loveridge                        = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.loveridgeWinds                   = DEFAULT_INITIAL_DOUBLE_VALUE;
-	m_Lambdas.nanjing                          = DEFAULT_INITIAL_DOUBLE_VALUE;
-
-
-    // Binding energies
-    m_BindingEnergies.fixed                    = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_BindingEnergies.nanjing                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_BindingEnergies.loveridge                = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_BindingEnergies.loveridgeWinds           = DEFAULT_INITIAL_DOUBLE_VALUE;
-    m_BindingEnergies.kruckow                  = DEFAULT_INITIAL_DOUBLE_VALUE;
-
     // Supernova details
 
     m_SupernovaDetails.initialKickParameters   = p_KickParameters;
@@ -300,11 +281,11 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
     switch (property) {
         case ANY_STAR_PROPERTY::AGE:                                                value = Age();                                                  break;
         case ANY_STAR_PROPERTY::ANGULAR_MOMENTUM:                                   value = AngularMomentum();                                      break;
-        case ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED:                               value = BindingEnergyFixed();                                   break;
-        case ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING:                             value = BindingEnergyNanjing();                                 break;
-        case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = BindingEnergyLoveridge();                               break;
-        case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = BindingEnergyLoveridgeWinds();                          break;
-        case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = BindingEnergyKruckow();                                 break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED:                               value = CalculateBindingEnergy(OPTIONS->CommonEnvelopeLambda()); break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING:                             value = CalculateBindingEnergy(CalculateLambdaNanjing());       break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = CalculateBindingEnergy(CalculateLambdaLoveridge());     break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = CalculateBindingEnergy(CalculateLambdaLoveridge(m_Mass - m_CoreMass, true));    break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = CalculateBindingEnergy(CalculateLambdaKruckow());       break;
         case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
         case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
         case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
@@ -351,15 +332,15 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::IS_SNIA:                                            value = IsSNIA();                                               break;
         case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
         case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
-        case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = LambdaDewi();                                           break;
-        case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = LambdaFixed();                                          break;
-        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = LambdaKruckow();                                        break;
-        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM:                              value = LambdaKruckowBottom();                                  break;
-        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE:                              value = LambdaKruckowMiddle();                                  break;
-        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP:                                 value = LambdaKruckowTop();                                     break;
-        case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE:                                   value = LambdaLoveridge();                                      break;
-        case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS:                             value = LambdaLoveridgeWinds();                                 break;
-        case ANY_STAR_PROPERTY::LAMBDA_NANJING:                                     value = LambdaNanjing();                                        break;
+        case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = CalculateLambdaDewi();                                  break;
+        case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = OPTIONS->CommonEnvelopeLambda();                        break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = CalculateLambdaKruckow();                               break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_BOTTOM:                              value = CalculateLambdaKruckow(m_Radius, -1.0);                 break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_MIDDLE:                              value = CalculateLambdaKruckow(m_Radius, -4.0 / 5.0);           break;
+        case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW_TOP:                                 value = CalculateLambdaKruckow(m_Radius, -2.0 / 3.0);           break;
+        case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE:                                   value = CalculateLambdaLoveridge(m_Mass - m_CoreMass, false);   break;
+        case ANY_STAR_PROPERTY::LAMBDA_LOVERIDGE_WINDS:                             value = CalculateLambdaLoveridge(m_Mass - m_CoreMass, true);    break;
+        case ANY_STAR_PROPERTY::LAMBDA_NANJING:                                     value = CalculateLambdaNanjing();                               break;
         case ANY_STAR_PROPERTY::LBV_PHASE_FLAG:                                     value = LBV_PhaseFlag();                                        break;
         case ANY_STAR_PROPERTY::LUMINOSITY:                                         value = Luminosity();                                           break;
         case ANY_STAR_PROPERTY::MASS:                                               value = Mass();                                                 break;
@@ -1037,97 +1018,6 @@ double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Al
 }
 
 
-/*
- * Calculate the binding energy of the envelope
- * Loveridge et al. 2011
- *
- * This function computes log[BE/erg] as a function of log[Z], Mzams, M, log[R/Ro] and GB.
- * Electronic tables, program and further information in: http://astro.ru.nl/~sluys/index.php?title=BE
- *
- *
- * double CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss)
- *
- * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
- * @return                                      log binding energy in erg
- */
-double BaseStar::CalculateLogBindingEnergyLoveridge(bool p_IsMassLoss) const {
-
-    // find closest metallicity covered by Loveridge et al. 2011
-    // (see LOVERIDGE_METALLICITY and LOVERIDGE_METALLICITYValue)
-
-    int lMetallicity = 0;
-    double minDiff   = std::numeric_limits<double>::max();
-
-    // initialise m_MassCutoffs vector - so we have the right number of entries
-    for (int i = 0; i < static_cast<int>(LOVERIDGE_METALLICITY::COUNT); i++) {
-        double thisDiff = std::abs(m_Metallicity - std::get<1>(LOVERIDGE_METALLICITY_VALUE[i]));
-        if (utils::Compare(thisDiff, minDiff) < 0) {
-            lMetallicity = i;
-            minDiff      = thisDiff;
-        }
-    }
-
-    // Determine the evolutionary stage of the star (see LOVERIDGE_GROUP)
-
-    LOVERIDGE_GROUP lGroup;
-
-    if (utils::Compare(m_Mass, LOVERIDGE_LM_HM_CUTOFFS[lMetallicity]) > 0) {                // mass > low mass / high mass cutoff?
-        lGroup = LOVERIDGE_GROUP::HM;                                                       // yes, group is HM - High Mass
-    }
-    else {                                                                                  // no - low mass
-        if (utils::Compare(m_COCoreMass, 0.0) > 0) {                                        // CO core exists?
-            lGroup = LOVERIDGE_GROUP::LMA;                                                  // yes, group is LMA - Low mass on the AGB
-        }
-        else {                                                                              // no - low mass star on RGB
-
-            // calculate early / late cutoff for low mass RGB stars
-            constexpr double deltaM   = 1.0E-5;
-                      double cutOff   = 0.0;
-                      int    exponent = 0;
-            for (auto const& aCoefficient: LOVERIDGE_LM1_LM2_CUTOFFS[lMetallicity]) {
-                cutOff += aCoefficient * utils::intPow(log10(m_Mass + deltaM), exponent++);
-            }
-
-            // set evolutionary stage based on cutoff
-            lGroup = utils::Compare(log10(m_Radius), cutOff) > 0 ? LOVERIDGE_GROUP::LMR2 : LOVERIDGE_GROUP::LMR1;
-        }
-    }
-
-    // calculate log10(binding energy)
-    constexpr double deltaR           = 1.0E-5;
-              double logBindingEnergy = 0.0;
-    for (auto const& lCoefficients: LOVERIDGE_COEFFICIENTS[lMetallicity][static_cast<int>(lGroup)]) {
-        logBindingEnergy += lCoefficients.alpha_mr * utils::intPow(log10(m_Mass), lCoefficients.m) * utils::intPow(log10(m_Radius + deltaR), lCoefficients.r);
-    }
-
-    double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
-    logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
-
-    logBindingEnergy += 33.29866;                                                           // + logBE0
-
-	return logBindingEnergy;
-}
-
-
-/*
- * Calculata lambda parameter from the so-called energy formalism of CE (Webbink 1984).
- *
- * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=erg, so use cgs
- *
- *
- * double CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const bool p_IsMassLoss)
- *
- * @param   [IN]    p_EnvMass                   Envelope mass (Msol)
- * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
- * @return                                      Common envelope lambda parameter
- */
-double BaseStar::CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const bool p_IsMassLoss) const {
-
-    double bindingEnergy = PPOW(10.0, CalculateLogBindingEnergyLoveridge(p_IsMassLoss));
-    return utils::Compare(bindingEnergy, 0.0) > 0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : 1.0E-20;
-}
-
-
 /* 
  * Wrapper function to return Nanjing lambda based on options
  * 
@@ -1412,34 +1302,6 @@ double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, c
 
         return qCrit;
 }
-
-
-
-
-/*
- * Calculate all Lambdas
- *
- * Lambda calculations as tracker for binding energy;
- *
- *
- *
- * void CalculateLambdas(const double p_EnvMass)
- *
- * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
- */
-void BaseStar::CalculateLambdas(const double p_EnvMass) {
-
-    m_Lambdas.fixed          = OPTIONS->CommonEnvelopeLambda();
-	m_Lambdas.nanjing        = CalculateLambdaNanjing();
-	m_Lambdas.loveridge      = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, false);
-	m_Lambdas.loveridgeWinds = CalculateLambdaLoveridgeEnergyFormalism(p_EnvMass, true);      
-	m_Lambdas.kruckow        = CalculateLambdaKruckow(m_Radius, OPTIONS->CommonEnvelopeSlopeKruckow());
-	m_Lambdas.kruckowTop     = CalculateLambdaKruckow(m_Radius, -2.0 / 3.0);
-	m_Lambdas.kruckowMiddle  = CalculateLambdaKruckow(m_Radius, -4.0 / 5.0);
-	m_Lambdas.kruckowBottom  = CalculateLambdaKruckow(m_Radius, -1.0);
-	m_Lambdas.dewi           = CalculateLambdaDewi();
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                                                                   //
@@ -4231,10 +4093,12 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 
 	if (p_Radius <= 0.0) {                                                              // positive radius?
         SHOW_WARN(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");                  // warn radius not positive JR: should this throw an error? **Ilya**
+        THROW_ERROR_STATIC(ERROR::RADIUS_NOT_POSITIVE, "Binding energy = 0.0");
 	}
 	else if (p_Lambda <= 0.0) {                                                         // positive lambda?
         // Not necessarily zero as sometimes lambda is made 0, or maybe weird values for certain parameters of the fit. Not sure about the latter. JR: let's look at this... **Ilya**
         SHOW_WARN(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");                  // warn lambda not positive
+        THROW_ERROR_STATIC(ERROR::LAMBDA_NOT_POSITIVE, "Binding energy = 0.0");
 	}
 	else {                                                                              // calculate binding energy
         // convert to CGS where necessary
@@ -4248,25 +4112,6 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
 	}
 
 	return bindingEnergy;
-}
-
-
-/*
- * Calculate all binding energies
- *
- *
- * void CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius)
- *
- * @param   [IN]    p_CoreMass                  Core mass of the star (Msol)
- * @param   [IN]    p_EnvMass                   Envelope mass of the star (Msol)
- * @param   [IN]    p_Radius                    Radius of the star (Rsol)
- */
-void BaseStar::CalculateBindingEnergies(const double p_CoreMass, const double p_EnvMass, const double p_Radius) {
-    m_BindingEnergies.fixed          = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.fixed);
-	m_BindingEnergies.nanjing        = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.nanjing);
-	m_BindingEnergies.loveridge      = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.loveridge);
-	m_BindingEnergies.loveridgeWinds = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.loveridgeWinds);
-	m_BindingEnergies.kruckow        = CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, m_Lambdas.kruckow);
 }
 
 
