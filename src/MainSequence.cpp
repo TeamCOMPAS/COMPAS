@@ -830,15 +830,21 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
             // Set core mass following Shikauchi et al. (2024) and account for rejuvenation if core grows
             // MZAMS >= BRCEK_LOWER_MASS_LIMIT? BRCEK prescription valid
             if (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
-                // Only proceed with calculations if star is not in MS hook (Yc < 1-Z), time step is not zero,
-                // and when the mass loss rate argument is equal to the total mass loss rate
-                // (i.e. total mass loss rate was updated, this prevents the calculation in SSE if it was executed as part of BSE for the same time step)
-                if ((utils::Compare(m_HeliumAbundanceCore, 1.0 - m_Metallicity) < 0) && (utils::Compare(p_Dt, 0.0) != 0) && (utils::Compare(p_MassLossRate, m_TotalMassLossRate) == 0)) {
-                    
-                    std::tie(mainSequenceCoreMass, heliumAbundanceCore) = CalculateMainSequenceCoreMassBrcek(p_Dt, p_MassLossRate);     // calculate and update the core mass and central helium fraction
-
-                    double tMS = m_Timescales[static_cast<int>(TIMESCALE::tMS)];       
-                    age        = (heliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;            // update the effective age based on central helium fraction
+                // Only proceed with calculations if star is not in MS hook (Yc < 1-Z) and time step is not zero
+                if ((utils::Compare(m_HeliumAbundanceCore, 1.0 - m_Metallicity) < 0) && (utils::Compare(p_Dt, 0.0) != 0)) {
+                    // Update the core mass and central helium fraction only if the mass loss rate argument is equal to the total mass loss rate
+                    // (i.e. total mass loss rate was updated, this prevents the calculation in SSE if it was executed as part of BSE for the same time step)
+                    double tMS = m_Timescales[static_cast<int>(TIMESCALE::tMS)];
+                    if (utils::Compare(p_MassLossRate, m_TotalMassLossRate) == 0) {
+                        // Calculate and update the core mass and central helium fraction
+                        std::tie(mainSequenceCoreMass, heliumAbundanceCore) = CalculateMainSequenceCoreMassBrcek(p_Dt, p_MassLossRate);
+                        // Update age here only if core hydrogen was exhausted in this timestep
+                        age = heliumAbundanceCore == 1.0 - m_Metallicity ? 0.99 * tMS : age;
+                    }
+                    // Update age only when single stars are aged in SSE (when mass loss argument equals -Mdot)
+                    if (utils::Compare(p_MassLossRate, -m_Mdot) == 0)
+                        // Update the effective age based on central helium fraction
+                        age = (heliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;
                 }
             }
             // MZAMS < BRCEK_LOWER_MASS_LIMIT? MANDEL prescription used
