@@ -2818,7 +2818,7 @@ double BaseStar::CalculateMassGainValues(double p_accretorRLradius, bool p_isHeR
 
         std::tie(windAccumulationRate, betaThermal) = CalculateMassAcceptanceRate(windAccretionRate,CalculateThermalMassAcceptanceRate(p_accretorRLradius),p_isHeRich);
 
-        massGain = m_Dt * windAccumulationRate * MYR_TO_YEAR;                     // calculate mass loss - unlimited, should add a check later, Msun / yr
+        massGain = windAccumulationRate * (m_Dt * MYR_TO_YEAR);                     // calculate mass loss - unlimited, should add a check later ( msol / yr )
     }
     return massGain;
 }

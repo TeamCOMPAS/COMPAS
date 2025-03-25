@@ -1972,14 +1972,14 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
     else {
         if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
 
-            double newMassAfterWinds1 = m_Star1->CalculateMassLossValues(true);
-            double accretorRLradius1 = CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
-            bool donorIsHeRich1      = m_Star2->IsOneOf(He_RICH_TYPES);
+            double newMassAfterWinds1 = m_Star1->CalculateMassLossValues(true);                                                                                         // Mass star 1 after windloss
+            double RLradius1          = CalculateRocheLobeRadius_Static(m_Star1->Mass(), m_Star2->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);      // RL-radius of star 1
+            bool   IsHeRich1          = m_Star1->IsOneOf(He_RICH_TYPES);                                                                                                // Star 1 is He-rich
 
             // calculate new values assuming mass loss applied
-            double newMassAfterWinds2 = m_Star2->CalculateMassLossValues(true);  
-            double accretorRLradius2 = CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);
-            bool donorIsHeRich2      = m_Star1->IsOneOf(He_RICH_TYPES);
+            double newMassAfterWinds2 = m_Star2->CalculateMassLossValues(true);                                                                                         // Mass star 1 after windloss
+            double RLradius2          = CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * AU_TO_RSOL * m_SemiMajorAxis * (1.0 - m_Eccentricity);       // RL-radius of star 2
+            bool   IsHeRich2          = m_Star2->IsOneOf(He_RICH_TYPES);                                                                                                 // Star 2 is He-rich
 
             // calculate new values assuming mass loss applied
 
@@ -1989,9 +1989,10 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
                               STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, 
                               STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF})) {                                                        // Only do this if one star is a WD. This can be removed later when the option is generalized later
 
-                    CalculateWindAccretionRate();
-                    newMassAfterWinds1 += m_Star1->CalculateMassGainValues(accretorRLradius1, donorIsHeRich1);                                  // calculate new values assuming mass gain applied
-                    newMassAfterWinds2 += m_Star2->CalculateMassGainValues(accretorRLradius2, donorIsHeRich2);                                                   // calculate new values assuming mass gain applied
+                    CalculateWindAccretionRate();   
+
+                    newMassAfterWinds1 += m_Star1->CalculateMassGainValues(RLradius1, IsHeRich2);                                                  // calculate new values assuming mass gain applied
+                    newMassAfterWinds2 += m_Star2->CalculateMassGainValues(RLradius2, IsHeRich1);                                                  // calculate new values assuming mass gain applied
 
                 }
             }
@@ -2027,7 +2028,7 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
 /*
 * Calculating Wind velocity according to the given WindAccretionPrescription()
 *
-* Should the name be changed to CalculateWindVelocityAtAccretor
+* Should the name be changed to CalculateWindVelocityAtAccretor or add distance as parameter
 *
 * double CalculateWindVelocity()
 */
@@ -2051,6 +2052,24 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 	    break;
         }
 
+        case WIND_ACCRETION_PRESCRIPTION::VOGEL1991: { // Wind velocity according to Vogel (1991)
+
+            double v_inf = escapeVelocity; // This is an assumption, it might have to be factor 1/2
+
+            if ( p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius <= 3.75) {
+
+                windVelocity = 0.2 * PPOW(3.75,-10) * PPOW(p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius,10) * v_inf;
+
+            }
+
+            else {
+
+                windVelocity = (1 - exp (-2/3 * (p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius - 3.42 ))) * v_inf;
+
+            }
+
+        }
+
         case WIND_ACCRETION_PRESCRIPTION::HIRAI2021: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2021)
 
             double alpha_force_multiplier = 0.5;        // I think it would be best to make this an OPTION
@@ -2066,7 +2085,7 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
 	}
 
-    return windVelocity;
+    return windVelocity; // AU / yr
 
 }
 
