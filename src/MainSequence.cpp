@@ -591,7 +591,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
         double heliumAbundanceSurface = m_HeliumAbundanceSurface;
         
-        if (p_Mass < m_InitialMainSequenceCoreMass)
+        if (utils::Compare(p_Mass, m_InitialMainSequenceCoreMass) < 0)
             // By tracing the helium abundance profile in the star, this calculates how the surface helium abundance changes if mass drops below the initial core mass
             heliumAbundanceSurface = m_HeliumAbundanceCoreOut + (p_Mass - m_MainSequenceCoreMass) * (m_HeliumAbundanceSurface - m_HeliumAbundanceCoreOut) / (m_InitialMainSequenceCoreMass - m_MainSequenceCoreMass);
         
@@ -796,7 +796,7 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
     }
     else {                                                                                                                                                      // Core decayed
         // If total mass dropped below the initial core mass, partially processed material is exposed and surface abundance needs to be adjusted
-        if (m_Mass + deltaMass < m_InitialMainSequenceCoreMass) {
+        if (utils::Compare(m_Mass + deltaMass, m_InitialMainSequenceCoreMass) < 0) {
             // Set surface helium abundance following the helium abundance profile in the star
             m_HeliumAbundanceSurface      = m_HeliumAbundanceCoreOut + (m_Mass + deltaMass - m_MainSequenceCoreMass) * (m_HeliumAbundanceSurface - m_HeliumAbundanceCoreOut) / (m_InitialMainSequenceCoreMass - m_MainSequenceCoreMass);
             m_HydrogenAbundanceSurface    = 1.0 - m_Metallicity - m_HeliumAbundanceSurface;
