@@ -2068,6 +2068,8 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
             }
 
+            break;
+
         }
 
         case WIND_ACCRETION_PRESCRIPTION::HIRAI2021: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2021)
