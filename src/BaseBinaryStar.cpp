@@ -1986,6 +1986,12 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
             m_Star1->SetMassLossDiff(newMassAfterWinds1 - m_Star1->Mass());                                                             // JR: todo: find a better way?
             m_Star2->SetMassLossDiff(newMassAfterWinds2 - m_Star2->Mass());                                                             // JR: todo: find a better way?
 
+            double aWinds  = m_SemiMajorAxisPrev * (m_Star1->Mass() + m_Star2->Mass()) 
+                             / (newMassAfterWinds1 + newMassAfterWinds2);                                                               // new semi-major axis after wind mass loss, integrated to ensure a*M conservation
+
+            m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                             // change to orbit (semi-major axis) due to winds mass loss
+
+                             
             if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
 
                 if (HasOneOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, 
@@ -2003,14 +2009,8 @@ void BaseBinaryStar::CalculateWindsMassLoss() {
                 }
             }
 
-            double aWinds  = m_SemiMajorAxisPrev * (m_Star1->Mass() + m_Star2->Mass()) 
-                             / (newMassAfterWinds1 + newMassAfterWinds2);                                                               // new semi-major axis after wind mass loss, integrated to ensure a*M conservation
-            
-
             m_Star1->ResolveShellChange(m_Star1->MassLossDiff()); // does this need to be behind a IF statement
             m_Star2->ResolveShellChange(m_Star2->MassLossDiff()); // does this need to be behind a IF statement
-
-            m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                             // change to orbit (semi-major axis) due to winds mass loss
         
             if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
 
@@ -2062,12 +2062,23 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
             double v_inf = escapeVelocity; // This is an assumption, it might have to be factor 1/2
 
-            if ( p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius <= 3.75) {
+            double distance = (p_semiMajorAxis * AU_TO_RSOL) / p_DonorRadius; // Distance in ( rStar )
 
-                windVelocity = 0.2 * PPOW(3.75,-10) * PPOW(p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius,10) * v_inf; 
+            if ( (distance > 0) & (distance <= 3.75)) {
+
+                windVelocity = 0.2 * PPOW(distance / 3.75, 10) * v_inf; 
+                if ( PPOW(distance / 3.75, 10) > 1 ) {std::cout << "Impossible efficiencies 1 ";} 
+                if ( PPOW(distance / 3.75, 10) > 1 ) {std::cout << distance / 3.75;} 
+
             }
 
-            else { windVelocity = (1 - exp(-2/3 * (p_semiMajorAxis * AU_TO_RSOL / p_DonorRadius - 3.42 ))) * v_inf; }
+            else { 
+                
+                windVelocity = (1 - exp(-2/3 * (distance - 3.42 ))) * v_inf; 
+                if ((1 - exp(-2/3 * (distance - 3.42 ))) > 1) {std::cout << "Impossible efficiencies 2 ";} 
+
+            }
+
 
         break; }
 
