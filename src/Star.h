@@ -134,6 +134,7 @@ public:
     double              SN_Phi() const                                                                              { return m_Star->SN_Phi(); }
     double              SN_Theta() const                                                                            { return m_Star->SN_Theta(); }
     double              SN_TotalMassAtCOFormation() const                                                           { return m_Star->SN_TotalMassAtCOFormation(); }
+    double              SN_TotalRadiusAtCOFormation() const                                                         { return m_Star->SN_TotalRadiusAtCOFormation(); }
     double              SN_TrueAnomaly() const                                                                      { return m_Star->SN_TrueAnomaly(); }
     double              SN_EccentricAnomaly() const                                                                 { return m_Star->SN_EccentricAnomaly(); }
     SN_EVENT            SN_Type() const                                                                             { return m_Star->SN_Type(); }
@@ -172,7 +173,7 @@ public:
                                                              const double p_ConvectiveEnvelopeMass,
                                                              const double p_Radius,
                                                              const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
-    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const     { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
+    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
     DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
@@ -188,7 +189,7 @@ public:
                                                 const double p_AccretorMassRate,
                                                 const bool   p_IsHeRich)                                            { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate, p_IsHeRich); }
 
-    double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false)        { return m_Star->CalculateMassLossValues(p_UpdateMDot, p_UpdateMDt); }
+    double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false)                           { return m_Star->CalculateMassLossValues(p_Dt, p_UpdateMDot); }
     double          CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich)                             { return m_Star->CalculateMassGainValues(p_accretorRLradius, p_isHeRich); }
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
@@ -198,7 +199,7 @@ public:
     
     double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
-    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                        { return m_Star->CalculateRadiusOnPhaseTau(p_Mass, p_Tau); }
+    double          CalculateRadiusOnMassChange(double p_dM)                                                        { return m_Star->CalculateRadiusOnMassChange(p_dM); }
     
     double          CalculateRemnantRadius()                                                                        { return m_Star->CalculateRemnantRadius(); }
     
@@ -231,7 +232,7 @@ public:
 
     EVOLUTION_STATUS Evolve(const long int p_Id);
 
-    double          EvolveOneTimestep(const double p_Dt, const bool p_Force = false);
+    void            EvolveOneTimestep(const double p_Dt);
 
     double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
                                          const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGeEtAlQCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }

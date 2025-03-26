@@ -161,6 +161,7 @@ public:
             unsigned long int   RandomSeed() const                                              { return m_RandomSeed; }
             double              RZAMS() const                                                   { return m_RZAMS; }
             double              SN_CoreMassAtCOFormation() const                                { return m_SupernovaDetails.coreMassAtCOFormation; }
+            double              SN_CoreRadiusAtCOFormation() const                              { return m_SupernovaDetails.coreRadiusAtCOFormation; }
             double              SN_COCoreMassAtCOFormation() const                              { return m_SupernovaDetails.COCoreMassAtCOFormation; }
             SupernovaDetailsT   SN_Details() const                                              { return m_SupernovaDetails; }
             double              SN_DrawnKickMagnitude() const                                   { return m_SupernovaDetails.drawnKickMagnitude; }
@@ -175,6 +176,7 @@ public:
             double              SN_RocketKickPhi() const                                        { return m_SupernovaDetails.rocketKickPhi; }
             double              SN_RocketKickTheta() const                                      { return m_SupernovaDetails.rocketKickTheta; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
+            double              SN_TotalRadiusAtCOFormation() const                             { return m_SupernovaDetails.totalRadiusAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
@@ -264,7 +266,7 @@ public:
     
             double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
-            double          CalculateMassLossValues(const bool p_UpdateMDot = false, const bool p_UpdateMDt = false);                                                               // JR: todo: better name?
+            double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false);
             double          CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich);                                                               
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
@@ -282,8 +284,8 @@ public:
     
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
     
-    virtual double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const            { return 0.0; }                                                     // Only defined for MS stars
-    
+    virtual double          CalculateRadiusOnMassChange(double p_dM)                                            { return Radius(); } // NO-OP
+        
     virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }                                                // Relevant for MS stars, over-written for GB stars
 
 
@@ -334,7 +336,7 @@ public:
 
     virtual STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false)                                           { return m_StellarType; }
 
-    virtual void            ResolveMassLoss(const bool p_UpdateMDt = true);
+    virtual void            ResolveMassLoss(double p_Dt);
 
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
        
@@ -566,7 +568,7 @@ protected:
 
     virtual double              CalculateLambdaDewi() const                                                             { return 1.0; }                                                             // Default for stellar types with no LamdaDewi definitions - 1.0 is benign
             double              CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
-            double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const double p_IsMassLoss = false) const;
+            double              CalculateLambdaLoveridgeEnergyFormalism(const double p_EnvMass, const bool p_IsMassLoss = false) const;
     virtual double              CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return 1.0; }                                                             // Default for stellar types with no LamdaNanjing definitions - 1.0 is benign
     virtual double              CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return 1.0; }                                                  // Default for stellar types with no LamdaNanjing definitions - 1.0 is benign
 
@@ -594,8 +596,6 @@ protected:
                                                                     const double       p_DtPrev);
     
             void                CalculateMassCutoffs(const double p_Metallicity, const double p_LogMetallicityXi, DBL_VECTOR &p_MassCutoffs);
-
-    static  double              CalculateMassLoss_Static(const double p_Mass, const double p_Mdot, const double p_Dt);
 
     virtual double              CalculateMassLossRate();
     virtual double              CalculateMassLossRateHurley();

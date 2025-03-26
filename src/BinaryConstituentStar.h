@@ -235,7 +235,8 @@ public:
                                                const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
                                                                                                                            ExperiencedRecycledNS(), 
                                                                                                                            p_Stepsize, 
-                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }
+                                                                                                                           m_MassTransferDiff * MSOL_TO_G,
+                                                                                                                           p_Epsilon); }
 
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  Sanity check?
     void            SetWindAccretionRate(const double p_WindAccretionRate)              { m_WindAccretionRate = p_WindAccretionRate; }
