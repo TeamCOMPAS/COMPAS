@@ -2123,9 +2123,15 @@ void BaseBinaryStar::CalculateWindAccretionRate() {
         double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( m_Star1->Mass() + m_Star2->Mass() ) / m_SemiMajorAxis); // orbital velocity ( AU / yr )^2
         
         double aSquared = m_SemiMajorAxis * m_SemiMajorAxis; // AU^2
-    
-        double windAccretionRate1 = - PPOW(G_AU_Msol_yr * m_Star1->Mass(), 2) * xi_w / (2 * aSquared) / windVelocity2 / PPOW(windVelocity2 * windVelocity2 + orbitalVelocitySquared, 3/2) * (m_Star2->MassLossDiff() / (m_Dt * MYR_TO_YEAR)); // Accretion onto Star 1 ( mSol / yr )
-        double windAccretionRate2 = - PPOW(G_AU_Msol_yr * m_Star2->Mass(), 2) * xi_w / (2 * aSquared) / windVelocity1 / PPOW(windVelocity1 * windVelocity1 + orbitalVelocitySquared, 3/2) * (m_Star1->MassLossDiff() / (m_Dt * MYR_TO_YEAR)); // Accretion onto Star 2 ( mSol / yr )
+
+        double windRate1 = m_Star1->MassLossDiff() / (m_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
+        double windRate2 = m_Star2->MassLossDiff() / (m_Dt * MYR_TO_YEAR); // Mass loss rate star 2 ( mSol / yr )
+
+        double accretionEfficiency1 = PPOW(G_AU_Msol_yr * m_Star1->Mass(), 2) * xi_w / (2 * aSquared) / windVelocity2 / PPOW(windVelocity2 * windVelocity2 + orbitalVelocitySquared, 3/2); // Efficiency with which star 1 accretes wind 
+        double accretionEfficiency2 = PPOW(G_AU_Msol_yr * m_Star2->Mass(), 2) * xi_w / (2 * aSquared) / windVelocity1 / PPOW(windVelocity1 * windVelocity1 + orbitalVelocitySquared, 3/2); // Efficiency with which star 2 accretes wind 
+
+        long double windAccretionRate1 = - accretionEfficiency1 * windRate2; // Accretion onto Star 1 ( mSol / yr )
+        long double windAccretionRate2 = - accretionEfficiency2 * windRate1; // Accretion onto Star 2 ( mSol / yr )
 
         double radiusBondi1 = 2 * G_AU_Msol_yr * m_Star1->Mass() / (windVelocity2 * windVelocity2 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
         double radiusBondi2 = 2 * G_AU_Msol_yr * m_Star2->Mass() / (windVelocity1 * windVelocity1 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
