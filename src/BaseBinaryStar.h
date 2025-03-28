@@ -452,7 +452,7 @@ private:
                                   const double p_DonorRadius, 
                                   const double p_semiMajorAxis);
                                   
-    void    CalculateWindAccretionRate(double p_SemiMajorAxis);
+    void    CalculateWindAccretionRate(double p_Dt, double p_mass1, double p_mass2, double p_SemiMajorAxis);
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
