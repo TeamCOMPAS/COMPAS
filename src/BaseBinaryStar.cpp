@@ -2129,9 +2129,6 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
         double alpha_w1 = CalculateWindVelocity(p_mass1, m_Star1->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor ( AU / yr )
         double alpha_w2 = CalculateWindVelocity(p_mass2, m_Star2->Radius(), p_SemiMajorAxis); // Wind for Star2 as donor ( AU / yr )
 
-        if (alpha_w1 > 1) { std::cout << " Impossible wind velocity 1 "; }
-        if (alpha_w2 > 1) { std::cout << " Impossible wind velocity 2 "; }
-
         double windVelocity1 = alpha_w1 * escapeVelocity1;
         double windVelocity2 = alpha_w2 * escapeVelocity2;
 
@@ -2140,8 +2137,6 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
         double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( p_mass1 + p_mass2 ) / p_SemiMajorAxis); // orbital velocity ( AU / yr )^2
         
         double aSquared = p_SemiMajorAxis * p_SemiMajorAxis; // AU^2
-
-        std::cout << m_Dt << " and " << p_Dt << "  " ;
 
         double windRate1 = m_Star1->MassLossDiff() / (m_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
         double windRate2 = m_Star2->MassLossDiff() / (m_Dt * MYR_TO_YEAR); // Mass loss rate star 2 ( mSol / yr )
@@ -2159,8 +2154,6 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
         if ( windVelocity2 == 0 ) {
             accretionEfficiency1 = 0;   
         }
-
-        if (accretionEfficiency1 > 1) { std::cout << " Impossible accretion efficiency "; }
 
         double windAccretionRate1 = - accretionEfficiency1 * windRate2; // Accretion onto Star 1 ( mSol / yr )
         double windAccretionRate2 = - accretionEfficiency2 * windRate1; // Accretion onto Star 2 ( mSol / yr )
