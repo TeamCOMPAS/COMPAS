@@ -2138,8 +2138,8 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
 
         double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_mass1 / (m_Star2->Radius() * RSOL_TO_AU)); // AU / yr
 
-        double alpha_w1 = std::min(1.0,CalculateWindVelocity(p_mass1, m_Star1->Radius(), p_SemiMajorAxis)); // Wind for Star1 as donor ( AU / yr )
-        double alpha_w2 = std::min(1.0,CalculateWindVelocity(p_mass2, m_Star2->Radius(), p_SemiMajorAxis)); // Wind for Star2 as donor ( AU / yr )
+        double alpha_w1 = CalculateWindVelocity(p_mass1, m_Star1->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor ( AU / yr )
+        double alpha_w2 = CalculateWindVelocity(p_mass2, m_Star2->Radius(), p_SemiMajorAxis); // Wind for Star2 as donor ( AU / yr )
 
         double windVelocity1 = alpha_w1 * escapeVelocity;
         double windVelocity2 = alpha_w2 * escapeVelocity;
@@ -2153,8 +2153,11 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
         double windRate1 = m_Star1->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
         double windRate2 = m_Star2->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 2 ( mSol / yr )
 
-        double accretionEfficiency1 = PPOW(G_AU_Msol_yr * p_mass1, 2) * xi_w * PPOW(windVelocity2 * windVelocity2 + orbitalVelocitySquared, -3/2) / (2 * aSquared * windVelocity2); // Efficiency with which star 1 accretes wind 
-        double accretionEfficiency2 = PPOW(G_AU_Msol_yr * p_mass2, 2) * xi_w * PPOW(windVelocity1 * windVelocity1 + orbitalVelocitySquared, -3/2) / (2 * aSquared * windVelocity1); // Efficiency with which star 2 accretes wind 
+        double maxAccretionEfficiency1 = PPOW(G_AU_Msol_yr * p_mass1, 2) * xi_w * PPOW(windVelocity2 * windVelocity2 + orbitalVelocitySquared, -3/2) / (2 * aSquared * windVelocity2); // Efficiency with which star 1 accretes wind 
+        double maxAccretionEfficiency2 = PPOW(G_AU_Msol_yr * p_mass2, 2) * xi_w * PPOW(windVelocity1 * windVelocity1 + orbitalVelocitySquared, -3/2) / (2 * aSquared * windVelocity1); // Efficiency with which star 2 accretes wind 
+
+        double accretionEfficiency1 = std::min(1.0,maxAccretionEfficiency1);
+        double accretionEfficiency2 = std::min(1.0,maxAccretionEfficiency2);
 
         if ( windVelocity1 == 0 ) {
             accretionEfficiency2 = 0;   
