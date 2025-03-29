@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Sat Mar 22 22:23:50 2025 by COMPAS v03.17.00
+##~!!~## File Created Sat Mar 29 19:46:37 2025 by COMPAS v03.17.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -149,7 +149,6 @@ numericalChoices:
 #    --mass-transfer-jloss-macleod-linear-fraction-degen: 0.500000         # Default: 0.500000
 #    --mass-transfer-jloss-macleod-linear-fraction-non-degen: 0.500000     # Default: 0.500000
 #    --mass-transfer-thermal-limit-C: 10.000000                            # Default: 10.000000
-#    --response-to-spin-up: 'KEPLERIAN_LIMIT'                              # Default: 'KEPLERIAN_LIMIT'
 #    --zeta-adiabatic-arbitrary: 10000.00                                  # Default: 10000.00
 #    --zeta-main-sequence: 2.000000                                        # Default: 2.000000
 #    --zeta-radiative-envelope-giant: 6.500000                             # Default: 6.500000
@@ -263,6 +262,7 @@ stringChoices:
 #    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
 #    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','HURLEY']
 #    --mass-transfer-thermal-limit-accretor-multiplier: 'CFACTOR'          # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
+#    --response-to-spin-up: 'TRANSFER_TO_ORBIT'                            # Default: 'TRANSFER_TO_ORBIT'           # Options: ['NO_LIMIT','KEPLERIAN_LIMIT','TRANSFER_TO_ORBIT']
 
     ### COMMON ENVELOPE
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']

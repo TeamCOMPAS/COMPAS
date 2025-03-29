@@ -2565,6 +2565,7 @@ void BaseBinaryStar::ResolveMassChanges() {
  * May limit the amount of accreted mass depending on the ResponseToSpinUp():
  * KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
  * Under TRANSFER_TO_ORBIT,  the star continues to accrete, but excess angular momentum is deposited in the orbit
+ * NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices
  *
  * double ResolveAccretionAngularMomentumGain(BinaryConstituentStar * p_Accretor, BinaryConstituentStar * p_Donor, double p_MassChange)
  *
@@ -2606,6 +2607,17 @@ double BaseBinaryStar::ResolveAccretionAngularMomentumGain(BinaryConstituentStar
             angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
             p_Accretor->SetAngularMomentum(std::min(m_Accretor->AngularMomentum() + angularMomentumChangeStar, maxAngularMomentum));
             extraAngularMomentumChangeOrbit = - (p_Accretor->AngularMomentum() - initialAngularMomentum);
+        } break;
+            
+        case RESPONSE_TO_SPIN_UP::NO_LIMIT: {
+            (void)p_Accretor->UpdateAttributes(p_MassChange, 0.0);                                         // update mass for star
+            p_Accretor->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
+            p_Accretor->UpdateAgeAfterMassLoss();                                                          // update age of star
+            p_Accretor->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
+            p_Accretor->UpdateAttributes(0.0, 0.0, true);
+            angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            p_Accretor->SetAngularMomentum(m_Accretor->AngularMomentum() + angularMomentumChangeStar);
+            extraAngularMomentumChangeOrbit = -angularMomentumChangeStar;
         } break;
         
         default:                                                                                        // unknown prescription

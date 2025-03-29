@@ -57,7 +57,7 @@
 /*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
 /*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
-/* 9. If the option is a string option with multiple-choices - in that the user can       */
+/* 9. If the option is a string option with multiple choices - in that the user can       */
 /*    select from a list of possible values recorded in typedefs.h or LogTypedefs.h in    */
 /*    an ENUM CLASS and corresponding COMPASUnorderedMap labels map - then add the option */
 /*    to the function AllowedOptionValues() here so that we can easily extract the        */
@@ -573,7 +573,7 @@ void Options::OptionValues::Initialise() {
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
     // Response to super-critical spin-up prescription
-    m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT;
+    m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT;
     m_ResponseToSpinUp.typeString                                   = RESPONSE_TO_SPIN_UP_LABEL.at(m_ResponseToSpinUp.type);
     
     // Rotational velocity distribution options
@@ -2677,6 +2677,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
         case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
+        case _("response-to-spin-up")                               : POPULATE_RET(RESPONSE_TO_SPIN_UP_LABEL);                      break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;

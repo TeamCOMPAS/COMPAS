@@ -1191,10 +1191,11 @@ Default = MULLERMANDEL
 
 **--response-to-spin-up** |br|
 Response of the star to super-critical accretion-induced spin-up |br|
-Options: { KEPLERIAN_LIMIT, TRANSFER_TO_ORBIT} |br|
+Options: { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT} |br|
 KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation |br|
 Under TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit |br|
-Default = KEPLERIAN_LIMIT
+NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices |br|
+Default = TRANSFER_TO_ORBIT
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
