@@ -2482,6 +2482,13 @@ void BaseBinaryStar::ResolveMassChanges() {
             if(utils::Compare(massChange, 0.0) < 0) {
                 angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
                 extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
+                // update mass of star according to mass loss and mass transfer, then update age accordingly
+                (void)m_Star1->UpdateAttributes(massChange, 0.0);                                           // update mass for star
+                m_Star1->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
+                m_Star1->UpdateAgeAfterMassLoss();                                                          // update age of star
+                m_Star1->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
+                m_Star1->UpdateAttributes(0.0, 0.0, true);
+                m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChangeStar);
             }
             
             if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
@@ -2501,6 +2508,13 @@ void BaseBinaryStar::ResolveMassChanges() {
             if(utils::Compare(massChange, 0.0) < 0) {
                 angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
                 extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
+                // update mass of star according to mass loss and mass transfer, then update age accordingly
+                (void)m_Star2->UpdateAttributes(massChange, 0.0);                                           // update mass for star
+                m_Star2->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
+                m_Star2->UpdateAgeAfterMassLoss();                                                          // update age of star
+                m_Star2->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
+                m_Star2->UpdateAttributes(0.0, 0.0, true);
+                m_Star2->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChangeStar);
             }
             
             if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
