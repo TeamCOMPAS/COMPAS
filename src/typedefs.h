@@ -815,10 +815,11 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
 };
 
 // response of star to spin-up beyond the Keplerian frequency
-enum class RESPONSE_TO_SPIN_UP: int { KEPLERIAN_LIMIT, TRANSFER_TO_ORBIT };
+enum class RESPONSE_TO_SPIN_UP: int { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT };
 const COMPASUnorderedMap<RESPONSE_TO_SPIN_UP, std::string> RESPONSE_TO_SPIN_UP_LABEL = {
-        { RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT,     "KEPLERIAN_LIMIT" },
-        { RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT,   "TRANSFER_TO_ORBIT" }
+    { RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT,   "TRANSFER_TO_ORBIT" },
+    { RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT,     "KEPLERIAN_LIMIT" },
+    { RESPONSE_TO_SPIN_UP::NO_LIMIT,            "NO_LIMIT"}
 };
 
 // rotational velocity distributions
