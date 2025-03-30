@@ -336,6 +336,7 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
             std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
             envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
+            break;
 
         default:                                                                                    // unknown prescription
             // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
