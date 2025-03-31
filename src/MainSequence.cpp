@@ -760,7 +760,12 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
     auto fmix    = [&](double mass) { return FMIX_COEFFICIENTS[0] + FMIX_COEFFICIENTS[1] * std::exp(-mass / FMIX_COEFFICIENTS[2]); };                           // Shikauchi et al. (2024), eq (A3)
     double alpha = PPOW(10.0, std::max(-2.0, ALPHA_COEFFICIENTS[1] * m_MainSequenceCoreMass + ALPHA_COEFFICIENTS[2])) + ALPHA_COEFFICIENTS[0];                  // ibid, eq (A2)
     double g     = -0.0044 * m_MZAMS + 0.27;                                                                                                                    // ibid, eq (A7)
-    double delta = std::min(PPOW(10.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);       // ibid, eq (A6)
+    
+    double delta;
+    if (p_MassLossRate <= 0.0)
+        delta = std::min(PPOW(10.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);      // ibid, eq (A6)
+    else
+        delta = PPOW(2.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity));                          // updated prescription for mass gain
     
     double deltaYc              = CalculateLuminosityOnPhase() / (Q_CNO * m_MainSequenceCoreMass) * p_Dt;                                                       // Change in central helium fraction; ibid, eq (12)
     double deltaMass            = p_MassLossRate * p_Dt * MYR_TO_YEAR;                                                                                          // Total mass lost/gained
