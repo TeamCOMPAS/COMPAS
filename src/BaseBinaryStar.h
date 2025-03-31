@@ -204,6 +204,9 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
+    double              OrbitalAngularMomentumVectorX() const       { return m_NormalizedOrbitalAngularMomentumVector.xValue(); }
+    double              OrbitalAngularMomentumVectorY() const       { return m_NormalizedOrbitalAngularMomentumVector.yValue(); }
+    double              OrbitalAngularMomentumVectorZ() const       { return m_NormalizedOrbitalAngularMomentumVector.zValue(); }
     double              OrbitalAngularVelocity() const              { return std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0 - m_Eccentricity); }
@@ -241,9 +244,6 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
-    double              SN_OrbitInclinationVectorX() const          { return m_NormalizedOrbitalAngularMomentumVector.xValue(); }
-    double              SN_OrbitInclinationVectorY() const          { return m_NormalizedOrbitalAngularMomentumVector.yValue(); }
-    double              SN_OrbitInclinationVectorZ() const          { return m_NormalizedOrbitalAngularMomentumVector.zValue(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }

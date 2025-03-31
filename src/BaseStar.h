@@ -161,6 +161,7 @@ public:
             unsigned long int   RandomSeed() const                                              { return m_RandomSeed; }
             double              RZAMS() const                                                   { return m_RZAMS; }
             double              SN_CoreMassAtCOFormation() const                                { return m_SupernovaDetails.coreMassAtCOFormation; }
+            double              SN_CoreRadiusAtCOFormation() const                              { return m_SupernovaDetails.coreRadiusAtCOFormation; }
             double              SN_COCoreMassAtCOFormation() const                              { return m_SupernovaDetails.COCoreMassAtCOFormation; }
             SupernovaDetailsT   SN_Details() const                                              { return m_SupernovaDetails; }
             double              SN_DrawnKickMagnitude() const                                   { return m_SupernovaDetails.drawnKickMagnitude; }
@@ -175,6 +176,7 @@ public:
             double              SN_RocketKickPhi() const                                        { return m_SupernovaDetails.rocketKickPhi; }
             double              SN_RocketKickTheta() const                                      { return m_SupernovaDetails.rocketKickTheta; }
             double              SN_TotalMassAtCOFormation() const                               { return m_SupernovaDetails.totalMassAtCOFormation; }
+            double              SN_TotalRadiusAtCOFormation() const                             { return m_SupernovaDetails.totalRadiusAtCOFormation; }
             double              SN_TrueAnomaly() const                                          { return m_SupernovaDetails.trueAnomaly; }
             double              SN_Theta() const                                                { return m_SupernovaDetails.theta; }
             SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }

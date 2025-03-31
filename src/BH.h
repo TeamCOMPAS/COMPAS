@@ -46,8 +46,14 @@ public:
 protected:
     
     void Initialise() {
-        CalculateTimescales();                                                                                                                          // Initialise timescales
-        m_Age = 0.0;                                                                                                                                    // Set age appropriately
+
+        // set internal properties to zero to avoid meaningless values
+        m_Age        = 0.0;
+        m_COCoreMass = 0.0;
+        m_HeCoreMass = 0.0;
+        m_CoreMass   = 0.0;
+        m_Mass0      = 0.0;
+        
         EvolveOnPhase(0.0);
     }
     
