@@ -680,14 +680,12 @@ Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--LBV-mass-loss-prescription** |br|
 Luminous blue variable mass loss prescription. |br|
-Options: { NONE, ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
-``NONE``       : No LBV winds |br|
+Options: { ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
 ``ZERO``       : No LBV winds |br|
 ``HURLEY``     : Hurley, Pols, Tout (2000) |br|
 ``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
 ``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
 Default = HURLEY_ADD |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--log-classes** |br|
 Logging classes to be enabled (vector). |br|
@@ -811,14 +809,12 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { ZERO, NONE, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
-``ZERO/NONE``     : No wind mass loss |br|
+Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
+``ZERO``          : No wind mass loss |br|
 ``HURLEY``        : Mass loss according to Hurley (2000) |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
 ``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
 Default = MERRITT2024 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
-
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -1022,10 +1018,9 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--OB-mass-loss-prescription** |br|
 Main sequence mass loss prescription. |br|
-Options: { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
-NONE/ZERO turns off mass loss for main sequence stars.|br|
+Options: { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+ZERO turns off mass loss for main sequence stars.|br|
 Default = VINK2021 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--orbital-period** |br|
 Initial orbital period for a binary star when evolving in BSE mode (days). |br|
@@ -1257,10 +1252,9 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--RSG-mass-loss-prescription** |br|
 Red supergiant mass loss prescription. |br|
-Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+Options: { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
 Default = DECIN2023 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-S:
 
@@ -1319,7 +1313,7 @@ Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). When using this prescription, set ``--chemically-homogeneous-evolution-mode NONE`` to avoid conflicts with stellar spins. |br|
+``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
 Default = NONE
 
 **--timestep-filename** |br|
@@ -1369,11 +1363,10 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--VMS-mass-loss-prescription** |br|
 Very massive main sequence mass loss prescription. |br|
-Options: { NONE, ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Options: { ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
 Applied above the VMS_MASS_THRESHOLD (:math:`100 M_\odot`) by default. |br|
-NONE/ZERO turns off VMS mass loss. |br|
+ZERO turns off VMS mass loss. |br|
 Default = SABHAHIT2023 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-W:
 
@@ -1392,7 +1385,7 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--WR-mass-loss-prescription** |br|
 Wolf-Rayet mass loss prescription. |br|
-Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
+Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019, ZERO } |br|
 Default = SANDERVINK2023
 
 .. _options-props-X:

@@ -563,9 +563,8 @@ const COMPASUnorderedMap<KICK_DIRECTION_DISTRIBUTION, std::string> KICK_DIRECTIO
 enum class L_CONSTANTS: int { B_ALPHA_L, B_BETA_L, B_DELTA_L, COUNT };
 
 // LBV mass loss prescriptions
-enum class LBV_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY_ADD, HURLEY, BELCZYNSKI };
+enum class LBV_MASS_LOSS_PRESCRIPTION: int { ZERO, HURLEY_ADD, HURLEY, BELCZYNSKI };
 const COMPASUnorderedMap<LBV_MASS_LOSS_PRESCRIPTION, std::string> LBV_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { LBV_MASS_LOSS_PRESCRIPTION::NONE,       "NONE" },     // DEPRECATED June 2024 - remove end 2024
     { LBV_MASS_LOSS_PRESCRIPTION::ZERO,       "ZERO" },
     { LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD, "HURLEY_ADD" },
     { LBV_MASS_LOSS_PRESCRIPTION::HURLEY,     "HURLEY" },
@@ -596,13 +595,12 @@ enum class MASS_CUTOFF: int {
 };
 
 // mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 };
+enum class MASS_LOSS_PRESCRIPTION: int { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },     // DEPRECATED June 2024 - remove end 2024
     { MASS_LOSS_PRESCRIPTION::ZERO,           "ZERO" },
     { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
     { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { MASS_LOSS_PRESCRIPTION::MERRITT2024,   "MERRITT2024" }
+    { MASS_LOSS_PRESCRIPTION::MERRITT2024,    "MERRITT2024" }
 };
 
 // symbolic names for mass loss rate type
@@ -724,9 +722,8 @@ const COMPASUnorderedMap<NS_EOS, std::string> NS_EOS_LABEL = {
 };
 
 // OB (main sequence) mass loss prescriptions
-enum class OB_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
+enum class OB_MASS_LOSS_PRESCRIPTION: int { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
 const COMPASUnorderedMap<OB_MASS_LOSS_PRESCRIPTION, std::string> OB_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { OB_MASS_LOSS_PRESCRIPTION::NONE,          "NONE" },       // DEPRECATED June 2024 - remove end 2024
     { OB_MASS_LOSS_PRESCRIPTION::ZERO,          "ZERO" },
     { OB_MASS_LOSS_PRESCRIPTION::VINK2001,      "VINK2001" },
     { OB_MASS_LOSS_PRESCRIPTION::VINK2021,      "VINK2021" },
@@ -973,9 +970,8 @@ const COMPASUnorderedMap<QCRIT_PRESCRIPTION, std::string> QCRIT_PRESCRIPTION_LAB
 };
 
 // RSG mass loss prescriptions
-enum class RSG_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
+enum class RSG_MASS_LOSS_PRESCRIPTION: int { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
 const COMPASUnorderedMap<RSG_MASS_LOSS_PRESCRIPTION, std::string> RSG_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { RSG_MASS_LOSS_PRESCRIPTION::NONE,             "NONE" },   // DEPRECATED June 2024 - remove end 2024
     { RSG_MASS_LOSS_PRESCRIPTION::ZERO,             "ZERO" },
     { RSG_MASS_LOSS_PRESCRIPTION::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
     { RSG_MASS_LOSS_PRESCRIPTION::BEASOR2020,       "BEASOR2020" },
@@ -986,9 +982,8 @@ const COMPASUnorderedMap<RSG_MASS_LOSS_PRESCRIPTION, std::string> RSG_MASS_LOSS_
 };
 
 // VMS (very massive stars) mass loss prescriptions
-enum class VMS_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
+enum class VMS_MASS_LOSS_PRESCRIPTION: int { ZERO, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
 const COMPASUnorderedMap<VMS_MASS_LOSS_PRESCRIPTION, std::string> VMS_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { VMS_MASS_LOSS_PRESCRIPTION::NONE,             "NONE" },   // DEPRECATED June 2024 - remove end 2024
     { VMS_MASS_LOSS_PRESCRIPTION::ZERO,             "ZERO" },
     { VMS_MASS_LOSS_PRESCRIPTION::VINK2011,         "VINK2011" },
     { VMS_MASS_LOSS_PRESCRIPTION::BESTENLEHNER2020, "BESTENLEHNER2020" },
@@ -996,8 +991,9 @@ const COMPASUnorderedMap<VMS_MASS_LOSS_PRESCRIPTION, std::string> VMS_MASS_LOSS_
 };
 
 // WR mass loss prescriptions
-enum class WR_MASS_LOSS_PRESCRIPTION: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
+enum class WR_MASS_LOSS_PRESCRIPTION: int { ZERO, BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
 const COMPASUnorderedMap<WR_MASS_LOSS_PRESCRIPTION, std::string> WR_MASS_LOSS_PRESCRIPTION_LABEL = {
+    { WR_MASS_LOSS_PRESCRIPTION::ZERO,           "ZERO"},
     { WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
     { WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023, "SANDERVINK2023" },
     { WR_MASS_LOSS_PRESCRIPTION::SHENAR2019,     "SHENAR2019" }
@@ -1150,6 +1146,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     KickParameters initialKickParameters;                   // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
     
     double         coreMassAtCOFormation;                   // Core mass of this star when it formed a compact object
+    double         coreRadiusAtCOFormation;                 // Core radius of this star when it formed a compact object
     double         COCoreMassAtCOFormation;                 // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
     double         drawnKickMagnitude;                      // Kick magnitude the system received during the supernova (km s^-1)
     double         eccentricAnomaly;                        // Eccentric anomaly at instataneous time of the SN
@@ -1167,6 +1164,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     SN_STATE       supernovaState;                          // Indicates which star (or stars) are undergoing / have undergone a supernova event
     double         theta;                                   // Kick angle out of the orbital plane, toward the orbital angular momentum axis (rad) [-pi/2, pi/2]
     double         totalMassAtCOFormation;                  // Total mass of the star when it goes supernova and forms a compact object
+    double         totalRadiusAtCOFormation;                // Total radius of the star when it goes supernova and forms a compact object
     double         trueAnomaly;                             // True anomaly at instantaneous time of the SN
 } SupernovaDetailsT;
 

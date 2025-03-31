@@ -49,7 +49,7 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
  */
 double Remnants::ChooseTimestep(const double p_Time) const {
 
-    double dtk = std::min(std::max(0.1, 10.0 * std::max(0.1, 10.0 * p_Time)), 5.0E2);
+    double dtk = std::min(std::max(1.0, p_Time), 500.0);
 
     return std::max(dtk, NUCLEAR_MINIMUM_TIMESTEP);
 }
