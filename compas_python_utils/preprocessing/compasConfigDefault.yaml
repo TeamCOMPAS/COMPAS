@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Sat Mar 29 20:08:06 2025 by COMPAS v03.17.00
+##~!!~## File Created Tue Apr  1 17:29:43 2025 by COMPAS v03.17.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -235,7 +235,7 @@ stringChoices:
 
     ### STELLAR PROPERTIES
 #    --chemically-homogeneous-evolution-mode: 'PESSIMISTIC'                # Default: 'PESSIMISTIC'                 # Options: ['PESSIMISTIC','OPTIMISTIC','NONE']                                                                                                     # chemically homogeneous evolution mode
-#    --envelope-state-prescription: 'LEGACY'                               # Default: ''                            # Options: ['CONVECTIVE_MASS_FRACTION','FIXED_TEMPERATURE','HURLEY','LEGACY']
+#    --envelope-state-prescription: 'LEGACY'                               # Default: 'LEGACY'                      # Options: ['CONVECTIVE_MASS_FRACTION','FIXED_TEMPERATURE','HURLEY','LEGACY']
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --LBV-mass-loss-prescription: 'HURLEY_ADD'                            # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO']
 #    --main-sequence-core-mass-prescription: 'MANDEL'                      # Default: 'MANDEL'                      # Options: ['BRCEK','MANDEL','ZERO']

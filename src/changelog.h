@@ -1518,7 +1518,8 @@
 //                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
 //                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
 //                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
-//                                      - alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
 
 const std::string VERSION_STRING = "03.17.00";
 

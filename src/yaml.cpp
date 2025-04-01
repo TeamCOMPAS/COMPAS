@@ -342,7 +342,7 @@ namespace yaml {
                             }
                         }
                         else {                                                                                              // assume numerical option
-                             if (category != "numericalChoices") continue;                                                  // skip if this category is not numericalChoices
+                            if (category != "numericalChoices") continue;                                                  // skip if this category is not numericalChoices
                         }
 
                         // process the option
