@@ -1511,9 +1511,12 @@
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
 //  03.16.03    RTW - Mar 31, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
-//
+//  03.16.04    AB - Apr 01, 2025    - Defect repair, Enhancement:
+//                                      - Fixes and enhancements to BRCEK core mass prescription: total mass now never reaches the core mass, radius correctly follows the RL radius
+//                                        during nuclear timescale mass transfer, and added functionality to track surface helium abundance on the MS
+//                                      - MainSequence::CalculateRadiusOnPhase() and CalculateRadiusOnPhaseTau() were combined into one function
+//                                      - Limit time step during nuclear timescale mass transfer
 
-
-const std::string VERSION_STRING = "03.16.03";
+const std::string VERSION_STRING = "03.16.04";
 
 # endif // __changelog_h__
