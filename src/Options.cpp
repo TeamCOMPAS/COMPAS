@@ -2581,13 +2581,14 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
     size_t pos  = 0;
     size_t prev = 0;
     while ((pos = descriptions.find('\n', prev)) != std::string::npos) {                                    // extract individual option descriptions (split at newline)
-        std::string rec = descriptions.substr(prev, pos - prev);                                            // this option description
-        rec  = utils::trim(rec);                                                                            // trim whitespace
+        std::string thisRec = descriptions.substr(prev, pos - prev);                                        // this option description
         prev = pos + 1;                                                                                     // set up for next option
-
         // have option description - parse it
-        if (rec.substr(0, 2) == "--" || (rec[0] = '-' && rec.substr(3, 4) == "[ --")) {                     // option description?
+        thisRec.erase(0, 2);                                                                                // remove "  " from start of string
+        if (thisRec.substr(0, 2) == "--" || (thisRec[0] == '-' && thisRec.substr(3, 4) == "[ --")) {        // option description?
                                                                                                             // yes
+            std::string rec = utils::trim(thisRec);                                                         // trim whitespace
+
             // strip the preamble
             if (rec.substr(0, 2) == "--") rec = rec.substr(2, rec.length() - 2);
             else rec = rec.substr(7, rec.length() - 7);
