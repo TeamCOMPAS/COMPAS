@@ -587,18 +587,18 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 
     radius = RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                      // rewrite Hurley et al. 2000, eq 13 for R(t)
     
-    // If BRCEK prescription is used and star was stripped below its initial core mass, radius needs to be adjusted based on the surface helium abundance
+    // If BRCEK prescription is used and star was stripped below its initial core mass, radius needs to be adjusted
     if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
-        double heliumAbundanceSurface = m_HeliumAbundanceSurface;
         
+        double heliumAbundanceSurface = m_HeliumAbundanceSurface;
         if (utils::Compare(p_Mass, m_InitialMainSequenceCoreMass) < 0)
-            // By tracing the helium abundance profile in the star, this calculates how the surface helium abundance changes if mass drops below the initial core mass
+            // By tracing the helium profile in the star, calculate how the surface helium abundance changes if mass drops below the initial core mass
             heliumAbundanceSurface = m_HeliumAbundanceCoreOut + (p_Mass - m_MainSequenceCoreMass) * (m_HeliumAbundanceSurface - m_HeliumAbundanceCoreOut) / (m_InitialMainSequenceCoreMass - m_MainSequenceCoreMass);
         
-        // Function that scales radius based on surface helium abundance
-        double surfaceAbundanceFunction  = m_HeliumAbundanceCore != m_InitialHeliumAbundance ? (heliumAbundanceSurface - m_InitialHeliumAbundance) / (m_HeliumAbundanceCore - m_InitialHeliumAbundance) : 0.0;
+        // Factor that scales radius based on surface helium abundance
+        double surfaceAbundanceFactor = (utils::Compare(m_HeliumAbundanceCore, m_InitialHeliumAbundance) != 0) ? (heliumAbundanceSurface - m_InitialHeliumAbundance) / (m_HeliumAbundanceCore - m_InitialHeliumAbundance) : 0.0;
         
-        radius = radius + (RZAMS - radius) * surfaceAbundanceFunction;
+        radius = radius + (RZAMS - radius) * surfaceAbundanceFactor;
     }
     
     return radius;
@@ -610,7 +610,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 /*
  * Calculate radius on the transition from the Main Sequence to the HG when BRCEK core mass prescription is used
  *
- * Core mass prescription from Shikauchi et al. (2024) cannot be used beyond the MS hook (beyond age 0.99 * tMS), and this
+ * Core mass prescription from Shikauchi et al. (2024) cannot be used beyond the MS hook (beyond Tau = 0.99), and this
  * function smoothly connects the radius between the beginning of the hook and the beginning of the HG
  *
  *
@@ -622,8 +622,8 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
  */
 double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Tau) const {
     HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
-    // Select radius at TAMS from the HG clone or current radius (whichever is smaller), relevant for stars that were
-    // significantly stripped as this prevents radius expansion during the hook, and delays mass transfer to the start of HG
+    // Select radius at TAMS from the HG clone or current radius (whichever is smaller), relevant for stars that were significantly
+    // stripped as this prevents radius expansion during the hook, and delays possible mass transfer to the start of HG
     double radiusTAMS = std::min(clone->Radius(), m_Radius);                                                                    // Get radius from clone (with updated Mass0)
     delete clone; clone = nullptr;                                                                                              // Return the memory allocated for the clone
     
@@ -763,9 +763,9 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
     
     double delta;
     if (p_MassLossRate <= 0.0)
-        delta = std::min(PPOW(10.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);      // ibid, eq (A6)
+        delta = std::min(PPOW(10.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);          // ibid, eq (A6)
     else
-        delta = PPOW(2.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity));                          // updated prescription for mass gain
+        delta = PPOW(2.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity));                              // updated prescription for mass gain
     
     double deltaYc              = CalculateLuminosityOnPhase() / (Q_CNO * m_MainSequenceCoreMass) * p_Dt;                                                       // Change in central helium fraction; ibid, eq (12)
     double deltaMass            = p_MassLossRate * p_Dt * MYR_TO_YEAR;                                                                                          // Total mass lost/gained
@@ -870,10 +870,10 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
                     if (utils::Compare(p_MassLossRate, m_TotalMassLossRate) == 0) {
                         // Calculate and update the core mass and central helium fraction
                         std::tie(mainSequenceCoreMass, heliumAbundanceCore) = CalculateMainSequenceCoreMassBrcek(p_Dt, p_MassLossRate);
-                        // Update age here only if core hydrogen was exhausted
+                        // Update effective age here only if core hydrogen was exhausted
                         age = heliumAbundanceCore == 1.0 - m_Metallicity ? 0.99 * tMS : age;
                     }
-                    // Update age only when stars are aged in SSE (when mass loss rate argument equals -Mdot)
+                    // Update effective age only when stars are aged in SSE (when p_MassLossRate = -Mdot)
                     if (utils::Compare(p_MassLossRate, -m_Mdot) == 0)
                         // Update the effective age based on central helium fraction
                         age = (heliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * tMS;
