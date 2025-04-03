@@ -2791,7 +2791,7 @@ double BaseStar::CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot) {
  */
 double BaseStar::CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich) {
 
-    double windAccumulationRate = 0;
+    double windAccumulationRate;
     double massGain = 0;
 
     double betaThermal = 0;
