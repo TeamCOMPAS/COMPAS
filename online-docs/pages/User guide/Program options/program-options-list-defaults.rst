@@ -1334,8 +1334,10 @@ User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`)
 Default = ’’ (None)
 
 **--timestep-multiplier** |br|
-Multiplicative factor for timestep duration. |br|
-Default = 1.0
+Multiplicative factor for timestep duration.  This multiplier is applied after the timesteps are chosen using other program options 
+such as ``--radial-change-fraction`` and ``--mass-change-fraction``, and will therefore override expected behaviour.  This option is 
+primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+ Default = 1.0
 
 .. _options-props-U:
 
