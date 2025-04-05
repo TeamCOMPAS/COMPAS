@@ -119,6 +119,7 @@ public:
     double              Metallicity() const                                                                         { return m_Star->Metallicity(); }
     double              MZAMS() const                                                                               { return m_Star->MZAMS(); }
     double              Omega() const                                                                               { return m_Star->Omega(); }
+    double              OmegaBreak() const                                                                          { return m_Star->OmegaBreak(); }
     double              OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
