@@ -1647,7 +1647,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "timestep-multiplier",
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
-            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
+            ("Timestep multiplier for SSE and BSE on top of other choices, for use in debugging (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
         )
 
         (
