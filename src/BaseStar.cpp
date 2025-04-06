@@ -1028,8 +1028,9 @@ double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Al
  */ 
 double BaseStar::CalculateLambdaNanjing() const {
 
-    double mass   = m_MZAMS;
-    double lambda = 0.0;
+    double lambda = 0.0;                                                                                        // return value
+
+    double mass = m_MZAMS;
     if (OPTIONS->CommonEnvelopeLambdaNanjingUseRejuvenatedMass()) mass = m_Mass0;                               // use rejuvenated mass to calculate lambda instead of true birth mass
     
     if (OPTIONS->CommonEnvelopeLambdaNanjingEnhanced()) {                                                       // if using enhanced Nanjing lambdas
@@ -1072,7 +1073,8 @@ double BaseStar::CalculateLambdaNanjing() const {
  */ 
 double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass, const double p_Z) const {
 
-    double lambda = 0.0;
+    double lambda = 0.0;                                                                                        // return value
+
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
         lambda = BaseStar::CalculateMassInterpolatedLambdaNanjing(p_Mass, STELLAR_POPULATION::POPULATION_II);   // use lambda for pop. II metallicity
     }
@@ -1101,7 +1103,7 @@ double BaseStar::CalculateMassAndZInterpolatedLambdaNanjing(const double p_Mass,
  */ 
 double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, const STELLAR_POPULATION p_StellarPop) const {
 
-    double lambda = 0.0;
+    double lambda = 0.0;                                                                                        // return value
 
     INT_VECTOR ind = utils::BinarySearch(NANJING_MASSES, p_Mass);
     int low        = ind[0];
@@ -1138,7 +1140,7 @@ double BaseStar::CalculateMassInterpolatedLambdaNanjing(const double p_Mass, con
  */ 
 double BaseStar::CalculateZInterpolatedLambdaNanjing(const double p_Z, const int p_MassIndex) const {
 
-    double lambda = 0.0;
+    double lambda = 0.0;                                                                                        // return value
     
     if (utils::Compare(m_Metallicity, LAMBDA_NANJING_POPII_Z) < 0) {
         lambda = CalculateLambdaNanjingEnhanced(p_MassIndex, STELLAR_POPULATION::POPULATION_II);                // use lambda for pop. II metallicity
@@ -1191,7 +1193,7 @@ double BaseStar::FindLambdaNanjingNearestMassIndex(const double p_Mass) const {
  */
 double BaseStar::CalculateZetaAdiabatic() { 
                                                                                 
-    double zetaStar = 0.0;
+    double zetaStar = 0.0;                                                              // return value
 
     switch (OPTIONS->StellarZetaPrescription()) {
 
@@ -1268,7 +1270,7 @@ double BaseStar::CalculateZetaAdiabaticSPH(const double p_CoreMass) const {
  */
 double BaseStar::CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, const double p_massTransferEfficiencyBeta) {
     
-        double qCrit = 0.0;
+        double qCrit = 0.0;                                                                 // return value
 
         switch (OPTIONS->QCritPrescription()) {
 
