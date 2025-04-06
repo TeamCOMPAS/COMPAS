@@ -51,7 +51,8 @@ public:
 
         m_Flags.recycledNS                           = false;
         m_Flags.rlofOntoNS                           = false;
-
+        m_Flags.ceOntoNS                             = false;
+        
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -152,6 +153,7 @@ public:
     bool            ExperiencedRecycledNS() const                                       { return m_Flags.recycledNS; }
     bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
     bool            ExperiencedRLOFOntoNS() const                                       { return m_Flags.rlofOntoNS; }
+    bool            ExperiencedCEOntoNS() const                                         { return m_Flags.ceOntoNS; }
 
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
@@ -198,6 +200,8 @@ public:
 
     void            ClearRLOFOntoNS()                                                   { m_Flags.rlofOntoNS = false; }
     void            SetRLOFOntoNS()                                                     { m_Flags.rlofOntoNS = true; }
+    void            ClearCEOntoNS()                                                     { m_Flags.ceOntoNS   = false; }
+    void            SetCEOntoNS()                                                       { m_Flags.ceOntoNS   = true; }
 
     void            CalculateCommonEnvelopeValues();
 
@@ -249,6 +253,7 @@ private:
     struct FLAGS {                                                  // Miscellaneous flags
         bool recycledNS;                                            // Indicate whether the accretor was a recycled neutron star
         bool rlofOntoNS;                                            // Indicates whether the donor donated mass to neutron star through RLOF
+        bool ceOntoNS;                                              // Indicates whether the donor donated mass to neutron star through CE
     }                       m_Flags;
 
     double                  m_MassLossDiff;
