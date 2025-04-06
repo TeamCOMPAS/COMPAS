@@ -182,23 +182,23 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                                                      // which common envelope lambda prescription?
 
         case CE_LAMBDA_PRESCRIPTION::FIXED:
-            m_CEDetails.lambda        = OPTIONS->CommonEnvelopeLambda();
+            m_CEDetails.lambda = OPTIONS->CommonEnvelopeLambda();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::LOVERIDGE:
-            m_CEDetails.lambda        = CalculateLambdaLoveridge();
+            m_CEDetails.lambda = CalculateLambdaLoveridge();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::NANJING:
-            m_CEDetails.lambda        = CalculateLambdaNanjing();
+            m_CEDetails.lambda = CalculateLambdaNanjing();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
-            m_CEDetails.lambda        = CalculateLambdaKruckow();
+            m_CEDetails.lambda = CalculateLambdaKruckow();
             break;
             
         case CE_LAMBDA_PRESCRIPTION::DEWI:
-            m_CEDetails.lambda        = CalculateLambdaDewi();
+            m_CEDetails.lambda = CalculateLambdaDewi();
             break;
 
         default:                                                                                                // unknown prescription
@@ -327,13 +327,13 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
             case ENVELOPE::RADIATIVE: {                                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-                double coeff2          = 15.874010519681995;                                        // 5.0 * PPOW(2.0, 5.0 / 3.0) = 5.0 * 3.174802103936399
-                double e2              = 1.592E-9 * PPOW(Mass(), 2.84);                             // second order tidal coefficient (a.k.a. E_2)
-                double rAU             = Radius() * RSOL_TO_AU;
-                double rAU_3           = rAU * rAU * rAU;
-                double freeFallFactor  = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
+                double coeff2         = 15.874010519681995;                                         // 5.0 * PPOW(2.0, 5.0 / 3.0) = 5.0 * 3.174802103936399
+                double e2             = 1.592E-9 * PPOW(Mass(), 2.84);                              // second order tidal coefficient (a.k.a. E_2)
+                double rAU            = Radius() * RSOL_TO_AU;
+                double rAU_3          = rAU * rAU * rAU;
+                double freeFallFactor = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
 
-		        timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
+		        timescale             = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
         case ENVELOPE::REMNANT:                                                                     // remnants

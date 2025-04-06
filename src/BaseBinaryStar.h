@@ -482,10 +482,15 @@ private:
 
     void    ProcessTides(const double p_Dt);
 
+    double  ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange);
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
+    void    ResolveMainSequenceMerger();
     void    ResolveMassChanges();
     void    ResolveSupernova();
+    
+    
+
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
@@ -500,6 +505,8 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
+    bool    ShouldResolveNeutrinoRocketMechanism() const                        { return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0); }
+    
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
@@ -542,14 +549,6 @@ private:
     
     bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
-    }
-    
-    double ResolveAccretionAngularMomentumGain(BinaryConstituentStar * p_Accretor, BinaryConstituentStar * p_Donor, double p_MassChange);
-    
-    void ResolveMainSequenceMerger();
-
-    bool ShouldResolveNeutrinoRocketMechanism() const { 
-        return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0);
     }
     
     /*
