@@ -1511,9 +1511,12 @@
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
 //  03.16.03    RTW - Mar 31, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
+//  03.16.04    YS  - Apr 6, 2025   - Enhancement:
+//                                      - Fix to issue #1366
+//                                      - Added output option CE_ONTO_NS to indicate if the donor star transfers mass to NS through common envelope. 
 //
 
 
-const std::string VERSION_STRING = "03.16.03";
+const std::string VERSION_STRING = "03.16.04";
 
 # endif // __changelog_h__
