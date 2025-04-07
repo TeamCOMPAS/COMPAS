@@ -396,7 +396,7 @@ def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weig
     # assert that input will not produce errors
     assert max_redshift_detection <= max_redshift, "Maximum detection redshift cannot be below maximum redshift"
     assert m1_min <= m1_max, "Minimum sampled primary mass cannot be above maximum sampled primary mass"
-    # assert np.logical_and(fbin >= 0.0, fbin <= 1.0), "Binary fraction must be between 0 and 1"
+    assert fbin is None or (0.0 <= fbin <= 1.0), "Binary fraction must be between 0 and 1, or if None will vary with mass"
     assert Mc_step < Mc_max, "Chirp mass step size must be less than maximum chirp mass"
     assert eta_step < eta_max, "Symmetric mass ratio step size must be less than maximum symmetric mass ratio"
     assert snr_step < snr_max, "SNR step size must be less than maximum SNR"
@@ -804,7 +804,7 @@ def parse_cli_args():
                         default=150.)
     parser.add_argument("--m2min", dest='m2_min', help="Minimum secondary mass sampled by COMPAS", type=float,
                         default=0.1)
-    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS, if -1 a f_bin will be changing with mass", type=float, default=0.7)
+    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS, if None f_bin will be changing with mass", type=float, default=0.7)
 
     # Parameters determining dP/dZ and SFR(z), default options from Neijssel 2019
     parser.add_argument("--mu0", dest='mu0', help="mean metallicity at redshhift 0", type=float, default=0.035)
