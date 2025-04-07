@@ -80,7 +80,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
     # Step 0: define mass bins and corresponding binary fractions
     # Values chosen to approximately follow Figure 1 from Offner et al. (2023)
     binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
-    binaryFractions = [0.1, 0.25, 0.5, 0.75, 1]
+    binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
     def get_binary_fraction(mass):
         for i in range(len(binary_bin_edges) - 1):
             if binary_bin_edges[i] <= mass < binary_bin_edges[i + 1]:
@@ -88,7 +88,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
         return 0  # Default value if mass is out of range
 
     # first, for normalisation purposes, we can find the integral with no COMPAS cuts
-    def full_integral(mass, m1, m2, m3, m4, a12, a23, a34):
+    def full_integral(mass, m1, m2, m3, m4, a12, a23, a34, f_bin):
         primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
         
         if f_bin == -1:
@@ -101,7 +101,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
         binary_stars = f_bin * (primary_mass + expected_secondary_mass)
         return single_stars + binary_stars
     
-    full_mass = quad(full_integral, m1, m4, args=(m1, m2, m3, m4, a12, a23, a34))[0]
+    full_mass = quad(full_integral, m1, m4, args=(m1, m2, m3, m4, a12, a23, a34, f_bin))[0]
     
     # now we do a similar integral but for the COMPAS regime
     def compas_integral(mass, m2_low, f_bin, m1, m2, m3, m4, a12, a23, a34):
@@ -210,6 +210,9 @@ def draw_samples_from_kroupa_imf(
     return m1_samples[mask] , m2_samples[mask]
 
 
+###################################################
+# New version of analytical calculation
+###################################################
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
         m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
 ):
@@ -225,9 +228,14 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     m1_min, m1_max are the min and max sampled primary masses
     m2_min is the min sampled secondary mass
 
-    @Ilya Mandel's derivation
+    This function further assumes a flat mass ratio distribution with qmin = m2_min/m1, and  m2_max = m1_max
+    Lieke base on Ilya Mandel's derivation
     """
+    # Kroupa IMF 
     m1, m2, m3, m4 = imf_mass_bounds
+    continuity_constants = [1./(m2*m3), 1./(m3), 1.0]  
+    IMF_powers = [-0.3, -1.3, -2.3]  
+
     if m1_min < m3:
         raise ValueError(f"This analytical derivation requires IMF break m3  < m1_min ({m3} !< {m1_min})")
     if m1_min > m1_max:
@@ -237,19 +245,59 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     
     # normalize IMF over the complete mass range:
     alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
+    # print('alpha', alpha)
 
-    # average mass of stars (average mass of all binaries is a factor of 1.5 larger)
-    m_avg = alpha * (-(m4**(-0.3)-m3**(-0.3))/0.3 + (m3**0.7-m2**0.7)/(m3*0.7) + (m2**1.7-m1**1.7)/(m2*m3*1.7))
+    # we want to compute M_stellar_sys_in_universe / N_binaries_in_COMPAS
+    #  = N_binaries_in_universe/N_binaries_in_COMPAS * N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
+    #  = 1/fint * 1/fbin * average mass of a stellar system in the Universe
 
-    # fraction of binaries that COMPAS simulates (N_binaries_in_COMPAS/N_binaries_in_universe) 
-    # i.e.,  p(m1)p(m2|m1) dm1dm2, which can be rewritten as p(m1)p(q|m1) dm1dq, assuming a flat mass q dist with m2_max = m1_max
+    # fint =  N_binaries_in_COMPAS/N_binaries_in_universe: fraction of binaries that COMPAS simulates
     fint = -alpha / 1.3 * (m1_max ** (-1.3) - m1_min ** (-1.3)) + alpha * m2_min / 2.3 * (m1_max ** (-2.3) - m1_min ** (-2.3))
 
-    # Average mass of systems (M_rep_by_all_binary_systems/N_binaries_in_universe)
-    # 1.5 = Average number of stars in single and binary systems, (1-fbin)/fbin) = ratio of single/binary systems
-    average_mass_per_binary = m_avg * (1.5 + (1-fbin)/fbin)
+    # Next for N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
+    # N_stellar_sys_in_universe/N_binaries_in_universe = the binary fraction 
+    # fbin edges and values are chosen to approximately follow Figure 1 from Offner et al. (2023)
+    binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]    
+    if fbin == None:
+        # use a binary fraction that varies with mass
+        binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0] 
+    else:
+        # otherwise use a constant binary fraction
+        binaryFractions = [fbin] * 5
 
-    # mass represented by each binary simulated by COMPAS
-    # N_binaries_in_universe/N_binaries_in_COMPAS * M_rep_by_all_binary_systems/N_binaries_in_universe
-    m_rep = (1/fint) * average_mass_per_binary 
-    return m_rep
+    # M_stellar_sys_in_universe/N_stellar_sys_in_universe = average mass of a stellar system in the Universe,
+    # we are computing 1/fbin * M_stellar_sys_in_universe/N_stellar_sys_in_universe, skipping steps this leads to:
+    # int_A^B (1/fb(m1) + 0.5) m1 P(m1) dm1. 
+    # This is a double piecewise integral, i.e. pieces over the binary fraction bins and IMF mass bins.
+    piece_wise_integral = 0
+
+    # For every binary fraction bin
+    for i in range(len(binary_bin_edges) - 1):
+        fbin = binaryFractions[i] # Binary fraction for this range
+
+        # And every piece of the Kroupa IMF
+        for j in range(len(imf_mass_bounds) - 1):
+            exponent = IMF_powers[j] # IMF exponent for these masses
+
+            # Check if the binary fraction bin overlaps with the IMF mass bin
+            if binary_bin_edges[i + 1] <= imf_mass_bounds[j] or binary_bin_edges[i] >= imf_mass_bounds[j + 1]:
+                continue  # No overlap
+
+            # Integrate from the most narrow range
+            m_start = max(binary_bin_edges[i], imf_mass_bounds[j])
+            m_end = min(binary_bin_edges[i + 1], imf_mass_bounds[j + 1])
+
+            # Compute the definite integral:
+            integral = ( m_end**(exponent + 2) - m_start**(exponent + 2) ) / (exponent + 2) * continuity_constants[j]
+
+            # Compute the sum term
+            sum_term = (1 /fbin + 0.5) * integral
+            piece_wise_integral += sum_term
+
+    # combining them:
+    Average_mass_stellar_sys_per_fbin = alpha * piece_wise_integral
+
+    # Now compute the average mass per binary in COMPAS M_stellar_sys_in_universe / N_binaries_in_COMPAS
+    M_sf_Univ_per_N_binary_COMPAS = (1/fint) * Average_mass_stellar_sys_per_fbin
+
+    return M_sf_Univ_per_N_binary_COMPAS
