@@ -140,7 +140,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
     m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
-                                                    ? _2_PI * p_RotationalFrequency                     // yes - convert to rad/s and use it
+                                                    ? _2_PI * p_RotationalFrequency                     // yes - convert from cycles/yr to rad/yr and use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
     m_AngularMomentum                          = CalculateMomentOfInertiaAU() * m_OmegaZAMS;
 
