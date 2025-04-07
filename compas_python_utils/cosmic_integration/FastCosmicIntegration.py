@@ -765,7 +765,9 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
     else:
         plt.close()
 
-
+# To allow f_binary to be None or Float
+def none_or_float(value):
+    return None if value.lower() == "none" else float(value)
 
 def parse_cli_args():
     parser = argparse.ArgumentParser()
@@ -804,7 +806,7 @@ def parse_cli_args():
                         default=150.)
     parser.add_argument("--m2min", dest='m2_min', help="Minimum secondary mass sampled by COMPAS", type=float,
                         default=0.1)
-    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS, if None f_bin will be changing with mass", type=float, default=0.7)
+    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS, if None f_bin will be changing with mass", type=none_or_float, default=0.7)
 
     # Parameters determining dP/dZ and SFR(z), default options from Neijssel 2019
     parser.add_argument("--mu0", dest='mu0', help="mean metallicity at redshhift 0", type=float, default=0.035)
