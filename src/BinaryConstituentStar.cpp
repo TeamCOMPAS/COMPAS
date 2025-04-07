@@ -182,28 +182,23 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     switch (OPTIONS->CommonEnvelopeLambdaPrescription()) {                                                      // which common envelope lambda prescription?
 
         case CE_LAMBDA_PRESCRIPTION::FIXED:
-            m_CEDetails.lambda        = LambdaFixed();
-            m_CEDetails.bindingEnergy = BindingEnergyFixed();
+            m_CEDetails.lambda = OPTIONS->CommonEnvelopeLambda();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::LOVERIDGE:
-            m_CEDetails.lambda        = LambdaLoveridge();
-            m_CEDetails.bindingEnergy = BindingEnergyLoveridge();
+            m_CEDetails.lambda = CalculateLambdaLoveridge();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::NANJING:
-            m_CEDetails.lambda        = LambdaNanjing();
-            m_CEDetails.bindingEnergy = BindingEnergyNanjing();
+            m_CEDetails.lambda = CalculateLambdaNanjing();
             break;
 
         case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
-            m_CEDetails.lambda        = LambdaKruckow();
-            m_CEDetails.bindingEnergy = BindingEnergyKruckow();
+            m_CEDetails.lambda = CalculateLambdaKruckow();
             break;
             
         case CE_LAMBDA_PRESCRIPTION::DEWI:
-            m_CEDetails.lambda        = LambdaDewi();
-            m_CEDetails.bindingEnergy = BindingEnergyDewi();
+            m_CEDetails.lambda = CalculateLambdaDewi();
             break;
 
         default:                                                                                                // unknown prescription
@@ -220,6 +215,8 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
     if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0;                                 // force non-positive lambda to 0
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();                                            // multiply by constant (program option, default = 1.0)
+                                                                        
+    m_CEDetails.bindingEnergy = CalculateBindingEnergy(CoreMass(), Mass() - CoreMass(), Radius(), m_CEDetails.lambda);
     
     // properties relevant for the Hirai & Mandel (2022) formalism
     double maxConvectiveEnvelopeMass;
@@ -330,13 +327,13 @@ double BinaryConstituentStar::CalculateSynchronisationTimescale(const double p_S
 
             case ENVELOPE::RADIATIVE: {                                                             // solve for stars with radiative envelope (see Hurley et al. 2002, subsection 2.3.2)
 
-                double coeff2          = 15.874010519681995;                                        // 5.0 * PPOW(2.0, 5.0 / 3.0) = 5.0 * 3.174802103936399
-                double e2              = 1.592E-9 * PPOW(Mass(), 2.84);                             // second order tidal coefficient (a.k.a. E_2)
-                double rAU             = Radius() * RSOL_TO_AU;
-                double rAU_3           = rAU * rAU * rAU;
-                double freeFallFactor  = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
+                double coeff2         = 15.874010519681995;                                         // 5.0 * PPOW(2.0, 5.0 / 3.0) = 5.0 * 3.174802103936399
+                double e2             = 1.592E-9 * PPOW(Mass(), 2.84);                              // second order tidal coefficient (a.k.a. E_2)
+                double rAU            = Radius() * RSOL_TO_AU;
+                double rAU_3          = rAU * rAU * rAU;
+                double freeFallFactor = std::sqrt(G_AU_Msol_yr * Mass() / rAU_3);
 
-		        timescale              = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
+		        timescale             = 1.0 / (coeff2 * freeFallFactor * gyrationRadiusSquared_1 * q2 * q2 * PPOW(1.0 + q2, 5.0 / 6.0) * e2 * PPOW(rOverA, 17.0 / 2.0));
             } break;
 
         case ENVELOPE::REMNANT:                                                                     // remnants
@@ -398,6 +395,7 @@ void BinaryConstituentStar::SetRocheLobeFlags(const bool p_CommonEnvelope, const
 double BinaryConstituentStar::StarToRocheLobeRadiusRatio(const double p_SemiMajorAxis, const double p_Eccentricity) {
     // binary is unbound or semi-major axis is infinite (evolving single star as binary), so not in RLOF
     // JR: note, this will (probably) fail if option --fp-error-mode is not OFF (the calculation that resulted in p_SemiMajorAxis = inf will (probably) result in a trap)
+    // Maybe use !std::isfinite(p_SemiMajorAxis) to ensure p_SemiMajorAxis is not NaN or inf
     if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0) || isinf(p_SemiMajorAxis)) return 0.0;
     
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());

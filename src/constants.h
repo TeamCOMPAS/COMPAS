@@ -128,11 +128,13 @@ constexpr double CM_TO_M                                = 1.0E-2;               
 
 constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km
 constexpr double RSOL_TO_CM                             = 6.957E10;                                                 // convert Solar Radius (RSOL) to cm
-constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
 
 constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
-constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
 constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units AU to km
+
+constexpr double RSOL_TO_AU                             = RSOL_TO_CM / AU_TO_CM;                                    // convert Solar Radius (RSOL) to AU
+constexpr double AU_TO_RSOL                             = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
+
 
 constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
 constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;                                           // convert km to Astronomical Units AU
@@ -232,6 +234,7 @@ constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
 
+constexpr double CONVECTIVE_BOUNDARY_MASS_THRESHOLD_ROMAGNOLO = 0.1;                                               // Threshold fraction of envelope mass that should be convective for the envelope to be labeled convective
 constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI = 5.37E3;                                               // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
 
 constexpr double MINIMUM_BLUE_LOOP_FRACTION             = 1.0E-10;                                                  // minimum fraction blue loop can be of He burning before we ignore it for HG radius calculation (see HG::CalculateRadiusOnPhase())
@@ -245,9 +248,12 @@ constexpr unsigned int ABSOLUTE_MAXIMUM_TIMESTEPS       = 1000000;              
 constexpr int    MAX_BSE_INITIAL_CONDITIONS_ITERATIONS  = 100;                                                      // Maximum loop iterations looking for initial conditions for binary systems
 constexpr int    MAX_TIMESTEP_RETRIES                   = 30;                                                       // Maximum retries to find a good timestep for stellar evolution
 
-constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.01;                                                     // Maximum allowable mass loss - 1.0% (of mass) expressed as a fraction
-constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.01;                                                     // Maximum allowable radial change - 1% (of radius) expressed as a fraction
+constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.001;                                                    // Maximum allowable mass loss - 0.1% (of mass) expressed as a fraction
+constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.1;                                                      // Maximum allowable radial change - 10% (of radius) expressed as a fraction
+constexpr double MAXIMUM_WIND_MASS_LOSS_RATE            = 0.1;                                                      // Maximum wind mass loss rates (in solar masses per year) to avoid convergence issues
+
 constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
+
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 constexpr double LAMBDA_NANJING_POPI_Z                  = 0.02;                                                     // Population I metallicity in Xu & Li (2010)
 constexpr double LAMBDA_NANJING_POPII_Z                 = 0.001;                                                    // Population II metallicity in Xu & Li (2010)
@@ -275,6 +281,7 @@ constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR_FRAC      = 1.0;                  
 constexpr int    MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS = 1000;                                                   // Maximum number of iterations to find remnant mass in GiantBranch::CalculateRemnantMassByMullerMandel()
 
 constexpr int    PULSAR_SPIN_ITERATIONS                 = 100;                                                      // Maximum number of iterations to find pulsar birth spin period in NS::CalculatePulsarBirthSpinPeriod()
+constexpr int    PULSAR_MAG_ITERATIONS                  = 100;                                                      // Maximum number of iterations to find pulsar birth magnetic field in NS::CalculateBirthMagneticField()
 
 constexpr int    SEMI_MAJOR_AXIS_SAMPLES                = 100;                                                      // Maximum number of samples when sampling period/semi-major axis in utils::SampleSemiMajorAxis()
 
@@ -283,7 +290,7 @@ constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 50;                   
 constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 constexpr double TIDES_MINIMUM_FRACTIONAL_EXTENT        = 1.0E-4;                                                   // Minimum fractional radius or mass of the stellar core or envelope, above which a given tidal dissipation mechanism is considered applicable
 constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2024 tides in a single timestep - 1% expressed as a fraction
-constexpr double TIDES_MNIMUM_FRACTIONAL_NUCLEAR_TIME   = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
+constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME   = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
 
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                                                     // Maximum CO core mass to result in the quadratic remnant mass regime of the FARMER PPISN prescription
@@ -292,9 +299,9 @@ constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                 
 
 constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
 
-// Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024)
+// Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
-constexpr double SHIKAUCHI_LOWER_MASS_LIMIT             = 15.0;
+constexpr double BRCEK_LOWER_MASS_LIMIT                 = 1.5;
 
 // logging constants
 

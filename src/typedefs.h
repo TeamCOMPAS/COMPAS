@@ -226,6 +226,7 @@ const STELLAR_TYPE_LIST ALL_HERTZSPRUNG_GAP = {
 const STELLAR_TYPE_LIST NON_COMPACT_OBJECTS = {
     STELLAR_TYPE::MS_LTE_07,
     STELLAR_TYPE::MS_GT_07,
+    STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS,
     STELLAR_TYPE::HERTZSPRUNG_GAP,
     STELLAR_TYPE::FIRST_GIANT_BRANCH,
     STELLAR_TYPE::CORE_HELIUM_BURNING,
@@ -233,7 +234,7 @@ const STELLAR_TYPE_LIST NON_COMPACT_OBJECTS = {
     STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH,
     STELLAR_TYPE::NAKED_HELIUM_STAR_MS,
     STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP,
-    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH,
+    STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH
 };
 
 // (convenience) initializer list for COMPACT OBJECTS
@@ -385,11 +386,11 @@ const COMPASUnorderedMap<CHE_MODE, std::string> CHE_MODE_LABEL = {
 };
 
 // main sequence core mass prescription
-enum class CORE_MASS_PRESCRIPTION: int { ZERO, MANDEL, SHIKAUCHI };
+enum class CORE_MASS_PRESCRIPTION: int { ZERO, MANDEL, BRCEK };
 const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIPTION_LABEL = {
-    { CORE_MASS_PRESCRIPTION::ZERO,      "ZERO" },
-    { CORE_MASS_PRESCRIPTION::MANDEL,    "MANDEL" },
-    { CORE_MASS_PRESCRIPTION::SHIKAUCHI, "SHIKAUCHI" }
+    { CORE_MASS_PRESCRIPTION::ZERO,   "ZERO" },
+    { CORE_MASS_PRESCRIPTION::MANDEL, "MANDEL" },
+    { CORE_MASS_PRESCRIPTION::BRCEK,  "BRCEK" }
 };
 
 // logfile delimiters
@@ -425,11 +426,12 @@ const COMPASUnorderedMap<ENVELOPE, std::string> ENVELOPE_LABEL = {
 };
 
 // envelope state prescriptions
-enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
+enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE, CONVECTIVE_MASS_FRACTION };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
     { ENVELOPE_STATE_PRESCRIPTION::LEGACY,            "LEGACY" },
     { ENVELOPE_STATE_PRESCRIPTION::HURLEY,            "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" },
+    { ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION, "CONVECTIVE_MASS_FRACTION"}
 };
 
 // evolution status constants
@@ -562,9 +564,8 @@ const COMPASUnorderedMap<KICK_DIRECTION_DISTRIBUTION, std::string> KICK_DIRECTIO
 enum class L_CONSTANTS: int { B_ALPHA_L, B_BETA_L, B_DELTA_L, COUNT };
 
 // LBV mass loss prescriptions
-enum class LBV_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY_ADD, HURLEY, BELCZYNSKI };
+enum class LBV_MASS_LOSS_PRESCRIPTION: int { ZERO, HURLEY_ADD, HURLEY, BELCZYNSKI };
 const COMPASUnorderedMap<LBV_MASS_LOSS_PRESCRIPTION, std::string> LBV_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { LBV_MASS_LOSS_PRESCRIPTION::NONE,       "NONE" },     // DEPRECATED June 2024 - remove end 2024
     { LBV_MASS_LOSS_PRESCRIPTION::ZERO,       "ZERO" },
     { LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD, "HURLEY_ADD" },
     { LBV_MASS_LOSS_PRESCRIPTION::HURLEY,     "HURLEY" },
@@ -595,13 +596,12 @@ enum class MASS_CUTOFF: int {
 };
 
 // mass loss prescriptions
-enum class MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 };
+enum class MASS_LOSS_PRESCRIPTION: int { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 };
 const COMPASUnorderedMap<MASS_LOSS_PRESCRIPTION, std::string> MASS_LOSS_PRESCRIPTION_LABEL = {
-    { MASS_LOSS_PRESCRIPTION::NONE,           "NONE" },     // DEPRECATED June 2024 - remove end 2024
     { MASS_LOSS_PRESCRIPTION::ZERO,           "ZERO" },
     { MASS_LOSS_PRESCRIPTION::HURLEY,         "HURLEY" },
     { MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
-    { MASS_LOSS_PRESCRIPTION::MERRITT2024,   "MERRITT2024" }
+    { MASS_LOSS_PRESCRIPTION::MERRITT2024,    "MERRITT2024" }
 };
 
 // symbolic names for mass loss rate type
@@ -707,17 +707,24 @@ const COMPASUnorderedMap<NEUTRINO_MASS_LOSS_PRESCRIPTION, std::string> NEUTRINO_
     { NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS,     "FIXED_MASS" }
 };
 
+// neutron star accretion scenario under common envelope
+enum class NS_ACCRETION_IN_CE: int { ZERO, SURFACE, DISK };
+const COMPASUnorderedMap<NS_ACCRETION_IN_CE, std::string> NS_ACCRETION_IN_CE_LABEL = {
+    { NS_ACCRETION_IN_CE::ZERO,  "ZERO" },
+    { NS_ACCRETION_IN_CE::SURFACE, "SURFACE" },
+    { NS_ACCRETION_IN_CE::DISK, "DISK" },
+};
+
 // neutron star equations of state
 enum class NS_EOS: int { SSE, ARP3 };
-const COMPASUnorderedMap<NS_EOS, std::string> NS_EOSLabel = {
+const COMPASUnorderedMap<NS_EOS, std::string> NS_EOS_LABEL = {
     { NS_EOS::SSE,  "SSE" },
     { NS_EOS::ARP3, "ARP3" }
 };
 
 // OB (main sequence) mass loss prescriptions
-enum class OB_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
+enum class OB_MASS_LOSS_PRESCRIPTION: int { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018};
 const COMPASUnorderedMap<OB_MASS_LOSS_PRESCRIPTION, std::string> OB_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { OB_MASS_LOSS_PRESCRIPTION::NONE,          "NONE" },       // DEPRECATED June 2024 - remove end 2024
     { OB_MASS_LOSS_PRESCRIPTION::ZERO,          "ZERO" },
     { OB_MASS_LOSS_PRESCRIPTION::VINK2001,      "VINK2001" },
     { OB_MASS_LOSS_PRESCRIPTION::VINK2021,      "VINK2021" },
@@ -760,31 +767,30 @@ const COMPASUnorderedMap<ORBITAL_PERIOD_DISTRIBUTION, std::string> ORBITAL_PERIO
 };
 
 // pulsational pair instability prescriptions
-enum class PPI_PRESCRIPTION: int { COMPAS, STARTRACK, MARCHANT, FARMER, HENDRIKS };
+enum class PPI_PRESCRIPTION: int { WOOSLEY, STARTRACK, MARCHANT, FARMER, HENDRIKS, COMPAS };
 const COMPASUnorderedMap<PPI_PRESCRIPTION, std::string> PPI_PRESCRIPTION_LABEL = {
-    { PPI_PRESCRIPTION::COMPAS,    "COMPAS" },
+    { PPI_PRESCRIPTION::WOOSLEY,   "WOOSLEY" },
     { PPI_PRESCRIPTION::STARTRACK, "STARTRACK" },
     { PPI_PRESCRIPTION::MARCHANT,  "MARCHANT" },
     { PPI_PRESCRIPTION::FARMER,    "FARMER" },
-    { PPI_PRESCRIPTION::HENDRIKS,  "HENDRIKS" } 
+    { PPI_PRESCRIPTION::HENDRIKS,  "HENDRIKS" },
+    { PPI_PRESCRIPTION::COMPAS,    "COMPAS" }               // DEPRECATED Feb 2025 - remove June 2025
 };
 
 // program status
 enum class PROGRAM_STATUS: int { SUCCESS, CONTINUE, STOPPED, ERROR_IN_COMMAND_LINE, LOGGING_FAILED, ERROR_UNHANDLED_EXCEPTION };
 
 // pulsar birth magnetic field distributions
-enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, FLATINLOG, UNIFORM, LOGNORMAL };
+enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { FLATINLOG, UNIFORM, LOGNORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
-    { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO,      "ZERO" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG, "FLATINLOG" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM,   "UNIFORM" },
     { PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL, "LOGNORMAL" }
 };
 
 // pulsar birth spin period distributions
-enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { ZERO, UNIFORM, NORMAL };
+enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { UNIFORM, NORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
-    { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO,    "ZERO" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL,  "NORMAL" }
 };
@@ -806,6 +812,14 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,    "SCHNEIDER2020" },
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT, "SCHNEIDER2020ALT" },
     { REMNANT_MASS_PRESCRIPTION::MALTSEV2024,      "MALTSEV2024" }
+};
+
+// response of star to spin-up beyond the Keplerian frequency
+enum class RESPONSE_TO_SPIN_UP: int { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT };
+const COMPASUnorderedMap<RESPONSE_TO_SPIN_UP, std::string> RESPONSE_TO_SPIN_UP_LABEL = {
+    { RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT,   "TRANSFER_TO_ORBIT" },
+    { RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT,     "KEPLERIAN_LIMIT" },
+    { RESPONSE_TO_SPIN_UP::NO_LIMIT,            "NO_LIMIT"}
 };
 
 // rotational velocity distributions
@@ -965,9 +979,8 @@ const COMPASUnorderedMap<QCRIT_PRESCRIPTION, std::string> QCRIT_PRESCRIPTION_LAB
 };
 
 // RSG mass loss prescriptions
-enum class RSG_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
+enum class RSG_MASS_LOSS_PRESCRIPTION: int { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90};
 const COMPASUnorderedMap<RSG_MASS_LOSS_PRESCRIPTION, std::string> RSG_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { RSG_MASS_LOSS_PRESCRIPTION::NONE,             "NONE" },   // DEPRECATED June 2024 - remove end 2024
     { RSG_MASS_LOSS_PRESCRIPTION::ZERO,             "ZERO" },
     { RSG_MASS_LOSS_PRESCRIPTION::VINKSABHAHIT2023, "VINKSABHAHIT2023" },
     { RSG_MASS_LOSS_PRESCRIPTION::BEASOR2020,       "BEASOR2020" },
@@ -978,9 +991,8 @@ const COMPASUnorderedMap<RSG_MASS_LOSS_PRESCRIPTION, std::string> RSG_MASS_LOSS_
 };
 
 // VMS (very massive stars) mass loss prescriptions
-enum class VMS_MASS_LOSS_PRESCRIPTION: int { NONE, ZERO, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
+enum class VMS_MASS_LOSS_PRESCRIPTION: int { ZERO, VINK2011, BESTENLEHNER2020, SABHAHIT2023};
 const COMPASUnorderedMap<VMS_MASS_LOSS_PRESCRIPTION, std::string> VMS_MASS_LOSS_PRESCRIPTION_LABEL = {
-    { VMS_MASS_LOSS_PRESCRIPTION::NONE,             "NONE" },   // DEPRECATED June 2024 - remove end 2024
     { VMS_MASS_LOSS_PRESCRIPTION::ZERO,             "ZERO" },
     { VMS_MASS_LOSS_PRESCRIPTION::VINK2011,         "VINK2011" },
     { VMS_MASS_LOSS_PRESCRIPTION::BESTENLEHNER2020, "BESTENLEHNER2020" },
@@ -988,8 +1000,9 @@ const COMPASUnorderedMap<VMS_MASS_LOSS_PRESCRIPTION, std::string> VMS_MASS_LOSS_
 };
 
 // WR mass loss prescriptions
-enum class WR_MASS_LOSS_PRESCRIPTION: int { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
+enum class WR_MASS_LOSS_PRESCRIPTION: int { ZERO, BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 };
 const COMPASUnorderedMap<WR_MASS_LOSS_PRESCRIPTION, std::string> WR_MASS_LOSS_PRESCRIPTION_LABEL = {
+    { WR_MASS_LOSS_PRESCRIPTION::ZERO,           "ZERO"},
     { WR_MASS_LOSS_PRESCRIPTION::BELCZYNSKI2010, "BELCZYNSKI2010" },
     { WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023, "SANDERVINK2023" },
     { WR_MASS_LOSS_PRESCRIPTION::SHENAR2019,     "SHENAR2019" }
@@ -1142,6 +1155,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     KickParameters initialKickParameters;                   // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
     
     double         coreMassAtCOFormation;                   // Core mass of this star when it formed a compact object
+    double         coreRadiusAtCOFormation;                 // Core radius of this star when it formed a compact object
     double         COCoreMassAtCOFormation;                 // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
     double         drawnKickMagnitude;                      // Kick magnitude the system received during the supernova (km s^-1)
     double         eccentricAnomaly;                        // Eccentric anomaly at instataneous time of the SN
@@ -1159,6 +1173,7 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     SN_STATE       supernovaState;                          // Indicates which star (or stars) are undergoing / have undergone a supernova event
     double         theta;                                   // Kick angle out of the orbital plane, toward the orbital angular momentum axis (rad) [-pi/2, pi/2]
     double         totalMassAtCOFormation;                  // Total mass of the star when it goes supernova and forms a compact object
+    double         totalRadiusAtCOFormation;                // Total radius of the star when it goes supernova and forms a compact object
     double         trueAnomaly;                             // True anomaly at instantaneous time of the SN
 } SupernovaDetailsT;
 
@@ -1172,43 +1187,6 @@ typedef struct PulsarDetails {
     double birthPeriod;                                     // Pulsar birth period (s)
     double birthSpinDownRate;                               // Pulsar birth down rate as Pdot (s s^-1)
 } PulsarDetailsT;
-
-
-// struct for Lambdas
-typedef struct Lambdas {
-	double dewi;                                            // JR: todo: description?
-    double fixed;                                           // Set to OPTIONS->commonEnvelopeLambda
-	double kruckow;                                         // Calculated using m_Radius and OPTIONS->commonEnvelopeSlopeKruckow
-	double kruckowBottom;                                   // Calculated using m_Radius and -1
-	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
-	double kruckowTop;                                      // Calculated using m_Radius and -2/3
-	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss
-	double nanjing;                                         // JR: todo: description?
-} LambdasT;
-
-
-// struct for Zetas
-// JR: add descriptive comments
-typedef struct Zetas {                                      // JR: todo: descriptions for these?
-	double hurley;
-	double hurleyHe;
-	double nuclear;
-	double soberman;
-	double sobermanHe;
-	double thermal;
-} ZetasT;
-
-
-// struct for binding energies
-typedef struct BindingEnergies {
-    double fixed;                                           // Calculated using lambda = OPTIONS->commonEnvelopeLambda
-	double nanjing;                                         // Calculated using lambda = m_Lambdas.nanjing
-	double loveridge;                                       // Calculated using lambda = m_Lambdas.loveridge
-	double loveridgeWinds;                                  // Calculated using lambda = m_Lambdas.loveridgeWinds
-	double kruckow;                                         // Calculated using lambda = m_Lambdas.kruckow
-    double dewi;                                            // Calculated using lambda = m_Lambdas.dewi
-} BindingEnergiesT;
 
 
 // RLOF properties

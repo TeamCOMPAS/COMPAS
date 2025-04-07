@@ -205,38 +205,20 @@ private:
     //       with QCRIT_PRESCRIPTION::CLAEYS123, specify "CLAEYS123" in the vector).  If there is no replacement
     //       (i.e. the deprecated value will be removed and no replacement value implemented), the replacement
     //       value string should be the empty string ("")
-    //     - a boolean flag to indicate if the deprecation notice for the option valuehas been shown - should
+    //     - a boolean flag to indicate if the deprecation notice for the option value has been shown - should
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
     //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
     //       is only shown once per COMPAS run).
 
     std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "black-hole-kicks",                            "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",            "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                              "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",         "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                               "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",        "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                                "OB-mass-loss-prescription",                       false },
-        { "retain-core-mass-during-caseA-mass-transfer", "",                                                false },
-        { "RSG-mass-loss",                               "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                               "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                                "WR-mass-loss-prescription",                       false }
+        { "retain-core-mass-during-caseA-mass-transfer", "", false }
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",    "GE20", "GE", false },
-        { "critical-mass-ratio-prescription",    "GE20_IC", "GE_IC", false },
-        { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
-        { "OB-mass-loss",                        "NONE", "ZERO", false },
-        { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
-        { "RSG-mass-loss",                       "NONE", "ZERO", false },
-        { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "VMS-mass-loss",                       "NONE", "ZERO", false },
-        { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "WR-mass-loss",                        "NONE", "ZERO", false },
-        { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
+        { "critical-mass-ratio-prescription",          "GE20", "GE", false },
+        { "critical-mass-ratio-prescription",          "GE20_IC", "GE_IC", false },
+        { "pulsational-pair-instability-prescription", "COMPAS", "WOOSLEY", false},
+	{ "pulsar-birth-spin-period-distribution",     "ZERO", "NOSPIN", false }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
@@ -502,6 +484,8 @@ private:
         "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
         "minimum-secondary-mass",
+
+        "neutron-star-accretion-in-ce",
 
         "orbital-period",
         "orbital-period-distribution",
@@ -989,6 +973,7 @@ public:
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
 	        bool                                                m_CirculariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = true)
 	        bool                                                m_AngularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
+            double                                              m_ConvectiveEnvelopeMassThreshold;                              // The mass fraction of envelope that should be convective for the envelope to be labeled convective
             double                                              m_ConvectiveEnvelopeTemperatureThreshold;                       // The boundary between convective and radiative envelopes for HG and Giant stars
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
@@ -1079,9 +1064,10 @@ public:
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
-
+            ENUM_OPT<RESPONSE_TO_SPIN_UP>                       m_ResponseToSpinUp;                                             // Response to super-critical spin-up prescription
+        
             // Tides
-            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1100,6 +1086,8 @@ public:
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
+            // Neutron star accretion in common envelope
+            ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NeutronStarAccretionInCE;                                     // NS accretion in common envelope
 
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
@@ -1109,11 +1097,15 @@ public:
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>  m_PulsarBirthMagneticFieldDistribution;                         // Birth magnetic field distribution for pulsars
             double                                              m_PulsarBirthMagneticFieldDistributionMin;                      // Minimum birth magnetic field (log10 B/G)
             double                                              m_PulsarBirthMagneticFieldDistributionMax;                      // Maximum birth magnetic field (log10 B/G)
+            double                                              m_PulsarBirthMagneticFieldDistributionMean;                     // Mean of normal or lognormal distribution for birth magnetic field (log10 B/G)
+            double                                              m_PulsarBirthMagneticFieldDistributionSigma;                    // Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G)
 
             // Pulsar birth spin period distribution string
             ENUM_OPT<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION>     m_PulsarBirthSpinPeriodDistribution;                            // Birth spin period distribution for pulsars
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
+            double                                              m_PulsarBirthSpinPeriodDistributionMean;                        // Mean of normal or lognormal distribution for birth spin period (ms)
+            double                                              m_PulsarBirthSpinPeriodDistributionSigma;                       // Standard deviation of normal or lognormal distribution for birth spin period (ms)
 
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
@@ -1381,6 +1373,7 @@ public:
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
+    double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }
     double                                      ConvectiveEnvelopeTemperatureThreshold() const                          { return OPT_VALUE("convective-envelope-temperature-threshold", m_ConvectiveEnvelopeTemperatureThreshold, true); }
 
     double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
@@ -1470,7 +1463,13 @@ public:
     std::string                                 LogfileDoubleCompactObjects() const                                     { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjects; }
     int                                         LogfileDoubleCompactObjectsRecordTypes() const                          { return m_CmdLine.optionValues.m_LogfileDoubleCompactObjectsRecordTypes; }
     std::string                                 LogfileNamePrefix() const                                               { return m_CmdLine.optionValues.m_LogfileNamePrefix; }
-    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_LogfilePulsarEvolution; }
+    std::string                                 LogfilePulsarEvolution() const                                          { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-pulsar-evolution"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfilePulsarEvolution
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION))
+                                                                                                                                      );
+                                                                                                                        }
     int                                         LogfilePulsarEvolutionRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfilePulsarEvolutionRecordTypes; }
     std::string                                 LogfileRLOFParameters() const                                           { return m_CmdLine.optionValues.m_LogfileRLOFParameters; }
     int                                         LogfileRLOFParametersRecordTypes() const                                { return m_CmdLine.optionValues.m_LogfileRLOFParametersRecordTypes; }
@@ -1565,6 +1564,7 @@ public:
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
+    NS_ACCRETION_IN_CE                          NeutronStarAccretionInCE() const                                        { return OPT_VALUE("neutron-star-accretion-in-ce", m_NeutronStarAccretionInCE.type, true); }
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
@@ -1595,10 +1595,14 @@ public:
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return OPT_VALUE("pulsar-birth-magnetic-field-distribution", m_PulsarBirthMagneticFieldDistribution.type, true); }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-max", m_PulsarBirthMagneticFieldDistributionMax, true); }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-min", m_PulsarBirthMagneticFieldDistributionMin, true); }
+    double                                      PulsarBirthMagneticFieldDistributionMean() const                        { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-mean", m_PulsarBirthMagneticFieldDistributionMean, true); }
+    double                                      PulsarBirthMagneticFieldDistributionSigma() const                       { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-sigma", m_PulsarBirthMagneticFieldDistributionSigma, true); }
 
     PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       PulsarBirthSpinPeriodDistribution() const                               { return OPT_VALUE("pulsar-birth-spin-period-distribution", m_PulsarBirthSpinPeriodDistribution.type, true); }
     double                                      PulsarBirthSpinPeriodDistributionMax() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-max", m_PulsarBirthSpinPeriodDistributionMax, true); }
     double                                      PulsarBirthSpinPeriodDistributionMin() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-min", m_PulsarBirthSpinPeriodDistributionMin, true); }
+    double                                      PulsarBirthSpinPeriodDistributionMean() const                           { return OPT_VALUE("pulsar-birth-spin-period-distribution-mean", m_PulsarBirthSpinPeriodDistributionMean, true); }
+    double                                      PulsarBirthSpinPeriodDistributionSigma() const                          { return OPT_VALUE("pulsar-birth-spin-period-distribution-sigma", m_PulsarBirthSpinPeriodDistributionSigma, true); }
 
     double                                      PulsarLog10MinimumMagneticField() const                                 { return OPT_VALUE("pulsar-minimum-magnetic-field", m_PulsarLog10MinimumMagneticField, true); }
 
@@ -1624,6 +1628,8 @@ public:
     
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
+    
+    RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
     
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     

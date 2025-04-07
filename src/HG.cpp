@@ -66,6 +66,77 @@ double HG::CalculateLambdaDewi() const {
 	return	lambdaCE;
 }
 
+/*
+ * Calculata the lambda parameter using the Loveridge prescription
+ *
+ * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=erg, so use cgs
+ *
+ *
+ * double CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss)
+ *
+ * @param   [IN]    p_EnvMass                   Envelope mass (Msol)
+ * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
+ * @return                                      Common envelope lambda parameter
+ */
+double HG::CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss) const {
+    
+    // find closest metallicity covered by Loveridge et al. 2011
+    // (see LOVERIDGE_METALLICITY and LOVERIDGE_METALLICITYValue)
+
+    int lMetallicity = 0;
+    double minDiff   = std::numeric_limits<double>::max();
+
+    // initialise m_MassCutoffs vector - so we have the right number of entries
+    for (int i = 0; i < static_cast<int>(LOVERIDGE_METALLICITY::COUNT); i++) {
+        double thisDiff = std::abs(m_Metallicity - std::get<1>(LOVERIDGE_METALLICITY_VALUE[i]));
+        if (utils::Compare(thisDiff, minDiff) < 0) {
+            lMetallicity = i;
+            minDiff      = thisDiff;
+        }
+    }
+
+    // Determine the evolutionary stage of the star (see LOVERIDGE_GROUP)
+
+    LOVERIDGE_GROUP lGroup;
+
+    if (utils::Compare(m_Mass, LOVERIDGE_LM_HM_CUTOFFS[lMetallicity]) > 0) {                // mass > low mass / high mass cutoff?
+        lGroup = LOVERIDGE_GROUP::HM;                                                       // yes, group is HM - High Mass
+    }
+    else {                                                                                  // no - low mass
+        if (utils::Compare(m_COCoreMass, 0.0) > 0) {                                        // CO core exists?
+            lGroup = LOVERIDGE_GROUP::LMA;                                                  // yes, group is LMA - Low mass on the AGB
+        }
+        else {                                                                              // no - low mass star on RGB
+
+            // calculate early / late cutoff for low mass RGB stars
+            constexpr double deltaM   = 1.0E-5;
+                      double cutOff   = 0.0;
+                      int    exponent = 0;
+            for (auto const& aCoefficient: LOVERIDGE_LM1_LM2_CUTOFFS[lMetallicity]) {
+                cutOff += aCoefficient * utils::intPow(log10(m_Mass + deltaM), exponent++);
+            }
+
+            // set evolutionary stage based on cutoff
+            lGroup = utils::Compare(log10(m_Radius), cutOff) > 0 ? LOVERIDGE_GROUP::LMR2 : LOVERIDGE_GROUP::LMR1;
+        }
+    }
+
+    // calculate log10(binding energy)
+    constexpr double deltaR           = 1.0E-5;
+              double logBindingEnergy = 0.0;
+    for (auto const& lCoefficients: LOVERIDGE_COEFFICIENTS[lMetallicity][static_cast<int>(lGroup)]) {
+        logBindingEnergy += lCoefficients.alpha_mr * utils::intPow(log10(m_Mass), lCoefficients.m) * utils::intPow(log10(m_Radius + deltaR), lCoefficients.r);
+    }
+
+    double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
+    logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
+
+    logBindingEnergy += 33.29866;                                                           // + logBE0
+    double bindingEnergy = PPOW(10.0, logBindingEnergy);
+    
+    return utils::Compare(bindingEnergy, 0.0) > 0 && utils::Compare(p_EnvMass, 0.0) > 0 ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) : 1.0;     // default to 1.0 (usual lambda default) if binding energy is not sensible [should never happen] or if envelope mass is not positive [can be zero]
+}
+
 
 /*
  * Calculate the common envelope lambda parameter using the enhanced "Nanjing" prescription
@@ -818,8 +889,10 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
     double RTMS;  
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::SHIKAUCHI) && (utils::Compare(m_MZAMS, SHIKAUCHI_LOWER_MASS_LIMIT) >= 0))
-        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);                                            // ensures continuity of stellar tracks when SHIKAUCHI core mass prescription is used
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
+        // p_Mass generally has the value of m_Mass0, but since m_Mass is used for radius calculations on the MS and m_Mass0
+        // is updated to a new value when BRCEK prescription is used, we need to use m_Mass here to keep radius continuous
+        RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);
     else
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
@@ -1067,6 +1140,13 @@ ENVELOPE HG::DetermineEnvelopeType() const {
             // envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
             break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
+            // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
+            double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+            std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+            envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
+            break;
 
         default:                                                                                    // unknown prescription
             // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
@@ -1203,9 +1283,12 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
  *
  */
 void HG::UpdateInitialMass() {
-    // only update mass0 if the current mass would yield a core mass larger than or equal to the current core mass
+    // only update mass0 on mass loss if the current mass would yield a core mass larger than or equal to the current core mass
     // i.e., no unphysical core mass decrease would ensue
-    if (utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {
+    // (we do not update mass0 on mass gain on the HG -- there is no instruction for doing so in Hurley; adding this
+    // check also avoid difficulties for the BRCEK rejuvenation prescription, when mass0 may be set to enforce a core mass
+    // that is lower than would be expected for the current mass value according to the Hurley prescription)
+    if (utils::Compare(m_Mass0, m_Mass) > 0 && utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {
         m_Mass0 = m_Mass;
     }
 }
