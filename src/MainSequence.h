@@ -75,8 +75,9 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
     double          CalculateLuminosityOnPhase() const                                      { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }        // Use class member variables
-    double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore, const double p_Age) const;
-    DBL_DBL         CalculateMainSequenceCoreMassShikauchi(const double p_Dt, const double p_MassLossRate);
+    double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const;
+    double          CalculateLuminosityTransitionToHG(const double p_Mass, const double p_Age, double const p_LZAMS) const;
+    DBL_DBL         CalculateMainSequenceCoreMassBrcek(const double p_Dt, const double p_MassLossRate);
     double          CalculateInitialMainSequenceCoreMass(const double p_MZAMS) const;
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
@@ -84,12 +85,15 @@ protected:
 
     double          CalculateRadialExtentConvectiveEnvelope() const;
 
+    double          CalculateRadiusOnMassChange(double p_dM)                                { return CalculateRadiusOnPhaseTau(m_Mass + p_dM, m_Tau); }
+    
     double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const;
 
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
+    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { std::cout << "MS::CalculateRadiusOnPhase(LUM) called\n"; return Radius(); }  // Not a meaningful function for MS stars
     double          CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const;
      
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
@@ -100,6 +104,7 @@ protected:
 
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)  { return OPTIONS->ZetaMainSequence(); }
 
+    double          CalculateZetaEquilibrium();
     double          ChooseTimestep(const double p_Time) const;
 
     void            EvolveOneTimestepPreamble();

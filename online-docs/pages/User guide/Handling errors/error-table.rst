@@ -183,6 +183,8 @@ Following is a list of COMPAS error numbers, corresponding symbolic name, and me
    Reached maximum number of tries when looking for omega when circularising and synchronising for tides
 #. TOO_MANY_PULSAR_SPIN_ITERATIONS |br|
    Reached maximum number of iterations calculating the pulsar birth spin period
+#. TOO_MANY_PULSAR_MAG_ITERATIONS |br|
+   Reached maximum number of iterations calculating the pulsar birth magnetic field
 #. TOO_MANY_REMNANT_MASS_ITERATIONS |br|
    Reached maximum number of iterations when calcuating remnant mass (MULLERMANDEL)
 #. TOO_MANY_RETRIES |br|

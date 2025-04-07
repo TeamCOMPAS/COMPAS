@@ -157,20 +157,24 @@ double HeHG::CalculateLuminosityOnPhase() const {
 }
 
 
+
 /*
  * Calculate radius of a Helium HertzSprung Gap star
  *
  * Uses Helium Giant Branch radius
  *
  *
- * double CalculateRadiusOnPhase()
+ * double CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) 
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
  *
  * @return                                      Radius of a Helium HertzSprung Gap star
  */
-double HeHG::CalculateRadiusOnPhase() const {
+double HeHG::CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const {
 
     double R1, R2;
-    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
+    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
     return std::min(R1, R2);
 }
@@ -325,6 +329,13 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
+            // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
+            double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+            std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+            envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
             break;
 
         default:                                                                                    // unknown prescription

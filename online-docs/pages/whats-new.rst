@@ -3,11 +3,78 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.17.00 Mar 22, 2025**
+
+* Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope 
+convective is 0.1, can be set with --convective-envelope-mass-threshold)
+* Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars
+* Imposed Keplerian rotation limit on mass-gaining stars:
+* Response depends on the new --response-to-spin-up option
+* default (TRANSFER_TO_ORBIT) allows the star to accrete, but excess angular momentum is deposited in the orbit
+* KEPLERIAN_LIMIT forces mass  transfer to become non-conservative once star (approximately) reaches super-critical rotation
+* while the NO_LIMIT variation allows arbitrary super-critical accretion, to match legacy choices
+
+**03.16.02 Mar 19, 2025**
+
+New output options for supernova:
+
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_X, ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y, ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,
+* SYSTEMIC_VELOCITY_X, SYSTEMIC_VELOCITY_Y, SYSTEMIC_VELOCITY_Z,
+* These allow for full characterization of the binary orientation post-SN
+
+**03.15.00 Mar 5, 2025**
+
+Changes to the treatment of Neutron Star evolution.
+
+New command line options:
+
+* ``--neutron-star-accretion-in-ce`` to determine how a NS accretes mass in a common envelope
+* ``--pulsar-birth-magnetic-field-distribution-mean`` and ``--pulsar-birth-magnetic-field-distribution-sigma`` to determine the birth distribution of the pulsar magnetic field (only relevant when the ``--pulsar-birth-magnetic-field-distribution`` option value is ``NORMAL`` or ``LOGNORMAL``) 
+* ``--pulsar-birth-spin-period-distribution-mean`` and ``--pulsar-birth-spin-period-distribution-sigma`` to determine the birth distribution of the pulsar period (only relevant when the ``--pulsar-birth-spin-period-distribution`` option value is ```NORMAL`` or ``LOGNORMAL``)
+
+Changed command line option values and defaults:
+
+* ``--pulsar-birth-spin-period-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-magnetic-field-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-spin-period-distribution`` default option value is now ``NORMAL`` (was ``ZERO``)
+* ``--pulsar-birth-magnetic-field-distribution`` default option value is now ``LOGNORMAL`` (was ``ZERO``)
+
+Changes to the NS-related values in log files:
+
+* The pulsar magnetic field strength is now recorded in ``Gauss`` (was ``Tesla``) 
+* The pulsar spin down rate now tracks the pulsar spin period derivative (was spin frequency derivative).
+* The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the ``logfile-definitions`` option
+* The period of non-spinning neutron stars is now reported as infinity instead of zero
+
+**03.14.00 Mar 3, 2025**
+
+* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
+* Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+* Changed order of calls in SSE evolution to better match BSE evolution
+
+**03.13.02 Feb 19, 2025**
+
+* Replaced name of ``SHIKAUCHI`` main sequence core mass prescription with ``BRCEK``.
+
+**03.13.01 Feb 13, 2025**
+
+* Enabled nuclear timescale mass transfer from evolved donors
+
+**03.13.00 Feb 13, 2025**
+
+* Added pulsar evolution and output (SSE_Pulsar_Evolution) for SSE mode
+* Changed stopping condition for single stars to continue evolving pulsars if ``--evolve-pulsars`` is ``TRUE``
+* Updated documentation for new output
+
+**03.12.04 Feb 8, 2025**
+
+* Replaced name of ``COMPAS`` PPISN prescription with ``WOOSLEY``; ``COMPAS`` is now deprecated
+
 **03.12.00 Jan 16, 2025**
 
 * Added convective core mass prescription for main sequence stars from Shikauchi+ (2024), describing how the core mass evolves under mass loss and mass gain.
 * New command line option ``--main-sequence-core-mass-prescription`` with arguments ``SHIKAUCHI`` (new prescription), ``MANDEL`` (replaces the functionality of ``--retain-core-mass-during-caseA-mass-transfer``), and ``ZERO`` (core mass set to zero, no treatment).
-* Added new luminosity prescription for main sequence stars from Shikauchi+ (2024).
+* Updated stellar tracks with added luminosity prescription for main sequence stars from Shikauchi+ (2024).
 * Added treatment for rejuvenation of main sequence accretors when the new prescription is used.
 
 **03.10.00 Nov 29, 2024**

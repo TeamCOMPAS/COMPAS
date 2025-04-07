@@ -1405,7 +1405,7 @@
 //                                      - Fixed bugs in vector3d related to indexing and rotation
 //                                      - Added tweak for circular systems at first SN, to fix the x-axis along the separation vector
 // 03.09.03   IM - Nov 28, 2024     - Enhancement, defect repair:
-//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common enevelope, use core radii instead (partial fix to #1286)
+//                                      - Delay changing stellar types until after checking for whether remnant cores would touch in a common envelope, use core radii instead (partial fix to #1286)
 //                                      - Define a new function MainSequence::TAMSCoreMass(); use it for determining the amount of He in a star during MS mergers
 //                                      - Switch both stars to Massless remnants during a CE merger, resolve #1265
 //                                      - Minor fixes, including to #1255, #1258
@@ -1444,9 +1444,84 @@
 // 03.12.01   JR - Jan 17, 2025     - Defect repair:
 //                                      - (partial?) fix for issue #1149 - remove conditional from TPAGB::IsSupernova().  Whether it fixes issue 1149 completely or not, the conditional shouldn't be there...
 // 03.12.02   SS - Jan 20, 2025     - Defect repair:
-//                                      -  fix for issue #1324 - allow for evolution of pulsars formed from main sequence merger products. Changed CalculateTimestep to ChooseTimestep in MR.h and added check for bound binary to BaseBinaryStar::ChooseTimestep
+//                                      - fix for issue #1324 - allow for evolution of pulsars formed from main sequence merger products.
+//                                        Changed CalculateTimestep to ChooseTimestep in MR.h and added check for bound binary to BaseBinaryStar::ChooseTimestep
+// 03.12.03   JR - Jan 29, 2025     - Defect repair:
+//                                      - fixes initialisation in MS_gt_07::Initialise() for CORE_MASS_PRESCRIPTION::SHIKAUCHI (now allows for CH stars that spin down)
+//                                      - minor code cleanup
+// 03.12.04   IM - Feb 08, 2025     - Enhancement:
+//                                      - only reset mass0 to mass on the HG when mass0 > mass (i.e., on mass loss, not mass gain, and not if mass0 is intentionally set to yield a lower core mass as may be required by the BRCEK rejuvenation prescription)
+//                                      - replaced name of COMPAS PPISN prescription with WOOSLEY (issue #1278)
+// 03.13.00   SS - Feb 12, 2025    - Defect repair:
+//                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
+//                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
+//                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
+// 03.13.01   IM - Feb 13, 2025    - Enhancement:
+//                                      - Allowed nuclear timescale mass transfer for evolved donors (issue #1327)
+// 03.13.02   AB - Feb 19, 2025    - Enhancement:
+//                                      - Option SHIKAUCHI for main sequence core mass renamed to BRCEK
+//                                      - Allowed main sequence core mass calculations for lower mass stars
+//                                      - Always update Mass0 in HG.h when BRCEK prescription is used
+// 03.13.03   IM - Feb 20, 2025    - Defect Repairs, Enhancement:
+//                                      - Fixed typo in implementation of Tonset for convective envelope mass calculation (cf. Mandel, Hirai, Picker, 2024)
+//                                      - Corrected radial estimates for mass losing Giant Branch stars
+//                                      - Added new functionality, CalculateRadiusOnMassChange(), to streamline code
+//                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
+// 03.13.04   IM - Feb 28, 2025    - Defect Repair:
+//                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
+// 03.14.00   IM - Mar 3, 2025     - Defect Repairs, Enhancements:
+//                                      - Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
+//                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+//                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
+// 03.14.01   IM - Mar 9, 2025     - Defect Repair:
+//                                      - Added a check to prevent a divide-by-zero error from the previous PR (resolves issue #1345)
+// 03.15.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
+//                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes created a negative spin period
+//                                      - Updated NS::UpdateMagneticFieldAndSpin() for spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
+//                                      - Fix for issue #1002
+//                                      - Fix for issue #1257
+//                                      - Updated references to pulsar calculations. 
+//                                      - Added safeguards to make sure the inputs of birth spin period and magnetic field inputs are valid. If not, raise error messages and stop run. 
+//                                      - Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
+//                                      - Changes in program options:
+//                                        1). Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
+//                                        2). Default pulsar birth spin period distribution is set to NORMAL instead of ZERO; ZERO is now deprecated, and non-spinning pulsars are no longer allowed when evolving pulsars. 
+//                                        3). Added program options "--pulsar-birth-spin-period-distribution-mean" (default 75ms) and "--"pulsar-birth-spin-period-distribution-sigma" (default 25ms) to determine the birth distribution of pulsar period when it's normal or lognormal. 
+//                                        4). Default pulsar birth magnetic field distribution is set to LOGNORMAL instead of ZERO; ZERO is now deprecated, and pulsars with zero magnetic field are no longer allowed when evolving pulsars. 
+//                                        5). New command line options "--pulsar-birth-magnetic-field-distribution-mean" (default 12.65)  and "--"pulsar-birth-magnetic-field-distribution-sigma" (default 0.55) to determine the birth distribution of pulsar magnetic field when it's normal or lognormal. 
+//                                      - Changes to SSE/BSE_Pulsar_Evolution file:
+//                                        1). Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
+//                                        2). Spin of pulsar is now by default recorded with period (s) instead of frequency (Hz). Spin frequency is still tracked and can be added as an output in the logfiles.
+//                                        3). Spin-down of pulsar (m_PulsarDetails.spinDownRate) is now tracking period derivative (p-dot, s/s) instead of frequency derivative (omega-dot, rad/s^2)
+//                                      - Fixed incorrect declarations of BaseStar::CalculateLambdaLoveridgeEnergyFormalism()
+//  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
+//                                      - Fix to issue #1348
+//                                      - Modified suggested timescales for compact objects
+//  03.16.00    VK - Mar 15, 2025   - Defect repairs, Enhancements:
+//                                      - Placed a maximum limit on how much the KAPIL2024 Tides prescription can change spins and orbital parameters in a single timestep. 
+//                                        If too large of a timestep is taken for any reason, tides will only take an effeective timestep such that the change is within the TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC limit.
+//                                      - Updated BaseStar::CalculateImKlmDynamical() to allow for GW dissiopation from a radiative core + convective envelope as long as the convective core radius is negligible, regardless of convective core mass. Required for expected behavior for massive stars on the MS.
+//                                      - Added STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION and STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION to the default log files, stored pre supernova.
+//                                      - Fixed a small typo in the TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME constant for tides.
+//  03.16.01    JR - Mar 17, 2025   - Defect repair
+//                                      - Added prototype for CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) to NS.h to reinstate proper inheritance (compiler warning -Woverloaded-virtual; introduced in v03.15.01)
+//                                      - Removed call to CalculateTimescales() from both NS::Initialise() and BH::Initialise() (superfluous since v03.15.01)
+//  03.16.02    SS - Mar 19, 2025   - Defect repair:
+//                                      - Removed deprecated wind mass-loss options
+//                                      - Added ZERO as a new option for WR-mass-loss-prescription
+//  03.16.03    RTW - Mar 21, 2025  - Enhancement:
+//                                      - Added orbital AM vector and system velocity vector to SN output
+//  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
+//                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
+//                                      - All binding energies and lambdas are now computed on request, not stored  in memory
+//                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
+//                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
+//                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
+//                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+//                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
+//                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
 
-
-const std::string VERSION_STRING = "03.12.02";
+const std::string VERSION_STRING = "03.17.00";
 
 # endif // __changelog_h__
