@@ -140,7 +140,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     
     m_OmegaCHE                                 = CalculateOmegaCHE(m_MZAMS, m_Metallicity);
     m_OmegaZAMS                                = p_RotationalFrequency >= 0.0                           // valid rotational frequency passed in?
-                                                    ? p_RotationalFrequency                             // yes - use it
+                                                    ? _2_PI * p_RotationalFrequency                     // yes - convert to rad/s and use it
                                                     : CalculateZAMSAngularFrequency(m_MZAMS, m_RZAMS);  // no - calculate it
     m_AngularMomentum                          = CalculateMomentOfInertiaAU() * m_OmegaZAMS;
 
@@ -3191,7 +3191,7 @@ double BaseStar::CalculateOmegaBreak() const {
  *
  * @param   [IN]        p_MZAMS                 Zero age main sequence mass in Msol
  * @param   [IN]        p_Metallicity           Metallicity of the star
- * @return                                      Initial angular frequency in rad*s^-1
+ * @return                                      Initial angular frequency in rad*yr^-1
  */
 double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
