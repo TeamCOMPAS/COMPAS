@@ -2881,8 +2881,8 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
             dt /= 2.0;
         
         // limit time step for stars losing mass on nuclear timescale
-        double radialExpansionTimescale1 = m_Star1->Mass() / m_Star1->CalculateNuclearMassLossRate();
-        double radialExpansionTimescale2 = m_Star2->Mass() / m_Star2->CalculateNuclearMassLossRate();
+        double radialExpansionTimescale1 = m_Star1->CalculateRadialExpansionTimescaleDuringMassTransfer();
+        double radialExpansionTimescale2 = m_Star2->CalculateRadialExpansionTimescaleDuringMassTransfer();
         if (utils::Compare(radiusToRL1 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
             dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * radialExpansionTimescale1);
         if (utils::Compare(radiusToRL2 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)

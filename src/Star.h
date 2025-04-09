@@ -196,6 +196,8 @@ public:
     
     double          CalculateNuclearMassLossRate()                                                                  { return m_Star->CalculateNuclearMassLossRate(); }
     
+    double          CalculateRadialExpansionTimescaleDuringMassTransfer()                                           { return m_Star->CalculateRadialExpansionTimescaleDuringMassTransfer(); }
+    
     double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     double          CalculateRadiusOnMassChange(double p_dM)                                                        { return m_Star->CalculateRadiusOnMassChange(p_dM); }
