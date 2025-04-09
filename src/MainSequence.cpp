@@ -537,20 +537,21 @@ double MainSequence::CalculateRadiusAtPhaseEnd(const double p_Mass, const double
  * Hurley et al. 2000, eq 13
  *
  *
- * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau)
+ * double CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Tau                       Fractional age on Main Sequence
+ * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Main Sequence in Rsol
  */
-double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau) const {
+double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const {
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 
     // If BRCEK core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG,
     // valid for stars with MZAMS >= BRCEK_LOWER_MASS_LIMIT
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
         if (utils::Compare(p_Tau, 0.99) > 0)                                                                                        // star in MS hook?
-            return CalculateRadiusTransitionToHG(p_Mass, p_Tau);
+            return CalculateRadiusTransitionToHG(p_Mass, p_Tau, p_RZAMS);
     }
     
     double radius = m_Radius;
@@ -559,8 +560,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     double tBGB = CalculateLifetimeToBGB(p_Mass);
     double tMS  = CalculateLifetimeOnPhase(p_Mass, tBGB);
 
-    double RZAMS  = CalculateRadiusAtZAMS(p_Mass);
-    double RTMS   = CalculateRadiusAtPhaseEnd(p_Mass, RZAMS);
+    double RTMS   = CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
     double alphaR = CalculateAlphaR(p_Mass);
     double betaR  = CalculateBetaR(p_Mass);
     double deltaR = CalculateDeltaR(p_Mass);
@@ -582,10 +582,10 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     double logRMS_RZAMS  = alphaR * p_Tau;                                                                                          // ibid, eq 13, part 1
            logRMS_RZAMS += betaR * tau_10;                                                                                          // ibid, eq 13, part 2
            logRMS_RZAMS += gamma * tau_40;                                                                                          // ibid, eq 13, part 3
-           logRMS_RZAMS += (log10(RTMS / RZAMS) - alphaR - betaR - gamma) * tau_3;                                                  // ibid, eq 13, part 4
+           logRMS_RZAMS += (log10(RTMS / p_RZAMS) - alphaR - betaR - gamma) * tau_3;                                                // ibid, eq 13, part 4
            logRMS_RZAMS -= deltaR * (tau1_3 - tau2_3);                                                                              // ibid, eq 13, part 5
 
-    radius = RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                      // rewrite Hurley et al. 2000, eq 13 for R(t)
+    radius = p_RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                    // rewrite Hurley et al. 2000, eq 13 for R(t)
     
     // If BRCEK prescription is used and star was stripped below its initial core mass, radius needs to be adjusted
     if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
@@ -598,7 +598,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
         // Factor that scales radius based on surface helium abundance
         double surfaceAbundanceFactor = (utils::Compare(m_HeliumAbundanceCore, m_InitialHeliumAbundance) != 0) ? (heliumAbundanceSurface - m_InitialHeliumAbundance) / (m_HeliumAbundanceCore - m_InitialHeliumAbundance) : 0.0;
         
-        radius = radius + (RZAMS - radius) * surfaceAbundanceFactor;
+        radius = radius + (p_RZAMS - radius) * surfaceAbundanceFactor;
     }
     
     return radius;
@@ -618,16 +618,17 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
  
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Tau                       Fractional age on Main Sequence
+ * @param   [IN]    p_RZAMS                     Zero Age Main Sequence (ZAMS) Radius
  * @return                                      Radius on the Main Sequence (for Tau between 0.99 and 1)
  */
-double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Tau) const {
+double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const double p_Tau, const double p_RZAMS) const {
     HG *clone = HG::Clone(static_cast<HG&>(const_cast<MainSequence&>(*this)), OBJECT_PERSISTENCE::EPHEMERAL);
     // Select radius at TAMS from the HG clone or current radius (whichever is smaller), relevant for stars that were significantly
     // stripped as this prevents radius expansion during the hook, and delays possible mass transfer to the start of HG
     double radiusTAMS = std::min(clone->Radius(), m_Radius);                                                                    // Get radius from clone (with updated Mass0)
     delete clone; clone = nullptr;                                                                                              // Return the memory allocated for the clone
     
-    double radiusAtHookStart = CalculateRadiusOnPhase(p_Mass, 0.99);                                                            // Hook starts at Tau = 0.99
+    double radiusAtHookStart = CalculateRadiusOnPhase(p_Mass, 0.99, p_RZAMS);                                                   // Hook starts at Tau = 0.99
     
     return (radiusAtHookStart * (1 - p_Tau) + radiusTAMS * (p_Tau - 0.99)) / 0.01;                                              // Linear interpolation
 }
