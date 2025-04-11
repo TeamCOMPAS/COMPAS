@@ -774,7 +774,7 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
     double deltaCoreMassNatural = -alpha / (1 - alpha * m_HeliumAbundanceCore) * deltaYc * m_MainSequenceCoreMass;                                              // Change in core mass due to natural decay; ibid, eq (4)
     double deltaCoreMass        = deltaCoreMassNatural + deltaCoreMassML;                                                                                       // Total difference in core mass
     
-    double newMixingCoreMass        = m_MainSequenceCoreMass + deltaCoreMass;                                                                                   // New mixing core mass
+    double newMixingCoreMass        = std::min(m_MainSequenceCoreMass + deltaCoreMass, 0.9 * (m_Mass + deltaMass));                                             // New mixing core mass, cannot be greater than 90% of total mass
     double newCentralHeliumFraction = std::min(m_HeliumAbundanceCore + deltaYc, 1.0 - m_Metallicity);                                                           // New central helium fraction, capped at 1-Z
 
     if (deltaCoreMass > 0.0) {                                                                                                                                  // If the core grows, we need to account for rejuvenation
