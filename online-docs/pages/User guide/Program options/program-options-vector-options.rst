@@ -26,8 +26,8 @@ for program options (to the command-line value, then to the COMPAS default) - le
 `log-class` had been left blank), and specifying an empty string ("") for a value would be ambiguous (as to whether the user wanted the
 option value to default, or just be an empty string).
 
-Option values (in general, but also specifically for vector options) may not begin with the dash character ('-'), because the shell parser
-will parse them as option names before passing them through to COMPAS.
+Non-numeric option values (in general, but also specifically for vector options) may not begin with the dash character ('-'), because the
+shell parser will parse them as option names before passing them through to COMPAS.
 
 COMPAS imposes no limit to the length (number of characters) of an individual option values that are specified as strings, but there may 
 be practical limits imposed by the underlying system.

@@ -96,6 +96,30 @@
 /*                                                                                        */
 /******************************************************************************************/
 
+#include <string_view>
+
+template <typename T>
+constexpr auto type_name() {
+  std::string_view name, prefix, suffix;
+#ifdef __clang__
+  name = __PRETTY_FUNCTION__;
+  prefix = "auto type_name() [T = ";
+  suffix = "]";
+#elif defined(__GNUC__)
+  name = __PRETTY_FUNCTION__;
+  prefix = "constexpr auto type_name() [with T = ";
+  suffix = "]";
+#elif defined(_MSC_VER)
+  name = __FUNCSIG__;
+  prefix = "auto __cdecl type_name<";
+  suffix = ">(void)";
+#endif
+  name.remove_prefix(prefix.size());
+  name.remove_suffix(suffix.size());
+  return name;
+}
+
+
 #include "Options.h"
 #include "changelog.h"
 
@@ -105,13 +129,18 @@ namespace po  = boost::program_options;
 namespace cls = po::command_line_style;
 namespace fs  = boost::filesystem;
 
-// this is required to set default value for boost program options of type vector<std::string>
-namespace std
-{
-  std::ostream& operator<<(std::ostream &os, const std::vector<std::string> &vec) {    
-    for (auto item : vec) os << item << " ";
-    return os; 
-  }
+namespace std {
+    // this is required to set default value for boost program options of type STR_VECTOR (std::vector<std::string>)
+    std::ostream& operator<<(std::ostream &os, const STR_VECTOR &vec) {    
+        for (auto item : vec) os << item << " ";
+        return os; 
+    }
+
+    // this is required to set default value for boost program options of type DBL_VECTOR (std::vector<double>)
+    std::ostream& operator<<(std::ostream &os, const DBL_VECTOR &vec) {    
+        for (auto item : vec) os << item << " "; 
+        return os; 
+    }
 } 
 
 
@@ -209,7 +238,12 @@ void Options::OptionValues::Initialise() {
 
     m_MassChangeFraction                                            = MAXIMUM_MASS_LOSS_FRACTION;
     m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
+
     m_TimestepMultiplier                                            = 1.0;
+
+    m_TimestepMultipliers.clear();
+    for (size_t idx = 0; idx < static_cast<int>(STELLAR_TYPE::COUNT) - 3; idx++) m_TimestepMultipliers.push_back(1.0);      // for each stellar type (except STAR, BINARY_STAR, and NONE)
+
     
     // Initial mass options
     m_InitialMass                                                   = 5.0;
@@ -658,40 +692,42 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
     bool ok = true;                             // status - unless a problem occurs
 
-    // create default strings for std::vector<std::string> types (too hard to do inline)
+    // create default strings for std::vector<type> types (too hard to do inline)
 
     // debug classes
-    std::string defaultDebugClasses;
     std::ostringstream ss1;
     for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss1 << *debugClass << ",";
-    defaultDebugClasses = ss1.str();
+    std::string defaultDebugClasses = ss1.str();
     if (defaultDebugClasses.length() > 0) defaultDebugClasses.erase(defaultDebugClasses.length() - 1);
     defaultDebugClasses = "{" + defaultDebugClasses + "}";
 
     // log classes
-    std::string defaultLogClasses;
     std::ostringstream ss2;
     for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss2 << *logClass << ",";
-    defaultLogClasses = ss2.str();
+    std::string defaultLogClasses = ss2.str();
     if (defaultLogClasses.length() > 0) defaultLogClasses.erase(defaultLogClasses.length() - 1);
     defaultLogClasses = "{" + defaultLogClasses + "}";
 
     // annotations
-    std::string defaultNotes;
     std::ostringstream ss3;
     for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss3 << *note << ",";
-    defaultNotes = ss3.str();
+    std::string defaultNotes = ss3.str();
     if (defaultNotes.length() > 0) defaultNotes.erase(defaultNotes.length() - 1);
     defaultNotes = "{" + defaultNotes + "}";
 
     // annotation headers
-    std::string defaultNotesHdrs;
     std::ostringstream ss4;
     for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss4 << *noteHdr << ",";
-    defaultNotesHdrs = ss4.str();
+    std::string defaultNotesHdrs = ss4.str();
     if (defaultNotesHdrs.length() > 0) defaultNotesHdrs.erase(defaultNotesHdrs.length() - 1);
     defaultNotesHdrs = "{" + defaultNotesHdrs + "}";
 
+    // phase-dependent timestep multipliers
+    std::ostringstream ss5;
+    for (auto multiplier = p_Options->m_TimestepMultipliers.begin(); multiplier != p_Options->m_TimestepMultipliers.end(); ++multiplier) ss5 << *multiplier << ",";
+    std::string defaultTimestepMultipliers = ss5.str();
+    if (defaultTimestepMultipliers.length() > 0) defaultTimestepMultipliers.erase(defaultTimestepMultipliers.length() - 1);
+    defaultTimestepMultipliers = "{" + defaultTimestepMultipliers + "}";
 
     // add options
 
@@ -723,7 +759,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // Note the "implicit_value()" (in the statements below) for boolean options is not the default option value
         // When specifying boolean options, users can specify just the option name (e.g. '--emit_gravitaional-radiation'),
         // or they can specify the option name, and a value for the option (e.g. '--emit_gravitaional-radiation true', or
-	// '--emit_gravitaional-radiation false')
+	    // '--emit_gravitaional-radiation false')
         // The "implicit_value()" in the statements below specifies what value is assigned to the option if only the option name is
         // specified by the user (e.g. if the user specifies just '--emit_gravitaional-radiation', the implicit_value() for that option
         // will be assigned).
@@ -1649,6 +1685,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
             ("Timestep multiplier for SSE and BSE on top of other choices, for use in debugging (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
         )
+        (
+            "timestep-multipliers",
+            po::value<DBL_VECTOR>(&p_Options->m_TimestepMultipliers)->multitoken()->default_value(p_Options->m_TimestepMultipliers),
+            ("Phase-dependent timestep multipliers for SSE and BSE on top of other choices, for use in debugging (default = " + defaultTimestepMultipliers + ")").c_str()
+        )
 
         (
             "wolf-rayet-multiplier",                                       
@@ -1990,24 +2031,24 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "debug-classes",                                               
-            po::value<std::vector<std::string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
+            po::value<STR_VECTOR>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
             ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
         )
 
         (
             "log-classes",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
             ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
         )
 
         (
             "notes",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
             ("User-specified annotations (default = " + defaultNotes + ")").c_str()
         )
         (
             "notes-hdrs",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
             ("User-specified annotation header strings (default = " + defaultNotesHdrs + ")").c_str()
         )
     
@@ -2629,16 +2670,16 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
  * labels map.
  * 
  * 
- * std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString)
+ * STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString)
  * 
  * 
  * @param   [IN]    p_OptionString              String containing option name
  * @return                                      Vector containing allowed option value strings
  */
-std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString) {
+STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
 #define POPULATE_RET(mapname) for (auto& it: mapname) ret.push_back("'" + it.second + "'")  // for convenience and readability - undefined at end of function
 
-    std::vector<std::string> ret;           // initially empty
+    STR_VECTOR ret;                         // initially empty
 
     switch (_(p_OptionString.c_str())) {    // which option?
 
@@ -2716,7 +2757,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
  */
 std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionString) {
 
-    std::vector<std::string> allowedValues = AllowedOptionValues(p_OptionString);   // get allowed values
+    STR_VECTOR allowedValues = AllowedOptionValues(p_OptionString);                 // get allowed values
     std::string str = "Options: [";                                                 // formatted string
     for (size_t idx = 0; idx < allowedValues.size(); idx++) {                       // for each allowed value
         str += allowedValues[idx];                                                  // show allowed value
@@ -2899,20 +2940,22 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         valueStr = p_VM[p_IT->first].as<bool>() ? "TRUE" : "FALSE";
     } 
 
-    else {  // Assume std::vector<std::string>
-        try {
+    else {                                                                  // assume VECTOR
+        try {                                                               // try STR_VECTOR (std::vector<std::string>)
             std::ostringstream elemsSS;
             elemsSS << "{ ";
-            std::vector<std::string> tmp = p_VM[p_IT->first].as<std::vector<std::string>>();
-            for (std::vector<std::string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
-                elemsSS << "'" << (*elem) << "', ";
+            STR_VECTOR tmp = p_VM[p_IT->first].as<STR_VECTOR>();
+            for (STR_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
+                std::string selem{*elem};
+                if (selem.length() == 1 && selem == NOT_PROVIDED_STR) selem = "";
+                elemsSS << "'" << selem << "', ";
             }
             std::string elems = elemsSS.str();
             if (elems.length() > 2) elems.erase(elems.length() - 2);
             else if (elems.length() == 2) elems.erase(elems.length() - 1);
             elems += " }";
 
-            // the following options are declared as std::vector<std::string>>:
+            // the following options are declared as STR_VECTOR:
             //
             //     debug-classes
             //     log-classes
@@ -2928,10 +2971,37 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
             typeStr  = "VECTOR<STRING>";
             valueStr = elems;
         }
-        catch (const boost::bad_any_cast &) {
-            dataType = TYPENAME::NONE;                                                  // unknown data type               
-            typeStr  = "<UNKNOWN_DATA_TYPE>";
-            valueStr = "<UNKNOWN_DATA_TYPE>";
+        catch (const boost::bad_any_cast &) {                               // not STR_VECTOR
+            try {                                                           // try DBL_VECTOR (std::vector<double>)
+                std::ostringstream elemsSS;
+                elemsSS << "{ ";
+                DBL_VECTOR tmp = p_VM[p_IT->first].as<DBL_VECTOR>();
+                for (DBL_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
+                    elemsSS << "'" << (*elem) << "', ";
+                }
+                std::string elems = elemsSS.str();
+                if (elems.length() > 2) elems.erase(elems.length() - 2);
+                else if (elems.length() == 2) elems.erase(elems.length() - 1);
+                elems += " }";
+
+                // the following options are declared as DBL_VECTOR:
+                //
+                //     timestep-multipliers
+                // 
+                // The vector of doubles is just formatted as a string here - with braces
+                // surrounding comma-separated values.
+                //
+                // We return dateType = TYPENAME::DOUBLE, but typeStr = "VECTOR<DOUBLE>"
+
+                dataType = TYPENAME::DOUBLE_VECTOR;  
+                typeStr  = "VECTOR<DOUBLE>";
+                valueStr = elems;
+            }
+            catch (const boost::bad_any_cast &) {                           // not DBL_VECTOR - unknown data type
+                dataType = TYPENAME::NONE;               
+                typeStr  = "<UNKNOWN_DATA_TYPE>";
+                valueStr = "<UNKNOWN_DATA_TYPE>";
+            }
         }
     }
 
@@ -2967,7 +3037,7 @@ std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_O
 
         std::string optionStr = it->first;                                                                                                                      // option string
         std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                                                   // get option attributes
-        std::vector<std::string> allowedValues = AllowedOptionValues(optionStr);                                                                                // get allowed option values if appropriate
+        STR_VECTOR allowedValues = AllowedOptionValues(optionStr);                                                                                              // get allowed option values if appropriate
 
         std::map<std::string, std::string>::iterator mit;                                                                                                       // iterator for defaults map
         std::string defaultStr = "";                                                                                                                            // default string - initially empty
@@ -3085,18 +3155,18 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  * This function will expand this shorthand to the example shown above.  There is no checking for correctness here - we just expand any
  * shorthand necessary and pass the argument vector back - correctness checking is done elsewhere.  
  * 
- * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED (constant define in Options.h).
- * Since at this stage the option names and values are just strings that will be parsed by boost, we don't need to worry about data type - 
- * code processing the options can check for NOT_PROVIDED and deal with it then.  Since we may not know the maximum number of values
- * expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not have that number yet), we leave
- * it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
+ * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED_CHAR (constant defined in Options.h)
+ * as the first character of the string.  Since at this stage the option names and values are just strings that will be parsed by boost, we 
+ * don't need to worry about data type - code processing the options can check for NOT_PROVIDED_CHAR and deal with it then.  Since we may not
+ * know the maximum number of values expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not 
+ * have that number yet), we leave it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
  * 
  * ./compas --notes-hdrs [hdrStr1,hdrStr2,hdrStr3,hdrStr4,hdrStr5] --notes ["note 1",,"this is note 3"] --option-name option-value ...
  * 
- * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED here, and notes 4 & 5 will be added later.
+ * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED_STR (string version of NOT_PROVIDED_CHAR) here, and notes 4 & 5 will be added later.
  * 
  * 
- * std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
+ * std::tuple<std::string, int, STR_VECTOR> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
  * 
  * 
  * @param   [IN]    p_ArgCount                  The number of argument strings. (note below for p_ArgStrings)
@@ -3109,11 +3179,11 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  *                                                      - an integer indicating the number of arguments (analogous to p_ArgCount)
  *                                                      - a vector of strings containing the arguments (analogous to p_ArgStrings)
  */
-std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
+std::tuple<std::string, int, STR_VECTOR> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
 
     std::string errStr = "";                                                                                                // for now
 
-    std::vector<std::string> strargs = {std::string(p_ArgStrings[0])};                                                      // new args vector - command name is arg[0]
+    STR_VECTOR strargs = {std::string(p_ArgStrings[0])};                                                                    // new args vector - command name is arg[0]
 
     std::string  argString  = "";                                                                                           // argument string
     std::string  optionName = "";                                                                                           // option name
@@ -3159,7 +3229,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                     // (e.g. 'notes-hdrs' for 'notes').  So for now we just push a single default
                                     // value and deal with it later
 
-                                    strargs.push_back(NOT_PROVIDED);                                                        // "not provided" indicator"
+                                    strargs.push_back(NOT_PROVIDED_STR);                                                    // "not provided" indicator"
                                 }
                                 else {                                                                                      // no - defaults not allowed
                                     errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3178,7 +3248,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                     }
                                     else {                                                                                  // empty value
                                         if (defaultAllowed) {                                                               // defaults allowed?
-                                            strargs.push_back(NOT_PROVIDED);                                                // "not provided" indicator"
+                                            strargs.push_back(NOT_PROVIDED_STR);                                            // "not provided" indicator"
                                         }
                                         else {                                                                              // no - defaults not allowed
                                             errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3189,7 +3259,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
 
                                 if (argString[argString.length() - 1] == ',') {                                             // trailing comma in shorthand values?
                                     if (defaultAllowed) {                                                                   // defaults allowed?
-                                        strargs.push_back(NOT_PROVIDED);                                                    // "not provided" indicator"
+                                        strargs.push_back(NOT_PROVIDED_STR);                                                // "not provided" indicator"
                                     }
                                     else {                                                                                  // no - defaults not allowed
                                         errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3248,7 +3318,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
     std::string errStr = "";                                                                                                // initially
 
     int argCount;                                                                                                           // number or arg strings
-    std::vector<std::string> sArgStrings;                                                                                   // arg strings - as std::strings
+    STR_VECTOR sArgStrings;                                                                                                 // arg strings - as std::strings
 
     //********************************************************************//
     // first expand any shorthand notation used in the options            //
@@ -3276,9 +3346,9 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         p_OptionsDescriptor.optionsSpecified    = {};                                                                       // initially
         p_OptionsDescriptor.complexOptionValues = {};                                                                       // initially
 
-        std::string  optionName        = "";                                                                                // option name
-        COMPLEX_TYPE type              = COMPLEX_TYPE::NONE;                                                                // complex arg type (range, set, neither/none)
-        std::vector<std::string> parms = {};                                                                                // the range or set parameters
+        std::string  optionName = "";                                                                                       // option name
+        COMPLEX_TYPE type       = COMPLEX_TYPE::NONE;                                                                       // complex arg type (range, set, neither/none)
+        STR_VECTOR parms        = {};                                                                                       // the range or set parameters
 
         for (size_t iArg = 1; iArg < (size_t)argCount; iArg++) {                                                            // for each arg string
 
@@ -3401,7 +3471,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             // during binary/stellar evolution - helps to reduce the performance impact
             // of deprecated options and option values 
 
-            std::vector<std::string> fixedArgs {};                                                                          // vector args fixed for deprecated string
+            STR_VECTOR fixedArgs {};                                                                                        // vector args fixed for deprecated string
 
             std::string thisArgString = "";                                                                                 // arg string being checked
             std::string prevArgString = "";                                                                                 // previous arg string (for option value checking)   
@@ -3446,15 +3516,60 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             // in the argument strings that will be passed to boost - so boost will fail
             // and complain about the offending parameter (which is what we want)
 
+            // before we pass the argstrings to parse_command_line() we need to remove the
+            // NOT_PROVIDED_CHAR for shorthand allowed, non-string, options (boost doesn't 
+            // like it...)
+
+
+            bool shorthandOk = false;                                                                                       // flag to indicate if we're processing a shorthand allowed option
+            TYPENAME defaultType = TYPENAME::NONE;                                                                          // type for default value
+            for (size_t iidx = 1; iidx < (size_t)argCount; iidx++) {                                                        // for each arg string
+
+                std::string argStr = std::string(argStrings[iidx]);
+                if (!argStr.empty()) {                                                                                      // null arg? (shouldn't be...)
+                                                                                                                            // no
+                    if (argStr.substr(0, 2) == "--" || argStr[0] == '-' ) {                                                 // option string?
+                                                                                                                            // yes
+                        // strip the preamble
+                        if (argStr.substr(0, 2) == "--") argStr = argStr.substr(2, argStr.length() - 2);
+                        else argStr = argStr.substr(1, argStr.length() - 1);
+
+                        // check if option is on the shorthand allowed list
+                        auto elem = std::find_if(m_ShorthandAllowed.begin(), m_ShorthandAllowed.end(), [&argStr](const SHORTHAND_ENTRY& e) { return std::get<0>(e) == argStr; });
+                        if (elem != m_ShorthandAllowed.end()) {                                                             // option in shorthand allowed list?
+                            shorthandOk = elem != m_ShorthandAllowed.end();                                                 // yes
+                            defaultType = std::get<2>(*elem);                                                               // get type for option default
+                        }
+                        continue;                                                                                           // next arg string
+                    }
+
+                    // processing arguments to options here - skipped over option name
+                    if (shorthandOk) {                                                                                      // shorthand allowed?
+                                                                                                                            // yes
+                        switch (defaultType) {                                                                              // which default value type?
+                            case TYPENAME::STRING: break;                                                                   // STRING - do nothing
+                            case TYPENAME::DOUBLE:                                                                          // DOUBLE - replace NOT_PROVIDED_CHAR with inf
+                                if (*argStrings[iidx] == static_cast<char>(NOT_PROVIDED_CHAR))                              // NOT_PROVIDED_CHAR?
+                                    strcpy(argStrings[iidx], "inf");                                                        // yes - replace with inf
+                                break;
+                            default:                                                                                        // shouldn't happen - for now we only have string and double default values
+                                break;                                                                                      // do nothing - the parse will fail
+                        }
+
+                    }
+                }
+            }
+
+            // pass argstrings to boost parse_command_line()
             po::parsed_options const parsedOptions = po::parse_command_line(argCount, argStrings, p_OptionsDescriptor.optionDescriptions, cls::unix_style|cls::case_insensitive); // parse user-supplied options
-            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                              // store parsed options into variable map
-            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                            // populate the variables with option values
+            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                                // store parsed options into variable map
+            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                              // populate the variables with option values
 
             // this is our opportunity to distinguish between "-h" and "--help" (if specified)
             for (auto& entry : parsedOptions.options) {
                 po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false);
-                std::string originalTok = entry.original_tokens[0];
-                std::string thisTok = utils::ToLower(utils::trim(originalTok));
+                std::string originalTok           = entry.original_tokens[0];
+                std::string thisTok               = utils::ToLower(utils::trim(originalTok));
 
                 if (!thisTok.empty()) {
                     std::string shortOpt = utils::ToLower(opt.canonical_display_name(cls::allow_dash_for_short));
@@ -3848,7 +3963,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
             // if we've made it this far we've parsed everything, and now is the time to fix up any default values
             // for vector options.  Any vector option values that we know were not provided will have the value
-            // NOT_PROVIDED, so they can just be replaced with whatever the default value should be.  However,
+            // NOT_PROVIDED_STR, so they can just be replaced with whatever the default value should be.  However,
             // we couldn't really know until now how many values we should expect for vector options like 'notes',
             // because (in that case) the number of values expected is the number of 'notes-hdrs' specified by the
             // user, and that we didn't really know until now (and moreover, we didn't know what the command-line
@@ -3861,21 +3976,21 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                 for (auto& elem: m_ShorthandAllowed) {                                                                      // for each option for which shorthand is allowed
                     std::string optionName     = std::get<0>(elem);                                                         // option name
                     bool        defaultAllowed = std::get<1>(elem);                                                         // omissions allowed?
-                    std::string defaultString  = std::get<2>(elem);                                                         // the COMPAS default for omissions
 
                     if (defaultAllowed) {                                                                                   // omission allowed for this option?
                                                                                                                             // yes
                         switch (_(optionName.c_str())) {                                                                    // which option?
 
-                            // '--notes' is the only option affected at the moment
+                            // '--notes' and '--timestep-multipliers' are the only options affected at the moment
 
-                            case _("notes"):                                                                                // notes
+                            case _("notes"): {                                                                              // notes
+                                std::string defaultValue = std::string((std::get<3>(elem)).strVal);                         // the COMPAS default for omissions
                                 for (size_t idx = 0; idx < NotesHdrs().size(); idx++) {                                     // for each specified notes-hdr
                                     if (idx < p_OptionsDescriptor.optionValues.m_Notes.size()) {                            // have parsed value?
-                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED) {                // yes - notes value provided?
+                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED_STR) {            // yes - notes value provided?
                                                                                                                             // no - get default
                                             if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
-                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultString;              // yes - use COMPAS default
+                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultValue;               // yes - use COMPAS default
                                             }
                                             else {                                                                          // no - grid file line
                                                 p_OptionsDescriptor.optionValues.m_Notes[idx] = m_CmdLine.optionValues.m_Notes[idx]; // use command-line value
@@ -3884,15 +3999,39 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     }
                                     else {                                                                                  // no parsed value
                                         if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
-                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultString);              // yes - use COMPAS default
+                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultValue);               // yes - use COMPAS default
                                         }
                                         else {                                                                              // no - grid file line
                                             p_OptionsDescriptor.optionValues.m_Notes.push_back(m_CmdLine.optionValues.m_Notes[idx]); // use command-line value
                                         }
                                     }
                                 }
-                                break;
+                                } break;
 
+                            case _("timestep-multipliers"): {                                                               // timestep-multipliers
+                                double defaultValue = (std::get<3>(elem)).dblVal;                                           // the COMPAS default for omissions
+                                for (size_t idx = 0; idx < static_cast<int>(STELLAR_TYPE::COUNT) - 3; idx++) {              // for each stellar type (except STAR, BINARY_STAR, and NONE)
+                                    if (idx < p_OptionsDescriptor.optionValues.m_TimestepMultipliers.size()) {              // have parsed value?
+                                        if (p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] == static_cast<char>(NOT_PROVIDED_CHAR)) {  // yes - multiplier provided?
+                                                                                                                            // no - get default
+                                            if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
+                                                p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = defaultValue; // yes - use COMPAS default
+                                            }
+                                            else {                                                                          // no - grid file line
+                                                p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = m_CmdLine.optionValues.m_TimestepMultipliers[idx]; // use command-line value
+                                            }
+                                        }
+                                    }
+                                    else {                                                                                  // no parsed value
+                                        if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
+                                            p_OptionsDescriptor.optionValues.m_TimestepMultipliers.push_back(defaultValue); // yes - use COMPAS default
+                                        }
+                                        else {                                                                              // no - grid file line
+                                            p_OptionsDescriptor.optionValues.m_TimestepMultipliers.push_back(m_CmdLine.optionValues.m_TimestepMultipliers[idx]); // use command-line value
+                                        }
+                                    }
+                                }
+                                } break;
                             default:                                                                                        // default - shouldn't happen
                                 break;                                                                                      // do nothing - the parse will fail
                         }
@@ -3948,7 +4087,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
     for (size_t idx = 0; idx < m_BSEOnly.size();          idx++) m_BSEOnly[idx]          = utils::ToLower(utils::trim(m_BSEOnly[idx]));
     for (size_t idx = 0; idx < m_RangeExcluded.size();    idx++) m_RangeExcluded[idx]    = utils::ToLower(utils::trim(m_RangeExcluded[idx]));
     for (size_t idx = 0; idx < m_SetExcluded.size();      idx++) m_SetExcluded[idx]      = utils::ToLower(utils::trim(m_SetExcluded[idx]));
-    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]));
+    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]), std::get<3>(m_ShorthandAllowed[idx]));
 
     try {
 
@@ -4270,10 +4409,10 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
         // parse the option string (just as the OS/shell would do)
 
-        std::vector<std::string> parsedStrings;                                                                     // parsed option strings
+        STR_VECTOR parsedStrings;                                                                                   // parsed option strings
 
         size_t start      = 0;                                                                                      // start position of parsed option string
-        size_t end        = 0;                                                                                      // end position of parsed option strinf
+        size_t end        = 0;                                                                                      // end position of parsed option string
         std::string delim = " ";                                                                                    // delimiter
         bool done         = false;
         while (!done && end != std::string::npos) {                                                                 // iterate over input string

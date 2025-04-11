@@ -1538,7 +1538,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
   	SetPreCEEValues(semiMajorAxisRsol, eccentricity, rRLd1Rsol, rRLd2Rsol);                                             // squirrel away pre CEE binary values
     
-    m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::CE;
+    m_MassTransferTimescale = MT_TIMESCALE::CE;
     m_MassLossRateInRLOF    = DBL_MAX;
     
 	// double common envelope phase prescription (Brown 1995) to calculate new semi-major axis
@@ -2008,7 +2008,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
     }
     
-    m_MassTransferTimescale         = MASS_TRANSFER_TIMESCALE::NONE;                                                            // initial reset
+    m_MassTransferTimescale         = MT_TIMESCALE::NONE;                                                                       // initial reset
     double betaThermal              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on thermal timescale
     double maximumAccretionRate     = 0.0;                                                                                      // accretion rate if accretion proceeds on thermal timescale
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
@@ -2037,17 +2037,17 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         double zetaLobe        = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
         if (utils::Compare(zetaEquilibrium, zetaLobe) > 0  && massDiffDonor > 0.0) {                                            // yes, it's nuclear timescale mass transfer; no need for utils::Compare here
             m_MassLossRateInRLOF    = massDiffDonor / m_Dt;
-            m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::NUCLEAR;
+            m_MassTransferTimescale = MT_TIMESCALE::NUCLEAR;
             m_ZetaStar              = zetaEquilibrium;
             m_ZetaLobe              = zetaLobe;
         }
     }
-    if (m_MassTransferTimescale != MASS_TRANSFER_TIMESCALE::NUCLEAR) {                                                          // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
+    if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
         m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, betaThermal);
         m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
         m_FractionAccreted      = betaThermal;
-        m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::THERMAL;
+        m_MassTransferTimescale = MT_TIMESCALE::THERMAL;
         massDiffDonor           = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, betaThermal, 0.0);                    // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
     }
         
@@ -2090,7 +2090,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         bool isEnvelopeRemoved = false;
 
         if (utils::Compare(m_Donor->CoreMass(), 0.0) > 0 && utils::Compare(envMassDonor, 0.0) > 0) {                            // donor has a core and an envelope
-            if (m_MassTransferTimescale == MASS_TRANSFER_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
+            if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
                 // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
                 massDiffDonor     = -envMassDonor;
                 isEnvelopeRemoved = true;
@@ -2270,7 +2270,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 
 	m_MassTransferTrackerHistory = MT_TRACKING::NO_MASS_TRANSFER;	                                                            // Initiating flag, every timestep, to NO_MASS_TRANSFER. If it undergoes to MT or CEE, it should change.
     
-    m_MassTransferTimescale      = MASS_TRANSFER_TIMESCALE::NONE;
+    m_MassTransferTimescale      = MT_TIMESCALE::NONE;
     m_MassLossRateInRLOF         = 0.0;
 
     m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star1
