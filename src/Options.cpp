@@ -57,7 +57,7 @@
 /*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
 /*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
-/* 9. If the option is a string option with multiple-choices - in that the user can       */
+/* 9. If the option is a string option with multiple choices - in that the user can       */
 /*    select from a list of possible values recorded in typedefs.h or LogTypedefs.h in    */
 /*    an ENUM CLASS and corresponding COMPASUnorderedMap labels map - then add the option */
 /*    to the function AllowedOptionValues() here so that we can easily extract the        */
@@ -417,6 +417,7 @@ void Options::OptionValues::Initialise() {
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
     m_RetainCoreMassDuringCaseAMassTransfer                         = true;
+    m_ConvectiveEnvelopeMassThreshold                               = CONVECTIVE_BOUNDARY_MASS_THRESHOLD_ROMAGNOLO;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
@@ -571,7 +572,10 @@ void Options::OptionValues::Initialise() {
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
-
+    // Response to super-critical spin-up prescription
+    m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT;
+    m_ResponseToSpinUp.typeString                                   = RESPONSE_TO_SPIN_UP_LABEL.at(m_ResponseToSpinUp.type);
+    
     // Rotational velocity distribution options
     m_RotationalVelocityDistribution.type                           = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
     m_RotationalVelocityDistribution.typeString                     = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(m_RotationalVelocityDistribution.type);
@@ -1084,6 +1088,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-slope-kruckow",                               
             po::value<double>(&p_Options->m_CommonEnvelopeSlopeKruckow)->default_value(p_Options->m_CommonEnvelopeSlopeKruckow),                                                                  
             ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(p_Options->m_CommonEnvelopeSlopeKruckow) + ")").c_str()
+        )
+        (
+            "convective-envelope-mass-threshold",
+            po::value<double>(&p_Options->m_ConvectiveEnvelopeMassThreshold)->default_value(p_Options->m_ConvectiveEnvelopeMassThreshold),
+            ("Fractional threshold of envelope mass that above which the envelopes of giants are labeled convective. Only used for --envelope-state-prescription = CONVECTIVE_MASS_THRESHOLD, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeMassThreshold) + ")").c_str()
         )
         (
             "convective-envelope-temperature-threshold",                               
@@ -1638,7 +1647,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "timestep-multiplier",
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
-            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
+            ("Timestep multiplier for SSE and BSE on top of other choices, for use in debugging (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
         )
 
         (
@@ -1923,6 +1932,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "remnant-mass-prescription",                                   
             po::value<std::string>(&p_Options->m_RemnantMassPrescription.typeString)->default_value(p_Options->m_RemnantMassPrescription.typeString),                                                            
             ("Choose remnant mass prescription (" + AllowedOptionValuesFormatted("remnant-mass-prescription") + ", default = '" + p_Options->m_RemnantMassPrescription.typeString + "')").c_str()
+        )
+        (
+            "response-to-spin-up",
+            po::value<std::string>(&p_Options->m_ResponseToSpinUp.typeString)->default_value(p_Options->m_ResponseToSpinUp.typeString),
+            ("Response to spin-up prescription (" + AllowedOptionValuesFormatted("response-to-spin-up") + ", default = '" + p_Options->m_ResponseToSpinUp.typeString + "')").c_str()
         )
         (
             "rotational-velocity-distribution",                            
@@ -2360,6 +2374,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_RemnantMassPrescription.type) = utils::GetMapKey(m_RemnantMassPrescription.typeString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
         }
+        
+        if (!DEFAULTED("response-to-spin-up")) {                                                                              // prescription for response to super-critical spin-up
+            std::tie(found, m_ResponseToSpinUp.type) = utils::GetMapKey(m_ResponseToSpinUp.typeString, RESPONSE_TO_SPIN_UP_LABEL, m_ResponseToSpinUp.type);
+            COMPLAIN_IF(!found, "Unknown Response-to-spin-up Prescription");
+        }
 
         if (!DEFAULTED("rotational-velocity-distribution")) {                                                                       // rotational velocity distribution
             std::tie(found, m_RotationalVelocityDistribution.type) = utils::GetMapKey(m_RotationalVelocityDistribution.typeString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution.type);
@@ -2562,13 +2581,14 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
     size_t pos  = 0;
     size_t prev = 0;
     while ((pos = descriptions.find('\n', prev)) != std::string::npos) {                                    // extract individual option descriptions (split at newline)
-        std::string rec = descriptions.substr(prev, pos - prev);                                            // this option description
-        rec  = utils::trim(rec);                                                                            // trim whitespace
+        std::string thisRec = descriptions.substr(prev, pos - prev);                                        // this option description
         prev = pos + 1;                                                                                     // set up for next option
-
         // have option description - parse it
-        if (rec.substr(0, 2) == "--" || (rec[0] = '-' && rec.substr(3, 4) == "[ --")) {                     // option description?
+        thisRec.erase(0, 2);                                                                                // remove "  " from start of string
+        if (thisRec.substr(0, 2) == "--" || (thisRec[0] == '-' && thisRec.substr(3, 4) == "[ --")) {        // option description?
                                                                                                             // yes
+            std::string rec = utils::trim(thisRec);                                                         // trim whitespace
+
             // strip the preamble
             if (rec.substr(0, 2) == "--") rec = rec.substr(2, rec.length() - 2);
             else rec = rec.substr(7, rec.length() - 7);
@@ -2658,6 +2678,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
         case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
+        case _("response-to-spin-up")                               : POPULATE_RET(RESPONSE_TO_SPIN_UP_LABEL);                      break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
@@ -4649,6 +4670,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
 
+        case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_MASS_THRESHOLD             : value = ConvectiveEnvelopeMassThreshold();                                    break;
         case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD      : value = ConvectiveEnvelopeTemperatureThreshold();                             break;
 
         case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                         break;
@@ -4803,6 +4825,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
 
         case PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION                      : value = static_cast<int>(RemnantMassPrescription());                          break;
+            
+        case PROGRAM_OPTION::RESPONSE_TO_SPIN_UP                            : value = static_cast<int>(ResponseToSpinUp());                                 break;
 
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1                        : value = RocketKickMagnitude1();                                               break;
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2                        : value = RocketKickMagnitude2();                                               break;

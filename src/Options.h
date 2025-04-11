@@ -973,6 +973,7 @@ public:
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
 	        bool                                                m_CirculariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = true)
 	        bool                                                m_AngularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
+            double                                              m_ConvectiveEnvelopeMassThreshold;                              // The mass fraction of envelope that should be convective for the envelope to be labeled convective
             double                                              m_ConvectiveEnvelopeTemperatureThreshold;                       // The boundary between convective and radiative envelopes for HG and Giant stars
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
@@ -1063,9 +1064,10 @@ public:
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
-
+            ENUM_OPT<RESPONSE_TO_SPIN_UP>                       m_ResponseToSpinUp;                                             // Response to super-critical spin-up prescription
+        
             // Tides
-            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1371,6 +1373,7 @@ public:
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
+    double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }
     double                                      ConvectiveEnvelopeTemperatureThreshold() const                          { return OPT_VALUE("convective-envelope-temperature-threshold", m_ConvectiveEnvelopeTemperatureThreshold, true); }
 
     double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
@@ -1625,6 +1628,8 @@ public:
     
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
+    
+    RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
     
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     

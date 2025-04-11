@@ -102,6 +102,7 @@ protected:
     
     
     double          CalculateLambdaDewi() const;
+    double          CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss = false) const;
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
     double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const;
     

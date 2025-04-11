@@ -211,6 +211,11 @@ Default = :math:`1.5 \times 10^{13}`
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
 
+**--convective-envelope-mass-threshold** |br|
+Mass threshold of envelope which should be convective, above which the envelopes of giants are labeled convective. |br|
+Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
+Default = 0.1
+
 **--convective-envelope-temperature-threshold** |br|
 Temperature [K] threshold, below which the envelopes of giants are convective. 
 Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. |br|
@@ -1184,6 +1189,14 @@ Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
 
+**--response-to-spin-up** |br|
+Response of the star to super-critical accretion-induced spin-up |br|
+Options: { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT} |br|
+KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation |br|
+Under TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit |br|
+NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices |br|
+Default = TRANSFER_TO_ORBIT
+
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
 The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
@@ -1321,8 +1334,10 @@ User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`)
 Default = ’’ (None)
 
 **--timestep-multiplier** |br|
-Multiplicative factor for timestep duration. |br|
-Default = 1.0
+Multiplicative factor for timestep duration.  This multiplier is applied after the timesteps are chosen using other program options 
+such as ``--radial-change-fraction`` and ``--mass-change-fraction``, and will therefore override expected behaviour.  This option is 
+primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+ Default = 1.0
 
 .. _options-props-U:
 
@@ -1456,7 +1471,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---case-bb-stability-prescription, --convective-envelope-temperature-threshold, --critical-mass-ratio-prescription,
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
+--convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
@@ -1467,7 +1483,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 
