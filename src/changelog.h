@@ -1521,7 +1521,8 @@
 //                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
 //                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
 //                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
-
-const std::string VERSION_STRING = "03.17.00";
+//  03.17.01    VK - Apr 7, 2025    - Defect Repair:
+//                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
+const std::string VERSION_STRING = "03.17.01";
 
 # endif // __changelog_h__
