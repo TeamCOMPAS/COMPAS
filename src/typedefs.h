@@ -426,11 +426,12 @@ const COMPASUnorderedMap<ENVELOPE, std::string> ENVELOPE_LABEL = {
 };
 
 // envelope state prescriptions
-enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
+enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE, CONVECTIVE_MASS_FRACTION };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
     { ENVELOPE_STATE_PRESCRIPTION::LEGACY,            "LEGACY" },
     { ENVELOPE_STATE_PRESCRIPTION::HURLEY,            "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" },
+    { ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION, "CONVECTIVE_MASS_FRACTION"}
 };
 
 // evolution status constants
@@ -813,6 +814,14 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
     { REMNANT_MASS_PRESCRIPTION::MALTSEV2024,      "MALTSEV2024" }
 };
 
+// response of star to spin-up beyond the Keplerian frequency
+enum class RESPONSE_TO_SPIN_UP: int { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT };
+const COMPASUnorderedMap<RESPONSE_TO_SPIN_UP, std::string> RESPONSE_TO_SPIN_UP_LABEL = {
+    { RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT,   "TRANSFER_TO_ORBIT" },
+    { RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT,     "KEPLERIAN_LIMIT" },
+    { RESPONSE_TO_SPIN_UP::NO_LIMIT,            "NO_LIMIT"}
+};
+
 // rotational velocity distributions
 enum class ROTATIONAL_VELOCITY_DISTRIBUTION: int { ZERO, HURLEY, VLTFLAMES };
 const COMPASUnorderedMap<ROTATIONAL_VELOCITY_DISTRIBUTION, std::string> ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL = {
@@ -1178,43 +1187,6 @@ typedef struct PulsarDetails {
     double birthPeriod;                                     // Pulsar birth period (s)
     double birthSpinDownRate;                               // Pulsar birth down rate as Pdot (s s^-1)
 } PulsarDetailsT;
-
-
-// struct for Lambdas
-typedef struct Lambdas {
-	double dewi;                                            // JR: todo: description?
-    double fixed;                                           // Set to OPTIONS->commonEnvelopeLambda
-	double kruckow;                                         // Calculated using m_Radius and OPTIONS->commonEnvelopeSlopeKruckow
-	double kruckowBottom;                                   // Calculated using m_Radius and -1
-	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
-	double kruckowTop;                                      // Calculated using m_Radius and -2/3
-	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss
-	double nanjing;                                         // JR: todo: description?
-} LambdasT;
-
-
-// struct for Zetas
-// JR: add descriptive comments
-typedef struct Zetas {                                      // JR: todo: descriptions for these?
-	double hurley;
-	double hurleyHe;
-	double nuclear;
-	double soberman;
-	double sobermanHe;
-	double thermal;
-} ZetasT;
-
-
-// struct for binding energies
-typedef struct BindingEnergies {
-    double fixed;                                           // Calculated using lambda = OPTIONS->commonEnvelopeLambda
-	double nanjing;                                         // Calculated using lambda = m_Lambdas.nanjing
-	double loveridge;                                       // Calculated using lambda = m_Lambdas.loveridge
-	double loveridgeWinds;                                  // Calculated using lambda = m_Lambdas.loveridgeWinds
-	double kruckow;                                         // Calculated using lambda = m_Lambdas.kruckow
-    double dewi;                                            // Calculated using lambda = m_Lambdas.dewi
-} BindingEnergiesT;
 
 
 // RLOF properties
