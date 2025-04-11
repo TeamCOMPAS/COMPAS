@@ -344,7 +344,7 @@ private:
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
     
-    MASS_TRANSFER_TIMESCALE m_MassTransferTimescale;
+    MT_TIMESCALE        m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
