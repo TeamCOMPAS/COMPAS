@@ -1523,6 +1523,9 @@
 //                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
 //  03.17.01    VK - Apr 7, 2025    - Defect Repair:
 //                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
-const std::string VERSION_STRING = "03.17.01";
+//  03.17.02    JR - Apr 11, 2025   - Defect Repair:
+//                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
+//                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
+const std::string VERSION_STRING = "03.17.02";
 
 # endif // __changelog_h__

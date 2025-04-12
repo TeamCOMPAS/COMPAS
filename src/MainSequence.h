@@ -93,7 +93,7 @@ protected:
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
-    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { std::cout << "MS::CalculateRadiusOnPhase(LUM) called\n"; return Radius(); }  // Not a meaningful function for MS stars
+    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const { return Radius(); }                                               // Not a meaningful function for MS stars
     double          CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const;
      
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
