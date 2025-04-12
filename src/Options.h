@@ -1688,6 +1688,7 @@ public:
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
     double                                      TimestepMultiplier() const                                              { return OPT_VALUE("timestep-multiplier", m_TimestepMultiplier, true); }
+    double                                      TimestepMultipliers(const size_t p_Idx) const                           { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers[p_Idx], true); }
     DBL_VECTOR                                  TimestepMultipliers() const                                             { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers, true); }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
