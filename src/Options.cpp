@@ -240,9 +240,7 @@ void Options::OptionValues::Initialise() {
     m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
 
     m_TimestepMultiplier                                            = 1.0;
-
     m_TimestepMultipliers.clear();
-    for (size_t idx = 0; idx < static_cast<int>(STELLAR_TYPE::COUNT) - 3; idx++) m_TimestepMultipliers.push_back(1.0);      // for each stellar type (except STAR, BINARY_STAR, and NONE)
 
     
     // Initial mass options
@@ -2526,9 +2524,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
 
-        if (!DEFAULTED("notes")) {                                                                                                  // user specified notes?
-            WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
+        // check for duplicate notes header strings
+        if (!DEFAULTED("notes-hdrs") && m_NotesHdrs.size() > 1) {
+            STR_VECTOR sortedHdrs(m_NotesHdrs.size());
+            std::partial_sort_copy(begin(m_NotesHdrs), end(m_NotesHdrs), begin(sortedHdrs), end(sortedHdrs));
+            COMPLAIN_IF(std::adjacent_find(std::begin(sortedHdrs), std::end(sortedHdrs)) != std::end(sortedHdrs), "Annotations: duplicate headers");
         }
+
+        COMPLAIN_IF(!DEFAULTED("notes") && m_Notes.size() > Options::Instance()->NotesHdrs().size(), "Annotations: more notes than headers");
 
         COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
@@ -2555,6 +2558,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
         COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+        COMPLAIN_IF(m_TimestepMultiplier > MAXIMUM_TIMESTEP_MULTIPLIER, "Timestep multiplier (--timestep-multiplier) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ")");
+
+        COMPLAIN_IF(!DEFAULTED("timestep-multipliers") && m_TimestepMultipliers.size() > (static_cast<int>(STELLAR_TYPE::COUNT) - 3), "More phase-dependent timestep multipliers than stellar types");
+        for (size_t idx = 0; idx < m_TimestepMultipliers.size(); idx++) {
+            COMPLAIN_IF(m_TimestepMultipliers[idx] <= 0.0, "Phase-dependent timestep multiplier (--timestep-multipliers) <= 0 for stellar type index " + std::to_string(idx));
+            COMPLAIN_IF(m_TimestepMultipliers[idx] > MAXIMUM_TIMESTEP_MULTIPLIER, "Phase-dependent timestep multiplier (--timestep-multipliers) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ") for stellar type index " + std::to_string(idx));
+        }
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
 
@@ -2947,8 +2957,8 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
             STR_VECTOR tmp = p_VM[p_IT->first].as<STR_VECTOR>();
             for (STR_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
                 std::string selem{*elem};
-                if (selem.length() == 1 && selem == NOT_PROVIDED_STR) selem = "";
-                elemsSS << "'" << selem << "', ";
+                if (selem.length() == 1 && selem == NOT_PROVIDED_STR) elemsSS << ", ";
+                else                                                  elemsSS << "'" << selem << "', ";
             }
             std::string elems = elemsSS.str();
             if (elems.length() > 2) elems.erase(elems.length() - 2);
@@ -2977,7 +2987,8 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
                 elemsSS << "{ ";
                 DBL_VECTOR tmp = p_VM[p_IT->first].as<DBL_VECTOR>();
                 for (DBL_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
-                    elemsSS << "'" << (*elem) << "', ";
+                    if (!isinf(*elem)) elemsSS << *elem;
+                    elemsSS << ", ";
                 }
                 std::string elems = elemsSS.str();
                 if (elems.length() > 2) elems.erase(elems.length() - 2);
@@ -2991,9 +3002,9 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
                 // The vector of doubles is just formatted as a string here - with braces
                 // surrounding comma-separated values.
                 //
-                // We return dateType = TYPENAME::DOUBLE, but typeStr = "VECTOR<DOUBLE>"
+                // We return dateType = TYPENAME::STRING, but typeStr = "VECTOR<DOUBLE>"
 
-                dataType = TYPENAME::DOUBLE_VECTOR;  
+                dataType = TYPENAME::STRING;  
                 typeStr  = "VECTOR<DOUBLE>";
                 valueStr = elems;
             }
@@ -4012,7 +4023,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                 double defaultValue = (std::get<3>(elem)).dblVal;                                           // the COMPAS default for omissions
                                 for (size_t idx = 0; idx < static_cast<int>(STELLAR_TYPE::COUNT) - 3; idx++) {              // for each stellar type (except STAR, BINARY_STAR, and NONE)
                                     if (idx < p_OptionsDescriptor.optionValues.m_TimestepMultipliers.size()) {              // have parsed value?
-                                        if (p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] == static_cast<char>(NOT_PROVIDED_CHAR)) {  // yes - multiplier provided?
+                                        if (isinf(p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx])) {           // yes - multiplier provided?
                                                                                                                             // no - get default
                                             if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
                                                 p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = defaultValue; // yes - use COMPAS default
