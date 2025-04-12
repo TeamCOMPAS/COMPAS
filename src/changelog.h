@@ -1523,8 +1523,15 @@
 //                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
 //  03.17.01    VK - Apr 7, 2025    - Defect Repair:
 //                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
+<<<<<<< HEAD
 //  03.17.03    JR - Apr 12, 2025   - Enhancement:
 //                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers
 const std::string VERSION_STRING = "03.17.03";
+=======
+//  03.17.02    JR - Apr 11, 2025   - Defect Repair:
+//                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
+//                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
+const std::string VERSION_STRING = "03.17.02";
+>>>>>>> dev
 
 # endif // __changelog_h__

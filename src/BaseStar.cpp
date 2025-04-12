@@ -3191,7 +3191,7 @@ double BaseStar::CalculateOmegaBreak() const {
  *
  * @param   [IN]        p_MZAMS                 Zero age main sequence mass in Msol
  * @param   [IN]        p_Metallicity           Metallicity of the star
- * @return                                      Initial angular frequency in rad*yr^-1
+ * @return                                      Minimum angular frequency in rad*yr^-1
  */
 double BaseStar::CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const {
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
