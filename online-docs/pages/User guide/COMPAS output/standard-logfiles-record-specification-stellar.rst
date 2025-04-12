@@ -216,7 +216,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - COMPAS variable:
      - `derived from` BaseStar::m_SupernovaDetails.events.past
    * - Description:
-     - Flag to indicate whether the star transferred mass to a neutron star at any time prior to the current timestep via common envelope.
+     - Flag to indicate whether the star transferred mass to a neutron star via common envelope at any time prior to the current timestep.
    * - Header Strings:
      - CE->NS, CE->NS(1), CE->NS(2), CE->NS(SN), CE->NS(CP)
 
