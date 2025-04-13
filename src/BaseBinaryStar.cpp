@@ -2953,12 +2953,14 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  *
  * double ChooseTimestep(const double p_Multiplier)
  * 
- * @param   [IN]    p_Multiplier                timestep multiplier
+ * @param   [IN]    p_Factor                    factor applied to timestep (in addition to multipliers)
  * @return                                      new timestep in Myr
  */
-double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
+double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
 
-    double dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());       // dt = smaller of timesteps required by individual stars
+    double dt1 = m_Star1->CalculateTimestep();
+    double dt2 = m_Star2->CalculateTimestep();
+    double dt  = std::min(dt1, dt2);                                                        // dt = smaller of timesteps required by individual stars
 
     if (!IsUnbound()) {                                                                     // check that binary is bound
 
@@ -3007,7 +3009,8 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         }
     }
 
-    dt *= p_Multiplier;	
+    // apply timestep multipliers
+    dt *= OPTIONS->TimestepMultiplier() * (dt1 < dt2 ? OPTIONS->TimestepMultipliers(static_cast<int>(m_Star1->StellarType())) : OPTIONS->TimestepMultipliers(static_cast<int>(m_Star2->StellarType()))) * p_Factor;
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
 }
@@ -3240,7 +3243,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 }
 
                 // we want the first timestep to be small - calculate timestep and divide by 1000.0
-                dt = ChooseTimestep(OPTIONS->TimestepMultiplier() / 1000.0);                                                            // calculate timestep - make first step small
+                dt = ChooseTimestep(0.001);                                                                                             // calculate timestep - make first step small
             }
 
             unsigned long int stepNum = 1; 
@@ -3370,7 +3373,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             dt = timesteps[stepNum];
                         }
                         else {                                                                                                          // no - not using user-provided timesteps
-                            dt = ChooseTimestep(OPTIONS->TimestepMultiplier());
+                            dt = ChooseTimestep();
                         }
 
                         stepNum++;                                                                                                      // increment stepNum

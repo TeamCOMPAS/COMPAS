@@ -343,6 +343,7 @@ Default = 0.0
 
 **--debug-classes** |br|
 Developer-defined debug classes to enable (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--debug-level** |br|
@@ -694,6 +695,7 @@ Default = HURLEY_ADD |br|
 
 **--log-classes** |br|
 Logging classes to be enabled (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--logfile-common-envelopes** |br|
@@ -992,11 +994,13 @@ Default = SSE
 
 **--notes** |br|
 Annotation strings (vector). |br|
-Default = ""
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = "" for each annotation
 
 **--notes-hdrs** |br|
 Annotations header strings (vector). |br|
-Default = `No annotations`
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = `No annotation headers (no annotations)`
 
 **--number-of-systems [ -n ]** |br|
 The number of systems to simulate. |br|
@@ -1334,10 +1338,29 @@ User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`)
 Default = ’’ (None)
 
 **--timestep-multiplier** |br|
-Multiplicative factor for timestep duration.  This multiplier is applied after the timesteps are chosen using other program options 
-such as ``--radial-change-fraction`` and ``--mass-change-fraction``, and will therefore override expected behaviour.  This option is 
-primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
- Default = 1.0
+Multiplicative factor for timestep duration.  |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` 
+and ``--mass-change-fraction``, and will therefore override expected behaviour.  |br|
+This option can be used in conjunction with ``--timestep-multipliers``, in which case this multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
+**--timestep-multipliers** |br|
+Phase-dependent multiplicative factors for timestep duration. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+A multicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the option value
+indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+:doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 
+``--mass-change-fraction``, and will therefore override expected behaviour. |br|
+This option can be used in conjunction with ``--timestep-multiplier``, in which case that multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 for each phase (stellar type) |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
 
 .. _options-props-U:
 

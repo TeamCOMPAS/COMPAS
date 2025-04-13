@@ -3,10 +3,15 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.18.00 Apr 13, 2025**
+
+New command line option:
+
+* ``--timestep-multipliers`` to enable more granular, phase-dependent, timestep multipliers
+
 **03.17.00 Mar 22, 2025**
 
-* Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope 
-convective is 0.1, can be set with --convective-envelope-mass-threshold)
+* Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold)
 * Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars
 * Imposed Keplerian rotation limit on mass-gaining stars:
 * Response depends on the new --response-to-spin-up option
