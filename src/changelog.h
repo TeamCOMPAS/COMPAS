@@ -1526,6 +1526,10 @@
 //  03.17.02    JR - Apr 11, 2025   - Defect Repair:
 //                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
 //                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
-const std::string VERSION_STRING = "03.17.02";
+//  03.17.03    YS  - Apr 6, 2025   - Enhancement:
+//                                      - Fix to issue #1366
+//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info. 
+
+const std::string VERSION_STRING = "03.17.03";
 
 # endif // __changelog_h__
