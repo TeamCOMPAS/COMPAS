@@ -152,7 +152,6 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     BINDING_ENERGY_LOVERIDGE,                        \
     BINDING_ENERGY_LOVERIDGE_WINDS,                  \
     BINDING_ENERGY_KRUCKOW,                          \
-    CE_ONTO_NS,                                      \
     CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,            \
     CO_CORE_MASS,                                    \
     CO_CORE_MASS_AT_COMMON_ENVELOPE,                 \
@@ -246,7 +245,6 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     RADIUS,                                          \
     RANDOM_SEED,                                     \
     RECYCLED_NEUTRON_STAR,                           \
-    RLOF_ONTO_NS,                                    \
     ROCKET_KICK_MAGNITUDE,                           \
     ROCKET_KICK_PHI,                                 \
     ROCKET_KICK_THETA,                               \
@@ -300,7 +298,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                        "BINDING_ENERGY_LOVERIDGE" },
     { STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                  "BINDING_ENERGY_LOVERIDGE_WINDS" },
     { STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                          "BINDING_ENERGY_KRUCKOW" },
-    { STAR_PROPERTY::CE_ONTO_NS,                                      "CE_ONTO_NS" },
     { STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,            "CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE" },
     { STAR_PROPERTY::CO_CORE_MASS,                                    "CO_CORE_MASS" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                 "CO_CORE_MASS_AT_COMMON_ENVELOPE" },
@@ -395,7 +392,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RADIUS,                                          "RADIUS" },
     { STAR_PROPERTY::RANDOM_SEED,                                     "RANDOM_SEED" },
     { STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                           "RECYCLED_NEUTRON_STAR" },
-    { STAR_PROPERTY::RLOF_ONTO_NS,                                    "RLOF_ONTO_NS" },
     { STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                           "ROCKET_KICK_MAGNITUDE" },
     { STAR_PROPERTY::ROCKET_KICK_PHI,                                 "ROCKET_KICK_PHI" },
     { STAR_PROPERTY::ROCKET_KICK_THETA,                               "ROCKET_KICK_THETA" },
@@ -1228,7 +1224,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE,                          { TYPENAME::DOUBLE,           "BE_Loveridge",                    "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,                    { TYPENAME::DOUBLE,           "BE_Loveridge_Winds",              "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW,                            { TYPENAME::DOUBLE,           "BE_Kruckow",                      "erg",              24, 15}},
-    { ANY_STAR_PROPERTY::CE_ONTO_NS,                                        { TYPENAME::BOOL,             "CE->NS",                          "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,              { TYPENAME::BOOL,             "CH_on_MS",                        "State",             0, 0 }},
     { ANY_STAR_PROPERTY::CO_CORE_MASS,                                      { TYPENAME::DOUBLE,           "Mass_CO_Core",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Mass_CO_Core@CE",                 "Msol",             24, 15}},
@@ -1321,7 +1316,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RADIUS,                                            { TYPENAME::DOUBLE,           "Radius",                          "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,         "SEED",                            "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,             "Recycled_NS",                     "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::RLOF_ONTO_NS,                                      { TYPENAME::BOOL,             "RLOF->NS",                        "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                             { TYPENAME::DOUBLE,           "Rocket_Kick_Magnitude",           "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::ROCKET_KICK_PHI,                                   { TYPENAME::DOUBLE,           "Rocket_Kick_Phi",                 "-",                24, 15}},
     { ANY_STAR_PROPERTY::ROCKET_KICK_THETA,                                 { TYPENAME::DOUBLE,           "Rocket_Kick_Theta",               "-",                24, 15}},

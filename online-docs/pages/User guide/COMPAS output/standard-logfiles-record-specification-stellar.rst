@@ -209,22 +209,6 @@ Following is an alphabetical list of stellar properties available for inclusion 
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **CE_ONTO_NS**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - `derived from` BaseStar::m_SupernovaDetails.events.past
-   * - Description:
-     - Flag to indicate whether the star transferred mass to a neutron star via common envelope at any time prior to the current timestep.
-   * - Header Strings:
-     - CE->NS, CE->NS(1), CE->NS(2), CE->NS(SN), CE->NS(CP)
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
    * - :cspan:`2` **CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE**
      -
    * - Data type:
@@ -1804,22 +1788,6 @@ same header string.`
      - Flag to indicate whether the object was a recycled neutron star at any time prior to the current timestep (was a neutron star accreting mass).
    * - Header Strings:
      - Recycled_NS, Recycled_NS(1), Recycled_NS(2), Recycled_NS(SN), Recycled_NS(CP)
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **RLOF_ONTO_NS**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - `derived from` BaseStar::m_SupernovaDetails.events.past
-   * - Description:
-     - Flag to indicate whether the star transferred mass to a neutron star at any time prior to the current timestep via Roche lobe overflow.
-   * - Header Strings:
-     - RLOF->NS, RLOF->NS(1), RLOF->NS(2), RLOF->NS(SN), RLOF->NS(CP)
 
 .. flat-table::
    :widths: 25 75 1 1
