@@ -1509,9 +1509,23 @@
 //  03.16.02    SS - Mar 19, 2025   - Defect repair:
 //                                      - Removed deprecated wind mass-loss options
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
-//  03.16.03    RTW - Mar 31, 2025  - Enhancement:
+//  03.16.03    RTW - Mar 21, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
-
-const std::string VERSION_STRING = "03.16.03";
+//  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
+//                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
+//                                      - All binding energies and lambdas are now computed on request, not stored  in memory
+//                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
+//                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
+//                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
+//                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+//                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
+//                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
+//  03.17.01    VK - Apr 7, 2025    - Defect Repair:
+//                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
+//  03.17.02    JR - Apr 11, 2025   - Defect Repair:
+//                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
+//                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
+const std::string VERSION_STRING = "03.17.02";
 
 # endif // __changelog_h__

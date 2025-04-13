@@ -342,7 +342,7 @@ namespace yaml {
                             }
                         }
                         else {                                                                                              // assume numerical option
-                             if (category != "numericalChoices") continue;                                                  // skip if this category is not numericalChoices
+                            if (category != "numericalChoices") continue;                                                  // skip if this category is not numericalChoices
                         }
 
                         // process the option
@@ -398,7 +398,7 @@ namespace yaml {
                     else {                                                                                                  // yes - option record
 
                         // look for a comment on the option record and, if present, preserve it.
-                        // I refer to the hash indiaction a comment on the option record as the
+                        // I refer to the hash indication comment on the option record as the
                         // "comment hash" to differentiate it from all the other hashes that might
                         // be there...  Because the template might be an existing YAML file, one or
                         // both of the (special) strings "# Default:" and "# Options:" may be present,

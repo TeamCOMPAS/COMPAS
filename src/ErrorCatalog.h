@@ -39,6 +39,7 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_FUNCTION, FIRST_IN_
 // Listed alphabetically (except for 'NONE' - first so ERROR = 0 = NONE)
 enum class ERROR: int {
     NONE,                                                           // no error
+    ADDED_EXCESS_AM_TO_STARS,                                       // attempted to add more angular momentum to stars than was available in a binary
     AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                            // remnant mass unclear from available parameters
     ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                            // expected an unsigned long integer for range count for option
     ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option 
@@ -183,6 +184,7 @@ enum class ERROR: int {
     UNKNOWN_Q_DISTRIBUTION,                                         // unknown q-distribution
     UNKNOWN_QCRIT_PRESCRIPTION,                                     // Unknown QCRIT prescription
     UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescriptrion
+    UNKNOWN_RESPONSE_TO_SPIN_UP,                                    // unknown common prescription for responding to excessive spin-up
     UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION,                             // unknown RSG mass loss prescription
     UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION,                           // unknown sem-major axis distribution
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
@@ -212,6 +214,7 @@ enum class ERROR: int {
 // listed alphabetically
 
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
+    { ERROR::ADDED_EXCESS_AM_TO_STARS,                              { ERROR_SCOPE::ALWAYS,              "Attempted to add more angular momentum to stars than was available in the binary" }},
     { ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Insufficient information to prescribe remnant mass" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP,                      { ERROR_SCOPE::ALWAYS,              "Expected a floating point number for range start and increment for option" }},
     { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned long integer for range count for option" }},
@@ -357,6 +360,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_Q_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown q-distribution" }},
     { ERROR::UNKNOWN_QCRIT_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown QCRIT prescription" }},
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
+    { ERROR::UNKNOWN_RESPONSE_TO_SPIN_UP,                           { ERROR_SCOPE::ALWAYS,              "Unknown response-to-spin-up prescription" }},
     { ERROR::UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown RSG mass loss prescription" }},
     { ERROR::UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown semi-major axis distribution" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},
