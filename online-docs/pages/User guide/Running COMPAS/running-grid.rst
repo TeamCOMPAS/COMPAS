@@ -51,7 +51,7 @@ Both option ``--grid-start-line`` and ``--grid-lines-to-process`` are ignored if
 Example
 ~~~~~~~
 
-We will submit a set of COMPAS runs using a grid-file ``grid_demo.txt''
+We will submit a set of COMPAS runs using a grid-file ``grid_demo.txt``
 .. code-block::
 
     COMPAS --grid grid_demo.txt

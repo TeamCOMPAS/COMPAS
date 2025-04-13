@@ -274,7 +274,6 @@ private:
         ~ShorthandDefault_t() {}
     };
 
-
     typedef std::tuple<std::string, bool, TYPENAME, ShorthandDefault_t> SHORTHAND_ENTRY;                                        // option name, default allowed (i.e. can be omitted), default string
 
     std::vector<SHORTHAND_ENTRY> m_ShorthandAllowed = {
