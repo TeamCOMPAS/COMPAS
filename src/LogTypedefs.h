@@ -746,6 +746,7 @@ enum class PROGRAM_OPTION: int {
     COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,
     COMMON_ENVELOPE_SLOPE_KRUCKOW,
 
+    CONVECTIVE_ENVELOPE_MASS_THRESHOLD,
     CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD,
 
     COOL_WIND_MASS_LOSS_MULTIPLIER,
@@ -899,6 +900,8 @@ enum class PROGRAM_OPTION: int {
     RANDOM_SEED_CMDLINE,
 
     REMNANT_MASS_PRESCRIPTION,
+    
+    RESPONSE_TO_SPIN_UP,
 
     ROCKET_KICK_MAGNITUDE_1,
     ROCKET_KICK_MAGNITUDE_2,
@@ -1665,6 +1668,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                      { TYPENAME::ULONGINT,   "PO_SEED(CMDLINE)",                          "-",         12, 1 }},
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Remnant_Mass_Prscrptn",                  "-",          4, 1 }},
+    
+    { PROGRAM_OPTION::RESPONSE_TO_SPIN_UP,                                { TYPENAME::INT,        "PO_Response_To_Spin_Up",                           "-",          4, 1 }},
 
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(1)",               "kms^-1",    24, 15}},
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(2)",               "kms^-1",    24, 15}},
@@ -2206,7 +2211,9 @@ const ANY_PROPERTY_VECTOR SSE_DETAILED_OUTPUT_REC = {
     STAR_PROPERTY::HE_CORE_MASS,
     STAR_PROPERTY::MDOT,
     STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
-    STAR_PROPERTY::TIMESCALE_MS
+    STAR_PROPERTY::TIMESCALE_MS,
+    STAR_PROPERTY::OMEGA,
+    STAR_PROPERTY::OMEGA_BREAK
 };
 
 // SSE_PULSAR_EVOLUTION_REC
