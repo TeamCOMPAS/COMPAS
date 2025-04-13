@@ -10,6 +10,25 @@
 #include <csignal>
 #include <limits>
 
+
+// common type definitions
+// easiest way of making them available globally is to put them here
+typedef std::vector<std::string> STR_VECTOR;
+typedef std::vector<double> DBL_VECTOR;
+typedef std::vector<int>                                                INT_VECTOR;
+typedef std::vector<bool>                                               BOOL_VECTOR;
+typedef std::tuple <double, double>                                     DBL_DBL;
+typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
+typedef std::tuple <double, double, double, double>                     DBL_DBL_DBL_DBL;
+typedef std::tuple<std::string, std::string>                            STR_STR;
+typedef std::tuple<std::string, std::string, std::string>               STR_STR_STR;
+typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
+typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR> GE_QCRIT_TABLE; 
+typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR_HE;
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE> GE_QCRIT_TABLE_HE; 
+
+
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
 // we've exceeded that number - we're at 21 currently - so the size of the boost list needs to be increased
 // we have to set the size of the list before we include the boost headers - otherwise boost redefines it
@@ -61,23 +80,6 @@ constexpr uint64_t _(char const* p_Str) {
 typedef unsigned long int OBJECT_ID;
 extern OBJECT_ID globalObjectId;    // used to uniquely identify objects - used primarily for error printing
 
-
-// common type definitions
-// easiest way of making them available globally is to put them here
-typedef std::vector<std::string>                                        STR_VECTOR;
-typedef std::vector<double>                                             DBL_VECTOR;
-typedef std::vector<int>                                                INT_VECTOR;
-typedef std::vector<bool>                                               BOOL_VECTOR;
-typedef std::tuple <double, double>                                     DBL_DBL;
-typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
-typedef std::tuple <double, double, double, double>                     DBL_DBL_DBL_DBL;
-typedef std::tuple<std::string, std::string>                            STR_STR;
-typedef std::tuple<std::string, std::string, std::string>               STR_STR_STR;
-typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
-typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR> GE_QCRIT_TABLE; 
-typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR_HE;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE> GE_QCRIT_TABLE_HE; 
 
 #include "typedefs.h"
 
@@ -242,6 +244,7 @@ constexpr double MINIMUM_BLUE_LOOP_FRACTION             = 1.0E-10;              
 constexpr double TIMESTEP_QUANTUM                       = 1.0E-12;                                                  // Timestep quantum in Myr (=31.5576 seconds, given DAYS_IN_QUAD)
 constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 3.0 * TIMESTEP_QUANTUM;                                   // In Myr (=94.6728 seconds, given TIMESTEP QUANTUM)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E6 * TIMESTEP_QUANTUM;                                 // Minimum time step for nuclear evolution in My (= 1 year = 31557600 seconds, given TIMESTEP_QUANTUM)
+constexpr double MAXIMUM_TIMESTEP_MULTIPLIER            = 1.0E3;                                                    // Maximum timestep multiplier
 
 constexpr unsigned int ABSOLUTE_MAXIMUM_TIMESTEPS       = 1000000;                                                  // Absolute maximum number of timesteps
 
@@ -290,7 +293,7 @@ constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 50;                   
 constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 constexpr double TIDES_MINIMUM_FRACTIONAL_EXTENT        = 1.0E-4;                                                   // Minimum fractional radius or mass of the stellar core or envelope, above which a given tidal dissipation mechanism is considered applicable
 constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2024 tides in a single timestep - 1% expressed as a fraction
-constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME   = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
+constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME  = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
 
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                                                     // Maximum CO core mass to result in the quadratic remnant mass regime of the FARMER PPISN prescription

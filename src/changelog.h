@@ -1526,6 +1526,10 @@
 //  03.17.02    JR - Apr 11, 2025   - Defect Repair:
 //                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
 //                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
-const std::string VERSION_STRING = "03.17.02";
+//  03.18.00    JR - Apr 13, 2025   - Enhancement:
+//                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
+//                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
+
+const std::string VERSION_STRING = "03.18.00";
 
 # endif // __changelog_h__

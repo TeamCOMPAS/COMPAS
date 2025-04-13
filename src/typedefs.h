@@ -148,7 +148,9 @@ enum class STELLAR_TYPE: int {                      // Hurley
     CHEMICALLY_HOMOGENEOUS,                         //  16  : this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
     STAR,                                           //  17  : star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
     BINARY_STAR,                                    //  18  : here mainly for diagnostics
-    NONE                                            //  19  : here mainly for diagnostics
+    NONE,                                           //  19  : here mainly for diagnostics
+
+    COUNT                                           // Sentinel for entry count
 };
 const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::MS_LTE_07,                                 "Main_Sequence_<=_0.7" },
@@ -625,12 +627,12 @@ const COMPASUnorderedMap<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRI
 };
 
 // mass transfer timescale types
-enum class MASS_TRANSFER_TIMESCALE: int { NONE, NUCLEAR, THERMAL, CE };
-const COMPASUnorderedMap<MASS_TRANSFER_TIMESCALE, std::string> MASS_TRANSFER_TIMESCALE_LABEL = {
-    { MASS_TRANSFER_TIMESCALE::NONE,                "NONE" },
-    { MASS_TRANSFER_TIMESCALE::NUCLEAR,             "NUCLEAR" },
-    { MASS_TRANSFER_TIMESCALE::THERMAL,             "THERMAL" },
-    { MASS_TRANSFER_TIMESCALE::CE,                  "CE" }
+enum class MT_TIMESCALE: int { NONE, NUCLEAR, THERMAL, CE };
+const COMPASUnorderedMap<MT_TIMESCALE, std::string> MT_TIMESCALE_LABEL = {
+    { MT_TIMESCALE::NONE,    "NONE" },
+    { MT_TIMESCALE::NUCLEAR, "NUCLEAR" },
+    { MT_TIMESCALE::THERMAL, "THERMAL" },
+    { MT_TIMESCALE::CE,      "CE" }
 };
 
 // metallicity distributions
@@ -1017,7 +1019,6 @@ const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL
 };
 
 
-
 // boost variant definition for allowed data types
 // used for variable specification to define logfile records
 typedef boost::variant<
@@ -1033,26 +1034,24 @@ typedef boost::variant<
     float,
     double,
     long double,
+    DBL_VECTOR,
     std::string,
-    std::vector<std::string>,
+    STR_VECTOR,
     ERROR,
     STELLAR_TYPE,
     MT_CASE,
     MT_TRACKING,
-    MASS_TRANSFER_TIMESCALE,
+    MT_TIMESCALE,
     SN_EVENT,
     SN_STATE,
     EVOLUTION_STATUS
 > COMPAS_VARIABLE;
 
 
-
-
 // common type definitions
 typedef std::initializer_list<SN_EVENT> SN_EVENT_LIST;
 typedef std::vector<STELLAR_TYPE>       ST_VECTOR;
 typedef std::vector<COMPAS_VARIABLE>    COMPAS_VARIABLE_VECTOR;
-
 
 
 // Option details
@@ -1221,7 +1220,7 @@ typedef struct RLOFProperties {
     
     double       massLossRateFromDonor;
     double       accretionEfficiency;
-    MASS_TRANSFER_TIMESCALE massTransferTimescale;
+    MT_TIMESCALE massTransferTimescale;
 
 } RLOFPropertiesT;
 
