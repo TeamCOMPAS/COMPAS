@@ -3,12 +3,6 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.16.04 Apr 6, 2025**
-
-* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``). 
-
-* New output option ``CE_ONTO_NS`` that labels the donor star that has transferred mass onto the neutron star through common envelope. 
-
 **03.16.02 Mar 19, 2025**
 
 New output options for supernova:
