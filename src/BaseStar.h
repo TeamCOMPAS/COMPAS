@@ -260,7 +260,7 @@ public:
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
     
-            double          CalculateNuclearMassLossRate();
+            double          CalculateNuclearMassLossRate()                                                      { return m_Mass / CalculateRadialExpansionTimescaleDuringMassTransfer(); }
         
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
@@ -269,6 +269,8 @@ public:
             double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
+    
+            double          CalculateRadialExpansionTimescaleDuringMassTransfer();
     
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
     
