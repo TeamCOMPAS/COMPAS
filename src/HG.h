@@ -90,14 +90,14 @@ protected:
     double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 1.0 - m_Metallicity; }                                                             // Use class member variables
     
     double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const               { return CalculateHeliumAbundanceSurfaceOnPhase(); }
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return m_InitialHeliumAbundance; }                                                        // Use class member variables
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return m_HeliumAbundanceSurface; }                                                        // Use class member variables
     
     double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                { return CalculateHydrogenAbundanceCoreOnPhase(); }
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
     double          CalculateHydrogenAbundanceCoreOnPhase() const                   { return 0.0; }                                                                             // Star has exhausted hydrogen in its core
     
     double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const             { return CalculateHydrogenAbundanceSurfaceOnPhase(); }
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                { return m_InitialHydrogenAbundance; }                                                      // Use class member variables
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                { return m_HydrogenAbundanceSurface; }                                                      // Use class member variables
     
     
     

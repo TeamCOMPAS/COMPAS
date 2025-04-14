@@ -52,7 +52,7 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //
 // The general idea is to use the value specified by the user on the grid line (if
 // the user actually specified the option on the grid line) in preference to the
-// value specified by the the user on the commandline (if the user actually specified
+// value specified by the user on the commandline (if the user actually specified
 // the option on the commandline).  That's what the OPT_VALUE macro defined below
 // does - if the grid line exists (i.e. if a grid file is being used), the macro will
 // check whether the user specified the option on the grid line, and if they did return
