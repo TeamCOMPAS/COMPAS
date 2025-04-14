@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.16.04 Apr 6, 2025**
+
+* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``). 
+
+* Removed output option ``RLOF_ONTO_NS`` as it can be retrieved from existing RLOF output info. 
+
 **03.17.00 Mar 22, 2025**
 
 * Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope 
