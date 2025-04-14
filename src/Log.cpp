@@ -79,7 +79,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
     // open the run details file inside the HDF5 container
     string h5GroupName = p_Filename;                                                                                    // HDF5 group name for run details file
     h5GroupName        = utils::trim(h5GroupName);                                                                      // remove leading and trailing blanks
-    hid_t h5GroupId = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                          // open the group
+    hid_t h5GroupId    = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                       // open the group
     if (h5GroupId >= 0) {                                                                                               // group open (and therefore already exists)?
         Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");                                       // that's not ok - announce error
         (void)H5Gclose(h5GroupId);                                                                                      // close the group
@@ -146,9 +146,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                     }
                     
                     if (ok) {                                                                                           // have valid property
-                        h5DatasetName = std::get<0>(runDetails);                                                        // dataset name
+                        h5DatasetName       = std::get<0>(runDetails);                                                  // dataset name
                         TYPENAME compasType = std::get<1>(runDetails);                                                  // COMPAS data type
-                        h5DataType = GetHDF5DataType(compasType, std::get<2>(runDetails));                              // HDF5 data type
+                        h5DataType          = GetHDF5DataType(compasType, std::get<2>(runDetails));                     // HDF5 data type
                         h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
@@ -160,7 +160,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                             // derivation
                             h5DatasetName += "-Derivation";                                                             // derivation
-                            h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
+                            h5Dset         = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                             if (h5Dset < 0) {                                                                           // dataset not created
                                 Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                // announce error
                                 ok = false;                                                                             // fail
@@ -177,9 +177,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                 for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                        // for each program option
                     // option
                     TYPENAME compasType = m_OptionDetails[idx].dataType;                                                // COMPAS data type
-                    h5DataType = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());                 // HDF5 data type for COMPAS data type
-                    h5DatasetName = m_OptionDetails[idx].optionStr;                                                     // dataset (option name)
-                    h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize);       // create dataset
+                    h5DataType          = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());        // HDF5 data type for COMPAS data type
+                    h5DatasetName       = m_OptionDetails[idx].optionStr;                                               // dataset (option name)
+                    h5Dset              = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize); // create dataset
                     if (h5Dset < 0) {                                                                                   // dataset not created
                         Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // announce error
                         ok = false;                                                                                     // fail
@@ -190,7 +190,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                         // derivation
                         h5DatasetName += "-Derivation";                                                                 // derivation
-                        h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
+                        h5Dset         = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
                             ok = false;                                                                                 // fail
@@ -1340,7 +1340,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     case TYPENAME::STELLAR_TYPE    : v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_CASE         : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_TRACKING     : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::MASS_TRANSFER_TIMESCALE  : v = static_cast<int>(boost::get<MASS_TRANSFER_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MT_TIMESCALE    : v = static_cast<int>(boost::get<MT_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_EVENT        : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_STATE        : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::EVOLUTION_STATUS: v = static_cast<int>(boost::get<EVOLUTION_STATUS>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
@@ -1440,7 +1440,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     strcpy(cBuf[i], buf[i].c_str());                                                                        // copy chars + null terminator
                 }
 
-                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);;                            // write the data
+                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);                            // write the data
             
                 // release allocated memory
                 for (size_t i = 0; i < bufSize; i++) {
@@ -2261,24 +2261,24 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
     hid_t h5DataType = -1;                                                                                          // HDF5 datatype - return value
 
     switch (p_COMPASdatatype) {                                                                                     // which COMPAS datatype?
-        case TYPENAME::SHORTINT        : h5DataType = H5T_NATIVE_SHORT; break;
-        case TYPENAME::INT             : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::LONGINT         : h5DataType = H5T_NATIVE_LONG; break;
-        case TYPENAME::USHORTINT       : h5DataType = H5T_NATIVE_USHORT; break;
-        case TYPENAME::UINT            : h5DataType = H5T_NATIVE_UINT; break;
-        case TYPENAME::ULONGINT        : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::FLOAT           : h5DataType = H5T_NATIVE_FLOAT; break;
-        case TYPENAME::DOUBLE          : h5DataType = H5T_NATIVE_DOUBLE; break;
-        case TYPENAME::LONGDOUBLE      : h5DataType = H5T_NATIVE_LDOUBLE; break;
-        case TYPENAME::OBJECT_ID       : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::ERROR           : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::STELLAR_TYPE    : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_CASE         : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_TRACKING     : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MASS_TRANSFER_TIMESCALE  : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_EVENT        : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_STATE        : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::EVOLUTION_STATUS: h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SHORTINT         : h5DataType = H5T_NATIVE_SHORT; break;
+        case TYPENAME::INT              : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::LONGINT          : h5DataType = H5T_NATIVE_LONG; break;
+        case TYPENAME::USHORTINT        : h5DataType = H5T_NATIVE_USHORT; break;
+        case TYPENAME::UINT             : h5DataType = H5T_NATIVE_UINT; break;
+        case TYPENAME::ULONGINT         : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::FLOAT            : h5DataType = H5T_NATIVE_FLOAT; break;
+        case TYPENAME::DOUBLE           : h5DataType = H5T_NATIVE_DOUBLE; break;
+        case TYPENAME::LONGDOUBLE       : h5DataType = H5T_NATIVE_LDOUBLE; break;
+        case TYPENAME::OBJECT_ID        : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::ERROR            : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::STELLAR_TYPE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_CASE          : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TRACKING      : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TIMESCALE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_EVENT         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_STATE         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::EVOLUTION_STATUS : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::STRING: {
             hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
             size_t size = p_StringQualifier == STRING_QUALIFIER::FIXED_LENGTH ? p_FieldWidth + 1 : H5T_VARIABLE;    // size is dependent upon string type (fixed or variable length)
@@ -2297,8 +2297,8 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
                 h5DataType = H5T_NATIVE_UCHAR;
             }
             } break;
-        default:                                                                                                    // unknown property type
-            Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                              // announce error
+        default:                                                                                                    // unknown datatype
+            Squawk("Log::GetHDF5DataType(): " + ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                 // announce error
     }
 
     return h5DataType;                                                                                              // HDF5 datatype
