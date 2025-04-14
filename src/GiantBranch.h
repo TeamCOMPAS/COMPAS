@@ -20,9 +20,8 @@ public:
     GiantBranch(){};
     
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
-
-    virtual double          CalculateRemnantRadius() const;
-
+    
+    double          CalculateRemnantRadius() const;
 
 protected:
 
@@ -101,7 +100,8 @@ protected:
             double          CalculateRadialExtentConvectiveEnvelope() const;
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
-            double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
+            double          CalculateRadiusOnMassChange(double p_dM)                                        { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Luminosity); }
+    virtual double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
             double          CalculateRadiusOnPhase() const                                                  { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity, const DBL_VECTOR &p_BnCoefficients);
     static  double          CalculateRadiusOnZAHB_Static(const double      p_Mass,
@@ -120,6 +120,8 @@ protected:
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                           { CalculateTimescales(m_Mass0, m_Timescales); }                     // Use class member variables
+    
+            double          CalculateZetaEquilibrium()                                                      { return 0.0; }                                                     // At lowest order, giants with a convective envelope have radii that are insensitive to mass loss (but see Hurley+ 2002, Eq. 56 and Hurley+ 2000, Eq. 47)
 
             double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription);
             double          CalculateZetaConvectiveEnvelopeGiant(ZETA_PRESCRIPTION p_ZetaPrescription);
@@ -136,7 +138,7 @@ protected:
 
             void            UpdateInitialMass() { }                                                                                                                             // NO-OP for most stellar types
     
-            void            UpdateMinimumCoreMass() { }                                                                                                                         // NO-OP for most stellar types
+            void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                 // NO-OP for most stellar types
 
 };
 

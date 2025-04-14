@@ -24,12 +24,9 @@ Contents
 --------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
 
    ./pages/Getting started/getting-started
-
-   ./pages/User guide/user-guide
-   ./pages/Developer guide/developer-guide
 
     Code repository <https://github.com/TeamCOMPAS/COMPAS>
     Request an enhancement <https://github.com/TeamCOMPAS/COMPAS/issues/new>
@@ -44,7 +41,18 @@ Contents
 
    ./pages/quick-links
 
-|
+.. toctree::
+   :maxdepth: 3
+
+   ./pages/User guide/user-guide
+
+
+.. toctree::
+   :maxdepth: 3
+
+   ./pages/Developer guide/developer-guide
+
+
 
 If you use COMPAS in the preparation of a publication, please :doc:`cite COMPAS <./pages/how-to-cite>`.
 

@@ -57,7 +57,7 @@
 /*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
 /*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
-/* 9. If the option is a string option with multiple-choices - in that the user can       */
+/* 9. If the option is a string option with multiple choices - in that the user can       */
 /*    select from a list of possible values recorded in typedefs.h or LogTypedefs.h in    */
 /*    an ENUM CLASS and corresponding COMPASUnorderedMap labels map - then add the option */
 /*    to the function AllowedOptionValues() here so that we can easily extract the        */
@@ -96,6 +96,30 @@
 /*                                                                                        */
 /******************************************************************************************/
 
+#include <string_view>
+
+template <typename T>
+constexpr auto type_name() {
+  std::string_view name, prefix, suffix;
+#ifdef __clang__
+  name = __PRETTY_FUNCTION__;
+  prefix = "auto type_name() [T = ";
+  suffix = "]";
+#elif defined(__GNUC__)
+  name = __PRETTY_FUNCTION__;
+  prefix = "constexpr auto type_name() [with T = ";
+  suffix = "]";
+#elif defined(_MSC_VER)
+  name = __FUNCSIG__;
+  prefix = "auto __cdecl type_name<";
+  suffix = ">(void)";
+#endif
+  name.remove_prefix(prefix.size());
+  name.remove_suffix(suffix.size());
+  return name;
+}
+
+
 #include "Options.h"
 #include "changelog.h"
 
@@ -105,13 +129,18 @@ namespace po  = boost::program_options;
 namespace cls = po::command_line_style;
 namespace fs  = boost::filesystem;
 
-// this is required to set default value for boost program options of type vector<std::string>
-namespace std
-{
-  std::ostream& operator<<(std::ostream &os, const std::vector<std::string> &vec) {    
-    for (auto item : vec) os << item << " ";
-    return os; 
-  }
+namespace std {
+    // this is required to set default value for boost program options of type STR_VECTOR (std::vector<std::string>)
+    std::ostream& operator<<(std::ostream &os, const STR_VECTOR &vec) {    
+        for (auto item : vec) os << item << " ";
+        return os; 
+    }
+
+    // this is required to set default value for boost program options of type DBL_VECTOR (std::vector<double>)
+    std::ostream& operator<<(std::ostream &os, const DBL_VECTOR &vec) {    
+        for (auto item : vec) os << item << " "; 
+        return os; 
+    }
 } 
 
 
@@ -207,9 +236,12 @@ void Options::OptionValues::Initialise() {
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepsFileName                                             = "";
 
+    m_MassChangeFraction                                            = MAXIMUM_MASS_LOSS_FRACTION;
+    m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
+
     m_TimestepMultiplier                                            = 1.0;
-    m_RadialChangeFraction                                          = 0.0;
-    m_MassChangeFraction                                            = 0.0;
+    m_TimestepMultipliers.clear();
+
     
     // Initial mass options
     m_InitialMass                                                   = 5.0;
@@ -408,11 +440,16 @@ void Options::OptionValues::Initialise() {
     m_WolfRayetFactor                                               = 1.0;
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
+    // Core mass prescription
+    m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
+    m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
+
     // Mass transfer options
     m_UseMassTransfer                                               = true;
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
     m_RetainCoreMassDuringCaseAMassTransfer                         = true;
+    m_ConvectiveEnvelopeMassThreshold                               = CONVECTIVE_BOUNDARY_MASS_THRESHOLD_ROMAGNOLO;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
@@ -536,29 +573,41 @@ void Options::OptionValues::Initialise() {
     m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
+    // Neutron star accretion scenario in common envelope
+    m_NeutronStarAccretionInCE.type                                 = NS_ACCRETION_IN_CE::ZERO;
+    m_NeutronStarAccretionInCE.typeString                           = NS_ACCRETION_IN_CE_LABEL.at(m_NeutronStarAccretionInCE.type);
+
+
     // Neutron star equation of state
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
-    m_NeutronStarEquationOfState.typeString                         = NS_EOSLabel.at(m_NeutronStarEquationOfState.type);
+    m_NeutronStarEquationOfState.typeString                         = NS_EOS_LABEL.at(m_NeutronStarEquationOfState.type);
 
 
     // Pulsar birth magnetic field distribution
-    m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
+    m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
     m_PulsarBirthMagneticFieldDistributionMax                       = 13.0;
+    m_PulsarBirthMagneticFieldDistributionMean                      = 12.65;
+    m_PulsarBirthMagneticFieldDistributionSigma                     = 0.55;
 
 
     // Pulsar birth spin period distribution string
-    m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO;
+    m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL;
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
     m_PulsarBirthSpinPeriodDistributionMin                          = 10.0;
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
+    m_PulsarBirthSpinPeriodDistributionMean                         = 75.0;
+    m_PulsarBirthSpinPeriodDistributionSigma                        = 25.0;
 
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
-
+    // Response to super-critical spin-up prescription
+    m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT;
+    m_ResponseToSpinUp.typeString                                   = RESPONSE_TO_SPIN_UP_LABEL.at(m_ResponseToSpinUp.type);
+    
     // Rotational velocity distribution options
     m_RotationalVelocityDistribution.type                           = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
     m_RotationalVelocityDistribution.typeString                     = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(m_RotationalVelocityDistribution.type);
@@ -641,40 +690,42 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
     bool ok = true;                             // status - unless a problem occurs
 
-    // create default strings for std::vector<std::string> types (too hard to do inline)
+    // create default strings for std::vector<type> types (too hard to do inline)
 
     // debug classes
-    std::string defaultDebugClasses;
     std::ostringstream ss1;
     for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss1 << *debugClass << ",";
-    defaultDebugClasses = ss1.str();
+    std::string defaultDebugClasses = ss1.str();
     if (defaultDebugClasses.length() > 0) defaultDebugClasses.erase(defaultDebugClasses.length() - 1);
     defaultDebugClasses = "{" + defaultDebugClasses + "}";
 
     // log classes
-    std::string defaultLogClasses;
     std::ostringstream ss2;
     for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss2 << *logClass << ",";
-    defaultLogClasses = ss2.str();
+    std::string defaultLogClasses = ss2.str();
     if (defaultLogClasses.length() > 0) defaultLogClasses.erase(defaultLogClasses.length() - 1);
     defaultLogClasses = "{" + defaultLogClasses + "}";
 
     // annotations
-    std::string defaultNotes;
     std::ostringstream ss3;
     for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss3 << *note << ",";
-    defaultNotes = ss3.str();
+    std::string defaultNotes = ss3.str();
     if (defaultNotes.length() > 0) defaultNotes.erase(defaultNotes.length() - 1);
     defaultNotes = "{" + defaultNotes + "}";
 
     // annotation headers
-    std::string defaultNotesHdrs;
     std::ostringstream ss4;
     for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss4 << *noteHdr << ",";
-    defaultNotesHdrs = ss4.str();
+    std::string defaultNotesHdrs = ss4.str();
     if (defaultNotesHdrs.length() > 0) defaultNotesHdrs.erase(defaultNotesHdrs.length() - 1);
     defaultNotesHdrs = "{" + defaultNotesHdrs + "}";
 
+    // phase-dependent timestep multipliers
+    std::ostringstream ss5;
+    for (auto multiplier = p_Options->m_TimestepMultipliers.begin(); multiplier != p_Options->m_TimestepMultipliers.end(); ++multiplier) ss5 << *multiplier << ",";
+    std::string defaultTimestepMultipliers = ss5.str();
+    if (defaultTimestepMultipliers.length() > 0) defaultTimestepMultipliers.erase(defaultTimestepMultipliers.length() - 1);
+    defaultTimestepMultipliers = "{" + defaultTimestepMultipliers + "}";
 
     // add options
 
@@ -702,6 +753,17 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
 
         // boolean options - alphabetically
+        //
+        // Note the "implicit_value()" (in the statements below) for boolean options is not the default option value
+        // When specifying boolean options, users can specify just the option name (e.g. '--emit_gravitaional-radiation'),
+        // or they can specify the option name, and a value for the option (e.g. '--emit_gravitaional-radiation true', or
+	    // '--emit_gravitaional-radiation false')
+        // The "implicit_value()" in the statements below specifies what value is assigned to the option if only the option name is
+        // specified by the user (e.g. if the user specifies just '--emit_gravitaional-radiation', the implicit_value() for that option
+        // will be assigned).
+        //
+        // The convention we use for COMPAS is that specifying a boolean option by name only assigns the value "true" - so the implicit_value()
+        // for boolean options in the statements below should be set "true"
 
         (
             "allow-non-stripped-ECSN",
@@ -792,7 +854,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "enhance-CHE-lifetimes-luminosities",                                             
-            po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(false),                                                                      
+            po::value<bool>(&p_Options->m_EnhanceCHELifetimesLuminosities)->default_value(p_Options->m_EnhanceCHELifetimesLuminosities)->implicit_value(true),                                                                      
             ("Whether to enhance the lifetimes and luminosities of chemically homogeneously evolving (CHE) stars relative to SSE main sequence lifetimes/luminosities (default = " + std::string(p_Options->m_EnhanceCHELifetimesLuminosities ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
@@ -822,7 +884,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "emit-gravitational-radiation",                                      
-            po::value<bool>(&p_Options->m_EmitGravitationalRadiation)->default_value(p_Options->m_EmitGravitationalRadiation)->implicit_value(false),                                                          
+            po::value<bool>(&p_Options->m_EmitGravitationalRadiation)->default_value(p_Options->m_EmitGravitationalRadiation)->implicit_value(true),                                                          
             ("Emit gravitational radiation at each timestep of binary evolution (default = " + std::string(p_Options->m_EmitGravitationalRadiation ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
@@ -841,12 +903,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "include-WD-binaries-as-DCO",
             po::value<bool>(&p_Options->m_WDBinariesAsDCO)->default_value(p_Options->m_WDBinariesAsDCO)->implicit_value(true),
             ("Store WD binaries in BSE_Double_Compact_Objects output file (default = " + std::string(p_Options->m_WDBinariesAsDCO ? "TRUE" : "FALSE") + ")").c_str()
-        )
-
-        (
-            "mass-transfer",        // DEPRECATED June 2024 - remove end 2024                                                
-            po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
-            ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -881,7 +937,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<bool>(&p_Options->m_Quiet)->default_value(p_Options->m_Quiet)->implicit_value(true),                                                                                        
             ("Suppress printing (default = " + std::string(p_Options->m_Quiet ? "TRUE" : "FALSE") + ")").c_str()
         )
-
+        
         (
             "retain-core-mass-during-caseA-mass-transfer",
             po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
@@ -910,7 +966,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
         (
             "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
-            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(false),                                                                      
+            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(true),                                                                      
             ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
@@ -1066,6 +1122,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-slope-kruckow",                               
             po::value<double>(&p_Options->m_CommonEnvelopeSlopeKruckow)->default_value(p_Options->m_CommonEnvelopeSlopeKruckow),                                                                  
             ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(p_Options->m_CommonEnvelopeSlopeKruckow) + ")").c_str()
+        )
+        (
+            "convective-envelope-mass-threshold",
+            po::value<double>(&p_Options->m_ConvectiveEnvelopeMassThreshold)->default_value(p_Options->m_ConvectiveEnvelopeMassThreshold),
+            ("Fractional threshold of envelope mass that above which the envelopes of giants are labeled convective. Only used for --envelope-state-prescription = CONVECTIVE_MASS_THRESHOLD, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeMassThreshold) + ")").c_str()
         )
         (
             "convective-envelope-temperature-threshold",                               
@@ -1497,6 +1558,15 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
             ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
+        )(
+            "pulsar-birth-magnetic-field-distribution-mean",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMean)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMean),                                        
+            ("Mean of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "pulsar-birth-magnetic-field-distribution-sigma",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionSigma)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionSigma),                                        
+            ("Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-max",                   
@@ -1507,6 +1577,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-spin-period-distribution-min",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMin)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMin),                                              
             ("Minimum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-mean",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMean)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMean),                                              
+            ("Mean of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-sigma",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionSigma)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionSigma),                                              
+            ("Standard deviation of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-massscale",                       
@@ -1601,7 +1681,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "timestep-multiplier",
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
-            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
+            ("Timestep multiplier for SSE and BSE on top of other choices, for use in debugging (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
+        )
+        (
+            "timestep-multipliers",
+            po::value<DBL_VECTOR>(&p_Options->m_TimestepMultipliers)->multitoken()->default_value(p_Options->m_TimestepMultipliers),
+            ("Phase-dependent timestep multipliers for SSE and BSE on top of other choices, for use in debugging (default = " + defaultTimestepMultipliers + ")").c_str()
         )
 
         (
@@ -1636,11 +1721,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "black-hole-kicks",     // DEPRECATED June 2024 - remove end 2024                                             
-            po::value<std::string>(&p_Options->m_BlackHoleKicksMode.typeString)->default_value(p_Options->m_BlackHoleKicksMode.typeString),                                                                              
-            ("Black hole kicks relative to NS kicks (" + AllowedOptionValuesFormatted("black-hole-kicks") + ", default = '" + p_Options->m_BlackHoleKicksMode.typeString + "')").c_str()
-        )
-        (
             "black-hole-kicks-mode",                                          
             po::value<std::string>(&p_Options->m_BlackHoleKicksMode.typeString)->default_value(p_Options->m_BlackHoleKicksMode.typeString),                                                                              
             ("Black hole kicks prescription (" + AllowedOptionValuesFormatted("black-hole-kicks-mode") + ", default = '" + p_Options->m_BlackHoleKicksMode.typeString + "')").c_str()
@@ -1650,11 +1730,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "case-BB-stability-prescription",                              
             po::value<std::string>(&p_Options->m_CaseBBStabilityPrescription.typeString)->default_value(p_Options->m_CaseBBStabilityPrescription.typeString),                                                    
             ("Case BB/BC mass transfer stability prescription (" + AllowedOptionValuesFormatted("case-BB-stability-prescription") + ", default = '" + p_Options->m_CaseBBStabilityPrescription.typeString + "')").c_str()
-        )
-        (
-            "chemically-homogeneous-evolution",     // DEPRECATED June 2024 - remove end 2024                              
-            po::value<std::string>(&p_Options->m_CheMode.typeString)->default_value(p_Options->m_CheMode.typeString),                                                                                                    
-            ("Chemically Homogeneous Evolution (" + AllowedOptionValuesFormatted("chemically-homogeneous-evolution") + ", default = '" + p_Options->m_CheMode.typeString + "')").c_str()
         )
         (
             "chemically-homogeneous-evolution-mode",                            
@@ -1684,7 +1759,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "critical-mass-ratio-prescription",                                 
             po::value<std::string>(&p_Options->m_QCritPrescription.typeString)->default_value(p_Options->m_QCritPrescription.typeString),
-            ("Prescription for which critical mass ratio threshold to use, if any (Ge models are only defined for conservative mass transfer) (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
+            ("Prescription for which critical mass ratio threshold to use, if any (" + AllowedOptionValuesFormatted("critical-mass-ratio-prescription") + ", default = '" + p_Options->m_QCritPrescription.typeString + "')").c_str()
         )
         
         (
@@ -1722,11 +1797,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "kick-direction",       // DEPRECATED June 2024 - remove end 2024                                               
-            po::value<std::string>(&p_Options->m_KickDirectionDistribution.typeString)->default_value(p_Options->m_KickDirectionDistribution.typeString),                                                        
-            ("Natal kick direction distribution (" + AllowedOptionValuesFormatted("kick-direction") + ", default = '" + p_Options->m_KickDirectionDistribution.typeString + "')").c_str()
-        )
-        (
             "kick-direction-distribution",
             po::value<std::string>(&p_Options->m_KickDirectionDistribution.typeString)->default_value(p_Options->m_KickDirectionDistribution.typeString),                                                        
             ("Natal kick direction distribution (" + AllowedOptionValuesFormatted("kick-direction-distribution") + ", default = '" + p_Options->m_KickDirectionDistribution.typeString + "')").c_str()
@@ -1736,7 +1806,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_KickMagnitudeDistribution.typeString)->default_value(p_Options->m_KickMagnitudeDistribution.typeString),                                                        
             ("Natal kick magnitude distribution (" + AllowedOptionValuesFormatted("kick-magnitude-distribution") + ", default = '" + p_Options->m_KickMagnitudeDistribution.typeString + "')").c_str()
         )
-
 
         (
             "logfile-rlof-parameters",                                 
@@ -1799,13 +1868,13 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("LBV-mass-loss-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
         )
         (
-            "luminous-blue-variable-prescription",      // DEPRECATED June 2024 - remove end 2024                                       
-            po::value<std::string>(&p_Options->m_LBVMassLossPrescription.typeString)->default_value(p_Options->m_LBVMassLossPrescription.typeString),                                                                  
-            ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("luminous-blue-variable-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
+            "main-sequence-core-mass-prescription",
+            po::value<std::string>(&p_Options->m_MainSequenceCoreMassPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreMassPrescription.typeString),
+            
+            ("Main Sequence core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-mass-prescription") + ", default = '" + p_Options->m_MainSequenceCoreMassPrescription.typeString + "')").c_str()
         )
-
         (
-            "mass-loss-prescription",                                      
+            "mass-loss-prescription",
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
             ("Mass loss prescription (" + AllowedOptionValuesFormatted("mass-loss-prescription") + ", default = '" + p_Options->m_MassLossPrescription.typeString + "')").c_str()
         )
@@ -1830,11 +1899,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Mass Transfer Rejuvenation prescription (" + AllowedOptionValuesFormatted("mass-transfer-rejuvenation-prescription") + ", default = '" + p_Options->m_MassTransferRejuvenationPrescription.typeString + "')").c_str()
         )
         (
-            "mass-transfer-thermal-limit-accretor",     // DEPRECATED June 2024 - remove end 2024                         
-            po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
-            ("Mass Transfer Thermal Accretion limit (" + AllowedOptionValuesFormatted("mass-transfer-thermal-limit-accretor") + ", default = '" + p_Options->m_MassTransferThermallyLimitedVariation.typeString + "')").c_str()
-        )
-        (
             "mass-transfer-thermal-limit-accretor-multiplier",
             po::value<std::string>(&p_Options->m_MassTransferThermallyLimitedVariation.typeString)->default_value(p_Options->m_MassTransferThermallyLimitedVariation.typeString),                                
             ("Mass Transfer Thermal Accretion limit (" + AllowedOptionValuesFormatted("mass-transfer-thermal-limit-accretor-multiplier") + ", default = '" + p_Options->m_MassTransferThermallyLimitedVariation.typeString + "')").c_str()
@@ -1856,16 +1920,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Assumption about neutrino mass loss during BH formation (" + AllowedOptionValuesFormatted("neutrino-mass-loss-BH-formation") + ", default = '" + p_Options->m_NeutrinoMassLossAssumptionBH.typeString + "')").c_str()
         )
         (
+            "neutron-star-accretion-in-ce",                              
+            po::value<std::string>(&p_Options->m_NeutronStarAccretionInCE.typeString)->default_value(p_Options->m_NeutronStarAccretionInCE.typeString),                                                      
+            ("Neutron star accretion in common envelope to use (" + AllowedOptionValuesFormatted("neutron-star-accretion-in-ce") + ", default = '" + p_Options->m_NeutronStarAccretionInCE.typeString + "')").c_str()
+        )
+        (
             "neutron-star-equation-of-state",                              
             po::value<std::string>(&p_Options->m_NeutronStarEquationOfState.typeString)->default_value(p_Options->m_NeutronStarEquationOfState.typeString),                                                      
             ("Neutron star equation of state to use (" + AllowedOptionValuesFormatted("neutron-star-equation-of-state") + ", default = '" + p_Options->m_NeutronStarEquationOfState.typeString + "')").c_str()
         )
 
-        (
-            "OB-mass-loss",        // DEPRECATED June 2024 - remove end 2024                                     
-            po::value<std::string>(&p_Options->m_OBMassLossPrescription.typeString)->default_value(p_Options->m_OBMassLossPrescription.typeString),                                                                  
-            ("OB mass loss prescription (" + AllowedOptionValuesFormatted("OB-mass-loss") + ", default = '" + p_Options->m_OBMassLossPrescription.typeString + "')").c_str()
-        )
         (
             "OB-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_OBMassLossPrescription.typeString)->default_value(p_Options->m_OBMassLossPrescription.typeString),                                                                  
@@ -1909,14 +1973,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Choose remnant mass prescription (" + AllowedOptionValuesFormatted("remnant-mass-prescription") + ", default = '" + p_Options->m_RemnantMassPrescription.typeString + "')").c_str()
         )
         (
+            "response-to-spin-up",
+            po::value<std::string>(&p_Options->m_ResponseToSpinUp.typeString)->default_value(p_Options->m_ResponseToSpinUp.typeString),
+            ("Response to spin-up prescription (" + AllowedOptionValuesFormatted("response-to-spin-up") + ", default = '" + p_Options->m_ResponseToSpinUp.typeString + "')").c_str()
+        )
+        (
             "rotational-velocity-distribution",                            
             po::value<std::string>(&p_Options->m_RotationalVelocityDistribution.typeString)->default_value(p_Options->m_RotationalVelocityDistribution.typeString),                                              
             ("Initial rotational velocity distribution (" + AllowedOptionValuesFormatted("rotational-velocity-distribution") + ", default = '" + p_Options->m_RotationalVelocityDistribution.typeString + "')").c_str()
-        )
-        (
-            "RSG-mass-loss",       // DEPRECATED June 2024 - remove end 2024                                       
-            po::value<std::string>(&p_Options->m_RSGMassLossPrescription.typeString)->default_value(p_Options->m_RSGMassLossPrescription.typeString),                                                                  
-            ("RSG mass loss prescription (" + AllowedOptionValuesFormatted("RSG-mass-loss") + ", default = '" + p_Options->m_RSGMassLossPrescription.typeString + "')").c_str()
         )
         (
             "RSG-mass-loss-prescription",
@@ -1951,19 +2015,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("User-supplied YAML template filename (default = " + p_Options->m_YAMLtemplate + ")").c_str()
         )
         (
-            "VMS-mass-loss",       // DEPRECATED June 2024 - remove end 2024                                       
-            po::value<std::string>(&p_Options->m_VMSMassLossPrescription.typeString)->default_value(p_Options->m_VMSMassLossPrescription.typeString),                                                                  
-            ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss") + ", default = '" + p_Options->m_VMSMassLossPrescription.typeString + "')").c_str()
-        )
-        (
             "VMS-mass-loss-prescription",
             po::value<std::string>(&p_Options->m_VMSMassLossPrescription.typeString)->default_value(p_Options->m_VMSMassLossPrescription.typeString),                                                                  
             ("Very massive star mass loss prescription (" + AllowedOptionValuesFormatted("VMS-mass-loss-prescription") + ", default = '" + p_Options->m_VMSMassLossPrescription.typeString + "')").c_str()
-        )
-        (
-            "WR-mass-loss",        // DEPRECATED June 2024 - remove end 2024                                       
-            po::value<std::string>(&p_Options->m_WRMassLossPrescription.typeString)->default_value(p_Options->m_WRMassLossPrescription.typeString),                                                                  
-            ("WR mass loss prescription (" + AllowedOptionValuesFormatted("WR-mass-loss") + ", default = '" + p_Options->m_WRMassLossPrescription.typeString + "')").c_str()
         )
         (
             "WR-mass-loss-prescription",
@@ -1975,24 +2029,24 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "debug-classes",                                               
-            po::value<std::vector<std::string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
+            po::value<STR_VECTOR>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
             ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
         )
 
         (
             "log-classes",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
             ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
         )
 
         (
             "notes",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
             ("User-specified annotations (default = " + defaultNotes + ")").c_str()
         )
         (
             "notes-hdrs",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
             ("User-specified annotation header strings (default = " + defaultNotesHdrs + ")").c_str()
         )
     
@@ -2187,10 +2241,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Add Options to SysParms Option");
         }
 
-        if (!DEFAULTED("black-hole-kicks")) {       // DEPRECATED June 2024 - remove end 2024                                       // black hole kicks
-            std::tie(found, m_BlackHoleKicksMode.type) = utils::GetMapKey(m_BlackHoleKicksMode.typeString, BLACK_HOLE_KICKS_MODE_LABEL, m_BlackHoleKicksMode.type);
-            COMPLAIN_IF(!found, "Unknown Black Hole Kicks Prescription");
-        }
         if (!DEFAULTED("black-hole-kicks-mode")) {                                                                                  // black hole kicks mode
             std::tie(found, m_BlackHoleKicksMode.type) = utils::GetMapKey(m_BlackHoleKicksMode.typeString, BLACK_HOLE_KICKS_MODE_LABEL, m_BlackHoleKicksMode.type);
             COMPLAIN_IF(!found, "Unknown Black Hole Kicks Prescription");
@@ -2201,10 +2251,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
         }
            
-        if (!DEFAULTED("chemically-homogeneous-evolution")) {   // DEPRECATED June 2024 - remove end 2024                           // Chemically Homogeneous Evolution
-            std::tie(found, m_CheMode.type) = utils::GetMapKey(m_CheMode.typeString, CHE_MODE_LABEL, m_CheMode.type);
-            COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution mode");
-        }
         if (!DEFAULTED("chemically-homogeneous-evolution-mode")) {                                                                  // Chemically Homogeneous Evolution mode
             std::tie(found, m_CheMode.type) = utils::GetMapKey(m_CheMode.typeString, CHE_MODE_LABEL, m_CheMode.type);
             COMPLAIN_IF(!found, "Unknown Chemically Homogeneous Evolution mode");
@@ -2255,11 +2301,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Initial Mass Function");
         }
 
-        if (!DEFAULTED("kick-direction")) {     // DEPRECATED June 2024 - remove end 2024                                           // kick direction
-            std::tie(found, m_KickDirectionDistribution.type) = utils::GetMapKey(m_KickDirectionDistribution.typeString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution.type);
-            COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
-        }
-
         if (!DEFAULTED("kick-direction-distribution")) {                                                                            // kick direction distribution
             std::tie(found, m_KickDirectionDistribution.type) = utils::GetMapKey(m_KickDirectionDistribution.typeString, KICK_DIRECTION_DISTRIBUTION_LABEL, m_KickDirectionDistribution.type);
             COMPLAIN_IF(!found, "Unknown Kick Direction Distribution");
@@ -2279,11 +2320,12 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_LBVMassLossPrescription.type) = utils::GetMapKey(m_LBVMassLossPrescription.typeString, LBV_MASS_LOSS_PRESCRIPTION_LABEL, m_LBVMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
-        if (!DEFAULTED("luminous-blue-variable-prescription")) {        // DEPRECATED June 2024 - remove end 2024                   // LBV mass loss prescription
-            std::tie(found, m_LBVMassLossPrescription.type) = utils::GetMapKey(m_LBVMassLossPrescription.typeString, LBV_MASS_LOSS_PRESCRIPTION_LABEL, m_LBVMassLossPrescription.type);
-            COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
+        
+        if (!DEFAULTED("main-sequence-core-mass-prescription")) {                                                                   // main sequence core mass prescription
+            std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
         }
-
+        
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
             std::tie(found, m_MassLossPrescription.type) = utils::GetMapKey(m_MassLossPrescription.typeString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
@@ -2307,19 +2349,6 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (m_UseMassTransfer && !DEFAULTED("mass-transfer-rejuvenation-prescription")) {                                           // mass transfer rejuvenation prescription
             std::tie(found, m_MassTransferRejuvenationPrescription.type) = utils::GetMapKey(m_MassTransferRejuvenationPrescription.typeString, MT_REJUVENATION_PRESCRIPTION_LABEL, m_MassTransferRejuvenationPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Transfer Rejuvenation Prescription");
-        }
-
-        if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor")) { // DEPRECATED June 2024 - remove end 2024    // mass transfer accretor thermal limit
-            std::tie(found, m_MassTransferThermallyLimitedVariation.type) = utils::GetMapKey(m_MassTransferThermallyLimitedVariation.typeString, MT_THERMALLY_LIMITED_VARIATION_LABEL, m_MassTransferThermallyLimitedVariation.type);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Accretor Thermal Limit Multiplier");
-
-            if (m_MassTransferThermallyLimitedVariation.type == MT_THERMALLY_LIMITED_VARIATION::C_FACTOR) {
-                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 10.0 : m_MassTransferCParameter;            // JR: this constant should be in constants.h
-            }
-
-            if (m_MassTransferThermallyLimitedVariation.type == MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE) {
-                m_MassTransferCParameter = DEFAULTED("mass-transfer-thermal-limit-C") ? 1.0 : m_MassTransferCParameter;             // JR: this constant should be in constants.h
-            }
         }
 
         if (m_UseMassTransfer && !DEFAULTED("mass-transfer-thermal-limit-accretor-multiplier")) {                                   // mass transfer accretor thermal limit multiplier
@@ -2350,15 +2379,16 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
         }
 
+        if (!DEFAULTED("neutron-star-accretion-in-ce")) {                                                                         // neutron star accretion in common envelope
+            std::tie(found, m_NeutronStarAccretionInCE.type) = utils::GetMapKey(m_NeutronStarAccretionInCE.typeString, NS_ACCRETION_IN_CE_LABEL, m_NeutronStarAccretionInCE.type);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Accretion in Common Envelope");
+        }
+
         if (!DEFAULTED("neutron-star-equation-of-state")) {                                                                         // neutron star equation of state
-            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOSLabel, m_NeutronStarEquationOfState.type);
+            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOS_LABEL, m_NeutronStarEquationOfState.type);
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
-        if (!DEFAULTED("OB-mass-loss")) {       // DEPRECATED June 2024 - remove end 2024                                           // OB (main sequence) mass loss prescription
-            std::tie(found, m_OBMassLossPrescription.type) = utils::GetMapKey(m_OBMassLossPrescription.typeString, OB_MASS_LOSS_PRESCRIPTION_LABEL, m_OBMassLossPrescription.type);
-            COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
-        }
         if (!DEFAULTED("OB-mass-loss-prescription")) {                                                                              // OB (main sequence) mass loss prescription
             std::tie(found, m_OBMassLossPrescription.type) = utils::GetMapKey(m_OBMassLossPrescription.typeString, OB_MASS_LOSS_PRESCRIPTION_LABEL, m_OBMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
@@ -2383,16 +2413,17 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_RemnantMassPrescription.type) = utils::GetMapKey(m_RemnantMassPrescription.typeString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
         }
+        
+        if (!DEFAULTED("response-to-spin-up")) {                                                                              // prescription for response to super-critical spin-up
+            std::tie(found, m_ResponseToSpinUp.type) = utils::GetMapKey(m_ResponseToSpinUp.typeString, RESPONSE_TO_SPIN_UP_LABEL, m_ResponseToSpinUp.type);
+            COMPLAIN_IF(!found, "Unknown Response-to-spin-up Prescription");
+        }
 
         if (!DEFAULTED("rotational-velocity-distribution")) {                                                                       // rotational velocity distribution
             std::tie(found, m_RotationalVelocityDistribution.type) = utils::GetMapKey(m_RotationalVelocityDistribution.typeString, ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL, m_RotationalVelocityDistribution.type);
             COMPLAIN_IF(!found, "Unknown Rotational Velocity Distribution");
         }
 
-        if (!DEFAULTED("RSG-mass-loss")) {       // DEPRECATED June 2024 - remove end 2024                                          // RSG (main sequence) mass loss prescription
-            std::tie(found, m_RSGMassLossPrescription.type) = utils::GetMapKey(m_RSGMassLossPrescription.typeString, RSG_MASS_LOSS_PRESCRIPTION_LABEL, m_RSGMassLossPrescription.type);
-            COMPLAIN_IF(!found, "Unknown RSG Mass Loss Prescription");
-        }
         if (!DEFAULTED("RSG-mass-loss-prescription")) {                                                                             // RSG mass loss prescription
             std::tie(found, m_RSGMassLossPrescription.type) = utils::GetMapKey(m_RSGMassLossPrescription.typeString, RSG_MASS_LOSS_PRESCRIPTION_LABEL, m_RSGMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown RSG Mass Loss Prescription");
@@ -2413,19 +2444,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Tides Prescription");
         }
 
-        if (!DEFAULTED("VMS-mass-loss")) {      // DEPRECATED June 2024 - remove end 2024                                           // very massive (VMS) mass loss prescription
-            std::tie(found, m_VMSMassLossPrescription.type) = utils::GetMapKey(m_VMSMassLossPrescription.typeString, VMS_MASS_LOSS_PRESCRIPTION_LABEL, m_VMSMassLossPrescription.type);
-            COMPLAIN_IF(!found, "Unknown Very Massive (VMS) Mass Loss Prescription");
-        }
         if (!DEFAULTED("VMS-mass-loss-prescription")) {                                                                             // very massive (VMS) mass loss prescription
             std::tie(found, m_VMSMassLossPrescription.type) = utils::GetMapKey(m_VMSMassLossPrescription.typeString, VMS_MASS_LOSS_PRESCRIPTION_LABEL, m_VMSMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Very Massive (VMS) Mass Loss Prescription");
         }
 
-        if (!DEFAULTED("WR-mass-losson")) {     // DEPRECATED June 2024 - remove end 2024                                           // WR mass loss prescription
-            std::tie(found, m_WRMassLossPrescription.type) = utils::GetMapKey(m_WRMassLossPrescription.typeString, WR_MASS_LOSS_PRESCRIPTION_LABEL, m_WRMassLossPrescription.type);
-            COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
-        }
         if (!DEFAULTED("WR-mass-loss-prescription")) {                                                                              // WR mass loss prescription
             std::tie(found, m_WRMassLossPrescription.type) = utils::GetMapKey(m_WRMassLossPrescription.typeString, WR_MASS_LOSS_PRESCRIPTION_LABEL, m_WRMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
@@ -2473,7 +2496,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
-        COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
+        COMPLAIN_IF(m_MassChangeFraction <= 0.0, "Mass change fraction per timestep (--mass-change-fraction) <= 0");
         
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
 
@@ -2501,9 +2524,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
 
-        if (!DEFAULTED("notes")) {                                                                                                  // user specified notes?
-            WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
+        // check for duplicate notes header strings
+        if (!DEFAULTED("notes-hdrs") && m_NotesHdrs.size() > 1) {
+            STR_VECTOR sortedHdrs(m_NotesHdrs.size());
+            std::partial_sort_copy(begin(m_NotesHdrs), end(m_NotesHdrs), begin(sortedHdrs), end(sortedHdrs));
+            COMPLAIN_IF(std::adjacent_find(std::begin(sortedHdrs), std::end(sortedHdrs)) != std::end(sortedHdrs), "Annotations: duplicate headers");
         }
+
+        COMPLAIN_IF(!DEFAULTED("notes") && m_Notes.size() > Options::Instance()->NotesHdrs().size(), "Annotations: more notes than headers");
 
         COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
@@ -2512,9 +2540,15 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
-        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
-        COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMax <= m_PulsarBirthMagneticFieldDistributionMin, "Pulsar birth magnetic field max (--pulsar-birth-magnetic-field-distribution-max) <= min (--pulsar-birth-magnetic-field-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= m_PulsarLog10MinimumMagneticField, "Pulsar birth magnetic field min (--pulsar-birth-magnetic-field-distribution-min) <= lower limit (--pulsar-minimum-magnetic-field)");
+        
+        COMPLAIN_IF(m_PulsarBirthSpinPeriodDistributionMax <= m_PulsarBirthSpinPeriodDistributionMin, "Pulsar birth spin period max (--pulsar-birth-spin-period-distribution-max) <= min (--pulsar-birth-spin-period-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= 0.0, "Pulsar birth magnetic field min (--pulsar-birth-spin-period-distribution-min) <= 0");
+
+        COMPLAIN_IF(m_RadialChangeFraction <= 0.0, "Radial change fraction per timestep (--radial-change-fraction) <= 0");
         
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
@@ -2524,6 +2558,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
         COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+        COMPLAIN_IF(m_TimestepMultiplier > MAXIMUM_TIMESTEP_MULTIPLIER, "Timestep multiplier (--timestep-multiplier) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ")");
+
+        COMPLAIN_IF(!DEFAULTED("timestep-multipliers") && m_TimestepMultipliers.size() > (static_cast<int>(STELLAR_TYPE::COUNT) - 3), "More phase-dependent timestep multipliers than stellar types");
+        for (size_t idx = 0; idx < m_TimestepMultipliers.size(); idx++) {
+            COMPLAIN_IF(m_TimestepMultipliers[idx] <= 0.0, "Phase-dependent timestep multiplier (--timestep-multipliers) <= 0 for stellar type index " + std::to_string(idx));
+            COMPLAIN_IF(m_TimestepMultipliers[idx] > MAXIMUM_TIMESTEP_MULTIPLIER, "Phase-dependent timestep multiplier (--timestep-multipliers) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ") for stellar type index " + std::to_string(idx));
+        }
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
 
@@ -2591,13 +2632,14 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
     size_t pos  = 0;
     size_t prev = 0;
     while ((pos = descriptions.find('\n', prev)) != std::string::npos) {                                    // extract individual option descriptions (split at newline)
-        std::string rec = descriptions.substr(prev, pos - prev);                                            // this option description
-        rec  = utils::trim(rec);                                                                            // trim whitespace
+        std::string thisRec = descriptions.substr(prev, pos - prev);                                        // this option description
         prev = pos + 1;                                                                                     // set up for next option
-
         // have option description - parse it
-        if (rec.substr(0, 2) == "--" || (rec[0] = '-' && rec.substr(3, 4) == "[ --")) {                     // option description?
+        thisRec.erase(0, 2);                                                                                // remove "  " from start of string
+        if (thisRec.substr(0, 2) == "--" || (thisRec[0] == '-' && thisRec.substr(3, 4) == "[ --")) {        // option description?
                                                                                                             // yes
+            std::string rec = utils::trim(thisRec);                                                         // trim whitespace
+
             // strip the preamble
             if (rec.substr(0, 2) == "--") rec = rec.substr(2, rec.length() - 2);
             else rec = rec.substr(7, rec.length() - 7);
@@ -2638,24 +2680,22 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
  * labels map.
  * 
  * 
- * std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString)
+ * STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString)
  * 
  * 
  * @param   [IN]    p_OptionString              String containing option name
  * @return                                      Vector containing allowed option value strings
  */
-std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString) {
+STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
 #define POPULATE_RET(mapname) for (auto& it: mapname) ret.push_back("'" + it.second + "'")  // for convenience and readability - undefined at end of function
 
-    std::vector<std::string> ret;           // initially empty
+    STR_VECTOR ret;                         // initially empty
 
     switch (_(p_OptionString.c_str())) {    // which option?
 
         case _("add-options-to-sysparms")                           : POPULATE_RET(ADD_OPTIONS_TO_SYSPARMS_LABEL);                  break;
-        case _("black-hole-kicks")                                  : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                    break; // DEPRECATED June 2024 - remove end 2024
         case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                    break;
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);           break;
-        case _("chemically-homogeneous-evolution")                  : POPULATE_RET(CHE_MODE_LABEL);                                 break; // DEPRECATED June 2024 - remove end 2024
         case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                 break;
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                             break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                   break;
@@ -2666,39 +2706,35 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("fp-error-mode")                                     : POPULATE_RET(FP_ERROR_MODE_LABEL);                            break;
         case _("fryer-supernova-engine")                            : POPULATE_RET(SN_ENGINE_LABEL);                                break;
         case _("initial-mass-function")                             : POPULATE_RET(INITIAL_MASS_FUNCTION_LABEL);                    break;
-        case _("kick-direction")                                    : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break; // DEPRECATED June 2024 - remove end 2024
         case _("kick-direction-distribution")                       : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break;
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
-        case _("luminous-blue-variable-prescription")               : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break; // DEPRECATED June 2024 - remove end 2024
+        case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
         case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;
         case _("mass-transfer-angular-momentum-loss-prescription")  : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);    break;
         case _("mass-transfer-rejuvenation-prescription")           : POPULATE_RET(MT_REJUVENATION_PRESCRIPTION_LABEL);             break;
-        case _("mass-transfer-thermal-limit-accretor")              : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break; // DEPRECATED June 2024 - remove end 2024
         case _("mass-transfer-thermal-limit-accretor-multiplier")   : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break;
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
-        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
-        case _("OB-mass-loss")                                      : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break; // DEPRECATED June 2024 - remove end 2024
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                       break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                   break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
-        case _("RSG-mass-loss")                                     : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break; // DEPRECATED June 2024 - remove end 2024
         case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
+        case _("response-to-spin-up")                               : POPULATE_RET(RESPONSE_TO_SPIN_UP_LABEL);                      break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
-        case _("VMS-mass-loss")                                     : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break; // DEPRECATED June 2024 - remove end 2024
         case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break;
-        case _("WR-mass-loss")                                      : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break; // DEPRECATED June 2024 - remove end 2024
         case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         default: break;
     }
@@ -2731,7 +2767,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
  */
 std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionString) {
 
-    std::vector<std::string> allowedValues = AllowedOptionValues(p_OptionString);   // get allowed values
+    STR_VECTOR allowedValues = AllowedOptionValues(p_OptionString);                 // get allowed values
     std::string str = "Options: [";                                                 // formatted string
     for (size_t idx = 0; idx < allowedValues.size(); idx++) {                       // for each allowed value
         str += allowedValues[idx];                                                  // show allowed value
@@ -2750,6 +2786,11 @@ std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionStri
  * passed as p_OptionString is a valid option string - it just checks
  * whether the user specified it, either at the grid line level, or
  * at the commandline level.
+ * 
+ * Also note, this function determines if an option was specified by iterating
+ * over a Boost data structure doing string comparisons.  This can be slow and
+ * impact performance.  Consider using the OptiondDefaulted() function instead
+ * (see the explanation there).
  * 
  * 
  * bool OptionSpecified(std::string p_OptionString) 
@@ -2909,20 +2950,22 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         valueStr = p_VM[p_IT->first].as<bool>() ? "TRUE" : "FALSE";
     } 
 
-    else {  // Assume std::vector<std::string>
-        try {
+    else {                                                                  // assume VECTOR
+        try {                                                               // try STR_VECTOR (std::vector<std::string>)
             std::ostringstream elemsSS;
             elemsSS << "{ ";
-            std::vector<std::string> tmp = p_VM[p_IT->first].as<std::vector<std::string>>();
-            for (std::vector<std::string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
-                elemsSS << "'" << (*elem) << "', ";
+            STR_VECTOR tmp = p_VM[p_IT->first].as<STR_VECTOR>();
+            for (STR_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
+                std::string selem{*elem};
+                if (selem.length() == 1 && selem == NOT_PROVIDED_STR) elemsSS << ", ";
+                else                                                  elemsSS << "'" << selem << "', ";
             }
             std::string elems = elemsSS.str();
             if (elems.length() > 2) elems.erase(elems.length() - 2);
             else if (elems.length() == 2) elems.erase(elems.length() - 1);
             elems += " }";
 
-            // the following options are declared as std::vector<std::string>>:
+            // the following options are declared as STR_VECTOR:
             //
             //     debug-classes
             //     log-classes
@@ -2938,10 +2981,38 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
             typeStr  = "VECTOR<STRING>";
             valueStr = elems;
         }
-        catch (const boost::bad_any_cast &) {
-            dataType = TYPENAME::NONE;                                                  // unknown data type               
-            typeStr  = "<UNKNOWN_DATA_TYPE>";
-            valueStr = "<UNKNOWN_DATA_TYPE>";
+        catch (const boost::bad_any_cast &) {                               // not STR_VECTOR
+            try {                                                           // try DBL_VECTOR (std::vector<double>)
+                std::ostringstream elemsSS;
+                elemsSS << "{ ";
+                DBL_VECTOR tmp = p_VM[p_IT->first].as<DBL_VECTOR>();
+                for (DBL_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
+                    if (!isinf(*elem)) elemsSS << *elem;
+                    elemsSS << ", ";
+                }
+                std::string elems = elemsSS.str();
+                if (elems.length() > 2) elems.erase(elems.length() - 2);
+                else if (elems.length() == 2) elems.erase(elems.length() - 1);
+                elems += " }";
+
+                // the following options are declared as DBL_VECTOR:
+                //
+                //     timestep-multipliers
+                // 
+                // The vector of doubles is just formatted as a string here - with braces
+                // surrounding comma-separated values.
+                //
+                // We return dateType = TYPENAME::STRING, but typeStr = "VECTOR<DOUBLE>"
+
+                dataType = TYPENAME::STRING;  
+                typeStr  = "VECTOR<DOUBLE>";
+                valueStr = elems;
+            }
+            catch (const boost::bad_any_cast &) {                           // not DBL_VECTOR - unknown data type
+                dataType = TYPENAME::NONE;               
+                typeStr  = "<UNKNOWN_DATA_TYPE>";
+                valueStr = "<UNKNOWN_DATA_TYPE>";
+            }
         }
     }
 
@@ -2977,7 +3048,7 @@ std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_O
 
         std::string optionStr = it->first;                                                                                                                      // option string
         std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                                                   // get option attributes
-        std::vector<std::string> allowedValues = AllowedOptionValues(optionStr);                                                                                // get allowed option values if appropriate
+        STR_VECTOR allowedValues = AllowedOptionValues(optionStr);                                                                                              // get allowed option values if appropriate
 
         std::map<std::string, std::string>::iterator mit;                                                                                                       // iterator for defaults map
         std::string defaultStr = "";                                                                                                                            // default string - initially empty
@@ -3095,18 +3166,18 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  * This function will expand this shorthand to the example shown above.  There is no checking for correctness here - we just expand any
  * shorthand necessary and pass the argument vector back - correctness checking is done elsewhere.  
  * 
- * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED (constant define in Options.h).
- * Since at this stage the option names and values are just strings that will be parsed by boost, we don't need to worry about data type - 
- * code processing the options can check for NOT_PROVIDED and deal with it then.  Since we may not know the maximum number of values
- * expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not have that number yet), we leave
- * it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
+ * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED_CHAR (constant defined in Options.h)
+ * as the first character of the string.  Since at this stage the option names and values are just strings that will be parsed by boost, we 
+ * don't need to worry about data type - code processing the options can check for NOT_PROVIDED_CHAR and deal with it then.  Since we may not
+ * know the maximum number of values expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not 
+ * have that number yet), we leave it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
  * 
  * ./compas --notes-hdrs [hdrStr1,hdrStr2,hdrStr3,hdrStr4,hdrStr5] --notes ["note 1",,"this is note 3"] --option-name option-value ...
  * 
- * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED here, and notes 4 & 5 will be added later.
+ * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED_STR (string version of NOT_PROVIDED_CHAR) here, and notes 4 & 5 will be added later.
  * 
  * 
- * std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
+ * std::tuple<std::string, int, STR_VECTOR> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
  * 
  * 
  * @param   [IN]    p_ArgCount                  The number of argument strings. (note below for p_ArgStrings)
@@ -3119,11 +3190,11 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  *                                                      - an integer indicating the number of arguments (analogous to p_ArgCount)
  *                                                      - a vector of strings containing the arguments (analogous to p_ArgStrings)
  */
-std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
+std::tuple<std::string, int, STR_VECTOR> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
 
     std::string errStr = "";                                                                                                // for now
 
-    std::vector<std::string> strargs = {std::string(p_ArgStrings[0])};                                                      // new args vector - command name is arg[0]
+    STR_VECTOR strargs = {std::string(p_ArgStrings[0])};                                                                    // new args vector - command name is arg[0]
 
     std::string  argString  = "";                                                                                           // argument string
     std::string  optionName = "";                                                                                           // option name
@@ -3169,7 +3240,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                     // (e.g. 'notes-hdrs' for 'notes').  So for now we just push a single default
                                     // value and deal with it later
 
-                                    strargs.push_back(NOT_PROVIDED);                                                        // "not provided" indicator"
+                                    strargs.push_back(NOT_PROVIDED_STR);                                                    // "not provided" indicator"
                                 }
                                 else {                                                                                      // no - defaults not allowed
                                     errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3188,7 +3259,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                     }
                                     else {                                                                                  // empty value
                                         if (defaultAllowed) {                                                               // defaults allowed?
-                                            strargs.push_back(NOT_PROVIDED);                                                // "not provided" indicator"
+                                            strargs.push_back(NOT_PROVIDED_STR);                                            // "not provided" indicator"
                                         }
                                         else {                                                                              // no - defaults not allowed
                                             errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3199,7 +3270,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
 
                                 if (argString[argString.length() - 1] == ',') {                                             // trailing comma in shorthand values?
                                     if (defaultAllowed) {                                                                   // defaults allowed?
-                                        strargs.push_back(NOT_PROVIDED);                                                    // "not provided" indicator"
+                                        strargs.push_back(NOT_PROVIDED_STR);                                                // "not provided" indicator"
                                     }
                                     else {                                                                                  // no - defaults not allowed
                                         errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3258,8 +3329,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
     std::string errStr = "";                                                                                                // initially
 
     int argCount;                                                                                                           // number or arg strings
-    std::vector<std::string> sArgStrings;                                                                                   // arg strings - as std::strings
-
+    STR_VECTOR sArgStrings;                                                                                                 // arg strings - as std::strings
 
     //********************************************************************//
     // first expand any shorthand notation used in the options            //
@@ -3275,7 +3345,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
     //********************************************************************//
 
 
-    std::vector<char const *> args {};                                                                                      // copy string vector to char * vector
+    std::vector<char const *> args {};                                                                                      // copy string vector to char* vector
     for (size_t idx = 0; idx < sArgStrings.size(); idx++) {
         args.push_back(sArgStrings[idx].c_str());
     }
@@ -3287,9 +3357,9 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         p_OptionsDescriptor.optionsSpecified    = {};                                                                       // initially
         p_OptionsDescriptor.complexOptionValues = {};                                                                       // initially
 
-        std::string  optionName        = "";                                                                                // option name
-        COMPLEX_TYPE type              = COMPLEX_TYPE::NONE;                                                                // complex arg type (range, set, neither/none)
-        std::vector<std::string> parms = {};                                                                                // the range or set parameters
+        std::string  optionName = "";                                                                                       // option name
+        COMPLEX_TYPE type       = COMPLEX_TYPE::NONE;                                                                       // complex arg type (range, set, neither/none)
+        STR_VECTOR parms        = {};                                                                                       // the range or set parameters
 
         for (size_t iArg = 1; iArg < (size_t)argCount; iArg++) {                                                            // for each arg string
 
@@ -3407,6 +3477,46 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
         if (errStr.empty()) {                                                                                               // no need if we've already flagged an error
 
+            // replace any deprecated argstrings (both option names and option values)
+            // we do this here so that we don't have to check for deprecated options
+            // during binary/stellar evolution - helps to reduce the performance impact
+            // of deprecated options and option values 
+
+            STR_VECTOR fixedArgs {};                                                                                        // vector args fixed for deprecated string
+
+            std::string thisArgString = "";                                                                                 // arg string being checked
+            std::string prevArgString = "";                                                                                 // previous arg string (for option value checking)   
+            std::string newArgString  = "";                                                                                 // replacement arg string for deprecations
+
+            for (int iidx = 0; iidx < argCount; iidx++) {                                                                   // for all arg strings
+                thisArgString = std::string(argStrings[iidx]);                                                              // this arg string
+                newArgString  = thisArgString;                                                                              // default is no change
+
+                // check arg string for deprecated option string
+                // only need to check if arg string has a leading dash - no leading dash means not an option string
+                // it could just be a negative number... but we can't guarantee all option string have leading "--"
+                if (thisArgString[0] == '-') {                                                                              // leading dash?
+                    newArgString = CheckDeprecatedOptionString(thisArgString);                                              // yes - check for deprecated option string
+                }
+
+                // check arg string for deprecated option value 
+                // (don't check first arg string)
+                if (iidx > 0 && utils::Equals(newArgString, thisArgString)) {                                               // first arg string?
+                    newArgString = CheckDeprecatedOptionValue(prevArgString, thisArgString);                                // no - check for deprecated option value
+                }
+
+                fixedArgs.push_back(newArgString);                                                                          // add the (possible) "fixed" arg string
+
+                prevArgString = thisArgString;                                                                              // set previous argstring to current argstring
+            }   
+
+            std::vector<char const *> newArgs {};                                                                           // copy "fixed" string vector to char* vector
+            for (size_t idx = 0; idx < fixedArgs.size(); idx++) {                                                           // for each arg string/option value
+                newArgs.push_back(fixedArgs[idx].c_str());                                                                  // copy to char* vector
+            }
+            argStrings = const_cast<char**>(newArgs.data());                                                                // arg strings - as array of char*
+
+
             // boost parse_command_line() expects the first arg to be the program name
             // (it thinks it is getting the values that were passed to main() from the 
             // OS/shell), so for options from a grid file we insert a dummy argument as 
@@ -3417,15 +3527,60 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             // in the argument strings that will be passed to boost - so boost will fail
             // and complain about the offending parameter (which is what we want)
 
+            // before we pass the argstrings to parse_command_line() we need to remove the
+            // NOT_PROVIDED_CHAR for shorthand allowed, non-string, options (boost doesn't 
+            // like it...)
+
+
+            bool shorthandOk = false;                                                                                       // flag to indicate if we're processing a shorthand allowed option
+            TYPENAME defaultType = TYPENAME::NONE;                                                                          // type for default value
+            for (size_t iidx = 1; iidx < (size_t)argCount; iidx++) {                                                        // for each arg string
+
+                std::string argStr = std::string(argStrings[iidx]);
+                if (!argStr.empty()) {                                                                                      // null arg? (shouldn't be...)
+                                                                                                                            // no
+                    if (argStr.substr(0, 2) == "--" || argStr[0] == '-' ) {                                                 // option string?
+                                                                                                                            // yes
+                        // strip the preamble
+                        if (argStr.substr(0, 2) == "--") argStr = argStr.substr(2, argStr.length() - 2);
+                        else argStr = argStr.substr(1, argStr.length() - 1);
+
+                        // check if option is on the shorthand allowed list
+                        auto elem = std::find_if(m_ShorthandAllowed.begin(), m_ShorthandAllowed.end(), [&argStr](const SHORTHAND_ENTRY& e) { return std::get<0>(e) == argStr; });
+                        if (elem != m_ShorthandAllowed.end()) {                                                             // option in shorthand allowed list?
+                            shorthandOk = elem != m_ShorthandAllowed.end();                                                 // yes
+                            defaultType = std::get<2>(*elem);                                                               // get type for option default
+                        }
+                        continue;                                                                                           // next arg string
+                    }
+
+                    // processing arguments to options here - skipped over option name
+                    if (shorthandOk) {                                                                                      // shorthand allowed?
+                                                                                                                            // yes
+                        switch (defaultType) {                                                                              // which default value type?
+                            case TYPENAME::STRING: break;                                                                   // STRING - do nothing
+                            case TYPENAME::DOUBLE:                                                                          // DOUBLE - replace NOT_PROVIDED_CHAR with inf
+                                if (*argStrings[iidx] == static_cast<char>(NOT_PROVIDED_CHAR))                              // NOT_PROVIDED_CHAR?
+                                    strcpy(argStrings[iidx], "inf");                                                        // yes - replace with inf
+                                break;
+                            default:                                                                                        // shouldn't happen - for now we only have string and double default values
+                                break;                                                                                      // do nothing - the parse will fail
+                        }
+
+                    }
+                }
+            }
+
+            // pass argstrings to boost parse_command_line()
             po::parsed_options const parsedOptions = po::parse_command_line(argCount, argStrings, p_OptionsDescriptor.optionDescriptions, cls::unix_style|cls::case_insensitive); // parse user-supplied options
-            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                              // store parsed options into variable map
-            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                            // populate the variables with option values
+            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                                // store parsed options into variable map
+            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                              // populate the variables with option values
 
             // this is our opportunity to distinguish between "-h" and "--help" (if specified)
             for (auto& entry : parsedOptions.options) {
                 po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false);
-                std::string originalTok = entry.original_tokens[0];
-                std::string thisTok = utils::ToLower(utils::trim(originalTok));
+                std::string originalTok           = entry.original_tokens[0];
+                std::string thisTok               = utils::ToLower(utils::trim(originalTok));
 
                 if (!thisTok.empty()) {
                     std::string shortOpt = utils::ToLower(opt.canonical_display_name(cls::allow_dash_for_short));
@@ -3819,7 +3974,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
             // if we've made it this far we've parsed everything, and now is the time to fix up any default values
             // for vector options.  Any vector option values that we know were not provided will have the value
-            // NOT_PROVIDED, so they can just be replaced with whatever the default value should be.  However,
+            // NOT_PROVIDED_STR, so they can just be replaced with whatever the default value should be.  However,
             // we couldn't really know until now how many values we should expect for vector options like 'notes',
             // because (in that case) the number of values expected is the number of 'notes-hdrs' specified by the
             // user, and that we didn't really know until now (and moreover, we didn't know what the command-line
@@ -3832,21 +3987,21 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                 for (auto& elem: m_ShorthandAllowed) {                                                                      // for each option for which shorthand is allowed
                     std::string optionName     = std::get<0>(elem);                                                         // option name
                     bool        defaultAllowed = std::get<1>(elem);                                                         // omissions allowed?
-                    std::string defaultString  = std::get<2>(elem);                                                         // the COMPAS default for omissions
 
                     if (defaultAllowed) {                                                                                   // omission allowed for this option?
                                                                                                                             // yes
                         switch (_(optionName.c_str())) {                                                                    // which option?
 
-                            // '--notes' is the only option affected at the moment
+                            // '--notes' and '--timestep-multipliers' are the only options affected at the moment
 
-                            case _("notes"):                                                                                // notes
+                            case _("notes"): {                                                                              // notes
+                                std::string defaultValue = std::string((std::get<3>(elem)).strVal);                         // the COMPAS default for omissions
                                 for (size_t idx = 0; idx < NotesHdrs().size(); idx++) {                                     // for each specified notes-hdr
                                     if (idx < p_OptionsDescriptor.optionValues.m_Notes.size()) {                            // have parsed value?
-                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED) {                // yes - notes value provided?
+                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED_STR) {            // yes - notes value provided?
                                                                                                                             // no - get default
                                             if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
-                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultString;              // yes - use COMPAS default
+                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultValue;               // yes - use COMPAS default
                                             }
                                             else {                                                                          // no - grid file line
                                                 p_OptionsDescriptor.optionValues.m_Notes[idx] = m_CmdLine.optionValues.m_Notes[idx]; // use command-line value
@@ -3855,22 +4010,45 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     }
                                     else {                                                                                  // no parsed value
                                         if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
-                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultString);              // yes - use COMPAS default
+                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultValue);               // yes - use COMPAS default
                                         }
                                         else {                                                                              // no - grid file line
                                             p_OptionsDescriptor.optionValues.m_Notes.push_back(m_CmdLine.optionValues.m_Notes[idx]); // use command-line value
                                         }
                                     }
                                 }
-                                break;
+                                } break;
 
+                            case _("timestep-multipliers"): {                                                               // timestep-multipliers
+                                double defaultValue = (std::get<3>(elem)).dblVal;                                           // the COMPAS default for omissions
+                                for (size_t idx = 0; idx < static_cast<int>(STELLAR_TYPE::COUNT) - 3; idx++) {              // for each stellar type (except STAR, BINARY_STAR, and NONE)
+                                    if (idx < p_OptionsDescriptor.optionValues.m_TimestepMultipliers.size()) {              // have parsed value?
+                                        if (isinf(p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx])) {           // yes - multiplier provided?
+                                                                                                                            // no - get default
+                                            if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
+                                                p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = defaultValue; // yes - use COMPAS default
+                                            }
+                                            else {                                                                          // no - grid file line
+                                                p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = m_CmdLine.optionValues.m_TimestepMultipliers[idx]; // use command-line value
+                                            }
+                                        }
+                                    }
+                                    else {                                                                                  // no parsed value
+                                        if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
+                                            p_OptionsDescriptor.optionValues.m_TimestepMultipliers.push_back(defaultValue); // yes - use COMPAS default
+                                        }
+                                        else {                                                                              // no - grid file line
+                                            p_OptionsDescriptor.optionValues.m_TimestepMultipliers.push_back(m_CmdLine.optionValues.m_TimestepMultipliers[idx]); // use command-line value
+                                        }
+                                    }
+                                }
+                                } break;
                             default:                                                                                        // default - shouldn't happen
                                 break;                                                                                      // do nothing - the parse will fail
                         }
                     }
                 }
             }
-
         }
     }
     catch (po::error& e) {                                                                                                  // program options exception
@@ -3920,7 +4098,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
     for (size_t idx = 0; idx < m_BSEOnly.size();          idx++) m_BSEOnly[idx]          = utils::ToLower(utils::trim(m_BSEOnly[idx]));
     for (size_t idx = 0; idx < m_RangeExcluded.size();    idx++) m_RangeExcluded[idx]    = utils::ToLower(utils::trim(m_RangeExcluded[idx]));
     for (size_t idx = 0; idx < m_SetExcluded.size();      idx++) m_SetExcluded[idx]      = utils::ToLower(utils::trim(m_SetExcluded[idx]));
-    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]));
+    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]), std::get<3>(m_ShorthandAllowed[idx]));
 
     try {
 
@@ -4242,10 +4420,10 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
         // parse the option string (just as the OS/shell would do)
 
-        std::vector<std::string> parsedStrings;                                                                     // parsed option strings
+        STR_VECTOR parsedStrings;                                                                                   // parsed option strings
 
         size_t start      = 0;                                                                                      // start position of parsed option string
-        size_t end        = 0;                                                                                      // end position of parsed option strinf
+        size_t end        = 0;                                                                                      // end position of parsed option string
         std::string delim = " ";                                                                                    // delimiter
         bool done         = false;
         while (!done && end != std::string::npos) {                                                                 // iterate over input string
@@ -4619,7 +4797,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ALLOW_TOUCHING_AT_BIRTH                        : value = AllowTouchingAtBirth();                                               break;
         case PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION    : value = AngularMomentumConservationDuringCircularisation();                   break;
 
-        case PROGRAM_OPTION::BLACK_HOLE_KICKS                               : value = static_cast<int>(BlackHoleKicksMode());                               break; // DEPRECATED June 2024 - remove end 2024
         case PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE                          : value = static_cast<int>(BlackHoleKicksMode());                               break;
     
         case PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION                 : value = static_cast<int>(CaseBBStabilityPrescription());                      break;
@@ -4643,6 +4820,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
 
+        case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_MASS_THRESHOLD             : value = ConvectiveEnvelopeMassThreshold();                                    break;
         case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD      : value = ConvectiveEnvelopeTemperatureThreshold();                             break;
 
         case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                         break;
@@ -4652,7 +4830,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MAX                  : value = EccentricityDistributionMax();                                        break;
         case PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN                  : value = EccentricityDistributionMin();                                        break;
         case PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR                     : value = EddingtonAccretionFactor();                                           break;
-	case PROGRAM_OPTION::ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS         : value = EnableRotationallyEnhancedMassLoss();                                 break;
+	    case PROGRAM_OPTION::ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS         : value = EnableRotationallyEnhancedMassLoss();                                 break;
         case PROGRAM_OPTION::ENHANCE_CHE_LIFETIMES_LUMINOSITIES             : value = EnhanceCHELifetimesLuminosities();                                    break;
         case PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION                    : value = static_cast<int>(EnvelopeStatePrescription());                        break;
         case PROGRAM_OPTION::EVOLUTION_MODE                                 : value = static_cast<int>(EvolutionMode());                                    break;
@@ -4701,7 +4879,6 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
-        case PROGRAM_OPTION::LBV_PRESCRIPTION                               : value = static_cast<int>(LBVMassLossPrescription());                          break; // DEPRECATED June 2024 - remove end 2024
             
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
@@ -4761,6 +4938,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::NOTES                                          : value = Notes();                                                              break;
 
+        case PROGRAM_OPTION::NS_ACCRETION_IN_CE                             : value = static_cast<int>(NeutronStarAccretionInCE());                         break;
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 
         case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = OrbitalPeriod();                                                      break;
@@ -4797,6 +4975,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
 
         case PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION                      : value = static_cast<int>(RemnantMassPrescription());                          break;
+            
+        case PROGRAM_OPTION::RESPONSE_TO_SPIN_UP                            : value = static_cast<int>(ResponseToSpinUp());                                 break;
 
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1                        : value = RocketKickMagnitude1();                                               break;
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2                        : value = RocketKickMagnitude2();                                               break;
@@ -4811,7 +4991,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1                         : value = RotationalFrequency1();                                               break;
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2                         : value = RotationalFrequency2();                                               break;
         
-	case PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE          : value = ScaleCHEMassLossWithSurfaceHeliumAbundance();                         break;
+	    case PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE          : value = ScaleCHEMassLossWithSurfaceHeliumAbundance();                         break;
         case PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER      : value = ScaleTerminalWindVelocityWithMetallicityPower();                      break;
 	    
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS                                : value = SemiMajorAxis();                                                      break;
@@ -4879,154 +5059,250 @@ std::string Options::SetRandomSeed(const unsigned long int p_RandomSeed, const O
 
 
 /*
- * Shows deprecation notices for any deprecated option specified by the user.
+ * Check whether an option string is the name of a deprecated option.
+ * Show deprecation notice for a deprecated option if necessary.
  *
- * Works for both commandline and gridline options.
+ * The names of deprecated options, and their replacements (if applicable) are stored in the
+ * `deprecatedOptionStrings` vector in Options.h - see Options.h for a description of the vector contents.
  * 
- * This is a semi-manual process.  The vectors in the code below needs to be updated by hand whenever we
- * want to deprecate an option or an option value, and the option (or value) eventually removed when the
- * deprecation notice period is over and we remove the option or value.
+ * This function will check `deprecatedOptionStrings` for the option string passed in p_OptionString,
+ * and if it is found to be a deprecated option, will:
  * 
- * Each tuple in the "options" vector records an option that has been deprecated but not yet removed from
- * the code (so can still be specified by users).  The tuple entries are:
+ *     (a) show a deprecation notice for the option if necessary.  Note that a deprecation notice for an
+ *         option will only be shown once per COMPAS run (no matter how many times the deprecated option
+ *         appears on the commandline or in a grid file).
  * 
- *     - the option string for the deprecated option (just the option string - no leading "--"))
- *     - the option string for any replacement for the deprecated option (just the option string - no leading "--"))
- *       if there is no replacement (i.e. the deprecated option will be removed and no replacement option implemented)
- *       just set the replacement option string to the empty string ("")
- *     - a boolean flag to indicate if the deprecation notice for the option has been shown - should be false, and
- *       will be set true if and when the deprecation notice for that option is shown.  A deprecation notice for a
- *       deprecated option is only shown once per run.
+ *     (b) return the replacement option name string, if applicable.  If the deprecated option is not being
+ *         renamed or replaced (i.e. it is just being removed), the returned option name string will be the
+ *         string as passed (i.e. p_OptionString).
  * 
- * Sometimes we may want to deprecate (and eventually remove) an option value (e.g. one of the possible mass
- * loss prescriptions).  We may want to do this to rename an option value, or we might want to remove it
- * completely (without replacement).
- * 
- * Each tuple in the "values" vector records an option value that has been deprecated but not yet removed from
- * the code (so can still be specified by users).  The tuple entries are:
- * 
- *     - the option string for which a value is to be deprecated (just the option string - no leading "--"))
- *     - the value string for the value to be deprecated (e.g. for the value QCRIT_PRESCRIPTION::CLAEYS for the
- *       option "critical-mass-ratio-prescription", use "CLAEYS")
- *     - the value string for any replacement value for the deprecated value (e.g. if the value
- *       QCRIT_PRESCRIPTION::CLAEYS for the option "critical-mass-ratio-prescription", is to be replace with
- *       QCRIT_PRESCRIPTION::CLAEYS123, use "CLAEYS123")
- *       if there is no replacement (i.e. the deprecated value will be removed and no replacement value implemented)
- *       just set the replacement value string to the empty string ("")
- *     - a boolean flag to indicate if the deprecation notice for the value has been shown - should be false, and
- *       will be set true if and when the deprecation notice for that value is shown.  A deprecation notice for a
- *       deprecated value is only shown once per run.
+ * If the option string passed in p_OptionString is not found to be a deprecated option, the returned option
+ * name string will be the string as passed (i.e. p_OptionString).
  *
+ * This function is called by the options parsing code to determine if a deprecated option needs to be
+ * replaced with a new option name string at parse time.
  * 
- * Deprecation notices will be shown in the order they appear in the vectors - if you want them to be alphabetical
- * then keep the vectors ordered alphabetically.
+ * std::string Options::CheckDeprecatedOptionString(const std::string p_OptionString)
  * 
- * A deprecation notice for an option will only be shown if the deprecated option is specified by the user.
- * A deprecation notice for an option value will only be shown if the deprecated option value is specified by the user.
- * 
- * Deprecating an option or value should be done very infrequently, so the vectors will mostly be empty and the
- * function will do nothing.
- *
- * 
- * void ShowDeprecations()
- * 
- * @param   [IN]    p_Commandline               Processing commandline options (true) or gridline (false)
+ * @param   [IN]    p_OptionString              The string to be checked against deprecated option names
+ * @return                                      Replacement option name string.  Will just be the input
+ *                                              parameter if it is not a deprecated option, or if it is 
+ *                                              a deprecated option but has no replacement string
  */
-void Options::ShowDeprecations(const bool p_Commandline) {
+std::string Options::CheckDeprecatedOptionString(const std::string p_OptionString) {
 
-    static std::vector<std::tuple<std::string, std::string, bool>> options = {
-        { "black-hole-kicks",                      "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",      "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                        "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",   "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                         "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",  "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                          "OB-mass-loss-prescription",                       false },
-        { "RSG-mass-loss",                         "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                         "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                          "WR-mass-loss-prescription",                       false }
-    };
+    // downshift here just in case it hasn't already been done
+    // we only do this once per run (or grid line), so not too onerous
+    std::string optionString    = utils::ToLower(p_OptionString);                                                                                           // default is no change
+    std::string newOptionString = p_OptionString;                                                                                                           // default is no change
 
-    static std::vector<std::tuple<std::string, std::string, std::string, bool>> values = {
-        { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
-        { "mass-loss-prescription",              "NONE", "ZERO", false },
-        { "OB-mass-loss",                        "NONE", "ZERO", false },
-        { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
-        { "RSG-mass-loss",                       "NONE", "ZERO", false },
-        { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "VMS-mass-loss",                       "NONE", "ZERO", false },
-        { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "WR-mass-loss",                        "NONE", "ZERO", false },
-        { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
-    };
+    // the string passed as p_OptionString might be an option string,
+    // or it might be and option value.  Option strings will always
+    // start with a dash ("-"), and might start with two ("--")
+    // We strip any leading dashes, and restore them later for the return value
+    // Doing this won't affect the option values - we're looking for option
+    // strings here
+    std::string prefix = "";                                                                                                                                // option string prefix to restore
+    if (optionString[0] == '-') {                                                                                                                           // starts with "-"?
+        optionString.erase(0, 1);                                                                                                                           // yes - remove it
+        prefix += "-";                                                                                                                                      // add "-" to prefix to be restored
+            if (optionString[0] == '-') {                                                                                                                   // another "-"?    
+            optionString.erase(0, 1);                                                                                                                       // yes - remove it
+            prefix += "-";                                                                                                                                  // add it to prefix to be restored
+        }   
+    }   
 
-    bool shown = false;
+    // check for a match with known deprecated option strings
+    if (!optionString.empty()) {                                                                                                                            // have option string to check?
+        for (auto& tuple : deprecatedOptionStrings) {                                                                                                       // yes - for each deprecated option string
+            std::string deprecatedOptionString = std::get<0>(tuple);                                                                                        // get deprecated option string
+            if (utils::Equals(optionString, deprecatedOptionString)) {                                                                                      // same as supplied option string?
+                                                                                                                                                            // yes
+                // the options string passed as p_OptionString is deprecated
+                // if there is a replacement, get it  (could just be deprecated for eventual removal)
+                std::string replacementOptionStr = std::get<1>(tuple);                                                                                      // get replacement option string
+                if (!replacementOptionStr.empty()) {                                                                                                        // have replacement?
+                    newOptionString = prefix + replacementOptionStr;                                                                                        // yes - new option string (prefix restored)
+                }
 
-    // options
-    for (auto& tuple : options) {
-        if (!std::get<2>(tuple)) {                                                                                                                          // deprecation notice already shown for this option?
-            std::string optionStr = std::get<0>(tuple);                                                                                                     // no - get option string
-            if (OPTIONS->OptionSpecified(optionStr)) {                                                                                                      // this option specified by user?
-                                                                                                                                                            // yes - show deprecation notice
-                std::string outStr = "DEPRECATION NOTICE: option '--" + optionStr + "' has been deprecated and will soon be removed.";
+                // show deprecation notice if necessary
+                if (!std::get<2>(tuple)) {                                                                                                                  // already shown?
+                                                                                                                                                            // no - show it
+                    std::string outStr = "DEPRECATION NOTICE: option '--" + deprecatedOptionString + "' has been deprecated and will soon be removed.";
+                    if (!replacementOptionStr.empty()) outStr += "  Please use '" + newOptionString + "' in future.";
+                    std::cerr << std::string(outStr) << "\n";
 
-                std::string replacementStr = std::get<1>(tuple);
-                if (!replacementStr.empty()) outStr += "  Please use '--" + replacementStr + "' in future.";
+                    // we show the deprecation notice for a given option string once only per run
+                    std::get<2>(tuple) = true;                                                                                                              // flag shown
+                }
 
-                std::cerr << std::string(outStr) << "\n";                                                                                                   // show deprecation notice
-                std::get<2>(tuple) = true;                                                                                                                  // flag shown
-
-                shown = true;                                                                                                                               // something was shown - need trailing \n
+                break;                                                                                                                                      // and we're done
             }
-        } 
+        }
     }
 
-    // values
-    for (auto& tuple : values) {
-        if (!std::get<3>(tuple)) {                                                                                                                          // deprecation notice already shown for this option value?
-            std::string optionStr = std::get<0>(tuple);                                                                                                     // no - get option string
-            std::string valueStr  = "";                                                                                                                     // option value string
-            bool        defaulted = false;                                                                                                                  // defaulted flas
-            if (OPTIONS->OptionSpecified(optionStr)) {                                                                                                      // this option specified by user?
-                                                                                                                                                            // yes - get the value
-                if (p_Commandline) {                                                                                                                        // processing commandline options
-                    if (m_CmdLine.optionValues.m_Populated) {                                                                                               // commandline options populated?
-                        for (po::variables_map::const_iterator it = m_CmdLine.optionValues.m_VM.begin(); it != m_CmdLine.optionValues.m_VM.end(); it++) {   // yes - for all options in the variable map
-                            if (!utils::Equals(it->first, optionStr)) continue;                                                                             // this is not the option we're looking for...
-                            std::tie(std::ignore, defaulted, std::ignore, valueStr) = OptionAttributes(m_CmdLine.optionValues.m_VM, it);                    // found it - get option attributes
-                            break;                                                                                                                          // we're done
-                        } 
+    return newOptionString;
+}
+
+
+/*
+ * Check whether an option value is a deprecated option value.
+ * Show deprecation notice for a deprecated option value if necessary.
+ *
+ * The names of deprecated option values, and their replacements (if applicable) are stored in the
+ * `deprecatedOptionValues` vector in Options.h - see Options.h for a description of the vector contents.
+ * 
+ * This function will check `deprecatedOptionValues` for the option string passed in p_OptionString,
+ * and the option value passed in p_OptionValue, and if the option/value pair is found to be a deprecated
+ * option/value pair, will:
+ * 
+ *     (a) show a deprecation notice for the option value if necessary.  Note that a deprecation notice
+ *         for an option/value pair will only be shown once per COMPAS run (no matter how many times the
+ *         deprecated option value appears on the commandline or in a grid file).
+ * 
+ *     (b) return the replacement option value string, if applicable.  If the deprecated option value is
+ *         not being renamed or replaced (i.e. it is just being removed), the returned option value string
+ *         will be the string as passed (i.e. p_OptionValue).
+ * 
+ * If the option value string passed in p_OptionValue is not found to be a deprecated option value, the
+ * returned option value string will be the string as passed (i.e. p_OptionValue).
+ *
+ * This function is called by the options parsing code to determine if a deprecated option value needs to
+ * be replaced with a new option value string at parse time.
+ * 
+ * std::string Options::CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue)
+ * 
+ * @param   [IN]    p_OptionString              The string to be checked against deprecated option names
+ * @param   [IN]    p_OptionValue               The string to be checked against deprecated option values
+ * @return                                      Replacement option value string.  Will just be the input
+ *                                              parameter if it is not a deprecated option/value pair, or
+ *                                              if it is a deprecated option value but has no replacement
+ *                                              string
+ */
+std::string Options::CheckDeprecatedOptionValue(const std::string p_OptionString, const std::string p_OptionValue) {
+
+    // downshift here just in case it hasn't already been done
+    // we only do this once per run (or grid line), so not too onerous
+    std::string optionValue    = utils::ToLower(p_OptionValue);                                                                                             // default is no change
+    std::string newOptionValue = p_OptionValue;                                                                                                             // default is no change
+
+    // the string passed as p_OptionString will be an option string. Option strings
+    // will always start with a dash ("-"), and might start with two ("--").  We need
+    // to strip any leading dashes for the comparison with deprecated option strings
+    // We don't need to restore them here so don't need to know how many we stripped
+    std::string optionString = p_OptionString;
+    if (optionString[0] == '-') optionString.erase(0, optionString.find_first_not_of("-"));                                                                 // remove the "-" or "--"
+
+    // check for a match with known deprecated option string/value pairs
+    if (!optionString.empty()) {                                                                                                                            // have option string to check?
+        for (auto& tuple : deprecatedOptionValues) {                                                                                                        // yes - for each deprecated option value
+            std::string deprecatedOptionString = std::get<0>(tuple);                                                                                        // get option string
+            if (utils::Equals(optionString, deprecatedOptionString)) {                                                                                      // same as supplied option string?
+                                                                                                                                                            // yes
+                // the option string passed as p_OptionString has a deprecated option
+                // now check whether the option value needs to be replaced
+
+                std::string deprecatedOptionValue = std::get<1>(tuple);                                                                                     // get deprecated option value
+                if (!deprecatedOptionValue.empty()) {                                                                                                       // have option value to check? (should have...)
+                    
+                    if (utils::Equals(optionValue, deprecatedOptionValue)) {                                                                                // same as supplied option value?
+                                                                                                                                                            // yes
+                        // if there is a replacement, get it (could just be deprecated for eventual removal)
+                        std::string replacementValueStr = std::get<2>(tuple);                                                                               // get replacement value string
+                        if (!replacementValueStr.empty()) {                                                                                                 // have replacement?
+                            newOptionValue = replacementValueStr;                                                                                           // yes - new option string
+                        }
+
+                        // show deprecation notice if necessary
+                        if (!std::get<3>(tuple)) {                                                                                                          // already shown?
+                                                                                                                                                            // no - show it
+                            std::string outStr = "DEPRECATION NOTICE: option value '" + deprecatedOptionValue + "' for option '--" + deprecatedOptionString + "' has been deprecated and will soon be removed.";
+                            if (!replacementValueStr.empty()) outStr += "  Please use '" + newOptionValue + "' in future.";
+                            std::cerr << std::string(outStr) << "\n";
+
+                            // we show the deprecation notice for a given option string/value pair once only per run
+                            std::get<3>(tuple) = true;                                                                                                      // flag shown
+                        }
+
+                        break;                                                                                                                              // and we're done
                     }
-                }
-                else {                                                                                                                                      // processing gridline options
-                    if (m_GridLine.optionValues.m_Populated) {                                                                                              // gridline options populated?
-                        for (po::variables_map::const_iterator it = m_GridLine.optionValues.m_VM.begin(); it != m_GridLine.optionValues.m_VM.end(); it++) { // yes - for all options in the variable map
-                            if (!utils::Equals(it->first, optionStr)) continue;                                                                             // this is not the option we're looking for...
-                            std::tie(std::ignore, defaulted, std::ignore, valueStr) = OptionAttributes(m_GridLine.optionValues.m_VM, it);                   // found it - get option attributes
-                            break;                                                                                                                          // we're done
-                        } 
-                    }
-                }
-
-                if (valueStr.length() > 2) valueStr = valueStr.substr(1, valueStr.size() - 2);                                                              // strip ' from both ends
-
-                std::string depecatedValueStr = std::get<1>(tuple);                                                                                         // deprecated value string
-                if (!defaulted && utils::Equals(depecatedValueStr, valueStr)) {                                                                             // option value not defaulted, and deprecated?
-                                                                                                                                                            // yes - show deprecation notice
-                    std::string outStr = "DEPRECATION NOTICE: option value '" + depecatedValueStr + "' for option '--" + optionStr + "' has been deprecated and will soon be removed.";
-
-                    std::string replacementStr = std::get<2>(tuple);
-                    if (!replacementStr.empty()) outStr += "  Please use '" + replacementStr + "' in future.";
-
-                    std::cerr << std::string(outStr) << "\n";                                                                                               // show deprecation notice
-                    std::get<3>(tuple) = true;                                                                                                              // flag shown
-
-                    shown = true;                                                                                                                           // something was shown - need trailing \n
                 }
             }
         }
-    } 
+    }
 
-    if (shown && p_Commandline) std::cerr << "\n";
+    return newOptionValue;
 }
+
+
+/*
+ * Check whether an option property string is the name of a deprecated option property.
+ * ("property" here refers to the name/string to be used to identify options for printing)
+ * This is so we can replace deprecated options in the logfile-definitions file
+ *
+ * The names of deprecated option propertiess, and their replacements (if applicable) are stored in the
+ * `deprecatedOptionProperties` vector in Options.h - see Options.h for a description of the vector contents.
+ * 
+ * This function will check `deprecatedOptionProperties` for the option property string passed in p_OptionProperty,
+ * and if it is found to be a deprecated option property, will:
+ * 
+ *     (a) show a deprecation notice for the option property if necessary.  Note that a deprecation notice for an
+ *         option property will only be shown once per COMPAS run (no matter how many times the deprecated option
+ *         property appears in the logfile-definitions file).
+ * 
+ *     (b) return the replacement option property string, if applicable.  If the deprecated option property is not
+ *         being renamed or replaced (i.e. it is just being removed), the returned option property string will be the
+ *         string as passed (i.e. p_OptionProperty).
+ * 
+ * If the option property passed in p_OptionProperty is not found to be a deprecated option, the retunred option
+ * name string will be the string as passed (i.e. p_OptionProperty).
+ *
+ * This function is called by the logfile-definitions file parsing code to determine if a deprecated option property
+ * needs to be replaced with a new option property string at parse time.
+ * 
+ * std::string Options::CheckDeprecatedOptionProperty(const std::string p_OptionProperty)
+ * 
+ * @param   [IN]    p_OptionProperty            The string to be checked against deprecated property names
+ * @return                                      Replacement option property string.  Will just be the input
+ *                                              parameter if it is not a deprecated option property, or if it 
+ *                                              is a deprecated option property but has no replacement string
+ */
+std::string Options::CheckDeprecatedOptionProperty(const std::string p_OptionProperty) {
+
+    // downshift here just in case it hasn't already been done
+    // we only do this once per run (or grid line), so not too onerous
+    std::string propertyString    = utils::ToLower(p_OptionProperty);                                                                                       // default is no change
+    std::string newPropertyString = p_OptionProperty;                                                                                                       // default is no change
+
+    // check for a match with known deprecated option properties
+    if (!propertyString.empty()) {                                                                                                                          // have option property to check?
+        for (auto& tuple : deprecatedOptionProperties) {                                                                                                    // yes - for each deprecated option property
+            std::string deprecatedOptionProperty = std::get<0>(tuple);                                                                                      // get deprecated option property
+            if (utils::Equals(propertyString, deprecatedOptionProperty)) {                                                                                  // same as supplied option property?
+                                                                                                                                                            // yes
+                // the options property passed as p_OptionProperty is deprecated
+                // if there is a replacement, get it  (could just be deprecated for eventual removal)
+                std::string replacementPropertyStr = std::get<1>(tuple);                                                                                    // get replacement option property
+                if (!replacementPropertyStr.empty()) {                                                                                                      // have replacement?
+                    newPropertyString = replacementPropertyStr;                                                                                             // yes - new option property
+                }
+
+                // show deprecation notice if necessary
+                if (!std::get<2>(tuple)) {                                                                                                                  // already shown?
+                                                                                                                                                            // no - show it
+                    std::string outStr = "DEPRECATION NOTICE: option property '" + deprecatedOptionProperty + "' in the logfile-definitions file has been deprecated and will soon be removed.";
+                    if (!replacementPropertyStr.empty()) outStr += "  Please use '" + newPropertyString + "' in future.";
+                    std::cerr << std::string(outStr) << "\n";
+
+                    // we show the deprecation notice for a given option property once only per run
+                    std::get<2>(tuple) = true;                                                                                                              // flag shown
+                }
+
+                break;                                                                                                                                      // and we're done
+            }
+        }
+    }
+
+    return newPropertyString;
+}
+

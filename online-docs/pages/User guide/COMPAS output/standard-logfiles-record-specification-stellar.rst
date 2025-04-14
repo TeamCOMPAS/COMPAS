@@ -340,6 +340,22 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - Mass_Core@\ CO, Mass_Core@CO(1), Mass_Core@CO(2), Mass_Core@CO(SN), Mass_Core@CO(CP)
 
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_SupernovaDetails.CoreRadiusAtCOFormation
+   * - Description:
+     - Core radius immediately prior to a supernova (\ :math:`R\odot`).
+   * - Header Strings:
+     - Radius_Core@\ CO, Radius_Core@CO(1), Radius_Core@CO(2), Radius_Core@CO(SN), Radius_Core@CO(CP)
+
 .. _stellar-props-D:
 
 :ref:`Back to Top <stellar-props-top>`
@@ -1778,22 +1794,6 @@ same header string.`
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **RLOF_ONTO_NS**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - `derived from` BaseStar::m_SupernovaDetails.events.past
-   * - Description:
-     - Flag to indicate whether the star transferred mass to a neutron star at any time prior to the current timestep.
-   * - Header Strings:
-     - RLOF->NS, RLOF->NS(1), RLOF->NS(2), RLOF->NS(SN), RLOF->NS(CP)
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
    * - :cspan:`2` **RUNAWAY**
      -
    * - Data type:
@@ -2164,6 +2164,22 @@ or the other is printed in any file, but not both. If both are printed then the 
      - Total mass of the star at the beginning of a supernova event (\ :math:`M_\odot`).
    * - Header Strings:
      - Mass_Total@\ CO, Mass_Total@CO(1), Mass_Total@CO(2), Mass_Total@CO(SN), Mass_Total@CO(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_SupernovaDetails.totalRadiusAtCOFormation
+   * - Description:
+     - Total radius of the star at the beginning of a supernova event (\ :math:`R_\odot`).
+   * - Header Strings:
+     - Radius_Total@\ CO, Radius_Total@CO(1), Radius_Total@CO(2), Radius_Total@CO(SN), Radius_Total@CO(CP)
 
 .. flat-table::
    :widths: 25 75 1 1

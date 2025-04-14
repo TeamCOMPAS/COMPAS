@@ -1,6 +1,7 @@
 #include "HeHG.h"
 #include "HeGB.h"
 #include "COWD.h"
+#include "HeWD.h"
 
 
 /*
@@ -113,7 +114,7 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
                                           DBL_VECTOR &p_GBParams) {
 
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-
+    
     GiantBranch::CalculateGBParams_Static(p_Mass, p_LogMetallicityXi, p_MassCutoffs, p_AnCoefficients, p_BnCoefficients, p_GBParams);                                     // calculate common values (actually, all)
 
     // recalculate HeHG specific values
@@ -124,6 +125,12 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
     gbParams(Mx)     = GiantBranch::CalculateCoreMass_Luminosity_Mx_Static(p_GBParams);      // depends on B, D, p & q - recalculate if any of those are changed
     gbParams(Lx)     = GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(p_GBParams);      // depends on B, D, p, q & Mx - recalculate if any of those are changed
 
+    // need to reset p and q to HeHG specific versions -- while they are set in GiantBranch::CalculateGBParams_Static(), that uses
+    // the GiantBranch versions of CalculateCoreMass_Luminosity_p_Static and CalculateCoreMass_Luminosity_q_Static
+    // should return to this and understand desired behavior - *ILYA*
+    gbParams(p) = CalculateCoreMass_Luminosity_p_Static(p_Mass, p_MassCutoffs);
+    gbParams(q) = CalculateCoreMass_Luminosity_q_Static(p_Mass, p_MassCutoffs);
+    
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
 
@@ -150,20 +157,24 @@ double HeHG::CalculateLuminosityOnPhase() const {
 }
 
 
+
 /*
  * Calculate radius of a Helium HertzSprung Gap star
  *
  * Uses Helium Giant Branch radius
  *
  *
- * double CalculateRadiusOnPhase()
+ * double CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) 
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
  *
  * @return                                      Radius of a Helium HertzSprung Gap star
  */
-double HeHG::CalculateRadiusOnPhase() const {
+double HeHG::CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const {
 
     double R1, R2;
-    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
+    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
     return std::min(R1, R2);
 }
@@ -232,6 +243,21 @@ double HeHG::CalculateCOCoreMassOnPhase() const {
 double HeHG::CalculatePerturbationMu() const {
     double McMax = CalculateMaximumCoreMass(m_Mass);
     return std::max(5.0 * ((McMax - m_CoreMass) / McMax), 0.0);         //return non-negative value to avoid round-off issues
+}
+
+/*
+ * Calculate radius of the remnant the star would become if it lost all of its
+ * envelope immediately (i.e. M = Mc, coreMass)
+ *
+ * Hurley et al. 2000, end of section 6
+ *
+ *
+ * double CalculateRemnantRadius()
+ *
+ * @return                                      Radius of remnant core in Rsol
+ */
+double HeHG::CalculateRemnantRadius() const {
+    return HeWD::CalculateRadiusOnPhase_Static(m_CoreMass);
 }
 
 
@@ -303,6 +329,13 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
+            // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
+            double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+            std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+            envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
             break;
 
         default:                                                                                    // unknown prescription

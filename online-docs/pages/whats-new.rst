@@ -3,8 +3,134 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.18.00 Apr 14, 2025**
 
-**LATEST RELEASE** |br|
+New command line option:
+
+* ``--timestep-multipliers`` to enable more granular, phase-dependent, timestep multipliers
+
+**03.17.03 Apr 14, 2025**
+
+* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``). 
+* Removed output option ``RLOF_ONTO_NS`` as it can be retrieved from existing RLOF output info. 
+
+**03.17.00 Mar 22, 2025**
+
+* Added ``ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION`` (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with ``--convective-envelope-mass-threshold``)
+* Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars
+* Imposed Keplerian rotation limit on mass-gaining stars: response depends on the new ``--response-to-spin-up`` option, with possible values:
+   * ``TRANSFER_TO_ORBIT`` (default) allows the star to accrete, but excess angular momentum is deposited in the orbit
+   * ``KEPLERIAN_LIMIT`` forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+   * ``NO_LIMIT`` allows arbitrary super-critical accretion, to match legacy choices
+
+**03.16.02 Mar 19, 2025**
+
+New output options for supernova, which allow for full characterization of the binary orientation post-SN:
+
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_X
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z
+* SYSTEMIC_VELOCITY_X
+* SYSTEMIC_VELOCITY_Y
+* SYSTEMIC_VELOCITY_Z
+
+**03.15.00 Mar 5, 2025**
+
+Changes to the treatment of Neutron Star evolution.
+
+New command line options:
+
+* ``--neutron-star-accretion-in-ce`` to determine how a NS accretes mass in a common envelope
+* ``--pulsar-birth-magnetic-field-distribution-mean`` and ``--pulsar-birth-magnetic-field-distribution-sigma`` to determine the birth distribution of the pulsar magnetic field (only relevant when the ``--pulsar-birth-magnetic-field-distribution`` option value is ``NORMAL`` or ``LOGNORMAL``) 
+* ``--pulsar-birth-spin-period-distribution-mean`` and ``--pulsar-birth-spin-period-distribution-sigma`` to determine the birth distribution of the pulsar period (only relevant when the ``--pulsar-birth-spin-period-distribution`` option value is ```NORMAL`` or ``LOGNORMAL``)
+
+Changed command line option values and defaults:
+
+* ``--pulsar-birth-spin-period-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-magnetic-field-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-spin-period-distribution`` default option value is now ``NORMAL`` (was ``ZERO``)
+* ``--pulsar-birth-magnetic-field-distribution`` default option value is now ``LOGNORMAL`` (was ``ZERO``)
+
+Changes to the NS-related values in log files:
+
+* The pulsar magnetic field strength is now recorded in ``Gauss`` (was ``Tesla``) 
+* The pulsar spin down rate now tracks the pulsar spin period derivative (was spin frequency derivative).
+* The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the ``logfile-definitions`` option
+* The period of non-spinning neutron stars is now reported as infinity instead of zero
+
+**03.14.00 Mar 3, 2025**
+
+* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
+* Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+* Changed order of calls in SSE evolution to better match BSE evolution
+
+**03.13.02 Feb 19, 2025**
+
+* Replaced name of ``SHIKAUCHI`` main sequence core mass prescription with ``BRCEK``.
+
+**03.13.01 Feb 13, 2025**
+
+* Enabled nuclear timescale mass transfer from evolved donors
+
+**03.13.00 Feb 13, 2025**
+
+* Added pulsar evolution and output (SSE_Pulsar_Evolution) for SSE mode
+* Changed stopping condition for single stars to continue evolving pulsars if ``--evolve-pulsars`` is ``TRUE``
+* Updated documentation for new output
+
+**03.12.04 Feb 8, 2025**
+
+* Replaced name of ``COMPAS`` PPISN prescription with ``WOOSLEY``; ``COMPAS`` is now deprecated
+
+**03.12.00 Jan 16, 2025**
+
+* Added convective core mass prescription for main sequence stars from Shikauchi+ (2024), describing how the core mass evolves under mass loss and mass gain.
+* New command line option ``--main-sequence-core-mass-prescription`` with arguments ``SHIKAUCHI`` (new prescription), ``MANDEL`` (replaces the functionality of ``--retain-core-mass-during-caseA-mass-transfer``), and ``ZERO`` (core mass set to zero, no treatment).
+* Updated stellar tracks with added luminosity prescription for main sequence stars from Shikauchi+ (2024).
+* Added treatment for rejuvenation of main sequence accretors when the new prescription is used.
+
+**03.10.00 Nov 29, 2024**
+
+Added functionality to log stellar mergers in the BSE switchlog file.
+Switchlog merger records come in pairs (one for each star) so that the stellar type of each star is recorded.
+
+**03.09.00 Nov 28, 2024**
+
+Improved nuclear timescale mass transfer: the nuclear timescale mass transfer rate is now set by the requirement that the star 
+ends the time step just filling its Roche lobe.
+Fixed several significant mass-transfer issues, such as accretors not gaining mass appropriately and failures
+in the root solver for fitting the star into the Roche lobe that were leading to artificial common envelopes and mergers.
+
+**03.08.02 Nov 18, 2024**
+
+Updated implementation of the mass transfer stability critical mass ratio tables from the team of Hongwei Ge.
+We now use all the most up to do date tables they've produced (public or otherwise) from Papers I-V, including
+variations for adiabatic and isentropic treatments, variable accretion efficiency, and two different metallicities, 
+as well as for He stars (albeit only for adiabatic, fully conservative, solar metallicity stars). 
+
+**03.08.00 Nov 18, 2024**
+
+Improved the treatment of stellar rotation (with further corrections in 03.08.01):
+
+* Assume rigid body rotation
+* Keep the angular moment of a star constant when there is no mass loss
+* When a star with radius r and angular frequency omega loses mass dm through winds or mass transfer, it loses angular momentum dL = (2/3) dm r^2 omega
+* (However, angular momentum never drops below zero)
+* When a star loses its envelope, the remaining core is assumed to rotate with the same rotation rate as the preceding star
+* When a star of mass m and radius r gains mass dm through accretion, it gain angular momentum dL = dm \sqrt{G m r}
+* If initial binary rotation is fast enough for a star to be CHE, it is set to that rotation frequency without regard for the tidal prescription; CHE stars remain tidally locked if the tidal prescription is NONE
+
+**03.07.01 Oct 23, 2024**
+
+Resolved (and reverted) performance degradation introduced in v03.00.00.
+
+**03.07.00 Oct 16, 2024**
+
+Added new critical mass ratio tables from Ge et al. 2024.
+
+**03.06.00 Oct 14, 2024**
+
+Incorporated the Maltsev+ (2024) prescription for supernova remnant masses.
 
 **03.03.00 Sep 24, 2024**
 

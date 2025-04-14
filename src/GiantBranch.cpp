@@ -770,10 +770,12 @@ double GiantBranch::CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]                // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
+    if (utils::Compare(p_Mass, massCutoffs(MHeF)) <= 0)     return 0.0;                                                 // No McBGB for stars with mass below the helium flash threshold, see text above Eq. (44) of Hurley+ (2000)
+    
     double luminosity = GiantBranch::CalculateLuminosityAtPhaseBase_Static(massCutoffs(MHeF), m_AnCoefficients);
     double Mc_MHeF    = BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosity, p_GBParams);
     double c          = (Mc_MHeF * Mc_MHeF * Mc_MHeF * Mc_MHeF) - (MC_L_C1 * PPOW(massCutoffs(MHeF), MC_L_C2));         // pow() is slow - use multiplication
-
+    
     return std::min((0.95 * gbParams(McBAGB)), std::sqrt(std::sqrt(c + (MC_L_C1 * PPOW(p_Mass, MC_L_C2)))));            // sqrt is much faster than PPOW()
 
 #undef massCutoffs
@@ -1091,7 +1093,7 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
     // Use Eq. 6 of Mandel, Hirai, Picker (2024) rather than Eq. 6 of Picker+ 2024 for Tonset to avoid issues caused by
     // differences between temperatures in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks)
-    double Tonset     = Tmin / std::min(0.0695 - 0.057 * m_Log10Metallicity, 0.95);                                         // eq. (6) of Mandel, Hirai, Picker, 2024
+    double Tonset     = Tmin / std::min(0.695 - 0.057 * m_Log10Metallicity, 0.95);                                          // eq. (6) of Mandel, Hirai, Picker, 2024
     
     double mCoreFinal = CalculateCoreMassAtBAGB(m_Mass0);
     double mConvMax   = std::max(m_Mass - mCoreFinal * (1.0 + MinterfMcoref), 0.0);                                         // eq. (9) of Picker+ 2024
@@ -1998,7 +2000,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
 
 /*
- * Resolve Electron capture Supernova
+ * Resolve Electron Capture Supernova
  *
  * Calculate the mass of the remnant and set remnant type - always a Neutron Star
  * Updates attributes of star; sets SN flags
@@ -2014,39 +2016,16 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
  * @return                                      Stellar type of remnant (always STELLAR_TYPE::NEUTRON_STAR)
  */
 STELLAR_TYPE GiantBranch::ResolveElectronCaptureSN() {
-
-    STELLAR_TYPE stellarType = m_StellarType;                                                   // remnant stellar type
-
-    if (!m_MassTransferDonorHistory.empty() || (OPTIONS->AllowNonStrippedECSN())) {             // if progenitor has never been a MT donor, is it allowed to ECSN?
-                                                                                                // yes
-        m_Mass       = MECS_REM;                                                                // defined in constants.h
-        m_CoreMass   = m_Mass;
-        m_HeCoreMass = m_Mass;
-        m_COCoreMass = m_Mass;
-        m_Mass0      = m_Mass;
-    
-        stellarType  = STELLAR_TYPE::NEUTRON_STAR;
-    
-        SetSNCurrentEvent(SN_EVENT::ECSN);                                                      // electron capture SN happening now
-        SetSNPastEvent(SN_EVENT::ECSN);                                                         // ... and will be a past event
-    }
-    else {                                                                                      // not allowed to ECSN, treat as ONeWD 
+    m_Mass       = MECS_REM;                                                                // defined in constants.h
+    m_CoreMass   = m_Mass;
+    m_HeCoreMass = m_Mass;
+    m_COCoreMass = m_Mass;
+    m_Mass0      = m_Mass;
         
-        if (utils::Compare(m_COCoreMass, MCH) > 0) {
-            SHOW_WARN(ERROR::WHITE_DWARF_TOO_MASSIVE, "Setting mass to Chandraskhar mass.");
-        }
-        m_Mass       = std::min(m_COCoreMass, MCH);                                             // no WD masses above Chandrasekhar mass
-        m_CoreMass   = m_Mass;
-        m_HeCoreMass = m_Mass;
-        m_COCoreMass = m_Mass;
-        m_Mass0      = m_Mass;
-        m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);                      // radius is defined equivalently for all WDs
-        m_Luminosity = ONeWD::CalculateLuminosityOnPhase_Static(m_Mass, m_Time, m_Metallicity); // need to set the luminosity for ONeWD specifically
-    
-        stellarType  = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
-    }	    
+    SetSNCurrentEvent(SN_EVENT::ECSN);                                                      // electron capture SN happening now
+    SetSNPastEvent(SN_EVENT::ECSN);                                                         // ... and will be a past event
 
-    return stellarType;
+    return STELLAR_TYPE::NEUTRON_STAR;
 }
 
 
@@ -2108,7 +2087,8 @@ STELLAR_TYPE GiantBranch::ResolvePulsationalPairInstabilitySN() {
     double baryonicMass;
     switch (OPTIONS->PulsationalPairInstabilityPrescription()) {                                        // which prescription?
 
-        case PPI_PRESCRIPTION::COMPAS:                                                                  // Woosley 2017 https://arxiv.org/abs/1608.08939
+        case PPI_PRESCRIPTION::COMPAS:                                                                  // deprecated Feb 2025, to be removed
+        case PPI_PRESCRIPTION::WOOSLEY:                                                                 // Woosley 2017 https://arxiv.org/abs/1608.08939
             baryonicMass = m_HeCoreMass;                                                                // strip off the hydrogen envelope if any was left
             m_Mass       = BH::CalculateNeutrinoMassLoss_Static(baryonicMass);                          // convert to gravitational mass due to neutrino mass loss
             break;
@@ -2239,9 +2219,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                                                                                                     // yes - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+        m_SupernovaDetails.totalRadiusAtCOFormation= m_Radius;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
         m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
         m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
+        m_SupernovaDetails.coreRadiusAtCOFormation = CalculateConvectiveCoreRadius();
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
         
@@ -2259,8 +2241,8 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();                                               // MR
         }
-        else if (utils::Compare(snMass, MCBUR2) < 0) {                                              // Electron Capture Supernova
-            stellarType = ResolveElectronCaptureSN();                                               // NS or ONeWD
+        else if (utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
+            stellarType = ResolveElectronCaptureSN();                                               // electron capture SN; requires progenitor to have been a MT donor unless non-stripped ECSN are allowed; forms NS
         }
         else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();                                                  // BH or NS

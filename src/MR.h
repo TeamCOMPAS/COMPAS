@@ -54,7 +54,7 @@ protected:
    	 double     CalculateMomentOfInertia() const        { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
    	 double     CalculateMomentOfInertiaAU() const      { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
     
-     double     CalculateTimestep() const               { return std::numeric_limits<double>::max(); }                                                              // Can take arbitrarily long time steps for massless remnants -- nothing is happening
+     double     ChooseTimestep(const double p_Time) const { return std::numeric_limits<double>::max(); }                                                              // Can take arbitrarily long time steps for massless remnants -- nothing is happening
 
      void       SetPulsarParameters() const { }                                                             // NO-OP
 

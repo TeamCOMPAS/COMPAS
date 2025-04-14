@@ -50,8 +50,7 @@ public:
         m_CEDetails.postCEE.radialExpansionTimescale = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_Flags.recycledNS                           = false;
-        m_Flags.rlofOntoNS                           = false;
-
+        
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -151,7 +150,6 @@ public:
 
     bool            ExperiencedRecycledNS() const                                       { return m_Flags.recycledNS; }
     bool            ExperiencedRLOF() const                                             { return m_RLOFDetails.experiencedRLOF; }
-    bool            ExperiencedRLOFOntoNS() const                                       { return m_Flags.rlofOntoNS; }
 
     double          HeCoreMassAtCEE() const                                             { return m_CEDetails.HeCoreMass; }
 
@@ -196,12 +194,8 @@ public:
     void            ClearRecycledNS()                                                   { m_Flags.recycledNS = false; }
     void            SetRecycledNS()                                                     { m_Flags.recycledNS = true; }
 
-    void            ClearRLOFOntoNS()                                                   { m_Flags.rlofOntoNS = false; }
-    void            SetRLOFOntoNS()                                                     { m_Flags.rlofOntoNS = true; }
 
     void            CalculateCommonEnvelopeValues();
-
-    void            CalculateOmegaTidesIndividualDiff(const double p_OrbitalAngularVelocity) { m_OmegaTidesIndividualDiff = p_OrbitalAngularVelocity - OmegaPrev(); }
 
     double          CalculateCircularisationTimescale(const double p_SemiMajorAxis);
 
@@ -232,7 +226,8 @@ public:
                                                const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
                                                                                                                            ExperiencedRecycledNS(), 
                                                                                                                            p_Stepsize, 
-                                                                                                                           m_MassTransferDiff * MSOL_TO_KG, p_Epsilon); }
+                                                                                                                           m_MassTransferDiff * MSOL_TO_G,
+                                                                                                                           p_Epsilon); }
 
     void            SetMassLossDiff(const double p_MassLossDiff)                        { m_MassLossDiff = p_MassLossDiff; }                        // JR: todo: better way?  Sanity check?
     void            SetObjectId(const OBJECT_ID p_ObjectId)                             { m_ObjectId = p_ObjectId; }
@@ -249,7 +244,6 @@ private:
 
     struct FLAGS {                                                  // Miscellaneous flags
         bool recycledNS;                                            // Indicate whether the accretor was a recycled neutron star
-        bool rlofOntoNS;                                            // Indicates whether the donor donated mass to neutron star through RLOF
     }                       m_Flags;
 
     double                  m_MassLossDiff;

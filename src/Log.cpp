@@ -79,7 +79,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
     // open the run details file inside the HDF5 container
     string h5GroupName = p_Filename;                                                                                    // HDF5 group name for run details file
     h5GroupName        = utils::trim(h5GroupName);                                                                      // remove leading and trailing blanks
-    hid_t h5GroupId = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                          // open the group
+    hid_t h5GroupId    = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                       // open the group
     if (h5GroupId >= 0) {                                                                                               // group open (and therefore already exists)?
         Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");                                       // that's not ok - announce error
         (void)H5Gclose(h5GroupId);                                                                                      // close the group
@@ -146,9 +146,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                     }
                     
                     if (ok) {                                                                                           // have valid property
-                        h5DatasetName = std::get<0>(runDetails);                                                        // dataset name
+                        h5DatasetName       = std::get<0>(runDetails);                                                  // dataset name
                         TYPENAME compasType = std::get<1>(runDetails);                                                  // COMPAS data type
-                        h5DataType = GetHDF5DataType(compasType, std::get<2>(runDetails));                              // HDF5 data type
+                        h5DataType          = GetHDF5DataType(compasType, std::get<2>(runDetails));                     // HDF5 data type
                         h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
@@ -160,7 +160,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                             // derivation
                             h5DatasetName += "-Derivation";                                                             // derivation
-                            h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
+                            h5Dset         = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                             if (h5Dset < 0) {                                                                           // dataset not created
                                 Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                // announce error
                                 ok = false;                                                                             // fail
@@ -177,9 +177,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                 for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                        // for each program option
                     // option
                     TYPENAME compasType = m_OptionDetails[idx].dataType;                                                // COMPAS data type
-                    h5DataType = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());                 // HDF5 data type for COMPAS data type
-                    h5DatasetName = m_OptionDetails[idx].optionStr;                                                     // dataset (option name)
-                    h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize);       // create dataset
+                    h5DataType          = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());        // HDF5 data type for COMPAS data type
+                    h5DatasetName       = m_OptionDetails[idx].optionStr;                                               // dataset (option name)
+                    h5Dset              = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize); // create dataset
                     if (h5Dset < 0) {                                                                                   // dataset not created
                         Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // announce error
                         ok = false;                                                                                     // fail
@@ -190,7 +190,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                         // derivation
                         h5DatasetName += "-Derivation";                                                                 // derivation
-                        h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
+                        h5Dset         = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
                             ok = false;                                                                                 // fail
@@ -298,6 +298,7 @@ void Log::Start(const string      p_LogBasePathString,
         if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
         if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
         if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Pulsars_Rec    )) m_SSE_Pulsars_Notes     = BOOL_VECTOR(m_SSE_Pulsars_Notes.size(), true);
 
         // process the logfile definitions file if specified
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
@@ -1339,7 +1340,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     case TYPENAME::STELLAR_TYPE    : v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_CASE         : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_TRACKING     : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::MASS_TRANSFER_TIMESCALE  : v = static_cast<int>(boost::get<MASS_TRANSFER_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MT_TIMESCALE    : v = static_cast<int>(boost::get<MT_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_EVENT        : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_STATE        : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::EVOLUTION_STATUS: v = static_cast<int>(boost::get<EVOLUTION_STATUS>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
@@ -1439,7 +1440,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     strcpy(cBuf[i], buf[i].c_str());                                                                        // copy chars + null terminator
                 }
 
-                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);;                            // write the data
+                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);                            // write the data
             
                 // release allocated memory
                 for (size_t i = 0; i < bufSize; i++) {
@@ -2109,7 +2110,6 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                                                                                                                                     // yes - add program options
                     // iterate over the PROGRAM_OPTION_DETAIL map and add each entry to the recordProperties vector
                     // unfortunately no guarantee of order since it is an unordered map
-
                     for (auto& iter: PROGRAM_OPTION_DETAIL) {                                                                       // for each entry
                         T_ANY_PROPERTY thisProp = iter.first;                                                                       // program option
                         if (std::find(recordProperties.begin(), recordProperties.end(), thisProp) == recordProperties.end()) {      // already exists in recordProperties vector?
@@ -2132,6 +2132,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
             case LOGFILE::SSE_SWITCH_LOG:                                                                                           // SSE_SWITCH_LOG
                 recordProperties = m_SSE_Switch_Rec;                                                                                // record properties
                 annotations      = m_SSE_Switch_Notes;                                                                              // logfile annotations
+                break;
+
+            case LOGFILE::SSE_PULSAR_EVOLUTION:                                                                                     // SSE_PULSAR_EVOLUTION
+                recordProperties = m_SSE_Pulsars_Rec;                                                                               // record properties
+                annotations      = m_SSE_Pulsars_Notes;                                                                             // logfile annotations
                 break;
 
             case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
@@ -2256,24 +2261,24 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
     hid_t h5DataType = -1;                                                                                          // HDF5 datatype - return value
 
     switch (p_COMPASdatatype) {                                                                                     // which COMPAS datatype?
-        case TYPENAME::SHORTINT        : h5DataType = H5T_NATIVE_SHORT; break;
-        case TYPENAME::INT             : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::LONGINT         : h5DataType = H5T_NATIVE_LONG; break;
-        case TYPENAME::USHORTINT       : h5DataType = H5T_NATIVE_USHORT; break;
-        case TYPENAME::UINT            : h5DataType = H5T_NATIVE_UINT; break;
-        case TYPENAME::ULONGINT        : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::FLOAT           : h5DataType = H5T_NATIVE_FLOAT; break;
-        case TYPENAME::DOUBLE          : h5DataType = H5T_NATIVE_DOUBLE; break;
-        case TYPENAME::LONGDOUBLE      : h5DataType = H5T_NATIVE_LDOUBLE; break;
-        case TYPENAME::OBJECT_ID       : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::ERROR           : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::STELLAR_TYPE    : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_CASE         : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_TRACKING     : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MASS_TRANSFER_TIMESCALE  : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_EVENT        : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_STATE        : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::EVOLUTION_STATUS: h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SHORTINT         : h5DataType = H5T_NATIVE_SHORT; break;
+        case TYPENAME::INT              : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::LONGINT          : h5DataType = H5T_NATIVE_LONG; break;
+        case TYPENAME::USHORTINT        : h5DataType = H5T_NATIVE_USHORT; break;
+        case TYPENAME::UINT             : h5DataType = H5T_NATIVE_UINT; break;
+        case TYPENAME::ULONGINT         : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::FLOAT            : h5DataType = H5T_NATIVE_FLOAT; break;
+        case TYPENAME::DOUBLE           : h5DataType = H5T_NATIVE_DOUBLE; break;
+        case TYPENAME::LONGDOUBLE       : h5DataType = H5T_NATIVE_LDOUBLE; break;
+        case TYPENAME::OBJECT_ID        : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::ERROR            : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::STELLAR_TYPE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_CASE          : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TRACKING      : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TIMESCALE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_EVENT         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_STATE         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::EVOLUTION_STATUS : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::STRING: {
             hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
             size_t size = p_StringQualifier == STRING_QUALIFIER::FIXED_LENGTH ? p_FieldWidth + 1 : H5T_VARIABLE;    // size is dependent upon string type (fixed or variable length)
@@ -2292,8 +2297,8 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
                 h5DataType = H5T_NATIVE_UCHAR;
             }
             } break;
-        default:                                                                                                    // unknown property type
-            Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                              // announce error
+        default:                                                                                                    // unknown datatype
+            Squawk("Log::GetHDF5DataType(): " + ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                 // announce error
     }
 
     return h5DataType;                                                                                              // HDF5 datatype
@@ -2492,6 +2497,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.recordTypes      = -1;
                     fileDetails.recordProperties = m_SSE_Switch_Rec;
                     fileDetails.annotations      = m_SSE_Switch_Notes;
+                    break;
+
+                case LOGFILE::SSE_PULSAR_EVOLUTION:                                                                                             // SSE_PULSAR_EVOLUTION
+                    fileDetails.filename         = OPTIONS->LogfilePulsarEvolution();
+                    fileDetails.recordTypes      = OPTIONS->LogfilePulsarEvolutionRecordTypes();
+                    fileDetails.recordProperties = m_SSE_Pulsars_Rec;
+                    fileDetails.annotations      = m_SSE_Pulsars_Notes;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
@@ -2752,12 +2764,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         // ( i) the steller type from which the star is switching
                         // (ii) the stellar type to which the star is switching
                         //
-                        // if we are writing to the BSE Switch file we add three pre-defined columns
+                        // if we are writing to the BSE Switch file we add four pre-defined columns
                         // to the end of the log record.  These are:
                         //
                         // (  i) the star switching - 1 = primary, 2 = secondary
                         // ( ii) the steller type from which the star is switching
                         // (iii) the stellar type to which the star is switching
+                        // ( iv) boolean flag indicating whether a merger occurred 
                         //
                         // These are hard-coded here rather than in the *_PROPERTY_DETAIL maps in
                         // constants.h so that they will always be present in the switch file -
@@ -2769,7 +2782,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.hdrStrings.push_back("Star_Switching");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
                         }
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
@@ -2785,12 +2798,20 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
 
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
-                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field (size accommodates header string)
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                            fileDetails.fmtStrings.push_back("4.1");                                                                            // append format string for field
+                        }
+
+                        if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
+                            fileDetails.propertyTypes.push_back(TYPENAME::BOOL);                                                                // append property typename
+                            fileDetails.hdrStrings.push_back("Is_Merger");                                                                      // append header string for field
+                            fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
+                            fileDetails.typeStrings.push_back("BOOL");                                                                          // append type string for field
+                            fileDetails.fmtStrings.push_back("0.0");                                                                            // append format string for field
                         }
 
                         // we add the record type column to the end of the log record here for all logfiles
-                        // except the switch files (BSE_SWITCH_LOG and SSE_SWOTCH_LOG).
+                        // except the switch files (BSE_SWITCH_LOG and SSE_SWITCH_LOG).
                         //
                         // This is hard-coded here rather than in the *_PROPERTY_DETAIL maps in constants.h
                         // so that it will always be present in the logfile - this way users can't add or 
@@ -3134,6 +3155,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = m_SSE_Switch_Rec;
             baseNotes = m_SSE_Switch_Notes;
             break;
+        case LOGFILE::SSE_PULSAR_EVOLUTION:
+            if (p_UseDefaultProps) baseProps = m_SSE_Pulsars_Rec;
+            baseNotes = m_SSE_Pulsars_Notes;
+            break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS:
             if (p_UseDefaultProps) baseProps = m_SSE_SysParms_Rec;
             baseNotes = m_SSE_SysParms_Notes;
@@ -3239,6 +3264,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; m_SSE_Detailed_Notes    = newNotes; break;
         case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; m_SSE_SNE_Notes         = newNotes; break;
         case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; m_SSE_Switch_Notes      = newNotes; break;
+        case LOGFILE::SSE_PULSAR_EVOLUTION      : m_SSE_Pulsars_Rec     = newProps; m_SSE_Pulsars_Notes     = newNotes; break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; m_SSE_SysParms_Notes    = newNotes; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
@@ -3279,6 +3305,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
  * <rec_name>   ::= "SSE_SYSPARMS_REC"       |				# SSE only
  *                  "SSE_SWITCH_REC"         |				# SSE only
  *                  "SSE_SNE_REC"            |				# SSE only
+ *                  "SSE_PULSARS_REC"        |				# SSE only
  *                  "SSE_DETAILED_REC"       |				# SSE only
  *                  "BSE_SYSPARMS_REC"       |				# BSE only
  *                  "BSE_DCO_REC"            |				# BSE only
@@ -3543,6 +3570,8 @@ bool Log::UpdateAllLogfileRecordSpecs() {
                                     std::size_t namePos = propTypeStr.size() + 2;                                               // yes - start position of property name in token
                                     std::size_t nameLen = tokStr.size() - propTypeStr.size() - 2;                               // length of property name in token
                                     propNameStr = tokStr.substr(namePos, nameLen);                                              // extract property name from token
+
+                                    propNameStr = OPTIONS->CheckDeprecatedOptionProperty(propNameStr);                          // check for deprecated option property
                                 }
                                 else {                                                                                          // didn't get property name - error
                                     error    = ERROR::EXPECTED_PROPERTY_SPECIFIER;                                              // set error

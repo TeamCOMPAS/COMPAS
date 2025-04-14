@@ -155,6 +155,8 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     // sanity check for mass - just return 0.0 if mass <= 0
     if (utils::Compare(p_Mass, 0.0) <= 0) return 0.0;
     
+    if (utils::Compare(p_Mass, MCH) >= 0) return NEUTRON_STAR_RADIUS;                               // only expected to come up if asking for the core or remnant radius of a giant star
+    
     double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
     double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
 

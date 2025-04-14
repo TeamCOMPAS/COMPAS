@@ -511,6 +511,54 @@ Binary Properties
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **ORBITAL_INCLINATION_VECTOR_X**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.xValue()  
+   * - Description:
+     - x-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
+   * - Header String:
+     - Orbital_AM_Vector>SN_X
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **ORBITAL_INCLINATION_VECTOR_Y**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.yValue()  
+   * - Description:
+     - y-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
+   * - Header String:
+     - Orbital_AM_Vector>SN_Y
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **ORBITAL_INCLINATION_VECTOR_Z**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.zValue()  
+   * - Description:
+     - z-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
+   * - Header String:
+     - Orbital_AM_Vector>SN_Z
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **ORBITAL_VELOCITY**
      -
    * - Data type:
@@ -1320,7 +1368,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
+     - Calculated using BinaryConstituentStar::StarToRocheLobeRadiusRatio()
    * - Description:
      - Ratio of the primary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
@@ -1336,7 +1384,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - Calculated using BinaryConstituentStar::m_StarToRocheLobeRadiusRatio
+     - Calculated using BinaryConstituentStar::StarToRocheLobeRadiusRatio()
    * - Description:
      - Ratio of the secondary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
@@ -1723,54 +1771,6 @@ both. If both are printed then the file will contain two columns with the same h
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_X**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.xValue()  
-   * - Description:
-     - x-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
-   * - Header String:
-     - Orbital_AM_Vector>SN_X
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.yValue()  
-   * - Description:
-     - y-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
-   * - Header String:
-     - Orbital_AM_Vector>SN_Y
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - `derived from` BaseBinaryStar::m_OrbitalAngularMomentumVector.zValue()  
-   * - Description:
-     - z-component of the post-SN orbital AM unit vector in the pre-SN reference frame (with z parallel to preSN orbital AM, and x parallel to the LRL vector)
-   * - Header String:
-     - Orbital_AM_Vector>SN_Z
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
    * - :cspan:`2` **SUPERNOVA_STATE**
      -
    * - Data type:
@@ -1822,11 +1822,59 @@ both. If both are printed then the file will contain two columns with the same h
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_SystemicVelocity
+     - BaseBinaryStar::m_SystemicVelocity.Magnitude()
    * - Description:
-     - Post-supernova systemic (centre-of-mass) velocity (\ :math:`km s^{-1}`).
+     - Post-supernova systemic (centre-of-mass) speed (\ :math:`km s^{-1}`).
    * - Header String:
      - SystemicSpeed
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYSTEMIC_VELOCITY_X**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SystemicVelocity.xValue()
+   * - Description:
+     - Post-supernova systemic (centre-of-mass) velocity in x-direction (\ :math:`km s^{-1}`).
+   * - Header String:
+     - SystemicVelocityX
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYSTEMIC_VELOCITY_Y**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SystemicVelocity.yValue()
+   * - Description:
+     - Post-supernova systemic (centre-of-mass) velocity in y-direction (\ :math:`km s^{-1}`).
+   * - Header String:
+     - SystemicVelocityY
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYSTEMIC_VELOCITY_Z**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SystemicVelocity.zValue()
+   * - Description:
+     - Post-supernova systemic (centre-of-mass) velocity in z-direction (\ :math:`km s^{-1}`).
+   * - Header String:
+     - SystemicVelocityZ
 
 .. _binary-props-T:
 

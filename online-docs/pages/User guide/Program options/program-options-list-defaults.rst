@@ -5,7 +5,7 @@ Any program options that are not specified take default values.
 
 - On the command line, program options that are not explicitly specified default to the COMPAS default value for the option (as specified in the COMPAS code - may be sampled from a distribution).
 
-- On a :doc:`grid file <../grid-files>` line, program options that are not explicitly specified default to the value specified for that option on the command line. If the program option was not explicitly specified on the command line, it will default to the COMPAS default value for the option, as described above. That is, the value for any option not specified on a grid file line option falls back to the value specified on the command line, which falls back to the COMPAS default if it was not specified on the command line.
+- On a :doc:`grid file <../Running COMPAS/running-grid>` line, program options that are not explicitly specified default to the value specified for that option on the command line. If the program option was not explicitly specified on the command line, it will default to the COMPAS default value for the option, as described above. That is, the value for any option not specified on a grid file line option falls back to the value specified on the command line, which falls back to the COMPAS default if it was not specified on the command line.
 
 
 .. _options-props-top:
@@ -83,13 +83,13 @@ Default = FALSE
 :ref:`Back to Top <options-props-top>`
 
 **--black-hole-kicks** |br|
-Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Black hole kicks relative to NS kicks (not relevant for `MULLERMANDEL` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK |br|
 DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--black-hole-kicks-mode`` in future.
 
 **--black-hole-kicks-mode** |br|
-Black hole kicks relative to NS kicks (not relevant for `MANDELMUELLER` ``--remnant-mass-prescription``). |br|
+Black hole kicks relative to NS kicks (not relevant for `MULLERMANDEL` ``--remnant-mass-prescription``). |br|
 Options: { FULL, REDUCED, ZERO, FALLBACK } |br|
 Default = FALLBACK
 
@@ -120,7 +120,7 @@ of Chemically Homogeneous Evolution in COMPAS |br|
 Options: { NONE, OPTIMISTIC, PESSIMISTIC } |br|
 Default = PESSIMISTIC |br|
 
-**--circulariseBinaryDuringMassTransfer** |br|
+**--circularise-binary-during-mass-transfer** |br|
 Circularise binary when it enters a Mass Transfer episode. |br|
 Default = TRUE
 
@@ -174,7 +174,7 @@ Default = FALSE
 Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
 Default = FALSE
 
-**--common-envelope-lambda-nanjing-use_rejuvenated-mass** |br|
+**--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
 Default = FALSE
 
@@ -211,6 +211,11 @@ Default = :math:`1.5 \times 10^{13}`
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
 
+**--convective-envelope-mass-threshold** |br|
+Mass threshold of envelope which should be convective, above which the envelopes of giants are labeled convective. |br|
+Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
+Default = 0.1
+
 **--convective-envelope-temperature-threshold** |br|
 Temperature [K] threshold, below which the envelopes of giants are convective. 
 Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. |br|
@@ -219,7 +224,6 @@ Default = 5370
 **--cool-wind-mass-loss-multiplier** |br|
 Multiplicative constant for wind mass loss of cool stars, i.e. those with temperatures below the
 VINK_MASS_LOSS_MINIMUM_TEMP (default 12500K). |br|
-Only applicable when ``--mass-loss-prescription = VINK``. |br|
 Default = 1.0
 
 **--create-YAML-file** |br|
@@ -312,11 +316,11 @@ Default = 1.28
 
 **--critical-mass-ratio-prescription** |br|
 Critical mass ratio stability prescription (if any). |br|
-Options: { NONE, ZERO, CLAEYS, GE20, GE20_IC, HURLEY_HJELLMING_WEBBINK } |br|
+Options: { NONE, ZERO, CLAEYS, GE, GE_IC, HURLEY_HJELLMING_WEBBINK } |br|
 ``NONE``    defaults to the zeta prescription for stability. |br|
 ``CLAEYS``  uses qCrit values from Claeys et al. 2014. |br|
-``GE20``    uses qCrit values from Ge et al. 2020 (adiabatic assumption). |br|
-``GE20_IC`` uses qCrit values from Ge et al. 2020 (isentropic envelope assumption). |br|
+``GE``      uses qCrit values from Ge et al. series (Papers I-V) (adiabatic assumption). |br|
+``GE_IC``   uses qCrit values from Ge et al. series (Papers I-V) (isentropic envelope assumption). |br|
 ``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
 Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, so should not be trusted in the outputs. |br|
 Default = NONE |br|
@@ -339,6 +343,7 @@ Default = 0.0
 
 **--debug-classes** |br|
 Developer-defined debug classes to enable (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--debug-level** |br|
@@ -447,7 +452,7 @@ Options: { DELAYED, RAPID } |br|
 Default = DELAYED
 
 **--fryer-22-fmix** |br|
-Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass distribution  :cite:`Fryer2022`. |br|
+Parameter describing the mixing growth time when using the 'FRYER2022' remnant mass prescription  :cite:`Fryer2022`. |br|
 Default = 0.5, which is closest to the 'DELAYED' remnant mass prescription from :cite:`Fryer2012`. |br|
 A value of 4.0 is closest to  the 'RAPID' remnant mass prescription from :cite:`Fryer2012`. |br|
 If the FALLBACK option is used for the kicks, then the proto core masses will be determined by the fryer-supernova-engine option.
@@ -463,7 +468,7 @@ Default = 5.75
 :ref:`Back to Top <options-props-top>`
 
 **--grid** |br|
-Grid filename. (See :doc:`Grid files <../grid-files>`) |br|
+Grid filename. (See :doc:`grid file <../Running COMPAS/running-grid>`) |br|
 Default = ’’ (None)
 
 **--grid-lines-to-process** |br|
@@ -681,17 +686,16 @@ Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--LBV-mass-loss-prescription** |br|
 Luminous blue variable mass loss prescription. |br|
-Options: { NONE, ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
-``NONE``       : No LBV winds |br|
+Options: { ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
 ``ZERO``       : No LBV winds |br|
 ``HURLEY``     : Hurley, Pols, Tout (2000) |br|
 ``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
 ``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
 Default = HURLEY_ADD |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--log-classes** |br|
 Logging classes to be enabled (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--logfile-common-envelopes** |br|
@@ -796,6 +800,14 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--main-sequence-core-mass-prescription** |br|
+Main sequence core mass prescription. |br|
+Options: {ZERO, MANDEL, BRCEK} |br|
+``ZERO``   : No core mass treatment, set to zero |br|
+``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
+``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
+Default = MANDEL
+
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
 Recommended value is 0.005. |br|
@@ -804,14 +816,12 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { ZERO, NONE, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
-``ZERO/NONE``     : No wind mass loss |br|
+Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
+``ZERO``          : No wind mass loss |br|
 ``HURLEY``        : Mass loss according to Hurley (2000) |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
 ``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
 Default = MERRITT2024 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
-
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -848,8 +858,8 @@ Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
-Mass Transfer fraction accreted. |br|
-Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED_FRACTION``. |br|
+Mass Transfer fraction accreted (beta). |br|
+Used when ``--mass-transfer-accretion-efficiency-prescription = FIXED``. |br|
 Default = 0.5
 
 **--mass-transfer-jloss** |br|
@@ -961,13 +971,21 @@ FALSE indicates PPISN remnants will receive no natal kicks. |br|
 Default = TRUE  
 
 **--neutrino-mass-loss-BH-formation** |br|
-Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MANDELMUELLER`). |br|
+Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MULLERMANDEL`). |br|
 Options: { FIXED_FRACTION, FIXED_MASS } |br|
 Default = FIXED_MASS
 
 **--neutrino-mass-loss-BH-formation-value** |br|
 Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
 Default = 0.1
+
+**--neutron-star-accretion-in-ce** |br|
+Assumption about neutron star accretion in CE. |br|
+ZERO indicates no accretion onto NS in CE. |br|
+DISK indicates a RLOF like disk accretion onto NS at Alfven radius. |br|
+SURFACE indicates mass is directly accreted onto the surface of the NS. |br|
+Options: { ZERO, DISK, SURFACE } |br|
+Default = ZERO
 
 **--neutron-star-equation-of-state** |br|
 Neutron star equation of state. |br|
@@ -976,11 +994,13 @@ Default = SSE
 
 **--notes** |br|
 Annotation strings (vector). |br|
-Default = ""
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = "" for each annotation
 
 **--notes-hdrs** |br|
 Annotations header strings (vector). |br|
-Default = `No annotations`
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = `No annotation headers (no annotations)`
 
 **--number-of-systems [ -n ]** |br|
 The number of systems to simulate. |br|
@@ -1007,10 +1027,9 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--OB-mass-loss-prescription** |br|
 Main sequence mass loss prescription. |br|
-Options: { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
-NONE/ZERO turns off mass loss for main sequence stars.|br|
+Options: { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+ZERO turns off mass loss for main sequence stars.|br|
 Default = VINK2021 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--orbital-period** |br|
 Initial orbital period for a binary star when evolving in BSE mode (days). |br|
@@ -1082,8 +1101,8 @@ Default = FALSE
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
-Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL } |br|
-Default = ZERO
+Options: { FLATINLOG, UNIFORM, LOGNORMAL } |br|
+Default = LOGNORMAL
 
 **--pulsar-birth-magnetic-field-distribution-max** |br|
 Maximum (:math:`log_{10}`) pulsar birth magnetic field. |br|
@@ -1093,10 +1112,18 @@ Default = 13.0
 Minimum (:math:`log_{10}`) pulsar birth magnetic field. |br|
 Default = 11.0
 
+**--pulsar-birth-magnetic-field-distribution-mean** |br|
+Mean of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
+Default = 12.65
+
+**--pulsar-birth-magnetic-field-distribution-sigma** |br|
+Sigma of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
+Default = 0.55
+
 **--pulsar-birth-spin-period-distribution** |br|
 Pulsar birth spin period distribution. |br|
-Options: { ZERO, UNIFORM, NORMAL } |br|
-Default = ZERO
+Options: { UNIFORM, NORMAL } |br|
+Default = NORMAL
 
 **--pulsar-birth-spin-period-distribution-max** |br|
 Maximum pulsar birth spin period (ms). |br|
@@ -1105,6 +1132,14 @@ Default = 100.0
 **--pulsar-birth-spin-period-distribution-min** |br|
 Minimum pulsar birth spin period (ms). |br|
 Default = 10.0
+
+**--pulsar-birth-spin-period-distribution-mean** |br|
+Mean of normal pulsar birth spin period (ms) distribution. |br|
+Default = 75.0
+
+**--pulsar-birth-spin-period-distribution-sigma** |br|
+Sigma of normal pulsar birth spin period (ms) distribution. |br|
+Default = 25.0
 
 **--pulsar-magnetic-field-decay-massscale** |br|
 Mass scale on which magnetic field decays during accretion (:math:`M_\odot`). |br|
@@ -1123,10 +1158,11 @@ Enable mass loss due to pulsational-pair-instability (PPI). |br|
 Default = TRUE
 
 **--pulsational-pair-instability-prescription** |br|
-Pulsational pair instability prescription. |br|
-Options: { HENDRIKS, COMPAS, STARTRACK, MARCHANT, FARMER } |br|
+Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
+Options: { HENDRIKS, WOOSLEY, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``COMPAS``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, all as implemented in Stevenson et al. 2019. |br|
+``WOOSLEY``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
 
@@ -1157,11 +1193,20 @@ Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
 
+**--response-to-spin-up** |br|
+Response of the star to super-critical accretion-induced spin-up |br|
+Options: { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT} |br|
+KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation |br|
+Under TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit |br|
+NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices |br|
+Default = TRANSFER_TO_ORBIT
+
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
 The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
 scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
-Default = TRUE
+Default = TRUE |br|
+DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--main-sequence-core-mass-prescription MANDEL`` in future.
 
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
@@ -1224,10 +1269,9 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--RSG-mass-loss-prescription** |br|
 Red supergiant mass loss prescription. |br|
-Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+Options: { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
 Default = DECIN2023 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-S:
 
@@ -1286,7 +1330,7 @@ Prescription for tidal evolution of the binary. |br|
 Options: { NONE, PERFECT, KAPIL2024 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). When using this prescription, set ``--chemically-homogeneous-evolution-mode NONE`` to avoid conflicts with stellar spins. |br|
+``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
 Default = NONE
 
 **--timestep-filename** |br|
@@ -1294,8 +1338,29 @@ User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`)
 Default = ’’ (None)
 
 **--timestep-multiplier** |br|
-Multiplicative factor for timestep duration. |br|
-Default = 1.0
+Multiplicative factor for timestep duration.  |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` 
+and ``--mass-change-fraction``, and will therefore override expected behaviour.  |br|
+This option can be used in conjunction with ``--timestep-multipliers``, in which case this multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
+**--timestep-multipliers** |br|
+Phase-dependent multiplicative factors for timestep duration. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+A multicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the option value
+indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+:doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 
+``--mass-change-fraction``, and will therefore override expected behaviour. |br|
+This option can be used in conjunction with ``--timestep-multiplier``, in which case that multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 for each phase (stellar type) |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
 
 .. _options-props-U:
 
@@ -1336,11 +1401,10 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--VMS-mass-loss-prescription** |br|
 Very massive main sequence mass loss prescription. |br|
-Options: { NONE, ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Options: { ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
 Applied above the VMS_MASS_THRESHOLD (:math:`100 M_\odot`) by default. |br|
-NONE/ZERO turns off VMS mass loss. |br|
+ZERO turns off VMS mass loss. |br|
 Default = SABHAHIT2023 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-W:
 
@@ -1359,7 +1423,7 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--WR-mass-loss-prescription** |br|
 Wolf-Rayet mass loss prescription. |br|
-Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
+Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019, ZERO } |br|
 Default = SANDERVINK2023
 
 .. _options-props-X:
@@ -1418,7 +1482,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
@@ -1430,7 +1494,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---case-bb-stability-prescription, --convective-envelope-temperature-threshold, --critical-mass-ratio-prescription,
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
+--convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
@@ -1441,7 +1506,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 

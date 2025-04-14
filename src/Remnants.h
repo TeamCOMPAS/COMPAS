@@ -24,6 +24,9 @@ public:
     // member functions
     
     static  double  CalculateRemnantMass_Static(const double p_COCoreMass)                                      {  return utils::Compare(p_COCoreMass, 7.0)< 0 ? 1.17 + (0.09 * p_COCoreMass) : p_COCoreMass; }                                                                                  // Hurley et al., eq 92; Hurley says that a >7.0 CO core leads to a collapse into a BH, but is ambiguous about the BH mass in this case -- we will assume it's just the CO core
+    
+            double  CalculateRemnantRadius() const                                                              { return Radius(); }
+
 
 protected:
 
@@ -85,6 +88,8 @@ protected:
     void            CalculateTimescales()                                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                      { return 0.0; }                                                         // Should never be called...
+    
+    double          CalculateZetaEquilibrium()                                      { return -std::numeric_limits<double>::infinity(); }                                         // Nuclear timescale MT should be impossible from remnant stars; should never be called
 
     double          ChooseTimestep(const double p_Time) const;
     
@@ -107,7 +112,7 @@ protected:
     void            ResolveEnvelopeMassAtPhaseEnd(const double p_Tau) const                                     { ResolveEnvelopeMassOnPhase(p_Tau); }                                  // Same as on phase
     void            ResolveEnvelopeMassOnPhase(const double p_Tau) const { }                                                                                                            // NO-OP
 
-    void            ResolveMassLoss(const bool p_UpdateMDt = true) { }                                                                                                                  // NO-OP
+    void            ResolveMassLoss(double p_Dt) { }                                                                                                                                    // NO-OP
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
                                                                                                                                                                                         //
