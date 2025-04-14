@@ -1526,7 +1526,15 @@
 //  03.17.02    JR - Apr 11, 2025   - Defect Repair:
 //                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
 //                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
-//  03.18.00    JR - Apr 13, 2025   - Enhancement:
+//  03.17.03    YS - Apr 14, 2025   - Enhancement:
+//                                      - Fix to issue #1366
+//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info.
+//  03.17.04    AB - Apr 14, 2025   - Defect repair, Enhancement:
+//                                      - Fixes and enhancements to BRCEK core mass prescription: core mass now never reaches the total mass, radius correctly follows the RL radius
+//                                        during nuclear timescale mass transfer, and added functionality to track surface helium abundance on the MS
+//                                      - MainSequence::CalculateRadiusOnPhase() and CalculateRadiusOnPhaseTau() were combined into one function
+//                                      - Limit time step during nuclear timescale mass transfer
+//  03.18.00    JR - Apr 14, 2025   - Enhancement:
 //                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
 //                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
 
