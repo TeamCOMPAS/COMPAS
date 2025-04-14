@@ -2146,12 +2146,14 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
     }
     
-	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
-	if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star
-        m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
+    // Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
+    if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star, system is not in CE 
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
-	}
-    
+    }
+    else if (m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })
+             && OPTIONS->NeutronStarAccretionInCE() != NS_ACCRETION_IN_CE::ZERO) {                                              // accretor is a neutron star, system is in CE
+        m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
+    }
 }
 
 
