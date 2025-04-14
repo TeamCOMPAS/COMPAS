@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Tue Apr  1 17:29:43 2025 by COMPAS v03.17.00
+##~!!~## File Created Mon Apr 14 17:15:32 2025 by COMPAS v03.18.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -88,6 +88,7 @@ numericalChoices:
 #    --number-of-systems: 10                                               # Default: 10                                                                                                                                                                               # number of systems per batch
 #    --radial-change-fraction: 0.100000                                    # Default: 0.100000                                                                                                                                                                         # approximate desired fractional changes in stellar radius per timestep
 #    --timestep-multiplier: 1.000000                                       # Default: 1.000000                                                                                                                                                                         # optional multiplier relative to default time step duration
+#    --timestep-multipliers: '{ }'                                         # Default: ''                                                                                                                                                                               # optional phase-dependent multipliers relative to default time step duration
 
     ### STELLAR PROPERTIES
 #    --cool-wind-mass-loss-multiplier: 1.000000                            # Default: 1.000000

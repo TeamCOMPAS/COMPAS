@@ -2960,8 +2960,9 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  */
 double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
 
-    double dt1 = m_Star1->CalculateTimestep();
-    double dt2 = m_Star2->CalculateTimestep();
+    double dt1 = m_Star1->CalculateTimestep() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star1->StellarType()));
+    double dt2 = m_Star2->CalculateTimestep() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star2->StellarType()));
+
     double dt  = std::min(dt1, dt2);                                                        // dt = smaller of timesteps required by individual stars
 
     if (!IsUnbound()) {                                                                     // check that binary is bound
@@ -3017,8 +3018,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
         }
     }
 
-    // apply timestep multipliers
-    dt *= OPTIONS->TimestepMultiplier() * (dt1 < dt2 ? OPTIONS->TimestepMultipliers(static_cast<int>(m_Star1->StellarType())) : OPTIONS->TimestepMultipliers(static_cast<int>(m_Star2->StellarType()))) * p_Factor;
+    dt *= OPTIONS->TimestepMultiplier() * p_Factor;
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
 }
