@@ -2970,12 +2970,10 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
             dt /= 2.0;
         
         // limit time step for stars losing mass on nuclear timescale
-        double radialExpansionTimescale1 = m_Star1->CalculateRadialExpansionTimescaleDuringMassTransfer();
-        double radialExpansionTimescale2 = m_Star2->CalculateRadialExpansionTimescaleDuringMassTransfer();
         if (utils::Compare(radiusToRL1 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
-            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * radialExpansionTimescale1);
+            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * m_Star1->CalculateRadialExpansionTimescaleDuringMassTransfer());
         if (utils::Compare(radiusToRL2 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
-            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * radialExpansionTimescale2);
+            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * m_Star2->CalculateRadialExpansionTimescaleDuringMassTransfer());
         
         if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
