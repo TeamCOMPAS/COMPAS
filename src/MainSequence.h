@@ -60,14 +60,14 @@ protected:
     double          CalculateHeliumAbundanceCoreOnPhase() const                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                  // Use class member variables                                       
     
     double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
-    double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_InitialHeliumAbundance; }                                    // Use class member variables                      
+    double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_HeliumAbundanceSurface; }                                    // Use class member variables
     
     double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
     double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
     
     double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
-    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_InitialHydrogenAbundance; }                                  // Use class member variables
+    double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_HydrogenAbundanceSurface; }                                  // Use class member variables
     
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
@@ -85,16 +85,15 @@ protected:
 
     double          CalculateRadialExtentConvectiveEnvelope() const;
 
-    double          CalculateRadiusOnMassChange(double p_dM)                                { return CalculateRadiusOnPhaseTau(m_Mass + p_dM, m_Tau); }
+    double          CalculateRadiusOnMassChange(double p_dM)                                { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Tau, CalculateRadiusAtZAMS(m_Mass + p_dM)); }
     
-    double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const;
+    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
 
-    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Time, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
     double          CalculateRadiusAtPhaseEnd() const                                       { return CalculateRadiusAtPhaseEnd(m_Mass, m_RZAMS); }                  // Use class member variables
-    double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Age, m_RZAMS0); }             // Use class member variables
+    double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Tau, m_RZAMS0); }             // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const { return Radius(); }                                               // Not a meaningful function for MS stars
-    double          CalculateRadiusTransitionToHG(const double p_Mass, const double p_Age, double const p_RZAMS) const;
+    double          CalculateRadiusTransitionToHG(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
      
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;

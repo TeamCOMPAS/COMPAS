@@ -1528,8 +1528,13 @@
 //                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
 //  03.17.03    YS  - Apr 6, 2025   - Enhancement:
 //                                      - Fix to issue #1366
-//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info. 
+//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info.
+//  03.17.04    AB - Apr 14, 2025   - Defect repair, Enhancement:
+//                                      - Fixes and enhancements to BRCEK core mass prescription: core mass now never reaches the total mass, radius correctly follows the RL radius
+//                                        during nuclear timescale mass transfer, and added functionality to track surface helium abundance on the MS
+//                                      - MainSequence::CalculateRadiusOnPhase() and CalculateRadiusOnPhaseTau() were combined into one function
+//                                      - Limit time step during nuclear timescale mass transfer
 
-const std::string VERSION_STRING = "03.17.03";
+const std::string VERSION_STRING = "03.17.04";
 
 # endif // __changelog_h__

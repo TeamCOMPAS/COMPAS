@@ -302,6 +302,10 @@ constexpr double Q_CNO                                  = 9.9073E4;             
 // Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
 constexpr double BRCEK_LOWER_MASS_LIMIT                 = 1.5;
+// Maximum core mass to total mass ratio on the main sequence (when BRCEK core mass prescription is used)
+// Sets upper limit on the main-sequence convective core mass to prevent the star from becoming fully convective
+// Detailed models from MESA suggest that the convective core mass never exceeds ~90% of the total mass
+constexpr double BRCEK_CORE_MASS_TO_MASS_RATIO_LIMIT    = 0.9;
 
 // logging constants
 
