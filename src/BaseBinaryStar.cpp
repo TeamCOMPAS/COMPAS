@@ -2146,12 +2146,14 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
     }
     
-	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
-	if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star
-        m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
+    // Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
+    if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star, system is not in CE 
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
-	}
-    
+    }
+    else if (m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })
+             && OPTIONS->NeutronStarAccretionInCE() != NS_ACCRETION_IN_CE::ZERO) {                                              // accretor is a neutron star, system is in CE
+        m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
+    }
 }
 
 
@@ -2958,8 +2960,9 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  */
 double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
 
-    double dt1 = m_Star1->CalculateTimestep();
-    double dt2 = m_Star2->CalculateTimestep();
+    double dt1 = m_Star1->CalculateTimestep() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star1->StellarType()));
+    double dt2 = m_Star2->CalculateTimestep() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star2->StellarType()));
+
     double dt  = std::min(dt1, dt2);                                                        // dt = smaller of timesteps required by individual stars
 
     if (!IsUnbound()) {                                                                     // check that binary is bound
@@ -2970,7 +2973,13 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
         if ((utils::Compare(radiusToRL1 * (1.0 + 2.0 * OPTIONS->RadialChangeFraction()), 1.0) >= 0 && utils::Compare(radiusToRL1 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) <= 0) ||
             (utils::Compare(radiusToRL2 * (1.0 + 2.0 * OPTIONS->RadialChangeFraction()), 1.0) >= 0 && utils::Compare(radiusToRL2 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) <= 0))
             dt /= 2.0;
-
+        
+        // limit time step for stars losing mass on nuclear timescale
+        if (utils::Compare(radiusToRL1 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
+            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * m_Star1->CalculateRadialExpansionTimescaleDuringMassTransfer());
+        if (utils::Compare(radiusToRL2 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
+            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * m_Star2->CalculateRadialExpansionTimescaleDuringMassTransfer());
+        
         if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }
@@ -3009,8 +3018,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
         }
     }
 
-    // apply timestep multipliers
-    dt *= OPTIONS->TimestepMultiplier() * (dt1 < dt2 ? OPTIONS->TimestepMultipliers(static_cast<int>(m_Star1->StellarType())) : OPTIONS->TimestepMultipliers(static_cast<int>(m_Star2->StellarType()))) * p_Factor;
+    dt *= OPTIONS->TimestepMultiplier() * p_Factor;
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
 }
