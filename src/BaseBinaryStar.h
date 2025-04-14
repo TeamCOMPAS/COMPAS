@@ -344,7 +344,7 @@ private:
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
     
-    MASS_TRANSFER_TIMESCALE m_MassTransferTimescale;
+    MT_TIMESCALE        m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
@@ -418,7 +418,7 @@ private:
     void    CalculateGravitationalRadiation();
     void    EmitGravitationalWave(const double p_Dt);
 
-    double  ChooseTimestep(const double p_Multiplier);
+    double  ChooseTimestep(const double p_Factor = 1.0);
 
     void    CalculateEnergyAndAngularMomentum();
 

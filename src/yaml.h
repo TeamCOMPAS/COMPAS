@@ -154,6 +154,7 @@ namespace yaml {
             "    --number-of-systems                                             # number of systems per batch",
             "    --radial-change-fraction                                        # approximate desired fractional changes in stellar radius per timestep",
             "    --timestep-multiplier                                           # optional multiplier relative to default time step duration",
+            "    --timestep-multipliers                                          # optional phase-dependent multipliers relative to default time step duration",
             "",
             "    ### STELLAR PROPERTIES",
             "    --cool-wind-mass-loss-multiplier",
