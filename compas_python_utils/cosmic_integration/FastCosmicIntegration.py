@@ -218,7 +218,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
             merger_rate[i, :first_too_early_index - 1] = formation_rate[i, z_of_formation_index]
     return formation_rate, merger_rate
 
-def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=300.0, Mc_step=0.1,
+def compute_snr_and_detection_grids(dco_type, sensitivity="O1", snr_threshold=8.0, Mc_max=300.0, Mc_step=0.1,
                                     eta_max=0.25, eta_step=0.01, snr_max=1000.0, snr_step=0.1):
     """
         Compute a grid of SNRs and detection probabilities for a range of masses and SNRs
@@ -244,6 +244,10 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
             snr_grid_at_1Mpc               --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
             detection_probability_from_snr --> [list of floats] A list of detection probabilities for different SNRs
     """
+    # If DCO type includes a WD, return empty arrays since we currently only support LVK sensitivity
+    if dco_type in ["WDWD", "NSWD", "WDBH"]:
+        warnings.warn("!! Detected rate is not computed since DCO type {} doesnt work with LVK sensitivity {}".format(dco_type, sensitivity))
+
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
 
@@ -475,7 +479,7 @@ def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weig
                                                                     COMPAS.delayTimes, COMPAS.sw_weights)
 
     # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
-    snr_grid_at_1Mpc, detection_probability_from_snr = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
+    snr_grid_at_1Mpc, detection_probability_from_snr = compute_snr_and_detection_grids(dco_type, sensitivity, snr_threshold, Mc_max, Mc_step,
                                                                                     eta_max, eta_step, snr_max, snr_step)
 
     # use lookup tables to find the probability of detecting each binary at each redshift
