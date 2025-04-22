@@ -67,7 +67,7 @@ class COMPASData(object):
     def setCOMPASDCOmask(
         self, types="BHBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
     ):
-        # By default, we mask for BBHs that merge within a Hubble time, assuming
+        # By default, we mask for BHBHs that merge within a Hubble time, assuming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
         
@@ -75,14 +75,14 @@ class COMPASData(object):
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
         dco_seeds = dco_seeds.flatten()
 
-        if types == "CHE_BBH" or types == "NON_CHE_BBH":
+        if types == "CHE_BHBH" or types == "NON_CHE_BHBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
                 self.get_COMPAS_variables("BSE_System_Parameters", ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)", "SEED"])
           
             che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
             che_seeds = sys_seeds[()][che_mask]
 
-        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BBH" or types == "NON_CHE_BBH" else np.repeat(False, len(dco_seeds))
+        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BHBH" or types == "NON_CHE_BHBH" else np.repeat(False, len(dco_seeds))
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True, use astype(bool) to set masks to bool type
         hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
@@ -91,13 +91,17 @@ class COMPASData(object):
         type_masks = {
             "all": np.repeat(True, len(dco_seeds)),
             "BHBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
-            "BHNS": np.logical_and(np.isin(stellar_type_1,[13,14]),np.isin(stellar_type_2,[13,14])),
             "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),  
-            "WDWD": np.logical_and(np.isin(stellar_type_1,[10,11,12]),np.isin(stellar_type_2,[10,11,12]))
+            "WDWD": np.logical_and(np.isin(stellar_type_1,[10,11,12]),np.isin(stellar_type_2,[10,11,12])),
+            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14),np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13))
+            "NSWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 13),
+                                  np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 13)),
+            "WDBH": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 14),
+                                  np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 14)),
         }
 
-        type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BHBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
-        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BHBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
+        type_masks["CHE_BHBH"]     = np.logical_and(self.CHE_mask, type_masks["BHBH"]) if types == "CHE_BHBH" else np.repeat(False, len(dco_seeds))
+        type_masks["NON_CHE_BHBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BHBH"]) if types == "NON_CHE_BHBH" else np.repeat(True, len(dco_seeds))
 
         # if the user wants to make RLOF or optimistic CEs
         if noRLOFafterCEE or pessimistic:
@@ -129,11 +133,13 @@ class COMPASData(object):
         # create a mask for each dco type supplied
         self.DCOmask = type_masks[types] * hubble_mask * rlof_mask * pessimistic_mask
         self.BHBHmask = type_masks["BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
         self.NSNSmask = type_masks["NSNS"] * hubble_mask * rlof_mask * pessimistic_mask
         self.WDWDmask = type_masks["WDWD"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.CHE_BHBHmask = type_masks["CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.NonCHE_BHBHmask = type_masks["NON_CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.WDWDmask = type_masks["NSWD"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.WDWDmask = type_masks["WDBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.CHE_BHBHmask = type_masks["CHE_BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NonCHE_BHBHmask = type_masks["NON_CHE_BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.allTypesMask = type_masks["all"] * hubble_mask * rlof_mask * pessimistic_mask
         self.optimisticmask = pessimistic_mask
 

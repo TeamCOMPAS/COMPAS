@@ -335,7 +335,7 @@ def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weig
             == Arguments for finding and masking COMPAS file ==
             ===================================================
             path                   --> [string] Path to the COMPAS data file that contains the output
-            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BHBH", "BHNS", "NSNS", "WDWD"]
+            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BHBH", "NSNS", "WDWD", "BHNS", "NSWD", "WDBH"]
             merger_output_filename --> [string] Optional name of output file to store merging DCOs (do not create the extra output if None)
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
