@@ -2,7 +2,10 @@
 import numpy as np
 import h5py as h5
 import os
-# from . import totalMassEvolvedPerZ as MPZ
+import sys
+# Get the COMPAS_ROOT_DIR var, and add the cosmic_integration directory to the path
+compas_root_dir = os.getenv('COMPAS_ROOT_DIR')
+sys.path.append(os.path.join(compas_root_dir, 'compas_python_utils/cosmic_integration'))
 import totalMassEvolvedPerZ as MPZ
 
 
@@ -93,7 +96,7 @@ class COMPASData(object):
             "BHBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
             "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),  
             "WDWD": np.logical_and(np.isin(stellar_type_1,[10,11,12]),np.isin(stellar_type_2,[10,11,12])),
-            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14),np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13))
+            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14),np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13)),
             "NSWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 13),
                                   np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 13)),
             "WDBH": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 14),
