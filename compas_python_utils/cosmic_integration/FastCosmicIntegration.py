@@ -782,7 +782,7 @@ def parse_cli_args():
                         help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",
                         type=str, default=None)
     parser.add_argument("--keep_pessimistic_CEE", dest='remove_pessimistic_CEE',
-                    help="keep_pessimistic_CEE will set remove_pessimistic_CEE to false. The default behaviour (remove_pessimistic_CEE == True), will mask binaries that binaries that experience a CEE while on the HG", 
+                    help="keep_pessimistic_CEE will set remove_pessimistic_CEE to false. The default behaviour (remove_pessimistic_CEE == True), will mask binaries that experience a CEE while on the HG", 
                     action='store_false', default=True)
     parser.add_argument("--keepRLOF_postCE", dest='remove_RLOF_after_CEE',
                         help="keepRLOF_postCE will set remove_RLOF_after_CEE to false. The default behaviour (remove_RLOF_after_CEE == True), will mask binaries that have immediate RLOF after a CCE", 
