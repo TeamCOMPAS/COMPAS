@@ -211,15 +211,12 @@ def draw_samples_from_kroupa_imf(
 
 
 ###################################################
-# New version of analytical calculation
-###################################################
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
         m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
 ):
     """
     Analytical computation of the mass of stars formed per binary star formed within the
-    [m1 min, m1 max] and [m2 min, ..] rage,
-    using the Kroupa IMF:
+    [m1 min, m1 max] and [m2 min, ..] rage, using the Kroupa IMF:
 
         p(M) \propto M^-0.3 for M between m1 and m2
         p(M) \propto M^-1.3 for M between m2 and m3;
