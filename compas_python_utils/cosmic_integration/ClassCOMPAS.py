@@ -172,6 +172,9 @@ class COMPASData(object):
         
         primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
+        # Raise an error if DCO table is empty
+        if len(primary_masses) == 0:
+            raise ValueError("BSE_Double_Compact_Objects is empty!")
 
         initial_seeds, initial_Z = self.get_COMPAS_variables("BSE_System_Parameters", ["SEED", "Metallicity@ZAMS(1)"])
 
@@ -186,6 +189,10 @@ class COMPASData(object):
         self.delayTimes = np.add(formation_times[self.DCOmask], coalescence_times[self.DCOmask])
         self.mass1 = primary_masses[self.DCOmask]
         self.mass2 = secondary_masses[self.DCOmask]
+
+        #Check that you have some systems of interest in your DCO table (i.e.  len(primary_masses[self.DCOmask])>0 )
+        if len(self.mass1) == 0:
+            raise ValueError("No DCOs found with the current mask. Please check your DCO table, or change your mask settings.")
 
         # Stuff of data I dont need for integral
         # but I might be to laze to read in myself
