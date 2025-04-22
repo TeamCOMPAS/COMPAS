@@ -1,21 +1,24 @@
 import numpy as np
 import h5py  as h5
 import os
+import sys
 import time
 import matplotlib.pyplot as plt
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
-# from compas_python_utils.cosmic_integration import ClassCOMPAS
-import ClassCOMPAS
-# from compas_python_utils.cosmic_integration import selection_effects
-import selection_effects
 import warnings
 import astropy.units as u
 import argparse
 import importlib
-# from compas_python_utils.cosmic_integration.cosmology import get_cosmology
+
+# Get the COMPAS_ROOT_DIR var, and add the cosmic_integration directory to the path
+compas_root_dir = os.getenv('COMPAS_ROOT_DIR')
+sys.path.append(os.path.join(compas_root_dir, 'compas_python_utils/cosmic_integration'))
+import ClassCOMPAS
 from cosmology import get_cosmology
+import selection_effects
+
 
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):
     """ 
@@ -583,7 +586,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             N_dco_in_z_bin      = (merger_rate[:,:] * fine_shell_volumes[:])
             print('fine_shell_volumes', fine_shell_volumes)
 
-            # The number of merging BHBHs that need a weight
+            # The number of merging DCO systems that need a weight
             N_dco  = len(merger_rate[:,0])
             
             ####################
@@ -776,7 +779,7 @@ def parse_cli_args():
     
     # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS, WDWD
     parser.add_argument("--dco_type", dest='dco_type',
-                        help="Which DCO type you used to calculate rates, one of: ['all', 'BHBH', 'BHNS', 'NSNS', 'WDWD'] ",
+                        help="Which DCO type you used to calculate rates, one of: ['all', 'BHBH', 'NSNS', 'WDWD', 'BHNS', 'NSWD', 'WDBH'] ",
                         type=str, default="BHBH")
     parser.add_argument("--weight", dest='weight_column',
                         help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",
