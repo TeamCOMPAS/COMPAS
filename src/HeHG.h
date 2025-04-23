@@ -76,6 +76,12 @@ protected:
 
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
+    
+            double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                                          { return 0.0; }
+            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 0.0; }
+            
+            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return 0.0; }
+            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; }
 
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
             double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }        // 0.0 are dummy values that are not used
