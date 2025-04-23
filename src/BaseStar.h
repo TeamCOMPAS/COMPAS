@@ -75,15 +75,10 @@ public:
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
 
+
     // getters - alphabetically
     double              Age() const                                                     { return m_Age; }
     double              AngularMomentum() const                                         { return m_AngularMomentum; }
-    double              BindingEnergyFixed() const                                      { return m_BindingEnergies.fixed; }
-    double              BindingEnergyNanjing() const                                    { return m_BindingEnergies.nanjing; }
-    double              BindingEnergyLoveridge() const                                  { return m_BindingEnergies.loveridge; }
-    double              BindingEnergyLoveridgeWinds() const                             { return m_BindingEnergies.loveridgeWinds; }
-    double              BindingEnergyKruckow() const                                    { return m_BindingEnergies.kruckow; }
-    double              BindingEnergyDewi() const                                       { return m_BindingEnergies.dewi; }
     bool                CHonMS() const                                                  { return m_CHE; }
     double              COCoreMass() const                                              { return m_COCoreMass; }
     double              CoreMass() const                                                { return m_CoreMass; }
@@ -125,15 +120,6 @@ public:
     bool                IsPPISN() const                                                 { return (m_SupernovaDetails.events.current & SN_EVENT::PPISN) == SN_EVENT::PPISN; }
     bool                IsSNIA() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
     bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
-    double              LambdaDewi() const                                              { return m_Lambdas.dewi; }
-    double              LambdaFixed() const                                             { return m_Lambdas.fixed; }
-    double              LambdaKruckow() const                                           { return m_Lambdas.kruckow; }
-    double              LambdaKruckowBottom() const                                     { return m_Lambdas.kruckowBottom; }
-    double              LambdaKruckowMiddle() const                                     { return m_Lambdas.kruckowMiddle; }
-    double              LambdaKruckowTop() const                                        { return m_Lambdas.kruckowTop; }
-    double              LambdaLoveridge() const                                         { return m_Lambdas.loveridge; }
-    double              LambdaLoveridgeWinds() const                                    { return m_Lambdas.loveridgeWinds; }
-    double              LambdaNanjing() const                                           { return m_Lambdas.nanjing; }
     bool                LBV_PhaseFlag() const                                           { return m_LBVphaseFlag; }
     double              LogMetallicityRho() const                                       { return LogMetallicityXi() + 1.0; }            // rho in Hurley+ 2000
     double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                  // sigma in Hurley+ 2000
