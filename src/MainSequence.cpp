@@ -291,8 +291,7 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
     // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024) during core hydrogen burning (valid for MZAMS >= 15 Msol) or
     // luminosity that smoothly connects MS and HG during MS hook (valid for MZAMS >= BRCEK_LOWER_MASS_LIMIT)
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
-        double tMS = timescales(tMS);
-        if (utils::Compare(p_Time, 0.99 * tMS) > 0)                                                                             // star in MS hook?
+        if (utils::Compare(p_Time, 0.99 * timescales(tMS)) > 0)                                                                 // star in MS hook?
             return CalculateLuminosityTransitionToHG(p_Mass, p_Time, p_LZAMS);
         else {
             if (utils::Compare(m_MZAMS, 15.0) >= 0)                                                                             // use Shikauchi luminosity if MZAMS >= 15 Msun
@@ -340,9 +339,16 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
  */
 double MainSequence::CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const {
     DBL_VECTOR L_COEFFICIENTS = std::get<2>(SHIKAUCHI_COEFFICIENTS);
-    double logMixingCoreMass  = std::log10(p_CoreMass);
     
-    double logL = L_COEFFICIENTS[0] * logMixingCoreMass + L_COEFFICIENTS[1] * p_HeliumAbundanceCore + L_COEFFICIENTS[2] * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[3] * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[4] * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[5] * logMixingCoreMass * logMixingCoreMass * logMixingCoreMass + L_COEFFICIENTS[6] * p_HeliumAbundanceCore * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[7] * logMixingCoreMass * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[8] * logMixingCoreMass * p_HeliumAbundanceCore * p_HeliumAbundanceCore + L_COEFFICIENTS[9];
+    // common factors
+    double logMixingCoreMass   = std::log10(p_CoreMass);
+    double logMixingCoreMass_2 = logMixingCoreMass * logMixingCoreMass;
+    double logMixingCoreMass_3 = logMixingCoreMass_2 * logMixingCoreMass;
+    
+    double heliumAbundanceCore_2 = p_HeliumAbundanceCore * p_HeliumAbundanceCore;
+    double heliumAbundanceCore_3 = heliumAbundanceCore_2 * p_HeliumAbundanceCore;
+    
+    double logL = L_COEFFICIENTS[0] * logMixingCoreMass + L_COEFFICIENTS[1] * p_HeliumAbundanceCore + L_COEFFICIENTS[2] * logMixingCoreMass * p_HeliumAbundanceCore + L_COEFFICIENTS[3] * logMixingCoreMass_2 + L_COEFFICIENTS[4] * heliumAbundanceCore_2 + L_COEFFICIENTS[5] * logMixingCoreMass_3 + L_COEFFICIENTS[6] * heliumAbundanceCore_3 + L_COEFFICIENTS[7] * logMixingCoreMass_2 * p_HeliumAbundanceCore + L_COEFFICIENTS[8] * logMixingCoreMass * heliumAbundanceCore_2 + L_COEFFICIENTS[9] * logMixingCoreMass_3 * logMixingCoreMass + L_COEFFICIENTS[10] * heliumAbundanceCore_3 * p_HeliumAbundanceCore + L_COEFFICIENTS[11] * logMixingCoreMass * heliumAbundanceCore_3 + L_COEFFICIENTS[12] * logMixingCoreMass_2 * heliumAbundanceCore_2 + L_COEFFICIENTS[13] * logMixingCoreMass_3 * p_HeliumAbundanceCore + L_COEFFICIENTS[14];
     
     return PPOW(10.0, logL);
 }
@@ -764,11 +770,11 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
 
     auto fmix    = [&](double mass) { return FMIX_COEFFICIENTS[0] + FMIX_COEFFICIENTS[1] * std::exp(-mass / FMIX_COEFFICIENTS[2]); };                           // Shikauchi et al. (2024), eq (A3)
     double alpha = PPOW(10.0, std::max(-2.0, ALPHA_COEFFICIENTS[1] * m_MainSequenceCoreMass + ALPHA_COEFFICIENTS[2])) + ALPHA_COEFFICIENTS[0];                  // ibid, eq (A2)
-    double g     = -0.0044 * m_MZAMS + 0.27;                                                                                                                    // ibid, eq (A7)
+    double g     = SHIKAUCHI_DELTA_COEFFICIENTS[1] * m_MainSequenceCoreMass + SHIKAUCHI_DELTA_COEFFICIENTS[2];                                                  // ibid, eq (A7)
     
     double delta;
     if (p_MassLossRate <= 0.0)
-        delta = std::min(PPOW(10.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);          // ibid, eq (A6)
+        delta = std::min(PPOW(10.0, -SHIKAUCHI_DELTA_COEFFICIENTS[0] * (m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity) + g), 1.0);          // ibid, eq (A6)
     else
         delta = PPOW(2.0, -(m_HeliumAbundanceCore - m_InitialHeliumAbundance) / (1.0 - m_InitialHeliumAbundance - m_Metallicity));                              // updated prescription for mass gain
     
@@ -1324,7 +1330,7 @@ std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> MainSequence::InterpolateShikauc
        
     DBL_VECTOR alphaCoeff(3, 0.0);
     DBL_VECTOR fmixCoeff(3, 0.0);
-    DBL_VECTOR lCoeff(10, 0.0);
+    DBL_VECTOR lCoeff(15, 0.0);
     
     // Skip calculation if BRCEK core prescription is not used
     if (OPTIONS->MainSequenceCoreMassPrescription() != CORE_MASS_PRESCRIPTION::BRCEK)
@@ -1357,7 +1363,7 @@ std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> MainSequence::InterpolateShikauc
             alphaCoeff[i] = (SHIKAUCHI_ALPHA_COEFFICIENTS[0][i] * middle_logZ + SHIKAUCHI_ALPHA_COEFFICIENTS[1][i] * logZ_low) / middle_low;
             fmixCoeff[i]  = (SHIKAUCHI_FMIX_COEFFICIENTS[0][i] * middle_logZ + SHIKAUCHI_FMIX_COEFFICIENTS[1][i] * logZ_low) / middle_low;
         }
-        for (size_t i = 0; i < 10; i++)
+        for (size_t i = 0; i < 15; i++)
             lCoeff[i] = (SHIKAUCHI_L_COEFFICIENTS[0][i] * middle_logZ + SHIKAUCHI_L_COEFFICIENTS[1][i] * logZ_low) / middle_low;
     }
     // Linear interpolation between metallicity middle and high
@@ -1366,7 +1372,7 @@ std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> MainSequence::InterpolateShikauc
             alphaCoeff[i] = (SHIKAUCHI_ALPHA_COEFFICIENTS[1][i] * high_logZ + SHIKAUCHI_ALPHA_COEFFICIENTS[2][i] * logZ_middle) / high_middle;
             fmixCoeff[i]  = (SHIKAUCHI_FMIX_COEFFICIENTS[1][i] * high_logZ + SHIKAUCHI_FMIX_COEFFICIENTS[2][i] * logZ_middle) / high_middle;
         }
-        for (size_t i = 0; i < 10; i++)
+        for (size_t i = 0; i < 15; i++)
             lCoeff[i] = (SHIKAUCHI_L_COEFFICIENTS[1][i] * high_logZ + SHIKAUCHI_L_COEFFICIENTS[2][i] * logZ_middle) / high_middle;
     }
     // Linear extrapolation (constant) for metallicity equal to solar or higher
