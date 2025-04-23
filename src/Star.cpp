@@ -459,7 +459,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                     dt = timesteps[stepNum];
                 }
                 else {                                                                                          // not using user-provided timesteps
-                    dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();                           // calculate new timestep   
+                    dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star->StellarType())); // calculate new timestep   
                     dt = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;                                  // quantised
                 }
                 stepNum++;                                                                                      // increment step number                                                      

@@ -77,8 +77,6 @@ public:
 protected:
     
     void Initialise() {
-
-        CalculateTimescales();                                                                                                                                  // Initialise timescales
         
         // set internal properties to zero to avoid meaningless values
         m_Age        = 0.0;
@@ -131,8 +129,9 @@ protected:
             double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const { return CalculateRadiusOnPhase(); }                               // not a meaningful calculation for NS, ignore arguments
 
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
-    
-            void            CalculateTimescales() { }                                                   // not a meaningful calculation for NS and BH
+  
+            void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                              // not a meaningful calculation for NS and BH
+            void            CalculateTimescales() { }                                                                                                           // not a meaningful calculation for NS and BH
 
             double          ChooseTimestep(const double p_Time) const;
 

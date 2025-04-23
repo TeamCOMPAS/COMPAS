@@ -2210,9 +2210,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                                                                                                     // yes - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+        m_SupernovaDetails.totalRadiusAtCOFormation= m_Radius;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
         m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
         m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
+        m_SupernovaDetails.coreRadiusAtCOFormation = CalculateConvectiveCoreRadius();
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
         

@@ -25,6 +25,7 @@ class DetectionMatrix:
             n_systems: int,
             n_bbh: int,
             outdir: str = None,
+            sens: str = 'O1',
             bootstrapped_rate_matrices: np.ndarray = None
     ):
         self.compas_path = compas_path
@@ -36,6 +37,7 @@ class DetectionMatrix:
         self.bootstrapped_rate_matrices = bootstrapped_rate_matrices
         self.n_systems = n_systems
         self.n_bbh = n_bbh
+        self.sens = sens
 
     @property
     def outdir(self):
@@ -60,11 +62,12 @@ class DetectionMatrix:
             outdir: str = None,
             save_plots: bool = False,
             n_bootstrapped_matrices: int = 0,
+            sens: str = 'O1'
     ) -> "DetectionMatrix":
 
         bbh_population = BBHPopulation.from_compas_h5(compas_path)
         cosmological_model = CosmologicalModel(**cosmological_parameters)
-        snr_grid = SNRGrid()
+        snr_grid = SNRGrid(sensitivity=sens)
 
         sorted_idx = xp.argsort(bbh_population.chirp_mass)
         redshift = cosmological_model.redshift

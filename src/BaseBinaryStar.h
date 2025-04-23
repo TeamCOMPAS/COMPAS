@@ -204,6 +204,9 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
+    double              OrbitalAngularMomentumVectorX() const       { return m_NormalizedOrbitalAngularMomentumVector.xValue(); }
+    double              OrbitalAngularMomentumVectorY() const       { return m_NormalizedOrbitalAngularMomentumVector.yValue(); }
+    double              OrbitalAngularMomentumVectorZ() const       { return m_NormalizedOrbitalAngularMomentumVector.zValue(); }
     double              OrbitalAngularVelocity() const              { return std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0 - m_Eccentricity); }
@@ -241,9 +244,6 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
-    double              SN_OrbitInclinationVectorX() const          { return m_NormalizedOrbitalAngularMomentumVector.xValue(); }
-    double              SN_OrbitInclinationVectorY() const          { return m_NormalizedOrbitalAngularMomentumVector.yValue(); }
-    double              SN_OrbitInclinationVectorZ() const          { return m_NormalizedOrbitalAngularMomentumVector.zValue(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
     double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
@@ -344,7 +344,7 @@ private:
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
     
-    MASS_TRANSFER_TIMESCALE m_MassTransferTimescale;
+    MT_TIMESCALE        m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
@@ -418,7 +418,7 @@ private:
     void    CalculateGravitationalRadiation();
     void    EmitGravitationalWave(const double p_Dt);
 
-    double  ChooseTimestep(const double p_Multiplier);
+    double  ChooseTimestep(const double p_Factor = 1.0);
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -482,10 +482,15 @@ private:
 
     void    ProcessTides(const double p_Dt);
 
+    double  ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange);
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
+    void    ResolveMainSequenceMerger();
     void    ResolveMassChanges();
     void    ResolveSupernova();
+    
+    
+
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
@@ -500,6 +505,8 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
+    bool    ShouldResolveNeutrinoRocketMechanism() const                        { return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0); }
+    
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
@@ -542,12 +549,6 @@ private:
     
     bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
-    }
-    
-    void ResolveMainSequenceMerger();
-
-    bool ShouldResolveNeutrinoRocketMechanism() const { 
-        return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0);
     }
     
     /*

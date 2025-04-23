@@ -1497,9 +1497,49 @@
 //  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
 //                                      - Fix to issue #1348
 //                                      - Modified suggested timescales for compact objects
-// XX.XX.XX    RTW - May 15, 2024    - Enhancements:
+//  03.16.00    VK - Mar 15, 2025   - Defect repairs, Enhancements:
+//                                      - Placed a maximum limit on how much the KAPIL2024 Tides prescription can change spins and orbital parameters in a single timestep. 
+//                                        If too large of a timestep is taken for any reason, tides will only take an effeective timestep such that the change is within the TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC limit.
+//                                      - Updated BaseStar::CalculateImKlmDynamical() to allow for GW dissiopation from a radiative core + convective envelope as long as the convective core radius is negligible, regardless of convective core mass. Required for expected behavior for massive stars on the MS.
+//                                      - Added STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION and STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION to the default log files, stored pre supernova.
+//                                      - Fixed a small typo in the TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME constant for tides.
+//  03.16.01    JR - Mar 17, 2025   - Defect repair
+//                                      - Added prototype for CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) to NS.h to reinstate proper inheritance (compiler warning -Woverloaded-virtual; introduced in v03.15.01)
+//                                      - Removed call to CalculateTimescales() from both NS::Initialise() and BH::Initialise() (superfluous since v03.15.01)
+//  03.16.02    SS - Mar 19, 2025   - Defect repair:
+//                                      - Removed deprecated wind mass-loss options
+//                                      - Added ZERO as a new option for WR-mass-loss-prescription
+//  03.16.03    RTW - Mar 21, 2025  - Enhancement:
+//                                      - Added orbital AM vector and system velocity vector to SN output
+//  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
+//                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
+//                                      - All binding energies and lambdas are now computed on request, not stored  in memory
+//                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
+//                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
+//                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
+//                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+//                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
+//                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
+//  03.17.01    VK - Apr 7, 2025    - Defect Repair:
+//                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
+//  03.17.02    JR - Apr 11, 2025   - Defect Repair:
+//                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
+//                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
+//  03.17.03    YS - Apr 14, 2025   - Enhancement:
+//                                      - Fix to issue #1366
+//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info.
+//  03.17.04    AB - Apr 14, 2025   - Defect repair, Enhancement:
+//                                      - Fixes and enhancements to BRCEK core mass prescription: core mass now never reaches the total mass, radius correctly follows the RL radius
+//                                        during nuclear timescale mass transfer, and added functionality to track surface helium abundance on the MS
+//                                      - MainSequence::CalculateRadiusOnPhase() and CalculateRadiusOnPhaseTau() were combined into one function
+//                                      - Limit time step during nuclear timescale mass transfer
+//  03.18.00    JR - Apr 14, 2025   - Enhancement:
+//                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
+//                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
+//  03.19.00    RTW - May 15, 2024    - Enhancements:
 //                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
 
-const std::string VERSION_STRING = "03.15.01";
+const std::string VERSION_STRING = "03.19.00";
 
 # endif // __changelog_h__

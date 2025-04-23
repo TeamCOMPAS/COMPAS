@@ -124,6 +124,7 @@ protected:
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                             { return 0.5; }
+            double          CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss = false) const { return BaseStar::CalculateLambdaLoveridge(p_EnvMass, p_IsMassLoss); }   // Not supported - use BaseStar
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                 // Not supported - use BaseStar (0.0 are dummy values)
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const                                { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return CalculateLuminosityAtPhaseEnd(m_Mass); }                               // Use class member variables

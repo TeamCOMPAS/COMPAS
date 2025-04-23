@@ -404,7 +404,7 @@ std::tuple<int, int> EvolveSingleStars() {
                                 : new Star(randomSeed, initialMass, initialStellarType, metallicity, kickParameters);                           // no - let it be calculated
 
                         thisStarStatus = EVOLUTION_STATUS::STARTED;
-
+                        
                         thisStarStatus = star->Evolve(index);                                                               // evolve the star
 
                         // announce the result

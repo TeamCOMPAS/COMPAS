@@ -16,6 +16,7 @@
 #include <typeinfo>
 #include <typeindex>
 #include <iterator>
+#include <limits>
 
 #include "constants.h"
 
@@ -34,8 +35,8 @@
 
 namespace po = boost::program_options;
 
-
-const std::string NOT_PROVIDED = std::to_string(255);
+const unsigned char NOT_PROVIDED_CHAR = 128;
+const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 
 
 // OPT_VALUE macro
@@ -44,14 +45,14 @@ const std::string NOT_PROVIDED = std::to_string(255);
 // member variable is set to a value depending upon the value of the corresponding
 // option entered by the user.
 // 
-// Since users now specify grid line values using options, getter functions need to
+// Since users specify grid line values using options, getter functions need to
 // know which option value to return - the one specified on the commandline (if in
 // fact the option was specified on the commandline), or the one specified on the
 // grid line (if in fact the option was specified on the grid line).
 //
 // The general idea is to use the value specified by the user on the grid line (if
-// the use actually specified the option on the grid line) in preference to the
-// value specified by the the use on the commandline (if the use actually specified
+// the user actually specified the option on the grid line) in preference to the
+// value specified by the user on the commandline (if the user actually specified
 // the option on the commandline).  That's what the OPT_VALUE macro defined below
 // does - if the grid line exists (i.e. if a grid file is being used), the macro will
 // check whether the user specified the option on the grid line, and if they did return
@@ -215,10 +216,10 @@ private:
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",          "GE20", "GE", false },
-        { "critical-mass-ratio-prescription",          "GE20_IC", "GE_IC", false },
-        { "pulsational-pair-instability-prescription", "COMPAS", "WOOSLEY", false},
-	{ "pulsar-birth-spin-period-distribution",     "ZERO", "NOSPIN", false }
+        { "critical-mass-ratio-prescription",          "GE20",    "GE",      false },
+        { "critical-mass-ratio-prescription",          "GE20_IC", "GE_IC",   false },
+        { "pulsational-pair-instability-prescription", "COMPAS",  "WOOSLEY", false},
+	    { "pulsar-birth-spin-period-distribution",     "ZERO",    "NOSPIN",  false }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
@@ -263,18 +264,31 @@ private:
     // complain (boost will only complain if the option/value pair is malformed or unknown,
     // which would almost certainly be the case - but it isn't guaranteed to be). 
 
-    typedef std::tuple<std::string, bool, std::string> SHORTHAND_ENTRY;         // option name, default allowed (i.e. can be omitted), default string
+    
+    union ShorthandDefault_t {
+        char*  strVal = nullptr;
+        double dblVal;
+        ShorthandDefault_t() {}
+        ShorthandDefault_t(const std::string v) { strVal = new char[v.length() + 1]; strncpy(strVal, v.c_str(), v.length()); strVal[v.length()] = '\0'; }
+        ShorthandDefault_t(const double v) { dblVal = v; }
+        ~ShorthandDefault_t() {}
+    };
+
+    typedef std::tuple<std::string, bool, TYPENAME, ShorthandDefault_t> SHORTHAND_ENTRY;                                        // option name, default allowed (i.e. can be omitted), default string
+
     std::vector<SHORTHAND_ENTRY> m_ShorthandAllowed = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
-        // option name          default allowed     default string
-        { "debug-classes",      false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+        // option name            default allowed   default value type   default value
+        { "debug-classes",        false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many classes to specify
 
-        { "log-classes",        false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+        { "log-classes",          false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many classes to specify
 
-        { "notes",              true,               "" },                       // allow defaults - number of notes is 0..#notes-hdrs
-        { "notes-hdrs",         false,              "" }                        // don't allow defaults - we don't know how many headers to specify
+        { "notes",                true,             TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // allow defaults - number of notes is 0..#notes-hdrs
+        { "notes-hdrs",           false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many headers to specify
+
+        { "timestep-multipliers", true,             TYPENAME::DOUBLE,    ShorthandDefault_t(1.0) }                              // allow defaults - number of multipliers is the number of stellar types
     };
 
 
@@ -291,7 +305,7 @@ private:
     // the commandline and gridfile, but in the end I decided this way was actually
     // easier, cleaner, and gives us a bit more control.
 
-    std::vector<std::string> m_GridLineExcluded = {
+    STR_VECTOR m_GridLineExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -358,8 +372,6 @@ private:
         "store-input-files",
         "switch-log",
 
-        "timestep-multiplier",
-
         "version", "v",
 
         "yaml-template"
@@ -398,7 +410,7 @@ private:
     // vectors is helping the user avoid duplicating stars/binaries if they specify
     // inconsistent options.
 
-    std::vector<std::string> m_SSEOnly = {
+    STR_VECTOR m_SSEOnly = {
 
         // trying to keep enties alphabetical so easier to find specific entries
 
@@ -411,7 +423,7 @@ private:
         "rotational-frequency"
     };
 
-    std::vector<std::string> m_BSEOnly = {
+    STR_VECTOR m_BSEOnly = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -524,8 +536,7 @@ private:
     // but sets (and ranges) don't make sense for some options (things like "help",
     // "quiet", logfile names etc....)
   
-
-    std::vector<std::string> m_RangeExcluded = {
+    STR_VECTOR m_RangeExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -655,6 +666,7 @@ private:
         "tides-prescription",
 
         "timesteps-filename",
+        "timestep-multipliers",
 
         "use-mass-loss",
         "use-mass-transfer",
@@ -667,7 +679,7 @@ private:
         "yaml-template"
     };
     
-    std::vector<std::string> m_SetExcluded = {
+    STR_VECTOR m_SetExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -739,6 +751,7 @@ private:
         "switch-log",
 
         "timesteps-filename",
+        "timestep-multipliers",
 
         "version", "v",
 
@@ -781,8 +794,8 @@ public:
             bool                                                m_EnableWarnings;                                               // Flag used to determine if warnings (via SHOW_WARN macros) should be displayed
             ENUM_OPT<FP_ERROR_MODE>                             m_FPErrorMode;                                                  // Specifies the mode for floating-point error handling
 
-            std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
-            std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
+            STR_VECTOR                                          m_Notes;                                                        // Notes contents - for user-defined annotations
+            STR_VECTOR                                          m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
@@ -820,6 +833,7 @@ public:
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
+            DBL_VECTOR                                          m_TimestepMultipliers;                                          // Phase-dependent multipliers for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
    
             double m_MassChangeFraction;                                                                                        // Approximate goal for fractional radial change per timestep
             double m_RadialChangeFraction;                                                                                      // Approximate goal for fractional radial change per timestep
@@ -981,6 +995,7 @@ public:
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
 	        bool                                                m_CirculariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = true)
 	        bool                                                m_AngularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
+            double                                              m_ConvectiveEnvelopeMassThreshold;                              // The mass fraction of envelope that should be convective for the envelope to be labeled convective
             double                                              m_ConvectiveEnvelopeTemperatureThreshold;                       // The boundary between convective and radiative envelopes for HG and Giant stars
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
@@ -1071,9 +1086,10 @@ public:
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
-
+            ENUM_OPT<RESPONSE_TO_SPIN_UP>                       m_ResponseToSpinUp;                                             // Response to super-critical spin-up prescription
+        
             // Tides
-            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1132,10 +1148,10 @@ public:
             // Debug and logging options
 
             int                                                 m_DebugLevel;                                                   // Debug level - used to determine which debug statements are actually written
-            std::vector<std::string>                            m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
+            STR_VECTOR                                          m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
 
             int                                                 m_LogLevel;                                                     // Logging level - used to determine which logging statements are actually written
-            std::vector<std::string>                            m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
+            STR_VECTOR                                          m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
 
 
             // Logfiles
@@ -1210,7 +1226,7 @@ public:
     //
     //     type         (INT)                           type indicates whether the entry refers to a RANGE (type 0) or SET (type 1)
     //     dataType     (TYPENAME)                      the data type of the option to which the RangeOrSetDescriptorT pertaines
-    //     parameters   (std::vector<std::string>)      a vector of strings that hold the parameters as they were supplied by the user
+    //     parameters   (STR_VECTOR)                    a vector of strings that hold the parameters as they were supplied by the user
     //                                                  for a RANGE there must be exactly 3 parameters: start, count, increment
     //                                                  a SET must have at least one parameter (element); there is no maximum number of elements
     //     rangeParms   (std::vector<RangeParameterT>)  numerical values for range parameters (see RangeParameter struct)
@@ -1231,7 +1247,7 @@ public:
     typedef struct RangeOrSetDescriptor {
         COMPLEX_TYPE                 type;                                              // RANGE or SET
         TYPENAME                     dataType;                                          // the option datatype
-        std::vector<std::string>     parameters;                                        // the range or set parameters
+        STR_VECTOR                   parameters;                                        // the range or set parameters
         std::vector<RangeParameterT> rangeParms;                                        // range parameters numerical values
         int                          currPos;                                           // current position of iterator - count for RANGE, pos for SET                                             
     } RangeOrSetDescriptorT;
@@ -1287,13 +1303,13 @@ private:
     // member functions
 
     bool                        AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription);
-    std::vector<std::string>    AllowedOptionValues(const std::string p_OptionString);
+    STR_VECTOR                  AllowedOptionValues(const std::string p_OptionString);
     std::string                 AllowedOptionValuesFormatted(const std::string p_OptionString);
     int                         AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor);
 
     void                        BuildDefaultsMap(po::options_description *p_OptionsDescription);
 
-    std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
+    std::tuple<std::string, int, STR_VECTOR> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
 
     bool                        IsSupportedNumericDataType(TYPENAME p_TypeName);
 
@@ -1379,11 +1395,12 @@ public:
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
+    double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }
     double                                      ConvectiveEnvelopeTemperatureThreshold() const                          { return OPT_VALUE("convective-envelope-temperature-threshold", m_ConvectiveEnvelopeTemperatureThreshold, true); }
 
     double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
 
-    std::vector<std::string>                    DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
+    STR_VECTOR                                  DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
     int                                         DebugLevel() const                                                      { return m_CmdLine.optionValues.m_DebugLevel; }
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
@@ -1457,7 +1474,7 @@ public:
     double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, true); }
     double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
 
-    std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
+    STR_VECTOR                                  LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
     int                                         LogfileCommonEnvelopesRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfileCommonEnvelopesRecordTypes; }
     std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
@@ -1577,9 +1594,9 @@ public:
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
-    std::vector<std::string>                    Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
+    STR_VECTOR                                  Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
     std::string                                 NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }
-    std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
+    STR_VECTOR                                  NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true); }
@@ -1638,6 +1655,8 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
     
+    RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
+    
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
@@ -1679,7 +1698,9 @@ public:
     TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
-    double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
+    double                                      TimestepMultiplier() const                                              { return OPT_VALUE("timestep-multiplier", m_TimestepMultiplier, true); }
+    double                                      TimestepMultipliers(const size_t p_Idx) const                           { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers[p_Idx], true); }
+    DBL_VECTOR                                  TimestepMultipliers() const                                             { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers, true); }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
     bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss, true); }
