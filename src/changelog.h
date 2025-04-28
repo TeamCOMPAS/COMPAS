@@ -1537,7 +1537,10 @@
 //  03.18.00    JR - Apr 14, 2025   - Enhancement:
 //                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
 //                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
+//  03.18.01    AB - Apr 28, 2025   - Defect repair:
+//                                      - Updated coefficients from Shikauchi et al. (2024) for main-sequence core mass calculations
+//                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
 
-const std::string VERSION_STRING = "03.18.00";
+const std::string VERSION_STRING = "03.18.01";
 
 # endif // __changelog_h__
