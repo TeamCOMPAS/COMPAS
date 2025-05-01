@@ -1350,8 +1350,8 @@ This option is primarily intended for debugging/testing of convergence issues ra
 **--timestep-multipliers** |br|
 Phase-dependent multiplicative factors for timestep duration. |br|
 See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
-A multicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the option value
-indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the 
+option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
 :doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
 |br|
 This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 
