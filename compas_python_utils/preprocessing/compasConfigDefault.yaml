@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Mon Apr 14 17:15:32 2025 by COMPAS v03.18.00
+##~!!~## File Created Thu May  1 20:17:56 2025 by COMPAS v03.18.01
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -48,9 +48,9 @@ booleanChoices:
 #    --common-envelope-allow-immediate-RLOF-post-CE-survive: False         # Default: False
 #    --common-envelope-allow-main-sequence-survive: True                   # Default: True                                                                                                                                                                             # Allow main sequence stars to survive CE
 #    --common-envelope-allow-radiative-envelope-survive: False             # Default: False
-#    --common-envelope-lambda-nanjing-enhanced: False                      # Default: False
-#    --common-envelope-lambda-nanjing-interpolate-in-mass: False           # Default: False
-#    --common-envelope-lambda-nanjing-interpolate-in-metallicity: False    # Default: False
+#    --common-envelope-lambda-nanjing-enhanced: True                       # Default: True
+#    --common-envelope-lambda-nanjing-interpolate-in-mass: True            # Default: True
+#    --common-envelope-lambda-nanjing-interpolate-in-metallicity: True     # Default: True
 #    --common-envelope-lambda-nanjing-use-rejuvenated-mass: False          # Default: False
 #    --revised-energy-formalism-nandez-ivanova: False                      # Default: False
 
