@@ -1540,7 +1540,10 @@
 //  03.18.01    AB - Apr 28, 2025   - Defect repair:
 //                                      - Updated coefficients from Shikauchi et al. (2024) for main-sequence core mass calculations
 //                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
+//  03.18.02    IM - May 1, 2025    - Enhancement:
+//                                      - Added several outputs to the Switch log necessary for inter-run post-processing comparisons
+//                                      - Changed the default behaviour to interpolat Nanjing lambdas in mass and metallicity when using them for common envelope calculations
 
-const std::string VERSION_STRING = "03.18.01";
+const std::string VERSION_STRING = "03.18.02";
 
 # endif // __changelog_h__
