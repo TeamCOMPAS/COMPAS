@@ -18,6 +18,8 @@ function ComparisonPlots(filename1, name1, filename2, name2)
 %       '~/Work/COMPAS/src/COMPAS_2Stage/COMPAS_Output.h5', '2 stage CE')
 %
 % Warning: --switch-log must be used for all runs to be analysed
+% It is recommended, but not required, to use the same random seed for the 
+% runs being compared in order to compare individual binary evolution
 
 
     global Msunkg G AU Rsun
@@ -40,7 +42,8 @@ function ComparisonPlots(filename1, name1, filename2, name2)
     figure(1), hold off; figure(2), hold off;
     figure(1), set(gca,'FontSize',20), xlabel('Mass 1 (M$_\odot$)', 'Interpreter', 'latex'), 
         ylabel('Mass 2 (M$_\odot$)', 'Interpreter', 'latex'), title('Merging DCO masses');  legend;
-    figure(2), set(gca,'FontSize',20), xlabel('log_{10} (Orbital period/hr)'), ylabel('Eccentricity'), title('DNS at formation'); legend;
+    figure(2), set(gca,'FontSize',20), xlabel('$\log_{10}$ (Orbital period/hr)', 'Interpreter', 'latex');
+    ylabel('Eccentricity'), title('DNS at formation'); legend;
 
 
     %Plot BH HMXBs
