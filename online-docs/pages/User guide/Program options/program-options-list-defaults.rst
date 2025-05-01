@@ -164,15 +164,15 @@ Default = 1.0
 
 **--common-envelope-lambda-nanjing-enhanced** |br|
 Continuous extrapolation beyond maximum radius range in Nanjing lambda's as implemented in StarTrack. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-mass** |br|
 Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``.  Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
-Default = FALSE
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-metallicity** |br|
 Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
-Default = FALSE
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|

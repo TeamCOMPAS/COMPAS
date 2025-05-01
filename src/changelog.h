@@ -1542,7 +1542,7 @@
 //                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
 //  03.18.02    IM - May 1, 2025    - Enhancement:
 //                                      - Added several outputs to the Switch log necessary for inter-run post-processing comparisons
-//                                      - Changed the default behaviour to interpolat Nanjing lambdas in mass and metallicity when using them for common envelope calculations
+//                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
 
 const std::string VERSION_STRING = "03.18.02";
 
