@@ -517,9 +517,9 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeSlopeKruckow                                    = -5.0 / 6.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
-    m_CommonEnvelopeLambdaNanjingEnhanced                           = false;
-    m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = false;
-    m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = false;
+    m_CommonEnvelopeLambdaNanjingEnhanced                           = true;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = true;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = true;
     m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
     m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
