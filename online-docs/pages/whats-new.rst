@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.18.02 May 1, 2025**
+
+* Changed default for Nanjing lambdas to use enhanced lambdas and interpolate in mass and metallicity
+
 **03.18.00 Apr 14, 2025**
 
 New command line option:
