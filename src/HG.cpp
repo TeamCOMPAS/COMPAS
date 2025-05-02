@@ -134,9 +134,9 @@ double HG::CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassL
     logBindingEnergy += 33.29866;                                                           // + logBE0
     double bindingEnergy = PPOW(10.0, logBindingEnergy);
     
-    return utils::Compare(bindingEnergy, 0.0) > 0 && utils::Compare(p_EnvMass, 0.0) > 0 
-            ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy) 
-            : 1.0;                                                                          // default to 1.0 (usual lambda default) if binding energy is not sensible [should never happen] or if envelope mass is not positive [can be zero]
+    return utils::Compare(bindingEnergy, 0.0) > 0 && utils::Compare(1.0 / bindingEnergy, 0.0) > 0 && utils::Compare(p_EnvMass, 0.0) > 0
+            ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy)
+            : 1.0;                                                                          // default to 1.0 (usual lambda default) if binding energy is not sensible [sometimes can be infinite if logBindingEnergy is too high] or if envelope mass is not positive [can be zero]
 }
 
 

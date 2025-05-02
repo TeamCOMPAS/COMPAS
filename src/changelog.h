@@ -1543,7 +1543,9 @@
 //  03.18.02    IM - May 1, 2025    - Enhancement:
 //                                      - Added several outputs to the BSE and SSE Switch logs necessary for inter-run post-processing comparisons
 //                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
+//  03.18.03    IM - May 2, 2025    - Defect repair:
+//                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
 
-const std::string VERSION_STRING = "03.18.02";
+const std::string VERSION_STRING = "03.18.03";
 
 # endif // __changelog_h__
