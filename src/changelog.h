@@ -1545,7 +1545,9 @@
 //                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
 //  03.18.03    IM - May 2, 2025    - Defect repair:
 //                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
+//  03.18.04    IM - May 4, 2025    - Defect repair:
+//                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
 
-const std::string VERSION_STRING = "03.18.03";
+const std::string VERSION_STRING = "03.18.04";
 
 # endif // __changelog_h__
