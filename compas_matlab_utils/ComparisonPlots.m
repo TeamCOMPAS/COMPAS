@@ -69,7 +69,7 @@ function ComparisonPlots(filename1, name1, filename2, name2)
     %Plot LMXBs/IMXBs
     figure(5); clf(5);
     [LMXBcount, NSLMXBcount]=LMXBplot(filename1, name1, 5, 'r', 40);
-    fprintf('\nLMXBs:\t\t#LMXB\t#NS LMXB\n');
+    fprintf('\nLMXBs:\t\t#LMXB\t\t#NS LMXB\n');
     fprintf('%s:\t%d\t\t%d\n', name1, LMXBcount, NSLMXBcount);
     if(nargin==4),
         [LMXBcount, NSLMXBcount]=LMXBplot(filename2, name2, 5, 'b', 20);
@@ -345,13 +345,18 @@ function [binariescount, SNcount, BHcompletecount, SNbothcount, SNonecount, ...
     timeCE=h5read(file,'/BSE_Common_Envelopes/Time');
     seedAll=h5read(file, '/BSE_System_Parameters/SEED');
     [isCE,indexCE]=ismember(seedSN,seedCE); 
+    [isCE,lastindexCE]=ismember(seedSN,seedCE,'legacy'); %last index of CE seed matching given SN seed (for binaries with 2+ CE events)
     simultaneouswithCE = false(size(indexCE)); 
-    for(i=1:length(isCE)), if(isCE(i)), simultaneouswithCE(i) = ~isempty(find(timeCE==timeSN(i) & seedCE==seedSN(i))); end; end;
+    simultaneouswithCE(isCE) = (timeCE(indexCE(isCE)) == timeSN(isCE)) | (timeCE(lastindexCE(isCE)) == timeSN(isCE)); 
+    %Note: could (very rarely) miss a coincidence if >2 CE events and only intermediate CE matches SN in time
     precedingCE = false(size(indexCE)); 
-    for(i=1:length(isCE)), if(isCE(i)), precedingCE(i) = ~isempty(find(timeCE<timeSN(i) & seedCE==seedSN(i))); end; end;
+    precedingCE(isCE) = (timeCE(indexCE(isCE)) < timeSN(isCE)); 
     [experiencedRLOF,indexRLOF]=ismember(seedSN,seedRLOF);
+    [experiencedRLOF,lastindexRLOF]=ismember(seedSN,seedRLOF, 'legacy');
     simultaneouswithRLOF = false(size(indexRLOF)); 
-    for(i=1:length(indexRLOF)), if(experiencedRLOF(i)), simultaneouswithRLOF(i) = ~isempty(find(timeRLOF==timeSN(i) & seedRLOF==seedSN(i))); end; end;
+    simultaneouswithRLOF(experiencedRLOF) = (timeRLOF(indexRLOF(experiencedRLOF)) == timeSN(experiencedRLOF) ...
+                                            | timeRLOF(lastindexRLOF(experiencedRLOF)) == timeSN(experiencedRLOF)); 
+    %Note: could miss a coincidence if >2 RLOF events and only intermediate RLOF matches SN in time
     binariescount=length(seedAll);
     SNcount=length(seedSN);
     BHcompletecount=sum(starSNSN==14 & MpreSN==MSNSN);
