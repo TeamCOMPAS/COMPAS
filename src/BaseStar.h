@@ -231,9 +231,9 @@ public:
             double          CalculateInitialHeliumAbundance() const                                     { return 0.24 + 2.0 * m_Metallicity; }                              // Pols et al. 1998
             double          CalculateInitialHydrogenAbundance() const                                   { return 0.76 - 3.0 * m_Metallicity; }                              // Pols et al. 1998
     
-    virtual DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;
-    virtual DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const ;
-    virtual DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;
+    virtual DBL_DBL_DBL_DBL CalculateImKnmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;
+    virtual DBL_DBL_DBL_DBL CalculateImKnmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const ;
+    virtual DBL_DBL_DBL_DBL CalculateImKnmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;
     
     virtual double          CalculateLambdaDewi() const                                                 { return 1.0; }                                                             // Default for stellar types with no LamdaDewi definitions - 1.0 is benign
             double          CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;

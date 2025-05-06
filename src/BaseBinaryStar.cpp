@@ -1031,20 +1031,20 @@ void BaseBinaryStar::ResolveCoalescence() {
  * Zahn, 1977, Eq. (3.7)
  *
  *
- * double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ * double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star)
  *
- * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_ImKnm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
  * @param   [IN]    p_Star                      Star for which impact on eccentricity is to be calculated
  * @return                                      Change in Eccentricity for binary (1/yr)
  */    
-double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star) {
     
     double massStar      = p_Star->Mass();
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
 
     double ImK10, ImK12, ImK22, ImK32;
-    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
@@ -1060,20 +1060,20 @@ double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImK
  * Zahn, 1977, Eq. (3.8)
  *
  *
- * double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ * double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star)
  *
- * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_ImKnm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
  * @param   [IN]    p_Star                      Star for which impact on spin is to be calculated
  * @return                                      Change in Omega for star (1/yr/yr)
  */    
-double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star) {
  
     double MoIstar       = p_Star->CalculateMomentOfInertiaAU();
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
 
     double ImK10, ImK12, ImK22, ImK32;
-    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
@@ -1091,20 +1091,20 @@ double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, con
  * Zahn, 1977, Eq. (3.6)
  *
  *
- * double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ * double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star)
  *
- * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_ImKnm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
  * @param   [IN]    p_Star                      Star for which impact on semi-major axis is to be calculated
  * @return                                      Change in semi-major axis for binary (AU/yr)
  */    
-double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star) {
     
     double massStar      = p_Star->Mass();
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
     
     double ImK10, ImK12, ImK22, ImK32;
-    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
@@ -2690,21 +2690,21 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                     
             } break;
         
-            case TIDES_PRESCRIPTION::KAPIL2024: {                                                                               // KAPIL2024
+            case TIDES_PRESCRIPTION::KAPIL2025: {                                                                               // KAPIL2025
 
-                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024
+                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2025
 
-                DBL_DBL_DBL_DBL ImKlm1   = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
-                DBL_DBL_DBL_DBL ImKlm2   = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
+                DBL_DBL_DBL_DBL ImKnm1   = m_Star1->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
+                DBL_DBL_DBL_DBL ImKnm2   = m_Star2->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
 
-                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);                                                                        // change in semi-major axis from star1
-                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);                                                                        // change in semi-major axis from star2
+                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKnm1, m_Star1);                                                                        // change in semi-major axis from star1
+                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKnm2, m_Star2);                                                                        // change in semi-major axis from star2
 
-                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);                                                                         // change in eccentricity from star1
-                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);                                                                         // change in eccentricity from star2
+                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKnm1, m_Star1);                                                                         // change in eccentricity from star1
+                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKnm2, m_Star2);                                                                         // change in eccentricity from star2
 
-                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);                                                                                // change in spin from star1
-                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);                                                                                // change in spin from star2
+                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKnm1, m_Star1);                                                                                // change in spin from star1
+                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKnm2, m_Star2);                                                                                // change in spin from star2
                                 
                 // limit change in stellar and orbital properties from tides to a maximum fraction of the current value
                 double fraction_tidal_change = 1.0;
@@ -2984,21 +2984,21 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }
     
-        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {                // tides prescription = KAPIL2024
+        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2025) {                // tides prescription = KAPIL2025
                                                                                             // yes - need to adjust dt     
             double omega                  = OrbitalAngularVelocity();
             
-            DBL_DBL_DBL_DBL ImKlm1        = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
-            DBL_DBL_DBL_DBL ImKlm2        = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
+            DBL_DBL_DBL_DBL ImKnm1        = m_Star1->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
+            DBL_DBL_DBL_DBL ImKnm2        = m_Star2->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
 
-            double DSemiMajorAxis1DtTidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
-            double DSemiMajorAxis2DtTidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
+            double DSemiMajorAxis1DtTidal = CalculateDSemiMajorAxisTidalDt(ImKnm1, m_Star1);
+            double DSemiMajorAxis2DtTidal = CalculateDSemiMajorAxisTidalDt(ImKnm2, m_Star2);
 
-            double DEccentricity1DtTidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
-            double DEccentricity2DtTidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
+            double DEccentricity1DtTidal  = CalculateDEccentricityTidalDt(ImKnm1, m_Star1);
+            double DEccentricity2DtTidal  = CalculateDEccentricityTidalDt(ImKnm2, m_Star2);
                                                         
-            double DOmega1Dt_tidal        = CalculateDOmegaTidalDt(ImKlm1, m_Star1);
-            double DOmega2Dt_tidal        = CalculateDOmegaTidalDt(ImKlm2, m_Star2);
+            double DOmega1Dt_tidal        = CalculateDOmegaTidalDt(ImKnm1, m_Star1);
+            double DOmega2Dt_tidal        = CalculateDOmegaTidalDt(ImKnm2, m_Star2);
                                                                     
             // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
             // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
@@ -3090,7 +3090,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
 
         CalculateEnergyAndAngularMomentum();                                                                            // perform energy and angular momentum calculations
-    
+        
         ProcessTides(p_Dt);                                                                                             // process tides if required
 
         // assign new values to "previous" values, for following timestep
