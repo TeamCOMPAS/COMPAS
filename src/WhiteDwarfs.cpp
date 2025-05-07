@@ -13,14 +13,14 @@
  *
  * double CalculateEtaH(const double p_MassTransferRate)
  *
- * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
+ * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/Myr)
  * @return                                 Hydrogen accretion efficiency
  */
 double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
 
     double etaH = 0.0;                                      // default return value
 
-    double logMassTransferRate = log10(p_MassTransferRate);
+    double logMassTransferRate = log10(p_MassTransferRate / MYR_TO_YEAR);
     double m_Mass_2            = m_Mass * m_Mass;
 
     // The following coefficients come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
@@ -52,14 +52,14 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
  *
  * double CalculateEtaHe(const double p_MassTransferRate)
  *
- * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
+ * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/Myr)
  * @return                                 Helium accretion efficiency
  */
 double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
 
     double etaHe = 1.0;                                     // default return value - so we can have double detonations
     
-    double logMassTransferRate = log10(p_MassTransferRate);
+    double logMassTransferRate = log10(p_MassTransferRate / MYR_TO_YEAR);
 
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
     double logMdotUppHe = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 * m_Mass;
@@ -142,8 +142,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
 /*
  * Calculate the radius of a white dwarf - good for all types of WD
  *
- * Hurley et al. 2000, eq 91 (from Tout et al. 1997)
- *
+ * Originally from Eggleton 1986, quoted in Verbunt & Rappaport 1988 and Marsh et al. 2004 (eq. 24)
  *
  * double CalculateRadiusOnPhase_Static(const double p_Mass)
  *
@@ -157,12 +156,19 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     
     if (utils::Compare(p_Mass, MCH) >= 0) return NEUTRON_STAR_RADIUS;                               // only expected to come up if asking for the core or remnant radius of a giant star
     
-    double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
-    double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+    const double MP = 5.7E-4; // Constant
+    const double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
+    const double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+    
+    double MP_Mass = MP / p_Mass;
+    double MP_Mass_two_thirds = MP_Mass / std::cbrt(MP / p_Mass); 
 
-    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds)));
+    double First_Factor = std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds));
+    double Pre_Second_Factor = 1 + 3.5 * MP_Mass_two_thirds + MP_Mass;
+    double Second_Factor = std::cbrt(Pre_Second_Factor) / Pre_Second_Factor;
+
+    return std::max(NEUTRON_STAR_RADIUS, 0.0114 * First_Factor * Second_Factor);
 }
-
 
 /* 
  * Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.

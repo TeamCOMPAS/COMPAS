@@ -1547,7 +1547,13 @@
 //                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
 //  03.18.04    IM - May 4, 2025    - Defect repair:
 //                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
+//  03.18.05    SS - May 7, 2025    - Enhancement:
+//                                      - Improvements to mass accretion for massive ONe WDs
+//                                          - Added ONe::CalculateMassAcceptanceRate
+//                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
+//                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
+//
 
-const std::string VERSION_STRING = "03.18.04";
+const std::string VERSION_STRING = "03.18.05";
 
 # endif // __changelog_h__
