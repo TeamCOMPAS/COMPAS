@@ -61,6 +61,10 @@ public:
 protected:
 
     void Initialise() {
+        // initialise surface abundances
+        m_HydrogenAbundanceSurface = 0.0;
+        m_HeliumAbundanceSurface   = 1.0 - m_Metallicity;
+        
         CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),

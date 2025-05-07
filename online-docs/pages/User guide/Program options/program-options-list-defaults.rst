@@ -164,15 +164,15 @@ Default = 1.0
 
 **--common-envelope-lambda-nanjing-enhanced** |br|
 Continuous extrapolation beyond maximum radius range in Nanjing lambda's as implemented in StarTrack. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-mass** |br|
-Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``.  Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-metallicity** |br|
-Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
@@ -1368,8 +1368,8 @@ This option is primarily intended for debugging/testing of convergence issues ra
 **--timestep-multipliers** |br|
 Phase-dependent multiplicative factors for timestep duration. |br|
 See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
-A multicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the option value
-indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the 
+option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
 :doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
 |br|
 This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 

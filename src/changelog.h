@@ -1537,9 +1537,17 @@
 //  03.18.00    JR - Apr 14, 2025   - Enhancement:
 //                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
 //                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
-//  03.19.00    RTW - May 15, 2024    - Enhancements:
-//                                      - Added in option to set initial stellar type, allowing for any of { MS HeMS HeWD COWD ONeWD NS BH }
+//  03.18.01    AB - Apr 28, 2025   - Defect repair:
+//                                      - Updated coefficients from Shikauchi et al. (2024) for main-sequence core mass calculations
+//                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
+//  03.18.02    IM - May 1, 2025    - Enhancement:
+//                                      - Added several outputs to the BSE and SSE Switch logs necessary for inter-run post-processing comparisons
+//                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
+//  03.18.03    IM - May 2, 2025    - Defect repair:
+//                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
+//  03.18.04    IM - May 4, 2025    - Defect repair:
+//                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
 
-const std::string VERSION_STRING = "03.19.00";
+const std::string VERSION_STRING = "03.18.04";
 
 # endif // __changelog_h__
