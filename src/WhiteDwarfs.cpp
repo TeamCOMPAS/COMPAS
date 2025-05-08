@@ -6,10 +6,10 @@
  * thresholds logMdotUppH and logMdotLowH. In Claeys+ 2014, the mass transfer rate is
  * \dot{M}_{tr} and the thresholds are \dot{M}_{cr,H} and \dot{M}_{cr,H}/8, respectively. 
  *
- * However, we have used improved thresholds from Nomoto+ 2007, in which the 
+ * However, we have used improved thresholds from Nomoto+ 2007 in which the 
  * lower boundary is \dot{M}_{stable} and the upper boundary is \dot{M}_{RG}. 
  * More precisely, we implemented quadratic fits to the values in Nomoto+ 2007,
- * table 5, as described in Rodriguez+ (in prep). 
+ * table 5, as described in the second COMPAS methods paper (in prep). 
  *
  * double CalculateEtaH(const double p_MassTransferRate)
  *
@@ -142,7 +142,10 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
 /*
  * Calculate the radius of a white dwarf - good for all types of WD
  *
- * Originally from Eggleton 1986, quoted in Verbunt & Rappaport 1988 and Marsh et al. 2004 (eq. 24)
+ * Originally from Eggleton 1986, quoted in Verbunt & Rappaport 1988 and Marsh et al. 2004 (eq. 24).
+ * Compared to the Hurley et al. 2000 prescription, the additional factor that includes MP allows
+ * for the change to a constant density configuration at low masses (e.g., Zapolsky & Salpeter 1969)
+ * after mass loss episodes.
  *
  * double CalculateRadiusOnPhase_Static(const double p_Mass)
  *
