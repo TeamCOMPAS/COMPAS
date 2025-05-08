@@ -166,11 +166,11 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     double MP_Mass = MP / p_Mass;
     double MP_Mass_two_thirds = MP_Mass / std::cbrt(MP / p_Mass); 
 
-    double First_Factor = std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds));
-    double Pre_Second_Factor = 1 + 3.5 * MP_Mass_two_thirds + MP_Mass;
-    double Second_Factor = std::cbrt(Pre_Second_Factor) / Pre_Second_Factor;
+    double firstFactor = std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds));
+    double preSecondFactor = 1 + 3.5 * MP_Mass_two_thirds + MP_Mass;
+    double secondFactor = std::cbrt(preSecondFactor) / preSecondFactor;
 
-    return std::max(NEUTRON_STAR_RADIUS, 0.0114 * First_Factor * Second_Factor);
+    return std::max(NEUTRON_STAR_RADIUS, 0.0114 * firstFactor * secondFactor);
 }
 
 /* 
