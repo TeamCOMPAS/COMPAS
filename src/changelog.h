@@ -1549,7 +1549,11 @@
 //                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
 //  03.18.05    JR - May 8, 2025    - Defect repair:
 //                                      - Fix for issue #1378: reinstate "false" fallback option for `kick-magnitude-random*` options (mistakenly changed to "true" in v03.00.00)
+//  03.18.06    IM - May 9, 2025    - Enhancement, defect repair:
+//                                      - Added several outputs to provide more information and aid code testing: SEMI_MAJOR_AXIS_POST_STAGE_1_CE (for the 2-stage CE); BINDING_ENERGY_CONVECTIVE_ENVELOPE, CONVECTIVE_ENV_MASS, LAMBDA_CONVECTIVE_ENVELOPE (convective envelope binding energy,  mass, and lambda, respectively, Picker prescription)
+//                                      - Ensure that the MANDEL main sequence core mass prescription never provides a core mass exceeding the total mass
+//                                      - Corrected several erroneous comments, cleaned up a few function defintions
 
-const std::string VERSION_STRING = "03.18.05";
+const std::string VERSION_STRING = "03.18.06";
 
 # endif // __changelog_h__
