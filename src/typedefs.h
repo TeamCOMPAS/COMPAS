@@ -1252,6 +1252,7 @@ typedef struct BinaryCEESavedValues {
    	double rocheLobe1to2;
 	double rocheLobe2to1;
     double semiMajorAxis;
+    double semiMajorAxisAfterStage1;
 } BinaryCEESavedValuesT;
 
 // JR: add descriptive comments
@@ -1291,7 +1292,6 @@ typedef struct StellarCEDetails {                           // Common Envelope d
     double                 lambda;
     double                 convectiveEnvelopeMass;          // for two-stage CE formalism
     double                 radiativeIntershellMass;         // for two-stage CE formalism
-    double                 convectiveEnvelopeBindingEnergy; // for two-stage CE formalism
 } StellarCEDetailsT; // was CommonEnvelopeDetailsT;
 
 
