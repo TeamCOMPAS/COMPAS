@@ -286,9 +286,11 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE:                           value = CalculateBindingEnergy(CalculateLambdaLoveridge());     break;
         case ANY_STAR_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS:                     value = CalculateBindingEnergy(CalculateLambdaLoveridge(m_Mass - m_CoreMass, true));  break;
         case ANY_STAR_PROPERTY::BINDING_ENERGY_KRUCKOW:                             value = CalculateBindingEnergy(CalculateLambdaKruckow());       break;
+        case ANY_STAR_PROPERTY::BINDING_ENERGY_CONVECTIVE_ENVELOPE:                 value = CalculateConvectiveEnvelopeBindingEnergy(CalculateConvectiveEnvelopeLambdaPicker(CalculateConvectiveEnvelopeMass()));                   break;
         case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
         case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
         case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
+        case ANY_STAR_PROPERTY::CONVECTIVE_ENV_MASS:                                double ignore;  std::tie(value, ignore) = CalculateConvectiveEnvelopeMass();  break;
         case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
         case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
         case ANY_STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION:            value = SN_CoreRadiusAtCOFormation();                           break; 
@@ -332,6 +334,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::IS_SNIA:                                            value = IsSNIA();                                               break;
         case ANY_STAR_PROPERTY::IS_USSN:                                            value = IsUSSN();                                               break;
         case ANY_STAR_PROPERTY::KICK_MAGNITUDE:                                     value = SN_KickMagnitude();                                     break;
+        case ANY_STAR_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE:                         value = CalculateConvectiveEnvelopeLambdaPicker(CalculateConvectiveEnvelopeMass());              break;
         case ANY_STAR_PROPERTY::LAMBDA_DEWI:                                        value = CalculateLambdaDewi();                                  break;
         case ANY_STAR_PROPERTY::LAMBDA_FIXED:                                       value = OPTIONS->CommonEnvelopeLambda();                        break;
         case ANY_STAR_PROPERTY::LAMBDA_KRUCKOW:                                     value = CalculateLambdaKruckow();                               break;
@@ -4116,7 +4119,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
  * Calculate convective envelope binding energy for the two-stage Hirai & Mandel (2022) common envelope formalism
  *
  *
- * double CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda)
+ * double CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) const
  *
  * @param   [IN]    p_TotalMass                 Total mass of the star (Msol)
  * @param   [IN]    p_ConvectiveEnvelopeMass    Mass of the convective outer envelope  (Msol)
@@ -4124,7 +4127,7 @@ double BaseStar::CalculateBindingEnergy(const double p_CoreMass, const double p_
  * @param   [IN]    p_Lambda                    Lambda parameter for the convective envelope
  * @return                                      Binding energy (erg)
  */
-double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) {
+double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) const {
     return CalculateBindingEnergy(p_TotalMass - p_ConvectiveEnvelopeMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda);
 }
 
@@ -4136,18 +4139,19 @@ double BaseStar::CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMa
  * Follows the fits of Picker, Hirai, Mandel (2024), arXiv:2402.13180 for lambda_He
  *
  *
- * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const
+ * double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_convectiveEnvelopeMass) const
  *
- * @param   [IN]    p_convectiveEnvelopeMass    Mass of the outer convective envelope shell
- * @param   [IN]    p_maxConvectiveEnvelopeMass Maximum mass of the outer convective envelope shell at the onset of carbon burning
+ * @param   [IN]    p_convectiveEnvelopeMass    Tuple: Mass of the outer convective envelope shell and Maximum mass of the outer convective envelope shell at the onset of carbon burning
  * @return                                      Lambda binding energy parameter for the outer convective envelope
  */
-double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const {
+double BaseStar::CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_convectiveEnvelopeMass) const {
     
+    double envMass, envMassMax;
+    std::tie(envMass, envMassMax) = p_convectiveEnvelopeMass;
     double m2         = 0.0023 * m_Log10Metallicity * m_Log10Metallicity + 0.0088 * m_Log10Metallicity + 0.013;         // Eq. (12) and Table 1 of Picker, Hirai, Mandel (2024)
     double b1         = m2 * m_Mass - 0.23;                                                                             // Eq. (11) of Picker+ (2024)
-    double logLambda  = p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass > 0.3
-                            ? 0.42 * p_convectiveEnvelopeMass / p_maxConvectiveEnvelopeMass + b1
+    double logLambda  = envMass / envMassMax > 0.3
+                            ? 0.42 * envMass / envMassMax + b1
                             : 0.3 * 0.42 + b1;
     
     return exp(logLambda);
