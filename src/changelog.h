@@ -1547,7 +1547,9 @@
 //                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
 //  03.18.04    IM - May 4, 2025    - Defect repair:
 //                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
+//  03.18.05    JR - May 8, 2025    - Defect repair:
+//                                      - Fix for issue #1378: reinstate "false" fallback option for `kick-magnitude-random*` options (mistakenly changed to "true" in v03.00.00)
 
-const std::string VERSION_STRING = "03.18.04";
+const std::string VERSION_STRING = "03.18.05";
 
 # endif // __changelog_h__
