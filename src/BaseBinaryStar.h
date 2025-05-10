@@ -226,6 +226,7 @@ public:
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
     double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              SemiMajorAxisAfterStage1CEE() const         { return m_CEDetails.postCEE.semiMajorAxisAfterStage1; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -496,6 +497,7 @@ private:
     void    SetRemainingValues();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
+                             const double p_SemiMajorAxisAfterStage1,
                              const double p_Eccentricity,
                              const double p_RocheLobe1to2,
                              const double p_RocheLobe2to1);

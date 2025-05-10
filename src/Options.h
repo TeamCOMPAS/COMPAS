@@ -75,7 +75,7 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //           on the commandline).  In this case, if the user did not speify a value on
 //           the commandline, the commandline value is set according to the default
 //           behaviour for the option, and the grid line value is set from that.  Note
-//           that for options whose default behavious is to draw a random number, this
+//           that for options whose default behaviours is to draw a random number, this
 //           will only be done once for the commandline value, and each grid line that
 //           falls back to the commandline will take the same value as the commandline.
 //           Consider using 'fallback' = 'false' for those cases.
