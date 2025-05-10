@@ -874,6 +874,10 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
     rlofPropertiesToReset->massLossRateFromDonor       = m_MassLossRateInRLOF;
     rlofPropertiesToReset->accretionEfficiency         = m_FractionAccreted;
     rlofPropertiesToReset->massTransferTimescale       = m_MassTransferTimescale;
+    rlofPropertiesToReset->teff1                       = m_Star1->Temperature();
+    rlofPropertiesToReset->teff2                       = m_Star2->Temperature();
+    rlofPropertiesToReset->lum1                        = m_Star1->Luminosity();
+    rlofPropertiesToReset->lum2                        = m_Star2->Luminosity();
 }
 
 

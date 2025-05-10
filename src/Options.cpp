@@ -349,6 +349,8 @@ void Options::OptionValues::Initialise() {
     m_BlackHoleKicksMode.type                                       = BLACK_HOLE_KICKS_MODE::FALLBACK;
     m_BlackHoleKicksMode.typeString                                 = BLACK_HOLE_KICKS_MODE_LABEL.at(m_BlackHoleKicksMode.type);
 
+    m_MaltsevFallback                                               = 0.5;
+
     // Rocket kicks
     m_RocketKickMagnitude1                                          = 0.0;
     m_RocketKickMagnitude2                                          = 0.0;
@@ -1393,6 +1395,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "luminous-blue-variable-multiplier",                           
             po::value<double>(&p_Options->m_LuminousBlueVariableFactor)->default_value(p_Options->m_LuminousBlueVariableFactor),                                                                  
             ("Multiplicitive constant for LBV mass loss (default = " + std::to_string(p_Options->m_LuminousBlueVariableFactor) + ", use 10 for Mennekens & Vanbeveren 2014)").c_str()
+        )
+
+        (
+            "maltsev-fallback",
+            po::value<double>(&p_Options->m_MaltsevFallback)->default_value(p_Options->m_MaltsevFallback),
+            ("Fallback fraction for Maltsev black holes (ignored otherwise) (default = " + std::to_string(p_Options->m_MaltsevFallback) + ")").c_str()
         )
 
         (
@@ -2495,9 +2503,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_LogLevel < 0, "Logging level (--log-level) < 0");
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
+        
+        COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
 
         COMPLAIN_IF(m_MassChangeFraction <= 0.0, "Mass change fraction per timestep (--mass-change-fraction) <= 0");
-        
+
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
 
         COMPLAIN_IF(m_MassRatioDistributionMin <= 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be greater than 0 and less than or equal to 1");
@@ -4879,6 +4889,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
+
+        case PROGRAM_OPTION::MALTSEV_FALLBACK                               : value = MaltsevFallback();                                                    break;                     
             
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 

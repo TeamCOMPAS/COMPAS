@@ -1338,27 +1338,28 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
 
         case MT_CASE::NONE:                                                                                             // no history of MT
         case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
-            M1 = MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z;
-            M2 = MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z;
-            M3 = MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z;
+
+            M1 = std::min(std::max(MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z, MALTSEV2024_M1SZ01), MALTSEV2024_M1S);
+            M2 = std::min(std::max(MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z, MALTSEV2024_M2SZ01), MALTSEV2024_M2S);
+            M3 = std::min(std::max(MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z, MALTSEV2024_M3SZ01), MALTSEV2024_M3S);
             break;
 
-        case MT_CASE::A:                                                                                                // case A MT
-            M1 = MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z;
-            M2 = MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z;
-            M3 = MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z;
+        case MT_CASE::A:                                                                                             // case A MT
+            M1 = std::min(std::max(MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z, MALTSEV2024_M1AZ01), MALTSEV2024_M1A);
+            M2 = std::min(std::max(MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z, MALTSEV2024_M2AZ01), MALTSEV2024_M2A);
+            M3 = std::min(std::max(MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z, MALTSEV2024_M3AZ01), MALTSEV2024_M3A);
             break;
 
-        case MT_CASE::B:                                                                                                // case B MT
-            M1 = MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z;
-            M2 = MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z;
-            M3 = MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z;
+        case MT_CASE::B:                                                                                             // case B MT
+            M1 = std::min(std::max(MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z, MALTSEV2024_M1BZ01), MALTSEV2024_M1B);
+            M2 = std::min(std::max(MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z, MALTSEV2024_M2BZ01), MALTSEV2024_M2B);
+            M3 = std::min(std::max(MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z, MALTSEV2024_M3BZ01), MALTSEV2024_M3B);
             break;
 
-        case MT_CASE::C:                                                                                                // case C MT
-            M1 = MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z;
-            M2 = MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z;
-            M3 = MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z;
+        case MT_CASE::C:                                                                                             // case C MT
+            M1 = std::min(std::max(MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z, MALTSEV2024_M1CZ01), MALTSEV2024_M1C);
+            M2 = std::min(std::max(MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z, MALTSEV2024_M2CZ01), MALTSEV2024_M2C);
+            M3 = std::min(std::max(MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z, MALTSEV2024_M3CZ01), MALTSEV2024_M3C);
             break;
 
         default:                                                                                                        // unknown MT_CASE
@@ -1379,13 +1380,12 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
         }
     else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 )    // Partial fallback BH formation
         {
-        //return CalculateFallbackBHMassMullerMandel(p_COCoreMass, p_HeCoreMass);
-        // add 50% fallback back on
+        // add fallback back on
+        m_SupernovaDetails.fallbackFraction = OPTIONS->MaltsevFallback();
         double mhe = m_SupernovaDetails.HeCoreMassAtCOFormation;
         double mns = 1.44;
-        return 1.44 + (mhe - mns)*0.5;
+        return 1.44 + (mhe - mns) *m_SupernovaDetails.fallbackFraction;
         }
-    //return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
     return 1.40;  // slightly lower mass NS - just to distinguish it...
 }
 
@@ -1947,7 +1947,8 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         
         case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed; MULLERMANDEL kick prescription should be used
+            //fallbackfraction determined interally
+            //m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed; MULLERMANDEL kick prescription should be used
             m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
             break;
             

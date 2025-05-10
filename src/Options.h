@@ -480,6 +480,7 @@ private:
         "logfile-rlof-parameters",
         "logfile-rlof-parameters-record-types",
 
+        "maltsev-fallback",
         "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
@@ -850,6 +851,9 @@ public:
             double                                              m_InitialMassFunctionMin;                                       // Minimum mass to generate in Msol
             double                                              m_InitialMassFunctionMax;                                       // Maximum mass to generate in Msol
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
+
+            // Maltsev fallback
+            double                                              m_MaltsevFallback;                                              // fallback fraction for Maltsev fallback black holes
 
             // Mass ratio
             double                                              m_MassRatio;                                                    // Mass ratio for BSE
@@ -1520,11 +1524,13 @@ public:
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
+
+    double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return OPT_VALUE("mass-loss-prescription", m_MassLossPrescription.type, true); }
-
+    
     double                                      MassRatio() const                                                       { return OPT_VALUE("mass-ratio", m_MassRatio, true); }
     MASS_RATIO_DISTRIBUTION                     MassRatioDistribution() const                                           { return OPT_VALUE("mass-ratio-distribution", m_MassRatioDistribution.type, true); }
     double                                      MassRatioDistributionMax() const                                        { return OPT_VALUE("mass-ratio-max", m_MassRatioDistributionMax, true); }
