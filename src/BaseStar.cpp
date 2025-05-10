@@ -290,7 +290,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE:               value = CHonMS();                                               break;
         case ANY_STAR_PROPERTY::CO_CORE_MASS:                                       value = COCoreMass();                                           break;
         case ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION:           value = SN_COCoreMassAtCOFormation();                           break;
-        case ANY_STAR_PROPERTY::CONVECTIVE_ENV_MASS:                                double ignore;  std::tie(value, ignore) = CalculateConvectiveEnvelopeMass();  break;
+        case ANY_STAR_PROPERTY::CONVECTIVE_ENV_MASS:                                std::tie(value, std::ignore) = CalculateConvectiveEnvelopeMass();  break;
         case ANY_STAR_PROPERTY::CORE_MASS:                                          value = CoreMass();                                             break;
         case ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION:              value = SN_CoreMassAtCOFormation();                             break;
         case ANY_STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION:            value = SN_CoreRadiusAtCOFormation();                           break; 
