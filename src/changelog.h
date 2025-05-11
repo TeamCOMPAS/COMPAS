@@ -1553,7 +1553,9 @@
 //                                      - Added several outputs to provide more information and aid code testing: SEMI_MAJOR_AXIS_POST_STAGE_1_CE (for the 2-stage CE); BINDING_ENERGY_CONVECTIVE_ENVELOPE, CONVECTIVE_ENV_MASS, LAMBDA_CONVECTIVE_ENVELOPE (convective envelope binding energy,  mass, and lambda, respectively, Picker prescription)
 //                                      - Ensure that the MANDEL main sequence core mass prescription never provides a core mass exceeding the total mass
 //                                      - Corrected several erroneous comments, cleaned up a few function definitions
+//  03.18.07    IM - May 11, 2025   - Defect repair:
+//                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
 
-const std::string VERSION_STRING = "03.18.06";
+const std::string VERSION_STRING = "03.18.07";
 
 # endif // __changelog_h__
