@@ -365,6 +365,7 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_CEDetails.postCEE.rocheLobe1to2                = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.postCEE.rocheLobe2to1                = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.postCEE.semiMajorAxis                = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_CEDetails.postCEE.semiMajorAxisAfterStage1     = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.eccentricity                  = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.rocheLobe1to2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.rocheLobe2to1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -601,6 +602,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE:                      value = SemiMajorAxisAfterStage1CEE();
+                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                        value = SemiMajorAxisPreSN();                                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:                   value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE:                  value = SemiMajorAxisPreCEE();                                              break;
@@ -891,10 +894,10 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
  *                      const double p_RocheLobe1to2,
  *                      const double p_RocheLobe2to1)
  *
- * @param   [IN]    p_SemiMajorAxis             pre CEE semi-major axis in AU
+ * @param   [IN]    p_SemiMajorAxis             pre CEE semi-major axis in Rsol
  * @param   [IN]    p_Eccentricity              pre CEE eccentricity
- * @param   [IN]    p_RocheLobe1to2             pre CEE Roche Lobe radius in AU as seen by star1
- * @param   [IN]    p_RocheLobe2to1             pre CEE Roche Lobe radius in AU as seen by star2
+ * @param   [IN]    p_RocheLobe1to2             pre CEE Roche Lobe radius in Rsol as seen by star1
+ * @param   [IN]    p_RocheLobe2to1             pre CEE Roche Lobe radius in Rsol as seen by star2
  */
 void BaseBinaryStar::SetPreCEEValues(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
@@ -913,27 +916,32 @@ void BaseBinaryStar::SetPreCEEValues(const double p_SemiMajorAxis,
  *
  *    m_CommonEnvelopeDetails.postCEE.eccentricity
  *    m_CommonEnvelopeDetails.postCEE.semiMajorAxis
+ *    m_CommonEnvelopeDetails.postCEE.semiMajorAxisAfterStage1
  *    m_CommonEnvelopeDetails.postCEE.rocheLobe1to2
  *    m_CommonEnvelopeDetails.postCEE.rocheLobe2to1
  *    m_RLOFDetails.immediateRLOFPostCEE
  *
  *
  * void SetPostCEEValues(const double p_SemiMajorAxis,
+ *                       const double p_SemiMajorAxisAfterStage1,
  *                       const double p_Eccentricity,
  *                       const double p_RocheLobe1to2,
  *                       const double p_RocheLobe2to1)
  *
- * @param   [IN]    p_SemiMajorAxis             post CEE semi-major axis in AU
+ * @param   [IN]    p_SemiMajorAxis             post CEE semi-major axis in Rsol
+ * @param   [IN]    p_SemiMajorAxisAfterStage1   semi-major axis in Rsol after step 1 of 2-stage CE (should be 0.0 for alpha-lambda CE)
  * @param   [IN]    p_Eccentricity              post CEE eccentricity
- * @param   [IN]    p_RocheLobe1to2             post CEE Roche Lobe radius in AU as seen by star1
- * @param   [IN]    p_RocheLobe2to1             post CEE Roche Lobe radius in AU as seen by star2
+ * @param   [IN]    p_RocheLobe1to2             post CEE Roche Lobe radius in Rsol as seen by star1
+ * @param   [IN]    p_RocheLobe2to1             post CEE Roche Lobe radius in Rsol as seen by star2
  */
 void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
+                                      const double p_SemiMajorAxisAfterStage1,
                                       const double p_Eccentricity,
                                       const double p_RocheLobe1to2,
                                       const double p_RocheLobe2to1) {
 
 	m_CEDetails.postCEE.semiMajorAxis = p_SemiMajorAxis;
+    m_CEDetails.postCEE.semiMajorAxisAfterStage1 = p_SemiMajorAxisAfterStage1;
     m_CEDetails.postCEE.eccentricity  = p_Eccentricity;
 	m_CEDetails.postCEE.rocheLobe1to2 = p_RocheLobe1to2;
 	m_CEDetails.postCEE.rocheLobe2to1 = p_RocheLobe2to1;
@@ -1492,6 +1500,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double omegaSpin1_pre_CE = m_Star1->Omega();                                                                        // star1 spin (before CEE)
     double omegaSpin2_pre_CE = m_Star2->Omega();                                                                        // star2 spin (before CEE)
     
+    double semiMajorAxisAfterStage1 = 0.0;                                                                              // semi-major axis after stage 1 (to remain zero unless using 2-stage CE formalism)
+    
     bool isDonorMS = false;                                                                                             // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
         if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07, CHEMICALLY_HOMOGENEOUS or NAKED_HELIUM_STAR_MS?
@@ -1584,8 +1594,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
             
             // stage 1: convective envelope removal on a dynamical timescale; assumes lambda = lambda_He (this still uses the Picker convective envelope mass fit to estimate lambda)
-            double lambda1    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1);
-            double lambda2    = m_Star2->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2);
+            double lambda1    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(std::tie(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1));
+            double lambda2    = m_Star2->CalculateConvectiveEnvelopeLambdaPicker(std::tie(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2));
             
             double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * (mass1 - endOfFirstStageMass1) / m_Star1->Radius();
             double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * (mass2 - endOfFirstStageMass2) / m_Star2->Radius();
@@ -1594,6 +1604,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             
             double aFinalRsol = k4 / (k1 + k2 + k3);
             m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
+            semiMajorAxisAfterStage1 = m_SemiMajorAxis;
             
             // stage 2: radiative envelope removal on a thermal timescale; assumed to be fully non-conservative
             // transfer the radiative intershell first from the star that is initially in RLOF (i.e., initiating CE)
@@ -1688,7 +1699,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
         m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
         m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
-        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, semiMajorAxisAfterStage1 * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
 
         if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {// is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
