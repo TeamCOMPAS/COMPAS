@@ -166,7 +166,7 @@ public:
                                                              const double p_ConvectiveEnvelopeMass,
                                                              const double p_Radius,
                                                              const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
-    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
+    double          CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_convectiveEnvelopeMass) const { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass); }
     DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }

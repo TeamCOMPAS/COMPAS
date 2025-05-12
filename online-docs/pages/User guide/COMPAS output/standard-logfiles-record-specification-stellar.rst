@@ -89,14 +89,32 @@ Following is an alphabetical list of stellar properties available for inclusion 
    :header-rows: 0
    :class: aligned-text
 
+
+   * - :cspan:`2` **BINDING_ENERGY_CONVECTIVE_ENVELOPE**
+     -  
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - 
+   * - Description:   
+     - Absolute value of the binding energy of the convective portion of the envelope, via the :cite:`Picker2024` formalism, used for calculating post-CE separation in the 2-stage formalism 
+(erg).
+   * - Header Strings:
+     -  BE_ConvectiveEnvelope
+   
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **BINDING_ENERGY_FIXED**
      -
    * - Data type:
      -  DOUBLE
    * - COMPAS variable:
-     - BaseStar::m_BindingEnergies.fixed
+     - 
    * - Description:
-     - Absolute value of the envelope binding energy calculated using a fixed lambda parameter (erg). Calculated using lambda = m_Lambdas.fixed.
+     - Absolute value of the envelope binding energy calculated using a fixed lambda parameter (erg). 
    * - Header Strings:
      - BE_Fixed, BE_Fixed(1), BE_Fixed(2), BE_Fixed(SN), BE_Fixed(CP)
 
@@ -110,7 +128,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseStar::m_BindingEnergies.kruckow
+     - 
    * - Description:
      - Absolute value of the envelope binding energy calculated using the fit by :cite:`Vigna-Gomez2018` to :cite:`Kruckow2016` (erg). Calculated using alpha = OPTIONS→CommonEnvelopeSlopeKruckow().
    * - Header Strings:
@@ -126,9 +144,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseStar::m_BindingEnergies.loveridge
+     - 
    * - Description:
-     - Absolute value of the envelope binding energy calculated as per :cite:`Loveridge2011` (erg). Calculated using lambda = m_Lambdas.loveridge.
+     - Absolute value of the envelope binding energy calculated as per :cite:`Loveridge2011` (erg). 
    * - Header Strings:
      - BE_Loveridge, BE_Loveridge(1), BE_Loveridge(2), BE_Loveridge(SN), BE_Loveridge(CP)
 
@@ -142,9 +160,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseStar::m_BindingEnergies.loveridgeWinds
+     - 
    * - Description:
-     - Absolute value of the envelope binding energy calculated as per :cite:`Webbink1984` & :cite:`Loveridge2011` including winds (erg). Calculated using lambda = m_Lambdas.loveridgeWinds.
+     - Absolute value of the envelope binding energy calculated as per :cite:`Webbink1984` & :cite:`Loveridge2011` including winds (erg). 
    * - Header Strings:
      - BE_Loveridge_Winds, BE_Loveridge_Winds(1), BE_Loveridge_Winds(2), BE_Loveridge_Winds(SN), BE_Loveridge_Winds(CP)
 
@@ -158,9 +176,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseStar::m_BindingEnergies.nanjing
+     - 
    * - Description:
-     - Absolute value of the envelope binding energy calculated as per :doc:`Xu & Li (2010) <../../references>` (erg). Calculated using lambda = m_Lambdas.nanjing.
+     - Absolute value of the envelope binding energy calculated as per :doc:`Xu & Li (2010) <../../references>` (erg). 
    * - Header Strings:
      - BE_Nanjing, BE_Nanjing(1), BE_Nanjing(2), BE_Nanjing(SN), BE_Nanjing(CP)
 
@@ -294,6 +312,23 @@ Following is an alphabetical list of stellar properties available for inclusion 
    :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
+
+.. flat-table::   
+   :widths: 25 75 1 1  
+   :header-rows: 0
+   :class: aligned-text
+   
+   * - :cspan:`2` **CONVECTIVE_ENV_MASS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - 
+   * - Description:
+     - Envelope mass calculated using :cite:`Picker2024` (\ :math:`M\odot`).
+   * - Header Strings:
+     - Mass_Convective_Env, Mass_Convective_Env(1), Mass_Convective_Env(2)
+
 
    * - :cspan:`2` **CORE_MASS**
      -
@@ -1131,6 +1166,23 @@ but not both. If both are printed then the file will contain two columns with th
      - `Applies only to constituent stars of a binary system (i.e. does not apply to` ``SSE``\ `).`
    * - Header Strings:
      - Lambda@CE(1), Lambda@CE(2), Lambda@CE(SN), Lambda@CE(CP)
+
+
+.. flat-table::      
+   :widths: 25 75 1 1  
+   :header-rows: 0
+   :class: aligned-text
+      
+   * - :cspan:`2` **LAMBDA_CONVECTIVE_ENVELOPE**
+     - 
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - 
+   * - Description:   
+     - Common-envelope lambda parameter calculated using the :cite:`Picker2024` formalism for the convective portion of the envelope only.
+   * - Header Strings:
+     - Lambda_Convective
 
 .. flat-table::
    :widths: 25 75 1 1

@@ -128,7 +128,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
 //  !!!   --logfile-definitions option.                                             !!!                                            
 //  !!!                                                                             !!!
 //  !!!   *NOTE*                                                                    !!!
-//  !!!   The following enum classes anad maps are not where header strings should  !!!
+//  !!!   The following enum classes and maps are not where header strings should   !!!
 //  !!!   be changed!  These classes and maps are a lookup facility for the logfile !!!
 //  !!!   definitions file parser.                                                  !!!
 //  !!!                                                                             !!!
@@ -147,6 +147,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     AGE,                                             \
     ANGULAR_MOMENTUM,                                \
     BINDING_ENERGY_AT_COMMON_ENVELOPE,               \
+    BINDING_ENERGY_CONVECTIVE_ENVELOPE,              \
     BINDING_ENERGY_FIXED,                            \
     BINDING_ENERGY_NANJING,                          \
     BINDING_ENERGY_PRE_COMMON_ENVELOPE,              \
@@ -157,6 +158,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     CO_CORE_MASS,                                    \
     CO_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
+    CONVECTIVE_ENV_MASS,                             \
     CORE_MASS,                                       \
     CORE_MASS_AT_COMMON_ENVELOPE,                    \
     CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           \
@@ -209,6 +211,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     IS_USSN,                                         \
     KICK_MAGNITUDE,                                  \
     LAMBDA_AT_COMMON_ENVELOPE,                       \
+    LAMBDA_CONVECTIVE_ENVELOPE,                      \
     LAMBDA_DEWI,                                     \
     LAMBDA_FIXED,                                    \
     LAMBDA_KRUCKOW,                                  \
@@ -296,6 +299,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::AGE,                                             "AGE" },
     { STAR_PROPERTY::ANGULAR_MOMENTUM,                                "ANGULAR_MOMENTUM" },
     { STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,               "BINDING_ENERGY_AT_COMMON_ENVELOPE" },
+    { STAR_PROPERTY::BINDING_ENERGY_CONVECTIVE_ENVELOPE,              "BINDING_ENERGY_CONVECTIVE_ENVELOPE" },
     { STAR_PROPERTY::BINDING_ENERGY_FIXED,                            "BINDING_ENERGY_FIXED" },
     { STAR_PROPERTY::BINDING_ENERGY_NANJING,                          "BINDING_ENERGY_NANJING" },
     { STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,              "BINDING_ENERGY_PRE_COMMON_ENVELOPE" },
@@ -306,6 +310,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::CO_CORE_MASS,                                    "CO_CORE_MASS" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                 "CO_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::CONVECTIVE_ENV_MASS,                             "CONVECTIVE_ENV_MASS" },
     { STAR_PROPERTY::CORE_MASS,                                       "CORE_MASS" },
     { STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                    "CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           "CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
@@ -358,6 +363,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::IS_USSN,                                         "IS_USSN" },
     { STAR_PROPERTY::KICK_MAGNITUDE,                                  "KICK_MAGNITUDE" },
     { STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                       "LAMBDA_AT_COMMON_ENVELOPE" },
+    { STAR_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,                      "LAMBDA_CONVECTIVE_ENVELOPE" },
     { STAR_PROPERTY::LAMBDA_DEWI,                                     "LAMBDA_DEWI" },
     { STAR_PROPERTY::LAMBDA_FIXED,                                    "LAMBDA_FIXED" },
     { STAR_PROPERTY::LAMBDA_KRUCKOW,                                  "LAMBDA_KRUCKOW" },
@@ -554,6 +560,7 @@ enum class BINARY_PROPERTY: int {
     SEMI_MAJOR_AXIS_AT_DCO_FORMATION,
     SEMI_MAJOR_AXIS_INITIAL,
     SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
+    SEMI_MAJOR_AXIS_POST_STAGE_1_CE,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
     SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
@@ -678,6 +685,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                   "SEMI_MAJOR_AXIS_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE,                    "SEMI_MAJOR_AXIS_POST_STAGE_1_CE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                      "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                 "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                "SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE" },
@@ -1231,6 +1239,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::AGE,                                               { TYPENAME::DOUBLE,           "Age",                             "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,           "Ang_Momentum",                    "Msol AU^2 yr^-1",  24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,           "Binding_Energy@CE",               "erg",              24, 15}},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_CONVECTIVE_ENVELOPE,                { TYPENAME::DOUBLE,           "BE_ConvectiveEnvelope",           "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,           "BE_Fixed",                        "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,           "BE_Nanjing",                      "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,           "Binding_Energy<CE",               "erg",              24, 15}},
@@ -1241,6 +1250,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::CO_CORE_MASS,                                      { TYPENAME::DOUBLE,           "Mass_CO_Core",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Mass_CO_Core@CE",                 "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Mass_CO_Core@CO",                 "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::CONVECTIVE_ENV_MASS,                               { TYPENAME::DOUBLE,           "Mass_Convective_Env",             "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS,                                         { TYPENAME::DOUBLE,           "Mass_Core",                       "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                      { TYPENAME::DOUBLE,           "Mass_Core@CE",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,             { TYPENAME::DOUBLE,           "Mass_Core@CO",                    "Msol",             24, 15}},
@@ -1290,6 +1300,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,             "USSN",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,           "Applied_Kick_Magnitude",          "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,           "Lambda@CE",                       "-",                24, 15}},
+    { ANY_STAR_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,                        { TYPENAME::DOUBLE,           "Lambda_Convective",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_DEWI,                                       { TYPENAME::DOUBLE,           "Lambda_Dewi",                     "-",                24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_FIXED,                                      { TYPENAME::DOUBLE,           "Lambda_Fixed",                    "-",                24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW,                                    { TYPENAME::DOUBLE,           "Lambda_Kruckow",                  "-",                24, 15}},
@@ -1452,6 +1463,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,           "SemiMajorAxis@DCO",          "AU",              24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,           "SemiMajorAxis@ZAMS",         "AU",              24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,           "SemiMajorAxis>CE",           "Rsol",            24, 15}},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE,                     { TYPENAME::DOUBLE,           "SemiMajorAxisStage1>CE",     "Rsol",            24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,           "SemiMajorAxis<CE",           "Rsol",            24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,           "SemiMajorAxis<SN",           "AU",              24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,           "SemiMajorAxis<SN",           "Rsol",            24, 15}},
@@ -1854,6 +1866,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,
@@ -1865,6 +1878,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::STELLAR_TYPE_1_PRE_COMMON_ENVELOPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,
     STAR_1_PROPERTY::LAMBDA_FIXED,
     STAR_1_PROPERTY::LAMBDA_NANJING,
     STAR_1_PROPERTY::LAMBDA_LOVERIDGE,
@@ -1875,6 +1889,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_1_PROPERTY::BINDING_ENERGY_LOVERIDGE,
     STAR_1_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,
     STAR_1_PROPERTY::BINDING_ENERGY_KRUCKOW,
+    STAR_1_PROPERTY::CONVECTIVE_ENV_MASS,
     BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::MASS_ENV_2,
@@ -1882,6 +1897,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::STELLAR_TYPE_2_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,
     STAR_2_PROPERTY::LAMBDA_FIXED,
     STAR_2_PROPERTY::LAMBDA_NANJING,
     STAR_2_PROPERTY::LAMBDA_LOVERIDGE,
@@ -1892,6 +1908,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_2_PROPERTY::BINDING_ENERGY_LOVERIDGE,
     STAR_2_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,
     STAR_2_PROPERTY::BINDING_ENERGY_KRUCKOW,
+    STAR_2_PROPERTY::CONVECTIVE_ENV_MASS,
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
     BINARY_PROPERTY::STELLAR_MERGER,
     BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,
@@ -2001,6 +2018,7 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
     STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
     BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,
+    BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,
     BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY
 };
 
