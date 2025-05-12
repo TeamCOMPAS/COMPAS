@@ -90,17 +90,6 @@ protected:
         CalculateAndSetPulsarParameters();
     }
 
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
-
-        m_Radius                                   = CalculateRadiusOnPhase();
-        m_Luminosity                               = CalculateLuminosityOnPhase();
-    
-        m_InitialLuminosity                        = m_Luminosity;
-        m_InitialRadius                            = m_Radius;
-        m_InitialStellarType                       = m_StellarType;
-        m_StellarTypePrev                          = m_StellarType;
-    }
-    
     // member variables
 
     double m_AngularMomentum_CGS;                                                                                                                               // Current angular momentum in CGS - only required in NS class

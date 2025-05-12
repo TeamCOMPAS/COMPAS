@@ -55,20 +55,9 @@ protected:
         m_Mass0      = 0.0;
         
         EvolveOnPhase(0.0);
-   }
-
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
-
-        m_Radius                                   = CalculateRadiusOnPhase();
-        m_Luminosity                               = CalculateLuminosityOnPhase();
-    
-        m_InitialLuminosity                        = m_Luminosity;
-        m_InitialRadius                            = m_Radius;
-        m_InitialStellarType                       = m_StellarType;
-        m_StellarTypePrev                          = m_StellarType;
     }
-
-
+    
+    
     // member functions - alphabetically
     double  CalculateConvergedMassStepZetaNuclear() const                           { return 0.0; }
     double  CalculateEddingtonCriticalRate() const                                  { return 2.6E-8 * m_Mass * MYR_TO_YEAR; }                           // E.g., Marchant+, 2017, Eq. 3, assuming accretion efficiency of 10%

@@ -72,11 +72,11 @@ protected:
         EvolveOnPhase(0.0);
     }
 
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
+    void SetUpStarWhenNotStartingAtZAMS() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
 
-        m_Radius                                   = CalculateRadiusAtZAMS_Static(m_MZAMS);
-        m_Luminosity                               = CalculateLuminosityAtZAMS_Static(m_MZAMS);
-        m_Temperature                              = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
+        m_Radius                                   = CalculateRadiusAtZAMS_Static(m_Mass);
+        m_Luminosity                               = CalculateLuminosityAtZAMS_Static(m_Mass);
+        m_Temperature                              = CalculateTemperatureOnPhase_Static(m_Luminosity, m_Radius);
 
         m_InitialLuminosity                        = m_Luminosity;
         m_InitialRadius                            = m_Radius;

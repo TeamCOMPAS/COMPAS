@@ -312,9 +312,7 @@ public:
     
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
-    virtual void            FastForward()                                                                       { return; }
-
-            // RTW void            IncrementOmega(const double p_OmegaDelta)                                           { m_Omega += p_OmegaDelta; }                                        // Apply delta to current m_Omega
+    virtual void            SetUpStarWhenNotStartingAtZAMS()                                                                       { return; }
 
     virtual double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
                                                    const double p_massTransferEfficiencyBeta)                   { return 0.0; }                                                     // Placeholder, use interpolator for either H-rich or H-poor stars

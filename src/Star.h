@@ -225,9 +225,7 @@ public:
 
     void            EvolveOneTimestep(const double p_Dt);
 
-    void            FastForward()                                                                                   { m_Star->FastForward(); }
-
-    // RTW void            IncrementOmega(const double p_OmegaDelta)                                                       { m_Star->IncrementOmega(p_OmegaDelta); }
+    void            SetUpStarWhenNotStartingAtZAMS()                                                                                   { m_Star->SetUpStarWhenNotStartingAtZAMS(); }
 
     double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
                                          const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGeEtAlQCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }

@@ -58,17 +58,6 @@ protected:
         EvolveOnPhase(0.0);
     }
 
-    void FastForward() {                                                                                                                                                        // Set stellar attributes for stars initialized to this stellar type
-
-        m_Radius                                   = CalculateRadiusOnPhase();
-        m_Luminosity                               = CalculateLuminosityOnPhase();
-    
-        m_InitialLuminosity                        = m_Luminosity;
-        m_InitialRadius                            = m_Radius;
-        m_InitialStellarType                       = m_StellarType;
-        m_StellarTypePrev                          = m_StellarType;
-    }
-
     double          CalculateHeliumAbundanceCoreOnPhase() const                     { return 0.0; };
     double          CalculateHeliumAbundanceSurfaceOnPhase() const                  { return 0.0; };
     

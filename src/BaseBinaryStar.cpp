@@ -176,7 +176,9 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
         rlof = utils::Compare(starToRocheLobeRadiusRatio1, 1.0) > 0 || utils::Compare(starToRocheLobeRadiusRatio2, 1.0) > 0;            // either star overflowing Roche Lobe?
 
-        if (rlof && OPTIONS->AllowRLOFAtBirth()) {                                                                                      // over-contact binaries at birth allowed?    
+        if (rlof && OPTIONS->AllowRLOFAtBirth() 
+            && m_Star1->IsOneOf({ STELLAR_TYPE::STAR}) && m_Star2->IsOneOf({ STELLAR_TYPE::STAR})) {                                    // over-contact binaries at birth allowed? (ZAMS stars only)    
+                                                                                                                                            
             m_Flags.massesEquilibratedAtBirth = true;                                                                                   // record that we've equilbrated at birth
 
             mass1            = (mass1 + mass2) / 2.0;                                                                                   // equilibrate masses
