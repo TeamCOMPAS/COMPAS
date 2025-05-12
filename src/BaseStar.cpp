@@ -3421,8 +3421,9 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     double vConv          = lConv / tConv;
     double omegaConv      = 1.0 / tConv;                                                         // absent factor of 2*PI, following Barker (2020)
     double vl             = vConv * lConv;
-    double m2OverM        = p_M2 / m_Mass;
-    double m2OverM_2      = m2OverM * m2OverM;
+    double M_2            = m_Mass * m_Mass;
+    // double m2OverM        = p_M2 / m_Mass;
+    // double m2OverM_2      = m2OverM * m2OverM;
 
     double vl_5           = 5.0 * vl;
     double vl25OverRoot20 = vl * (25.0 / std::sqrt(20.0));
@@ -3433,11 +3434,11 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     double w22 = ((p_Omega + p_Omega) - (twoOmegaSpin));
     double w32 = ((p_Omega + p_Omega + p_Omega) - (twoOmegaSpin));
 
-    double A2_1           = -G_AU_Msol_yr * p_M2 / a_3;
-    double A2_2           = A2_1 * A2_1;
-    double D2_prefactor   = (28.0 / 3.0) * m2OverM_2 * (rOut_9 - rIn_9)  * rhoConv / a_6;
+    // double A2_1           = std::sqrt(6.0 * M_PI / 5.0) * G_AU_Msol_yr * p_M2 / a_3;
+    // double A2_2           = A2_1 * A2_1;
+    // double D2_prefactor   = (56.0 * M_PI / 5.0) * m2OverM_2 * (rOut_9 - rIn_9)  * rhoConv / a_6;
 
-    double k2_prefactor   = (3.0 / 2.0) * (16.0 * M_PI / 15.0) * G_AU_Msol_yr / A2_2 / rOut_5;
+    double k2_prefactor   = (224.0 * M_PI / 15.0) * (rOut_9 - rIn_9) * rhoConv / G_AU_Msol_yr / M_2 / rOut_5;
 
     // (l=2, n=1, m=0), Viscous dissipation, convective envelope
     double omega_t_10            = std::abs(w10);                                               
@@ -3449,8 +3450,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     else if (utils::Compare(omega_tOverOmega_c_10, 0.01) > 0) {
         nuTidal10 = vlOver2 / std::sqrt(omega_tOverOmega_c_10);    
     }
-    double Dnu10             = omega_t_10 * omega_t_10 * D2_prefactor * nuTidal10;
-    double k10Equilibrium    = k2_prefactor * Dnu10 / omega_t_10;
+    // double Dnu10             = omega_t_10 * omega_t_10 * D2_prefactor * nuTidal10;
+    double k10Equilibrium    = k2_prefactor * nuTidal10 * omega_t_10;
     if (std::isnan(k10Equilibrium)) k10Equilibrium = 0.0;
     if (w10 < 0.0) k10Equilibrium = -std::abs(k10Equilibrium);
 
@@ -3465,8 +3466,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     else if (utils::Compare(omega_tOverOmega_c_12, 0.01) > 0) {
         nuTidal12 = vlOver2 / std::sqrt(omega_tOverOmega_c_12);    
     }
-    double Dnu12             = omega_t_12 * omega_t_12 * D2_prefactor * nuTidal12;
-    double k12Equilibrium    = k2_prefactor * Dnu12 / omega_t_12;
+    // double Dnu12             = omega_t_12 * omega_t_12 * D2_prefactor * nuTidal12;
+    double k12Equilibrium    = k2_prefactor * nuTidal12 * omega_t_12;
     if (std::isnan(k12Equilibrium)) k12Equilibrium = 0.0;
     if (w12 < 0) k12Equilibrium = -std::abs(k12Equilibrium);
 
@@ -3481,8 +3482,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     else if (utils::Compare(omega_tOverOmega_c_22, 0.01) > 0) {
         nuTidal22 = vlOver2 / std::sqrt(omega_tOverOmega_c_22);    
     }
-    double Dnu22             = omega_t_22 * omega_t_22 * D2_prefactor * nuTidal22;
-    double k22Equilibrium    = k2_prefactor * Dnu22 / omega_t_22;
+    // double Dnu22             = omega_t_22 * omega_t_22 * D2_prefactor * nuTidal22;
+    double k22Equilibrium    = k2_prefactor * nuTidal22 * omega_t_22;
     if (std::isnan(k22Equilibrium)) k22Equilibrium = 0.0;
     if (w22 < 0.0) k22Equilibrium = -std::abs(k22Equilibrium);
 
@@ -3497,8 +3498,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     else if (utils::Compare(omega_t_over_omega_c_32, 0.01) > 0) {
         nuTidal32 = vlOver2 / std::sqrt(omega_t_over_omega_c_32);    
     }
-    double Dnu32             = omega_t_32 * omega_t_32 * D2_prefactor * nuTidal32;
-    double k32Equilibrium    = k2_prefactor * Dnu32 / omega_t_32;
+    // double Dnu32             = omega_t_32 * omega_t_32 * D2_prefactor * nuTidal32;
+    double k32Equilibrium    = k2_prefactor * nuTidal32 * omega_t_32;
     if (std::isnan(k32Equilibrium)) k32Equilibrium = 0.0;
     if (w32 < 0.0) k32Equilibrium = -std::abs(k32Equilibrium);
 
