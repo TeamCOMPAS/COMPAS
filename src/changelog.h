@@ -1555,7 +1555,9 @@
 //                                      - Corrected several erroneous comments, cleaned up a few function definitions
 //  03.18.07    IM - May 11, 2025   - Defect repair:
 //                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
+//  03.19.00   RTW - May 12, 2025   - Enhancement:
+//                                      - Added option for initial-stellar-type, to initialize stars from HeMS (HeZAMS), NS, BH, or any WD.
 
-const std::string VERSION_STRING = "03.18.07";
+const std::string VERSION_STRING = "03.19.00";
 
 # endif // __changelog_h__
