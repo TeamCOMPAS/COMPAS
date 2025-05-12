@@ -210,9 +210,9 @@ public:
     virtual double          CalculateConvectiveCoreMass() const {return 0.0;}
     virtual double          CalculateConvectiveCoreRadius() const {return 0.0;}
 
-            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda);
+            double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) const;
 
-            double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass) const;
+            double          CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_ConvectiveEnvelopeMass) const;
 
     virtual DBL_DBL         CalculateConvectiveEnvelopeMass() const                                             { return std::tuple<double, double> (0.0, 0.0); }
 
