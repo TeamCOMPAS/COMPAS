@@ -46,7 +46,7 @@ protected:
 
     // member functions - alphabetically
     double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
-    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                    { return 1.44; }                    // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                    { return HURLEY_HJELLMING_WEBBINK_QCRIT_MS_LTE_07; }
     double      CalculateMassTransferRejuvenationFactor()                                   { return 1.0; }
 
     ENVELOPE    DetermineEnvelopeType() const                                               { return ENVELOPE::CONVECTIVE; }    // Always CONVECTIVE

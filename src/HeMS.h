@@ -89,7 +89,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_q_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs) { return 3.0; }
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
-            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return HURLEY_HJELLMING_WEBBINK_QCRIT_MS_GT_07; }
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                                     // Use class member variables

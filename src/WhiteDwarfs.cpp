@@ -143,7 +143,7 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * Calculate the radius of a white dwarf - good for all types of WD
  *
  * Originally from Eggleton 1986, quoted in Verbunt & Rappaport 1988 and Marsh et al. 2004 (eq. 24).
- * Compared to the Hurley et al. 2000 prescription, the additional factor that includes MP allows
+ * Compared to the Hurley et al. 2000 prescription, the additional factor that includes WD_MP allows
  * for the change to a constant density configuration at low masses (e.g., Zapolsky & Salpeter 1969)
  * after mass loss episodes.
  *
@@ -159,15 +159,14 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     
     if (utils::Compare(p_Mass, MCH) >= 0) return NEUTRON_STAR_RADIUS;                               // only expected to come up if asking for the core or remnant radius of a giant star
     
-    const double MP = 5.7E-4; // Constant
     const double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
     const double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
     
-    double MP_Mass = MP / p_Mass;
-    double MP_Mass_two_thirds = MP_Mass / std::cbrt(MP / p_Mass); 
+    double MP_Mass = WD_MP / p_Mass;
+    double MP_Mass_two_thirds = MP_Mass / std::cbrt(WD_MP / p_Mass); 
 
     double firstFactor = std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds));
-    double preSecondFactor = 1 + 3.5 * MP_Mass_two_thirds + MP_Mass;
+    double preSecondFactor = 1.0 + 3.5 * MP_Mass_two_thirds + MP_Mass;
     double secondFactor = std::cbrt(preSecondFactor) / preSecondFactor;
 
     return std::max(NEUTRON_STAR_RADIUS, 0.0114 * firstFactor * secondFactor);

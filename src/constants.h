@@ -439,7 +439,15 @@ constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2      = -0.98023471;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.21757267;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.57319872;
 constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2137735;
+constexpr double WD_MP                                  = 5.7E-4;
 
+// Critical mass ratio constants for CalculateCriticalMassRatioHurleyHjellmingWebbink().
+// Based on Hurley+ 2002 section 2.6.1 and BSE code (inverse of the quoted values).
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_MS_LTE_07 = 1.44;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_MS_GT_07  = 0.33;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_HG        = 0.25;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_HE_GIANT  = 1.28;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_WD        = 1.59;
 
 // coefficients for the calculation of initial angular frequency for Chemically Homogeneous Evolution
 // Mandel from Butler 2018
