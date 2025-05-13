@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.19.00 May 13, 2025**
+
+* Replaced the name of the ``KAPIL2024`` tides prescription with ``KAPIL2025``.
+* Updated the equilibrium and dynamical tides equations to match the paper.
+
 **03.18.02 May 1, 2025**
 
 * Changed default for Nanjing lambdas to use enhanced lambdas and interpolate in mass and metallicity

@@ -1555,7 +1555,9 @@
 //                                      - Corrected several erroneous comments, cleaned up a few function definitions
 //  03.18.07    IM - May 11, 2025   - Defect repair:
 //                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
-
-const std::string VERSION_STRING = "03.18.07";
+//  03.19.00    VK - May 13, 2025   - Enhancement, Defect repair:
+//                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the paper.
+//                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
+const std::string VERSION_STRING = "03.19.00";
 
 # endif // __changelog_h__
