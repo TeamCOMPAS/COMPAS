@@ -19,7 +19,7 @@
  */
 DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
-    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); 
+    m_AccretionRegime = DetermineAccretionRegime(p_DonorMassRate, p_IsHeRich); 
                                                                                
     double acceptanceRate   = 0.0;                                                       // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                       // accretion fraction - default = 0.0
@@ -42,13 +42,13 @@ DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
  *
  * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
  *
- * ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) 
+ * ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich) 
  *
- * @param   [IN]    p_HeRich                 Whether the accreted material is helium-rich or not
  * @param   [IN]    p_DonorMassLossRate      Donor mass loss rate, in units of Msol / Myr
+ * @param   [IN]    p_HeRich                 Whether the accreted material is helium-rich or not
  * @return                                   Current WD accretion regime
  */
-ACCRETION_REGIME COWD::DetermineAccretionRegime(const bool p_HeRich, const double p_DonorMassLossRate) {
+ACCRETION_REGIME COWD::DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich) {
 
     double logMdot          = log10(p_DonorMassLossRate / MYR_TO_YEAR);                                                     // logarithm of the accreted mass (M_sun/yr)
     ACCRETION_REGIME regime = ACCRETION_REGIME::ZERO;

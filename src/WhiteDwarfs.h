@@ -54,6 +54,8 @@ protected:
                                                       const bool   p_DonorIsGiant,
                                                       const double p_DonorThermalMassLossRate,
                                                       const double p_MassLostByDonor);
+
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const        { return HURLEY_HJELLMING_WEBBINK_QCRIT_WD; }
         
             double           CalculateCOCoreMassOnPhase() const                             { return m_COCoreMass; }                                    // NO-OP
 
@@ -71,7 +73,7 @@ protected:
 
             double           CalculateEtaPTY(const double p_MassIntakeRate);
 
-            double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; }    // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
+            double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? L0_RITTER_HIGH_Z : L0_RITTER_LOW_Z; }
 
     virtual DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                          const bool   p_IsHeRich)           { return std::make_tuple(0.0, 0.0); }
