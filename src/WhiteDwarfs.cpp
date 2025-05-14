@@ -81,7 +81,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
 
 
 /* Calculate accretion efficiency as indicated in Piersanti+ 2014, section A3. Their recipe works
- * for specific mass and Mdot values, so a better implementation requires interpolation and
+ * for specific mass and Mdot values, so a better implementation would require interpolation and
  * extrapolation (specially towards the low-mass end). Right now, we just adopt a
  * piece-wise approach. Note that the authors also specify that this is based on the first
  * strong flash only, but we use it for all episodes.
@@ -101,19 +101,19 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
 
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
     if (utils::Compare(m_Mass, 0.6) <= 0) {
-        etaPTY = 6.0e-3   + 5.1e-2  * massRate + 8.3e-3 * massRate_2 - 3.317e-4 * massRate_3;
+        etaPTY = WD_PIERSANTI_M060_G0 + WD_PIERSANTI_M060_G1 * massRate + WD_PIERSANTI_M060_G2 * massRate_2 - WD_PIERSANTI_M060_G3 * massRate_3;
     } 
     else if  (utils::Compare(m_Mass, 0.7) <= 0) {
-        etaPTY = -3.5e-2  + 7.5e-2  * massRate - 1.8e-3 * massRate_2 + 3.266e-5 * massRate_3;
+        etaPTY = -WD_PIERSANTI_M070_G0 + WD_PIERSANTI_M070_G1 * massRate - WD_PIERSANTI_M070_G2 * massRate_2 + WD_PIERSANTI_M070_G3 * massRate_3;
     } 
     else if (utils::Compare(m_Mass, 0.81) <= 0) {
-        etaPTY = 9.3e-2   + 1.8e-2  * massRate + 1.6e-3 * massRate_2 - 4.111e-5 * massRate_3;
+        etaPTY = WD_PIERSANTI_M081_G0 + WD_PIERSANTI_M081_G1 * massRate + WD_PIERSANTI_M081_G2 * massRate_2 - WD_PIERSANTI_M081_G3 * massRate_3;
     } 
     else if (utils::Compare(m_Mass, 0.92) <= 0) { 
-        etaPTY = -7.59e-2 + 1.54e-2 * massRate + 4.0e-4 * massRate_2 - 5.905e-6 * massRate_3;
+        etaPTY = -WD_PIERSANTI_M092_G0 + WD_PIERSANTI_M092_G1 * massRate + WD_PIERSANTI_M092_G2 * massRate_2 - WD_PIERSANTI_M092_G3 * massRate_3;
     } 
     else {
-        etaPTY = -0.323   + 4.1e-2  * massRate - 7.0e-4 * massRate_2 + 4.733e-6 * massRate_3;
+        etaPTY = -WD_PIERSANTI_M102_G0 + WD_PIERSANTI_M102_G1 * massRate - WD_PIERSANTI_M102_G2 * massRate_2 + WD_PIERSANTI_M102_G3 * massRate_3;
     }
 
     return etaPTY;
