@@ -41,7 +41,6 @@ public:
                                                                                                                                             p_Time, 
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
-    
 
 protected:
 
