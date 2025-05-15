@@ -190,6 +190,7 @@ public:
             double              TotalMassLossRate() const                                       { return m_TotalMassLossRate; }
             double              TZAMS() const                                                   { return m_TZAMS; }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
+            double              WindAccretionRate() const                                       { return m_WindAccretionRate; }
             double              XExponent() const                                               { return m_XExponent; }
 
 
@@ -211,6 +212,8 @@ public:
             void                UpdateMassTransferDonorHistory();
     
             void                UpdatePreviousTimestepDuration()                                { m_DtPrev = m_Dt; }
+
+            void                SetWindAccretionRate(const double p_WindAccretionRate)          { m_WindAccretionRate = p_WindAccretionRate; }
 
 
 
@@ -267,7 +270,7 @@ public:
             double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
             double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false);
-            double          CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich);                                                               
+            double          CalculateMassGainValues(double p_Dt, double p_accretorRLradius, bool p_isHeRich);                                                               
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
@@ -451,7 +454,6 @@ protected:
     double                  m_MinimumLuminosityOnPhase;                 // Only required for CHeB stars, but only needs to be calculated once per star
     double                  m_Mdot;                                     // Current mass loss rate in winds (Msol per yr)
     MASS_LOSS_TYPE          m_DominantMassLossRate;                     // Current dominant type of wind mass loss
-    double                  m_WindAccretionRate;                        // Current wind accretion rate (Msol per yr)
 
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Radius;                                   // Current radius (Rsol)
@@ -459,6 +461,8 @@ protected:
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
     double                  m_TotalMassLossRate;                        // Current mass loss/gain rate from mass transfer or winds (Msol per yr)
+
+    double                  m_WindAccretionRate;                        // Current wind accretion rate (Msol per yr)
 
     // Previous timestep variables
     double                  m_DtPrev;                                   // Previous timestep

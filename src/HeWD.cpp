@@ -21,7 +21,7 @@
  */
 DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
-    m_AccretionRegime       = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate);                                    // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
+    m_AccretionRegime       = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate / YEAR_TO_MYR);                                    // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
                                                                                
     double acceptanceRate   = 0.0;                                                                                      // acceptance mass rate - default = 0.0
     double fractionAccreted = m_AccretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES ? 0.0 : 1.0;   // accretion fraction - default = 1.0, but flashes restrict accumulation

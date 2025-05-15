@@ -150,7 +150,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Mu                                       = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Mdot                                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_DominantMassLossRate                     = MASS_LOSS_TYPE::NONE;
-    m_WindAccretionRate                        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    //m_WindAccretionRate                        = DEFAULT_INITIAL_DOUBLE_VALUE;
 
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
@@ -403,6 +403,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION:           value = SN_TotalRadiusAtCOFormation();                          break;
         case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
         case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS() * TSOL;                                         break;
+        case ANY_STAR_PROPERTY::WIND_ACCRETION_RATE:                                value = WindAccretionRate();                                    break;
         case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
         case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
         case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
@@ -2789,21 +2790,23 @@ double BaseStar::CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot) {
  *
  * @return                                      calculated mass (mSol)
  */
-double BaseStar::CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich) {
+
+double BaseStar::CalculateMassGainValues(double p_Dt, double p_accretorRLradius, bool p_isHeRich) {
 
     double windAccumulationRate = 0;
     double massGain = 0;
 
-    double betaThermal = 0;
+    double fractionAccreted = 0;
     if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) {
         
         // only if using wind accretion (program option)
                                                                             
-        double windAccretionRate = m_WindAccretionRate / YEAR_TO_MYR; // wind accretion in Msun / Myr
+        double windAccretionRate = WindAccretionRate(); // wind accretion in Msun / Myr
 
-        std::tie(windAccumulationRate, betaThermal) = CalculateMassAcceptanceRate(windAccretionRate,CalculateThermalMassAcceptanceRate(p_accretorRLradius),p_isHeRich);
+        std::tie(windAccumulationRate, fractionAccreted) = CalculateMassAcceptanceRate(windAccretionRate, CalculateThermalMassAcceptanceRate(p_accretorRLradius), p_isHeRich);
 
-        massGain = windAccumulationRate * (m_Dt * MYR_TO_YEAR);                     // calculate mass loss - unlimited, should add a check later ( mSol )
+        massGain = windAccumulationRate * p_Dt * MYR_TO_YEAR;                     // calculate mass loss - unlimited, should add a check later ( mSol )
+        
     }
     return massGain;
 }

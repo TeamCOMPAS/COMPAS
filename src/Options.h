@@ -869,6 +869,8 @@ public:
 
             // Wind accretion
             ENUM_OPT<WIND_ACCRETION_PRESCRIPTION>               m_WindAccretionPrescription;                                    // Which wind accretion prescription is used
+            double                                              m_WindAccretionFactor;                                      // Efficiency of wind accretion according to Bondi, 1944
+            double                                              m_WindVelocityBeta;                                             // Free parameter of the beta velocity law
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -1689,6 +1691,8 @@ public:
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                       { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}
+    double                                      WindAccretionFactor() const                                           { return OPT_VALUE("wind-accretion-factor", m_WindAccretionFactor, true);}
+    double                                      WindVelocityBeta() const                                                { return OPT_VALUE("wind-velocity-beta", m_WindVelocityBeta, true);}
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
     WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }

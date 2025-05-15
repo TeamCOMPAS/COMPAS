@@ -86,7 +86,7 @@ COMPAS_VARIABLE BinaryConstituentStar::StellarPropertyValue(const T_ANY_PROPERTY
         case ANY_STAR_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE:              value = ThermalTimescalePreCEE();                       break;
         case ANY_STAR_PROPERTY::WHITE_DWARF_ACCRETION_REGIME:                       value = WhiteDwarfAccretionRegime();                    break;
         case ANY_STAR_PROPERTY::WHITE_DWARF_ACCRETION_REGIME_NAME:                  value = ACCRETION_REGIME_LABEL.at(WhiteDwarfAccretionRegime()); break;
-        case ANY_STAR_PROPERTY::WIND_ACCRETION_RATE:                                value = WindAccretionRate();                            break;
+        //case ANY_STAR_PROPERTY::WIND_ACCRETION_RATE:                                value = WindAccretionRate();                            break;
 
         default:
             // not a constitient star property

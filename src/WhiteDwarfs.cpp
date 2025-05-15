@@ -27,12 +27,16 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
     double logMdotUppH = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 * m_Mass_2; 
     double logMdotLowH = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   * m_Mass_2;
     
+    // if ( logMassTransferRate > logMdotUppH) std::cout << "  " << logMdotLowH << ", " << logMassTransferRate << " and " << logMdotUppH << "  ";
+
     if (utils::Compare(logMassTransferRate, logMdotUppH) >= 0) {
         etaH = PPOW(10, logMdotUppH - logMassTransferRate);
     } 
     else if (utils::Compare(logMassTransferRate, logMdotLowH) >= 0) {
         etaH = 1.0;
     } 
+
+    // if ( logMassTransferRate > logMdotUppH) std::cout << etaH << " ";
 
     return etaH;
 }
@@ -95,7 +99,7 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
 
     double etaPTY = 0.0;                        // default return value
 
-    double massRate   = p_MassTransferRate;
+    double massRate   = p_MassTransferRate * 1e8;
     double massRate_2 = massRate * massRate;
     double massRate_3 = massRate_2 * massRate;
 

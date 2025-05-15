@@ -19,7 +19,7 @@
  */
 DBL_DBL COWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
-    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate); 
+    m_AccretionRegime = DetermineAccretionRegime(p_IsHeRich, p_DonorMassRate / YEAR_TO_MYR); 
                                                                                
     double acceptanceRate   = 0.0;                                                       // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                       // accretion fraction - default = 0.0

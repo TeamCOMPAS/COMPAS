@@ -155,6 +155,7 @@ public:
     void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)                                      { m_ObjectPersistence = p_Persistence; }
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
     void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
+    void                SetWindAccretionRate(const double p_WindAccretionRate)                                      { m_Star->SetWindAccretionRate(p_WindAccretionRate); }
 
 
     // member functions - alphabetically
@@ -190,7 +191,7 @@ public:
                                                 const bool   p_IsHeRich)                                            { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate, p_IsHeRich); }
 
     double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false)                           { return m_Star->CalculateMassLossValues(p_Dt, p_UpdateMDot); }
-    double          CalculateMassGainValues(double p_accretorRLradius, bool p_isHeRich)                             { return m_Star->CalculateMassGainValues(p_accretorRLradius, p_isHeRich); }
+    double          CalculateMassGainValues(double p_Dt, double p_accretorRLradius, bool p_isHeRich)                { return m_Star->CalculateMassGainValues(p_Dt, p_accretorRLradius, p_isHeRich); }
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }

@@ -412,6 +412,9 @@ void Options::OptionValues::Initialise() {
     // Wind accretion
     m_WindAccretionPrescription.type                                = WIND_ACCRETION_PRESCRIPTION::NONE;
     m_WindAccretionPrescription.typeString                          = WIND_ACCRETION_PRESCRIPTION_LABEL.at(m_WindAccretionPrescription.type);
+    m_WindAccretionFactor                                           = 0.75;
+
+    m_WindVelocityBeta                                              = 3.0;
 
     // Core mass prescription
     m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
@@ -1657,7 +1660,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
             ("Timestep multiplier for SSE and BSE (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
         )
-
+        (
+            "wind-accretion-factor",
+            po::value<double>(&p_Options->m_WindAccretionFactor)->default_value(p_Options->m_WindAccretionFactor),
+            ("Multiplicitive constant for wind accretion (default = " + std::to_string(p_Options->m_WindAccretionFactor) + ")").c_str()
+        )
+        (
+            "wind-velocity-beta",
+            po::value<double>(&p_Options->m_WindVelocityBeta)->default_value(p_Options->m_WindVelocityBeta),
+            ("Steepness beta velocity law (default = " + std::to_string(p_Options->m_WindVelocityBeta) + ")").c_str()
+        )
         (
             "wolf-rayet-multiplier",                                       
             po::value<double>(&p_Options->m_WolfRayetFactor)->default_value(p_Options->m_WolfRayetFactor),                                                                                        
@@ -2522,6 +2534,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
         COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+
+        COMPLAIN_IF(m_WindAccretionFactor < 0.5 || m_WindAccretionFactor > 1, "Wind accretion factor (--wind-accretion-factor) must be >= 0.5 and <= 1");
+        COMPLAIN_IF(m_WindVelocityBeta < 0.0, "Steepness beta velocity law (--wind-velocity-beta) must be >= 0");
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
 
