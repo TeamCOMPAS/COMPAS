@@ -14,8 +14,8 @@ function ComparisonPlots(filename1, name1, filename2, name2)
 % by running ComparisonPlots(filename1, name1)
 %
 % example: 
-%       ComparisonPlots('~/Work/COMPAS/src/COMPAS_Default/COMPAS_Output.h5', 'Default', ...
-%       '~/Work/COMPAS/src/COMPAS_2Stage/COMPAS_Output.h5', '2 stage CE')
+%       ComparisonPlots('~/Work/COMPASresults/runs/Zsolaralpha1-031803.h5', 'Default', ...
+%       '~/Work/COMPASresults/runs/Zsolar2stage-031803.h5', '2 stage')
 %
 % Warning: --switch-log must be used for all runs to be analysed
 % It is recommended, but not required, to use the same random seed for the 
@@ -188,6 +188,18 @@ function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE] = ...
     scatter(log10(P(BNS & isCE & OKCE)), e(BNS & isCE & OKCE), point, 'filled', colour, ...
          'DisplayName', ['CE, ', name]); hold on;
     scatter(log10(P(BNS & ~isCE)), e(BNS & ~isCE), point, colour,  'DisplayName', ['Stable, ', name]);
+
+    %%%
+    good = mergingBBH & isCE & OKCE;
+    type1CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(1)<CE');
+    type2CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(2)<CE');
+    mass1CE = h5read(file,'/BSE_Common_Envelopes/Mass(1)<CE');
+    mass2coreCE = h5read(file,'/BSE_Common_Envelopes/Mass(2)<CE')-h5read(file,'/BSE_Common_Envelopes/Mass_Env(2)');
+    unique(type1CE(CEIndex(good))), sum(good), sum(type1CE(CEIndex(good))==14)
+    figure(7), scatter(mass1CE(CEIndex(good)), mass2coreCE(CEIndex(good)), 20, 'filled'), set(gca,'FontSize',20); xlabel('M_1, Msun'); ylabel('M_{core,2}, Msun');
+    typesCE=[type1CE(CEIndex(good)) type2CE(CEIndex(good))];
+    %good(find(type1CE(CEIndex(good))~=14))
+
 end %end of DCOplot
 
 %Plot BH HMXBs
