@@ -3,10 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.18.05 May 7, 2025**
+**03.18.08 May 7, 2025**
 
 * Updates to mass accretion for massive ONe WD 
 * Changed white dwarf mass-radius relation to use expression from Eggleton 1986, suitable for extremely low-mass white dwarfs.
+* Moved white dwarf related constants to constants.h
 
 **03.18.02 May 1, 2025**
 
