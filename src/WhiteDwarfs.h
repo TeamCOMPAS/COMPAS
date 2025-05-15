@@ -31,7 +31,8 @@ public:
 
     MT_CASE         DetermineMassTransferTypeAsDonor() const                                { return MT_CASE::OTHER; }                                  // Not A, B, C, or NONE
 
-
+    ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorThermalMassLossRate, const bool p_HeRich);                                            // Get the current accretion regime. Can also change flags related to SN events.
+    
     void            ResolveShellChange(const double p_AccretedMass);
 
 
