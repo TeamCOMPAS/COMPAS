@@ -70,12 +70,18 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //       grid line
 //
 //    2. if 'fallback' is 'true':
-//           the value specified on the commandline IFF the user did not specify the 
-//           option on the grid line but did specify the option on the commandline
+//           the value specified on the commandline if the user did not specify the 
+//           option on the grid line (regardless of whether they specified the option
+//           on the commandline).  In this case, if the user did not speify a value on
+//           the commandline, the commandline value is set according to the default
+//           behaviour for the option, and the grid line value is set from that.  Note
+//           that for options whose default behaviours is to draw a random number, this
+//           will only be done once for the commandline value, and each grid line that
+//           falls back to the commandline will take the same value as the commandline.
+//           Consider using 'fallback' = 'false' for those cases.
+//
 //       else if 'fallback' is 'false':
 //           the default value for the option
-//
-//    3. the default value for the option
 //
 // For most options we will use
 //
@@ -1458,9 +1464,9 @@ public:
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
 
-    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, true); }
-    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, true); }
-    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
+    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
+    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
+    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, false); }
 
     STR_VECTOR                                  LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }

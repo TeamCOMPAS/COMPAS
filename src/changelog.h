@@ -1547,13 +1547,22 @@
 //                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
 //  03.18.04    IM - May 4, 2025    - Defect repair:
 //                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
-//  03.18.05    SS - May 7, 2025    - Enhancement:
+//  03.18.05    JR - May 8, 2025    - Defect repair:
+//                                      - Fix for issue #1378: reinstate "false" fallback option for `kick-magnitude-random*` options (mistakenly changed to "true" in v03.00.00)
+//  03.18.06    IM - May 9, 2025    - Enhancement, defect repair:
+//                                      - Added several outputs to provide more information and aid code testing: SEMI_MAJOR_AXIS_POST_STAGE_1_CE (for the 2-stage CE); BINDING_ENERGY_CONVECTIVE_ENVELOPE, CONVECTIVE_ENV_MASS, LAMBDA_CONVECTIVE_ENVELOPE (convective envelope binding energy,  mass, and lambda, respectively, Picker prescription)
+//                                      - Ensure that the MANDEL main sequence core mass prescription never provides a core mass exceeding the total mass
+//                                      - Corrected several erroneous comments, cleaned up a few function definitions
+//  03.18.07    IM - May 11, 2025   - Defect repair:
+//                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
+//  03.18.08    SS - May 15, 2025   - Enhancement:
 //                                      - Improvements to mass accretion for massive ONe WDs
 //                                          - Added ONe::CalculateMassAcceptanceRate
 //                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
 //                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
+//                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
 //
 
-const std::string VERSION_STRING = "03.18.05";
+const std::string VERSION_STRING = "03.18.08";
 
 # endif // __changelog_h__
