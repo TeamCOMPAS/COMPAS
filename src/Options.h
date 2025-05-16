@@ -222,10 +222,11 @@ private:
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",          "GE20",    "GE",      false },
-        { "critical-mass-ratio-prescription",          "GE20_IC", "GE_IC",   false },
-        { "pulsational-pair-instability-prescription", "COMPAS",  "WOOSLEY", false},
-	    { "pulsar-birth-spin-period-distribution",     "ZERO",    "NOSPIN",  false }
+        { "critical-mass-ratio-prescription",          "GE20",      "GE",        false },
+        { "critical-mass-ratio-prescription",          "GE20_IC",   "GE_IC",     false },
+        { "pulsational-pair-instability-prescription", "COMPAS",    "WOOSLEY",   false},
+	    { "pulsar-birth-spin-period-distribution",     "ZERO",      "NOSPIN",    false },
+        { "tides-prescription",                        "KAPIL2024", "KAPIL2025", false }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
