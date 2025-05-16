@@ -734,15 +734,21 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
     axes[1,0].set_xlabel('Redshift', fontsize=fs)
     axes[1,0].set_ylabel(r'Cumulative detection rate $[\rm \frac{\mathrm{d}N}{\mathrm{d}yr}]$', fontsize=fs)
 
-    axes[1,1].hist(chirp_masses, weights=detection_rate_by_binary, bins=25, range=(0, 50))
-    axes[1,1].set_xlabel(r'Chirp mass, $\mathcal{M}_c$', fontsize=fs)
+    # Decide the mass range to plot
+    Mcmin  = 0.9 * min(chirp_masses)
+    Mcmax  = 1.1 * max(chirp_masses)
+    nbins  = np.sqrt(len(chirp_masses)).astype(int)
+    Mcbins = np.linspace(Mcmin, Mcmax, nbins)
+
+    axes[1,1].hist(chirp_masses, weights=detection_rate_by_binary, bins=Mcbins)
+    axes[1,1].set_xlabel(r'Chirp mass, $\mathcal{M}_c$ [M$_\odot$]', fontsize=fs)
     axes[1,1].set_ylabel(r'Mass distribution of detections $[\rm \frac{\mathrm{d}N}{\mathrm{d}\mathcal{M}_c \mathrm{d}yr}]$', fontsize=fs)
 
     #########################
     #Plotvalues
 
     # Add text upper left corner
-    axes[0,0].text(0.05,0.8, "mu0=%s \nmuz=%s \nsigma0=%s \nsigmaz=%s \nalpha=%s"%(mu0,muz,sigma0,sigmaz,alpha), transform=axes[0,0].transAxes, size = fs) 
+    axes[0,0].text(0.05, 0.8, "mu0=%s \nmuz=%s \nsigma0=%s \nsigmaz=%s \nalpha=%s"%(mu0,muz,sigma0,sigmaz,alpha), transform=axes[0,0].transAxes, size = fs) 
 
     for ax in axes.flatten():
         ax.tick_params(labelsize=0.9*fs)

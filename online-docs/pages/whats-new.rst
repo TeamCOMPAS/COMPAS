@@ -3,13 +3,40 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.18.02 May 1, 2025**
+
+* Changed default for Nanjing lambdas to use enhanced lambdas and interpolate in mass and metallicity
+
+**03.18.00 Apr 14, 2025**
+
+New command line option:
+
+* ``--timestep-multipliers`` to enable more granular, phase-dependent, timestep multipliers
+
+**03.17.03 Apr 14, 2025**
+
+* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``). 
+* Removed output option ``RLOF_ONTO_NS`` as it can be retrieved from existing RLOF output info. 
+
+**03.17.00 Mar 22, 2025**
+
+* Added ``ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION`` (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with ``--convective-envelope-mass-threshold``)
+* Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars
+* Imposed Keplerian rotation limit on mass-gaining stars: response depends on the new ``--response-to-spin-up`` option, with possible values:
+   * ``TRANSFER_TO_ORBIT`` (default) allows the star to accrete, but excess angular momentum is deposited in the orbit
+   * ``KEPLERIAN_LIMIT`` forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+   * ``NO_LIMIT`` allows arbitrary super-critical accretion, to match legacy choices
+
 **03.16.02 Mar 19, 2025**
 
-New output options for supernova:
+New output options for supernova, which allow for full characterization of the binary orientation post-SN:
 
-* ORBITAL_ANGULAR_MOMENTUM_VECTOR_X, ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y, ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,
-* SYSTEMIC_VELOCITY_X, SYSTEMIC_VELOCITY_Y, SYSTEMIC_VELOCITY_Z,
-* These allow for full characterization of the binary orientation post-SN
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_X
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z
+* SYSTEMIC_VELOCITY_X
+* SYSTEMIC_VELOCITY_Y
+* SYSTEMIC_VELOCITY_Z
 
 **03.15.00 Mar 5, 2025**
 

@@ -66,6 +66,80 @@ double HG::CalculateLambdaDewi() const {
 	return	lambdaCE;
 }
 
+/*
+ * Calculata the lambda parameter using the Loveridge prescription
+ *
+ * Binding energy from detailed models (Loveridge et al. 2011) is given in [E]=erg, so use cgs
+ *
+ *
+ * double CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss)
+ *
+ * @param   [IN]    p_EnvMass                   Envelope mass (Msol)
+ * @param   [IN]    p_IsMassLoss                Boolean indicating whether mass-loss correction should be applied
+ * @return                                      Common envelope lambda parameter
+ */
+double HG::CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss) const {
+    
+    // find closest metallicity covered by Loveridge et al. 2011
+    // (see LOVERIDGE_METALLICITY and LOVERIDGE_METALLICITYValue)
+
+    int lMetallicity = 0;
+    double minDiff   = std::numeric_limits<double>::max();
+
+    // initialise m_MassCutoffs vector - so we have the right number of entries
+    for (int i = 0; i < static_cast<int>(LOVERIDGE_METALLICITY::COUNT); i++) {
+        double thisDiff = std::abs(m_Metallicity - std::get<1>(LOVERIDGE_METALLICITY_VALUE[i]));
+        if (utils::Compare(thisDiff, minDiff) < 0) {
+            lMetallicity = i;
+            minDiff      = thisDiff;
+        }
+    }
+
+    // Determine the evolutionary stage of the star (see LOVERIDGE_GROUP)
+
+    LOVERIDGE_GROUP lGroup;
+
+    if (utils::Compare(m_Mass, LOVERIDGE_LM_HM_CUTOFFS[lMetallicity]) > 0) {                // mass > low mass / high mass cutoff?
+        lGroup = LOVERIDGE_GROUP::HM;                                                       // yes, group is HM - High Mass
+    }
+    else {                                                                                  // no - low mass
+        if (utils::Compare(m_COCoreMass, 0.0) > 0) {                                        // CO core exists?
+            lGroup = LOVERIDGE_GROUP::LMA;                                                  // yes, group is LMA - Low mass on the AGB
+        }
+        else {                                                                              // no - low mass star on RGB
+
+            // calculate early / late cutoff for low mass RGB stars
+            constexpr double deltaM   = 1.0E-5;
+                      double cutOff   = 0.0;
+                      int    exponent = 0;
+            for (auto const& aCoefficient: LOVERIDGE_LM1_LM2_CUTOFFS[lMetallicity]) {
+                cutOff += aCoefficient * utils::intPow(log10(m_Mass + deltaM), exponent++);
+            }
+
+            // set evolutionary stage based on cutoff
+            lGroup = utils::Compare(log10(m_Radius), cutOff) > 0 ? LOVERIDGE_GROUP::LMR2 : LOVERIDGE_GROUP::LMR1;
+        }
+    }
+
+    // calculate log10(binding energy)
+    constexpr double deltaR           = 1.0E-5;
+              double logBindingEnergy = 0.0;
+    for (auto const& lCoefficients: LOVERIDGE_COEFFICIENTS[lMetallicity][static_cast<int>(lGroup)]) {
+        logBindingEnergy += lCoefficients.alpha_mr * utils::intPow(log10(m_Mass), lCoefficients.m) * utils::intPow(log10(m_Radius + deltaR), lCoefficients.r);
+    }
+
+    double MZAMS_Mass = (m_MZAMS - m_Mass) / m_MZAMS;                                       // should m_ZAMS really be m_Mass0 (i.e., account for change in effective mass through mass loss in winds, MS mass transfer?)
+    logBindingEnergy *= p_IsMassLoss ? 1.0 + (0.25 * MZAMS_Mass * MZAMS_Mass) : 1.0;        // apply mass-loss correction factor (lambda)
+
+    logBindingEnergy += 33.29866;                                                           // + logBE0
+    double bindingEnergy = PPOW(10.0, logBindingEnergy);
+    
+    double lambda = utils::Compare(bindingEnergy, 0.0) > 0 && utils::Compare(1.0 / bindingEnergy, 0.0) > 0 && utils::Compare(p_EnvMass, MAXIMUM_MASS_LOSS_FRACTION * m_Mass) > 0
+            ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy)
+            : 1.0;                                                                          // default to 1.0 (usual lambda default) if binding energy is not sensible [sometimes can be infinite if logBindingEnergy is too high] or if envelope mass is too low to reliably evaluate lambda [can be zero]
+    return utils::Compare(lambda, 0.0) > 0 ? lambda : 1.0;                                  // final check to avoid returning zero lambda
+}
+
 
 /*
  * Calculate the common envelope lambda parameter using the enhanced "Nanjing" prescription
@@ -1068,6 +1142,13 @@ ENVELOPE HG::DetermineEnvelopeType() const {
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             // envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
+            // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
+            double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+            std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+            envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
             break;
 
         default:                                                                                    // unknown prescription

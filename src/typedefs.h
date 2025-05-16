@@ -148,7 +148,9 @@ enum class STELLAR_TYPE: int {                      // Hurley
     CHEMICALLY_HOMOGENEOUS,                         //  16  : this is here to preserve the Hurley type numbers, but note that Hurley type number progression doesn't necessarily indicate class inheritance
     STAR,                                           //  17  : star is created this way, then switches as required (down here so stellar types consistent with Hurley et al. 2000)
     BINARY_STAR,                                    //  18  : here mainly for diagnostics
-    NONE                                            //  19  : here mainly for diagnostics
+    NONE,                                           //  19  : here mainly for diagnostics
+
+    COUNT                                           // Sentinel for entry count
 };
 const COMPASUnorderedMap<STELLAR_TYPE, std::string> STELLAR_TYPE_LABEL = {
     { STELLAR_TYPE::MS_LTE_07,                                 "Main_Sequence_<=_0.7" },
@@ -426,11 +428,12 @@ const COMPASUnorderedMap<ENVELOPE, std::string> ENVELOPE_LABEL = {
 };
 
 // envelope state prescriptions
-enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE };
+enum class ENVELOPE_STATE_PRESCRIPTION: int { LEGACY, HURLEY, FIXED_TEMPERATURE, CONVECTIVE_MASS_FRACTION };
 const COMPASUnorderedMap<ENVELOPE_STATE_PRESCRIPTION, std::string> ENVELOPE_STATE_PRESCRIPTION_LABEL = {
     { ENVELOPE_STATE_PRESCRIPTION::LEGACY,            "LEGACY" },
     { ENVELOPE_STATE_PRESCRIPTION::HURLEY,            "HURLEY" },
-    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" }
+    { ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE, "FIXED_TEMPERATURE" },
+    { ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION, "CONVECTIVE_MASS_FRACTION"}
 };
 
 // evolution status constants
@@ -624,12 +627,12 @@ const COMPASUnorderedMap<MASS_RATIO_DISTRIBUTION, std::string> MASS_RATIO_DISTRI
 };
 
 // mass transfer timescale types
-enum class MASS_TRANSFER_TIMESCALE: int { NONE, NUCLEAR, THERMAL, CE };
-const COMPASUnorderedMap<MASS_TRANSFER_TIMESCALE, std::string> MASS_TRANSFER_TIMESCALE_LABEL = {
-    { MASS_TRANSFER_TIMESCALE::NONE,                "NONE" },
-    { MASS_TRANSFER_TIMESCALE::NUCLEAR,             "NUCLEAR" },
-    { MASS_TRANSFER_TIMESCALE::THERMAL,             "THERMAL" },
-    { MASS_TRANSFER_TIMESCALE::CE,                  "CE" }
+enum class MT_TIMESCALE: int { NONE, NUCLEAR, THERMAL, CE };
+const COMPASUnorderedMap<MT_TIMESCALE, std::string> MT_TIMESCALE_LABEL = {
+    { MT_TIMESCALE::NONE,    "NONE" },
+    { MT_TIMESCALE::NUCLEAR, "NUCLEAR" },
+    { MT_TIMESCALE::THERMAL, "THERMAL" },
+    { MT_TIMESCALE::CE,      "CE" }
 };
 
 // metallicity distributions
@@ -811,6 +814,14 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,    "SCHNEIDER2020" },
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT, "SCHNEIDER2020ALT" },
     { REMNANT_MASS_PRESCRIPTION::MALTSEV2024,      "MALTSEV2024" }
+};
+
+// response of star to spin-up beyond the Keplerian frequency
+enum class RESPONSE_TO_SPIN_UP: int { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT };
+const COMPASUnorderedMap<RESPONSE_TO_SPIN_UP, std::string> RESPONSE_TO_SPIN_UP_LABEL = {
+    { RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT,   "TRANSFER_TO_ORBIT" },
+    { RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT,     "KEPLERIAN_LIMIT" },
+    { RESPONSE_TO_SPIN_UP::NO_LIMIT,            "NO_LIMIT"}
 };
 
 // rotational velocity distributions
@@ -1018,7 +1029,6 @@ const COMPASUnorderedMap<ZETA_PRESCRIPTION, std::string> ZETA_PRESCRIPTION_LABEL
 };
 
 
-
 // boost variant definition for allowed data types
 // used for variable specification to define logfile records
 typedef boost::variant<
@@ -1034,13 +1044,14 @@ typedef boost::variant<
     float,
     double,
     long double,
+    DBL_VECTOR,
     std::string,
-    std::vector<std::string>,
+    STR_VECTOR,
     ERROR,
     STELLAR_TYPE,
     MT_CASE,
     MT_TRACKING,
-    MASS_TRANSFER_TIMESCALE,
+    MT_TIMESCALE,
     SN_EVENT,
     SN_STATE,
     EVOLUTION_STATUS,
@@ -1048,13 +1059,10 @@ typedef boost::variant<
 > COMPAS_VARIABLE;
 
 
-
-
 // common type definitions
 typedef std::initializer_list<SN_EVENT> SN_EVENT_LIST;
 typedef std::vector<STELLAR_TYPE>       ST_VECTOR;
 typedef std::vector<COMPAS_VARIABLE>    COMPAS_VARIABLE_VECTOR;
-
 
 
 // Option details
@@ -1191,43 +1199,6 @@ typedef struct PulsarDetails {
 } PulsarDetailsT;
 
 
-// struct for Lambdas
-typedef struct Lambdas {
-	double dewi;                                            // JR: todo: description?
-    double fixed;                                           // Set to OPTIONS->commonEnvelopeLambda
-	double kruckow;                                         // Calculated using m_Radius and OPTIONS->commonEnvelopeSlopeKruckow
-	double kruckowBottom;                                   // Calculated using m_Radius and -1
-	double kruckowMiddle;                                   // Ccalculated using m_Radius and -4/5
-	double kruckowTop;                                      // Calculated using m_Radius and -2/3
-	double loveridge;                                       // No mass loss
-	double loveridgeWinds;                                  // Mass loss
-	double nanjing;                                         // JR: todo: description?
-} LambdasT;
-
-
-// struct for Zetas
-// JR: add descriptive comments
-typedef struct Zetas {                                      // JR: todo: descriptions for these?
-	double hurley;
-	double hurleyHe;
-	double nuclear;
-	double soberman;
-	double sobermanHe;
-	double thermal;
-} ZetasT;
-
-
-// struct for binding energies
-typedef struct BindingEnergies {
-    double fixed;                                           // Calculated using lambda = OPTIONS->commonEnvelopeLambda
-	double nanjing;                                         // Calculated using lambda = m_Lambdas.nanjing
-	double loveridge;                                       // Calculated using lambda = m_Lambdas.loveridge
-	double loveridgeWinds;                                  // Calculated using lambda = m_Lambdas.loveridgeWinds
-	double kruckow;                                         // Calculated using lambda = m_Lambdas.kruckow
-    double dewi;                                            // Calculated using lambda = m_Lambdas.dewi
-} BindingEnergiesT;
-
-
 // RLOF properties
 // JR: add descriptive comments
 typedef struct RLOFProperties {
@@ -1260,7 +1231,7 @@ typedef struct RLOFProperties {
     
     double       massLossRateFromDonor;
     double       accretionEfficiency;
-    MASS_TRANSFER_TIMESCALE massTransferTimescale;
+    MT_TIMESCALE massTransferTimescale;
 
 } RLOFPropertiesT;
 
@@ -1292,6 +1263,7 @@ typedef struct BinaryCEESavedValues {
    	double rocheLobe1to2;
 	double rocheLobe2to1;
     double semiMajorAxis;
+    double semiMajorAxisAfterStage1;
 } BinaryCEESavedValuesT;
 
 // JR: add descriptive comments
@@ -1331,7 +1303,6 @@ typedef struct StellarCEDetails {                           // Common Envelope d
     double                 lambda;
     double                 convectiveEnvelopeMass;          // for two-stage CE formalism
     double                 radiativeIntershellMass;         // for two-stage CE formalism
-    double                 convectiveEnvelopeBindingEnergy; // for two-stage CE formalism
 } StellarCEDetailsT; // was CommonEnvelopeDetailsT;
 
 

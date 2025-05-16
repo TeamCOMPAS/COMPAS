@@ -10,6 +10,25 @@
 #include <csignal>
 #include <limits>
 
+
+// common type definitions
+// easiest way of making them available globally is to put them here
+typedef std::vector<std::string> STR_VECTOR;
+typedef std::vector<double> DBL_VECTOR;
+typedef std::vector<int>                                                INT_VECTOR;
+typedef std::vector<bool>                                               BOOL_VECTOR;
+typedef std::tuple <double, double>                                     DBL_DBL;
+typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
+typedef std::tuple <double, double, double, double>                     DBL_DBL_DBL_DBL;
+typedef std::tuple<std::string, std::string>                            STR_STR;
+typedef std::tuple<std::string, std::string, std::string>               STR_STR_STR;
+typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
+typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR> GE_QCRIT_TABLE; 
+typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR_HE;
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE> GE_QCRIT_TABLE_HE; 
+
+
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
 // we've exceeded that number - we're at 21 currently - so the size of the boost list needs to be increased
 // we have to set the size of the list before we include the boost headers - otherwise boost redefines it
@@ -62,23 +81,6 @@ typedef unsigned long int OBJECT_ID;
 extern OBJECT_ID globalObjectId;    // used to uniquely identify objects - used primarily for error printing
 
 
-// common type definitions
-// easiest way of making them available globally is to put them here
-typedef std::vector<std::string>                                        STR_VECTOR;
-typedef std::vector<double>                                             DBL_VECTOR;
-typedef std::vector<int>                                                INT_VECTOR;
-typedef std::vector<bool>                                               BOOL_VECTOR;
-typedef std::tuple <double, double>                                     DBL_DBL;
-typedef std::tuple <double, double, double>                             DBL_DBL_DBL;
-typedef std::tuple <double, double, double, double>                     DBL_DBL_DBL_DBL;
-typedef std::tuple<std::string, std::string>                            STR_STR;
-typedef std::tuple<std::string, std::string, std::string>               STR_STR_STR;
-typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
-typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR> GE_QCRIT_TABLE; 
-typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR_HE;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE> GE_QCRIT_TABLE_HE; 
-
 #include "typedefs.h"
 
 
@@ -128,11 +130,13 @@ constexpr double CM_TO_M                                = 1.0E-2;               
 
 constexpr double RSOL_TO_KM                             = 6.957E5;                                                  // convert Solar Radius (RSOL) to km
 constexpr double RSOL_TO_CM                             = 6.957E10;                                                 // convert Solar Radius (RSOL) to cm
-constexpr double RSOL_TO_AU                             = 0.00465047;                                               // convert Solar Radius (RSOL) to AU
 
 constexpr double AU_TO_CM                               = 14959787070000.0;                                         // convert Astronomical Units (AU) to cm
-constexpr double AU_TO_RSOL				                = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
 constexpr double AU_TO_KM                               = AU_TO_CM / 1.0E5;                                         // convert Astronomical Units AU to km
+
+constexpr double RSOL_TO_AU                             = RSOL_TO_CM / AU_TO_CM;                                    // convert Solar Radius (RSOL) to AU
+constexpr double AU_TO_RSOL                             = 1.0 / RSOL_TO_AU;                                         // convert Astronomical Units AU to Solar Radius RSOL
+
 
 constexpr double KM_TO_RSOL					            = 1.0 / RSOL_TO_KM;						                    // convert km to Solar Radius (RSOL)
 constexpr double KM_TO_AU                               = 1.0 / AU_TO_KM;                                           // convert km to Astronomical Units AU
@@ -232,6 +236,7 @@ constexpr double VINK_MASS_LOSS_MAXIMUM_TEMP            = 5.0E4;                
 constexpr double LBV_LUMINOSITY_LIMIT_STARTRACK         = 6.0E5;                                                    // STARTRACK LBV luminosity limit
 constexpr double LBV_LUMINOSITY_LIMIT_VANBEVEREN        = 3.0E5;                                                    // VANBEVEREN LBV luminosity limit
 
+constexpr double CONVECTIVE_BOUNDARY_MASS_THRESHOLD_ROMAGNOLO = 0.1;                                               // Threshold fraction of envelope mass that should be convective for the envelope to be labeled convective
 constexpr double CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI = 5.37E3;                                               // Threshold temperature for the star to develop a convective envelope, in Kelvin (10^3.73 K, from Belczynski+, 2008)
 
 constexpr double MINIMUM_BLUE_LOOP_FRACTION             = 1.0E-10;                                                  // minimum fraction blue loop can be of He burning before we ignore it for HG radius calculation (see HG::CalculateRadiusOnPhase())
@@ -239,6 +244,7 @@ constexpr double MINIMUM_BLUE_LOOP_FRACTION             = 1.0E-10;              
 constexpr double TIMESTEP_QUANTUM                       = 1.0E-12;                                                  // Timestep quantum in Myr (=31.5576 seconds, given DAYS_IN_QUAD)
 constexpr double ABSOLUTE_MINIMUM_TIMESTEP              = 3.0 * TIMESTEP_QUANTUM;                                   // In Myr (=94.6728 seconds, given TIMESTEP QUANTUM)
 constexpr double NUCLEAR_MINIMUM_TIMESTEP               = 1.0E6 * TIMESTEP_QUANTUM;                                 // Minimum time step for nuclear evolution in My (= 1 year = 31557600 seconds, given TIMESTEP_QUANTUM)
+constexpr double MAXIMUM_TIMESTEP_MULTIPLIER            = 1.0E3;                                                    // Maximum timestep multiplier
 
 constexpr unsigned int ABSOLUTE_MAXIMUM_TIMESTEPS       = 1000000;                                                  // Absolute maximum number of timesteps
 
@@ -287,7 +293,7 @@ constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 50;                   
 constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 constexpr double TIDES_MINIMUM_FRACTIONAL_EXTENT        = 1.0E-4;                                                   // Minimum fractional radius or mass of the stellar core or envelope, above which a given tidal dissipation mechanism is considered applicable
 constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2024 tides in a single timestep - 1% expressed as a fraction
-constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME   = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
+constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME  = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
 
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
 constexpr double FARMER_PPISN_UPP_LIM_QUAD_REGIME       = 60.0;                                                     // Maximum CO core mass to result in the quadratic remnant mass regime of the FARMER PPISN prescription
@@ -299,6 +305,10 @@ constexpr double Q_CNO                                  = 9.9073E4;             
 // Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
 // Note that this value should always be > 0.7 Msol
 constexpr double BRCEK_LOWER_MASS_LIMIT                 = 1.5;
+// Maximum core mass to total mass ratio on the main sequence (when BRCEK core mass prescription is used)
+// Sets upper limit on the main-sequence convective core mass to prevent the star from becoming fully convective
+// Detailed models from MESA suggest that the convective core mass never exceeds ~90% of the total mass
+constexpr double BRCEK_CORE_MASS_TO_MASS_RATIO_LIMIT    = 0.9;
 
 // logging constants
 
@@ -3745,6 +3755,8 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
 
 // Coefficients for determining Main Sequence core mass
 // from Shikauchi et al. (2024), https://arxiv.org/abs/2409.00460
+// Section A.4
+const DBL_VECTOR SHIKAUCHI_DELTA_COEFFICIENTS = {0.54491412, -0.00900365, 0.08936248};
 // Table 2
 const std::vector<DBL_VECTOR> SHIKAUCHI_ALPHA_COEFFICIENTS = {
     {0.45, -0.0557105,  -0.86589929},       // 0.1*Z_Sun
@@ -3759,9 +3771,9 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_FMIX_COEFFICIENTS = {
 };
 // Table 4
 const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
-    {3.2555795,  1.84666823, -0.79986388, -0.75728099, -0.38831172, 0.08223542, 0.49543834, 0.31314176, -0.36705796, 1.72200581},   // 0.1*Z_Sun
-    {3.35622529, 1.96904931, -0.88894808, -0.81112488, -0.47925922, 0.09056925, 0.53094768, 0.33971972, -0.35581284, 1.65390003},   // 1/3*Z_Sun
-    {3.27883249, 1.79370338, -0.71413866, -0.77019351, -0.3898752,  0.07499563, 0.5920458,  0.33846556, -0.49649838, 1.71263853}    // Solar metallicity Z_Sun
+    {3.38627891, 1.13599187, -0.97389238, -0.87675442, 1.65386007, 0.07661174, -1.78737297, 0.622451,   -0.47511355,  0.02483567, 0.94243277, -0.06798225, 0.11086108, -0.14859538, 1.78029915},   // 0.1*Z_Sun
+    {3.45464814, 0.94880846, -1.11409154, -0.86672079, 2.38986855, 0.04448855, -2.74913945, 0.60905625, -0.27648361,  0.03514139, 1.37569819, -0.19184532, 0.12816567, -0.14392935, 1.76390159},   // 1/3*Z_Sun
+    {3.80166901, 0.37407948, -1.29904749, -1.34541622, 3.70934166, 0.28320469, -3.92327169, 0.92444477, -0.40146717, -0.00821364, 1.80297947, -0.15776603, 0.09205681, -0.21913557, 1.78496679}    // Solar metallicity Z_Sun
 };
 
 #endif // __constants_h__

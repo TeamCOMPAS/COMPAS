@@ -226,6 +226,7 @@ public:
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
     double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              SemiMajorAxisAfterStage1CEE() const         { return m_CEDetails.postCEE.semiMajorAxisAfterStage1; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -344,7 +345,7 @@ private:
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
     
-    MASS_TRANSFER_TIMESCALE m_MassTransferTimescale;
+    MT_TIMESCALE        m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
@@ -418,7 +419,7 @@ private:
     void    CalculateGravitationalRadiation();
     void    EmitGravitationalWave(const double p_Dt);
 
-    double  ChooseTimestep(const double p_Multiplier);
+    double  ChooseTimestep(const double p_Factor = 1.0);
 
     void    CalculateEnergyAndAngularMomentum();
 
@@ -487,15 +488,21 @@ private:
 
     void    ProcessTides(const double p_Dt);
 
+    double  ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange);
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
+    void    ResolveMainSequenceMerger();
     void    ResolveMassChanges();
     void    ResolveSupernova();
+    
+    
+
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
+                             const double p_SemiMajorAxisAfterStage1,
                              const double p_Eccentricity,
                              const double p_RocheLobe1to2,
                              const double p_RocheLobe2to1);
@@ -505,6 +512,8 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
+    bool    ShouldResolveNeutrinoRocketMechanism() const                        { return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0); }
+    
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
@@ -549,12 +558,6 @@ private:
     
     bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
-    }
-    
-    void ResolveMainSequenceMerger();
-
-    bool ShouldResolveNeutrinoRocketMechanism() const { 
-        return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0);
     }
     
     /*

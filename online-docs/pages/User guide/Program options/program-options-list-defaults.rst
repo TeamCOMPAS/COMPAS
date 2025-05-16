@@ -164,15 +164,15 @@ Default = 1.0
 
 **--common-envelope-lambda-nanjing-enhanced** |br|
 Continuous extrapolation beyond maximum radius range in Nanjing lambda's as implemented in StarTrack. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-mass** |br|
-Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``.  Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-metallicity** |br|
-Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
@@ -210,6 +210,11 @@ Default = :math:`1.5 \times 10^{13}`
 **--common-envelope-slope-kruckow** |br|
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
+
+**--convective-envelope-mass-threshold** |br|
+Mass threshold of envelope which should be convective, above which the envelopes of giants are labeled convective. |br|
+Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
+Default = 0.1
 
 **--convective-envelope-temperature-threshold** |br|
 Temperature [K] threshold, below which the envelopes of giants are convective. 
@@ -338,6 +343,7 @@ Default = 0.0
 
 **--debug-classes** |br|
 Developer-defined debug classes to enable (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--debug-level** |br|
@@ -689,6 +695,7 @@ Default = HURLEY_ADD |br|
 
 **--log-classes** |br|
 Logging classes to be enabled (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--logfile-common-envelopes** |br|
@@ -987,11 +994,13 @@ Default = SSE
 
 **--notes** |br|
 Annotation strings (vector). |br|
-Default = ""
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = "" for each annotation
 
 **--notes-hdrs** |br|
 Annotations header strings (vector). |br|
-Default = `No annotations`
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = `No annotation headers (no annotations)`
 
 **--number-of-systems [ -n ]** |br|
 The number of systems to simulate. |br|
@@ -1184,6 +1193,14 @@ Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
 
+**--response-to-spin-up** |br|
+Response of the star to super-critical accretion-induced spin-up |br|
+Options: { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT} |br|
+KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation |br|
+Under TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit |br|
+NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices |br|
+Default = TRANSFER_TO_ORBIT
+
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
 The core is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor,
@@ -1321,8 +1338,29 @@ User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`)
 Default = ’’ (None)
 
 **--timestep-multiplier** |br|
-Multiplicative factor for timestep duration. |br|
-Default = 1.0
+Multiplicative factor for timestep duration.  |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` 
+and ``--mass-change-fraction``, and will therefore override expected behaviour.  |br|
+This option can be used in conjunction with ``--timestep-multipliers``, in which case this multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
+**--timestep-multipliers** |br|
+Phase-dependent multiplicative factors for timestep duration. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the 
+option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+:doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 
+``--mass-change-fraction``, and will therefore override expected behaviour. |br|
+This option can be used in conjunction with ``--timestep-multiplier``, in which case that multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 for each phase (stellar type) |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
 
 .. _options-props-U:
 
@@ -1456,7 +1494,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---case-bb-stability-prescription, --convective-envelope-temperature-threshold, --critical-mass-ratio-prescription,
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
+--convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
@@ -1467,7 +1506,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 

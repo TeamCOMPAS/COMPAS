@@ -1509,11 +1509,53 @@
 //  03.16.02    SS - Mar 19, 2025   - Defect repair:
 //                                      - Removed deprecated wind mass-loss options
 //                                      - Added ZERO as a new option for WR-mass-loss-prescription
-//  03.16.03    RTW - Mar 31, 2025  - Enhancement:
+//  03.16.03    RTW - Mar 21, 2025  - Enhancement:
 //                                      - Added orbital AM vector and system velocity vector to SN output
-//
+//  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
+//                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
+//                                      - All binding energies and lambdas are now computed on request, not stored  in memory
+//                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
+//                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
+//                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
+//                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+//                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
+//                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
+//  03.17.01    VK - Apr 7, 2025    - Defect Repair:
+//                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
+//  03.17.02    JR - Apr 11, 2025   - Defect Repair:
+//                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
+//                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
+//  03.17.03    YS - Apr 14, 2025   - Enhancement:
+//                                      - Fix to issue #1366
+//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info.
+//  03.17.04    AB - Apr 14, 2025   - Defect repair, Enhancement:
+//                                      - Fixes and enhancements to BRCEK core mass prescription: core mass now never reaches the total mass, radius correctly follows the RL radius
+//                                        during nuclear timescale mass transfer, and added functionality to track surface helium abundance on the MS
+//                                      - MainSequence::CalculateRadiusOnPhase() and CalculateRadiusOnPhaseTau() were combined into one function
+//                                      - Limit time step during nuclear timescale mass transfer
+//  03.18.00    JR - Apr 14, 2025   - Enhancement:
+//                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
+//                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
+//  03.18.01    AB - Apr 28, 2025   - Defect repair:
+//                                      - Updated coefficients from Shikauchi et al. (2024) for main-sequence core mass calculations
+//                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
+//  03.18.02    IM - May 1, 2025    - Enhancement:
+//                                      - Added several outputs to the BSE and SSE Switch logs necessary for inter-run post-processing comparisons
+//                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
+//  03.18.03    IM - May 2, 2025    - Defect repair:
+//                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
+//  03.18.04    IM - May 4, 2025    - Defect repair:
+//                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
+//  03.18.05    JR - May 8, 2025    - Defect repair:
+//                                      - Fix for issue #1378: reinstate "false" fallback option for `kick-magnitude-random*` options (mistakenly changed to "true" in v03.00.00)
+//  03.18.06    IM - May 9, 2025    - Enhancement, defect repair:
+//                                      - Added several outputs to provide more information and aid code testing: SEMI_MAJOR_AXIS_POST_STAGE_1_CE (for the 2-stage CE); BINDING_ENERGY_CONVECTIVE_ENVELOPE, CONVECTIVE_ENV_MASS, LAMBDA_CONVECTIVE_ENVELOPE (convective envelope binding energy,  mass, and lambda, respectively, Picker prescription)
+//                                      - Ensure that the MANDEL main sequence core mass prescription never provides a core mass exceeding the total mass
+//                                      - Corrected several erroneous comments, cleaned up a few function definitions
+//  03.18.07    IM - May 11, 2025   - Defect repair:
+//                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
 
-
-const std::string VERSION_STRING = "03.16.03";
+const std::string VERSION_STRING = "03.18.07";
 
 # endif // __changelog_h__

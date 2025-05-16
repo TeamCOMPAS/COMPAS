@@ -1447,6 +1447,23 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **SEMI_MAJOR_AXIS_POST_STAGE_1_CE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CEDetails.postCEE.semiMajorAxisAfterStage1
+   * - Description:
+     - Semi-major axis immediately following stage 1 of a 2-stage common envelope event (zero for other common envelope prescriptions) (\ :math:`R_\odot`).
+   * - Header String:
+     - SemiMajorAxisStage1>CE
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **SEMI_MAJOR_AXIS_PRE_SUPERNOVA**
      -
    * - Data type:

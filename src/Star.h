@@ -74,11 +74,6 @@ public:
     // getters - alphabetically
     double              Age() const                                                                                 { return m_Star->Age(); }
     double              AngularMomentum() const                                                                     { return m_Star->AngularMomentum(); }
-    double              BindingEnergyFixed() const                                                                  { return m_Star->BindingEnergyFixed(); }
-    double              BindingEnergyLoveridge() const                                                              { return m_Star->BindingEnergyLoveridge(); }
-    double              BindingEnergyNanjing() const                                                                { return m_Star->BindingEnergyNanjing(); }
-    double              BindingEnergyKruckow() const                                                                { return m_Star->BindingEnergyKruckow(); }
-    double              BindingEnergyDewi() const                                                                   { return m_Star->BindingEnergyDewi(); }
     double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, 
                                                    const double p_massTransferEfficiencyBeta) const                 { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate, p_massTransferEfficiencyBeta); }
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
@@ -112,11 +107,10 @@ public:
     bool                IsPPISN() const                                                                             { return m_Star->IsPPISN(); }
     bool                IsSNIA() const                                                                              { return m_Star->IsSNIA(); }
     bool                IsUSSN() const                                                                              { return m_Star->IsUSSN(); }
-    double              LambdaFixed() const                                                                         { return m_Star->LambdaFixed(); }
-    double              LambdaLoveridge() const                                                                     { return m_Star->LambdaLoveridge(); }
-    double              LambdaNanjing() const                                                                       { return m_Star->LambdaNanjing(); }
-    double              LambdaKruckow() const                                                                       { return m_Star->LambdaKruckow(); }
-    double              LambdaDewi() const                                                                          { return m_Star->LambdaDewi(); }
+    double              CalculateLambdaLoveridge() const                                                            { return m_Star->CalculateLambdaLoveridge(); }
+    double              CalculateLambdaNanjing() const                                                              { return m_Star->CalculateLambdaNanjing(); }
+    double              CalculateLambdaKruckow() const                                                              { return m_Star->CalculateLambdaKruckow(); }
+    double              CalculateLambdaDewi() const                                                                 { return m_Star->CalculateLambdaDewi(); }
     double              Luminosity() const                                                                          { return m_Star->Luminosity(); }
     double              MainSequenceCoreMass() const                                                                { return m_Star->MainSequenceCoreMass(); }
     double              Mass() const                                                                                { return m_Star->Mass(); }
@@ -125,6 +119,7 @@ public:
     double              Metallicity() const                                                                         { return m_Star->Metallicity(); }
     double              MZAMS() const                                                                               { return m_Star->MZAMS(); }
     double              Omega() const                                                                               { return m_Star->Omega(); }
+    double              OmegaBreak() const                                                                          { return m_Star->OmegaBreak(); }
     double              OmegaCHE() const                                                                            { return m_Star->OmegaCHE(); }
     double              Radius() const                                                                              { return m_Star->Radius(); }
     double              RadiusPrev() const                                                                          { return m_Star->RadiusPrev(); }
@@ -163,10 +158,7 @@ public:
 
     void            ApplyMassTransferRejuvenationFactor()                                                           { m_Star->ApplyMassTransferRejuvenationFactor(); }
 
-    void            CalculateBindingEnergies(const double p_CoreMass,
-                                             const double p_EnvMass,
-                                             const double p_Radius)                                                 { m_Star->CalculateBindingEnergies(p_CoreMass, p_EnvMass, p_Radius); }
-
+    double          CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const { return m_Star->CalculateBindingEnergy(p_CoreMass, p_EnvMass, p_Radius, p_Lambda); }
     double          CalculateConvectiveCoreMass()                                                                   { return m_Star->CalculateConvectiveCoreMass(); }
     double          CalculateConvectiveCoreRadius()                                                                 { return m_Star->CalculateConvectiveCoreRadius(); }
 
@@ -174,7 +166,7 @@ public:
                                                              const double p_ConvectiveEnvelopeMass,
                                                              const double p_Radius,
                                                              const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
-    double          CalculateConvectiveEnvelopeLambdaPicker(const double p_convectiveEnvelopeMass, const double p_maxConvectiveEnvelopeMass ) const { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass, p_maxConvectiveEnvelopeMass); }
+    double          CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_convectiveEnvelopeMass) const { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass); }
     DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
@@ -182,9 +174,6 @@ public:
     DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)  { return m_Star->CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2); }
     DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2){ return m_Star->CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2); }
     DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)      { return m_Star->CalculateImKlmTidal(p_Omega, p_SemiMajorAxis, p_M2); }
-    
-    void            CalculateLambdas()                                                                              { m_Star->CalculateLambdas(); }
-    void            CalculateLambdas(const double p_EnvMass)                                                        { m_Star->CalculateLambdas(p_EnvMass); }
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, 
                                                 const double p_AccretorMassRate,
@@ -197,6 +186,8 @@ public:
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
     
     double          CalculateNuclearMassLossRate()                                                                  { return m_Star->CalculateNuclearMassLossRate(); }
+    
+    double          CalculateRadialExpansionTimescaleDuringMassTransfer()                                           { return m_Star->CalculateRadialExpansionTimescaleDuringMassTransfer(); }
     
     double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 

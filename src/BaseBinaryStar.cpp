@@ -365,6 +365,7 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_CEDetails.postCEE.rocheLobe1to2                = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.postCEE.rocheLobe2to1                = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.postCEE.semiMajorAxis                = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_CEDetails.postCEE.semiMajorAxisAfterStage1     = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.eccentricity                  = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.rocheLobe1to2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CEDetails.preCEE.rocheLobe2to1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
@@ -601,6 +602,8 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION:                     value = SemiMajorAxisAtDCOFormation();                                      break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL:                              value = SemiMajorAxisInitial();                                             break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE:                 value = SemiMajorAxisPostCEE();                                             break;
+        case BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE:                      value = SemiMajorAxisAfterStage1CEE();
+                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA:                        value = SemiMajorAxisPreSN();                                               break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL:                   value = SemiMajorAxisPreSN() * AU_TO_RSOL;                                  break;
         case BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE:                  value = SemiMajorAxisPreCEE();                                              break;
@@ -914,10 +917,10 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
  *                      const double p_RocheLobe1to2,
  *                      const double p_RocheLobe2to1)
  *
- * @param   [IN]    p_SemiMajorAxis             pre CEE semi-major axis in AU
+ * @param   [IN]    p_SemiMajorAxis             pre CEE semi-major axis in Rsol
  * @param   [IN]    p_Eccentricity              pre CEE eccentricity
- * @param   [IN]    p_RocheLobe1to2             pre CEE Roche Lobe radius in AU as seen by star1
- * @param   [IN]    p_RocheLobe2to1             pre CEE Roche Lobe radius in AU as seen by star2
+ * @param   [IN]    p_RocheLobe1to2             pre CEE Roche Lobe radius in Rsol as seen by star1
+ * @param   [IN]    p_RocheLobe2to1             pre CEE Roche Lobe radius in Rsol as seen by star2
  */
 void BaseBinaryStar::SetPreCEEValues(const double p_SemiMajorAxis,
                                      const double p_Eccentricity,
@@ -936,27 +939,32 @@ void BaseBinaryStar::SetPreCEEValues(const double p_SemiMajorAxis,
  *
  *    m_CommonEnvelopeDetails.postCEE.eccentricity
  *    m_CommonEnvelopeDetails.postCEE.semiMajorAxis
+ *    m_CommonEnvelopeDetails.postCEE.semiMajorAxisAfterStage1
  *    m_CommonEnvelopeDetails.postCEE.rocheLobe1to2
  *    m_CommonEnvelopeDetails.postCEE.rocheLobe2to1
  *    m_RLOFDetails.immediateRLOFPostCEE
  *
  *
  * void SetPostCEEValues(const double p_SemiMajorAxis,
+ *                       const double p_SemiMajorAxisAfterStage1,
  *                       const double p_Eccentricity,
  *                       const double p_RocheLobe1to2,
  *                       const double p_RocheLobe2to1)
  *
- * @param   [IN]    p_SemiMajorAxis             post CEE semi-major axis in AU
+ * @param   [IN]    p_SemiMajorAxis             post CEE semi-major axis in Rsol
+ * @param   [IN]    p_SemiMajorAxisAfterStage1   semi-major axis in Rsol after step 1 of 2-stage CE (should be 0.0 for alpha-lambda CE)
  * @param   [IN]    p_Eccentricity              post CEE eccentricity
- * @param   [IN]    p_RocheLobe1to2             post CEE Roche Lobe radius in AU as seen by star1
- * @param   [IN]    p_RocheLobe2to1             post CEE Roche Lobe radius in AU as seen by star2
+ * @param   [IN]    p_RocheLobe1to2             post CEE Roche Lobe radius in Rsol as seen by star1
+ * @param   [IN]    p_RocheLobe2to1             post CEE Roche Lobe radius in Rsol as seen by star2
  */
 void BaseBinaryStar::SetPostCEEValues(const double p_SemiMajorAxis,
+                                      const double p_SemiMajorAxisAfterStage1,
                                       const double p_Eccentricity,
                                       const double p_RocheLobe1to2,
                                       const double p_RocheLobe2to1) {
 
 	m_CEDetails.postCEE.semiMajorAxis = p_SemiMajorAxis;
+    m_CEDetails.postCEE.semiMajorAxisAfterStage1 = p_SemiMajorAxisAfterStage1;
     m_CEDetails.postCEE.eccentricity  = p_Eccentricity;
 	m_CEDetails.postCEE.rocheLobe1to2 = p_RocheLobe1to2;
 	m_CEDetails.postCEE.rocheLobe2to1 = p_RocheLobe2to1;
@@ -1515,24 +1523,26 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     double omegaSpin1_pre_CE = m_Star1->Omega();                                                                        // star1 spin (before CEE)
     double omegaSpin2_pre_CE = m_Star2->Omega();                                                                        // star2 spin (before CEE)
     
+    double semiMajorAxisAfterStage1 = 0.0;                                                                              // semi-major axis after stage 1 (to remain zero unless using 2-stage CE formalism)
+    
     bool isDonorMS = false;                                                                                             // check for main sequence donor
     if (OPTIONS->AllowMainSequenceStarToSurviveCommonEnvelope()) {                                                      // allow main sequence stars to survive CEE?
-        if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
+        if (m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // yes - star1 MS_LTE_07, MS_GT_07, CHEMICALLY_HOMOGENEOUS or NAKED_HELIUM_STAR_MS?
             isDonorMS    = isDonorMS || m_Star1->IsRLOF();                                                              // yes - donor MS?
             m_Mass1Final = m_Star1->Mass();                                                                             // set mass
             m_MassEnv1   = 0.0;                                                                                         // no envelope
         }
-        else {                                                                                                          // no, star1 not MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS
+        else {                                                                                                          // no, star1 not MS_LTE_07, MS_GT_07, CHEMICALLY_HOMOGENEOUS or NAKED_HELIUM_STAR_MS
             m_Mass1Final = m_Star1->CoreMass();                                                                         // set mass
             m_MassEnv1   = m_Star1->Mass() - m_Star1->CoreMass();                                                       // and envelope
         }
 
-        if (m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // star2 MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS?
+        if (m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) {                                                                      // star2 MS_LTE_07, MS_GT_07, CHEMICALLY_HOMOGENEOUS or NAKED_HELIUM_STAR_MS?
             isDonorMS    = isDonorMS || m_Star2->IsRLOF();                                                              // yes - donor MS?
             m_Mass2Final = m_Star2->Mass();                                                                             // yes - set mass
             m_MassEnv2   = 0.0;                                                                                         // no envelope
         }
-        else {                                                                                                          // no, star2 not MS_LTE_07, MS_GT_07 or NAKED_HELIUM_STAR_MS
+        else {                                                                                                          // no, star2 not MS_LTE_07, MS_GT_07, CHEMICALLY_HOMOGENEOUS or NAKED_HELIUM_STAR_MS
             m_Mass2Final = m_Star2->CoreMass();                                                                         // set mass
             m_MassEnv2   = m_Star2->Mass() - m_Star2->CoreMass();                                                       // and envelope
         }
@@ -1551,12 +1561,6 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_CEDetails.CEEcount++;                                                                                             // increment CEE count
     m_RLOFDetails.simultaneousRLOF = m_Star1->IsRLOF() && m_Star2->IsRLOF();                                            // check for simultaneous RLOF
 
-	m_Star1->CalculateLambdas(m_MassEnv1);                                                                              // calculate lambdas for star1
-	m_Star2->CalculateLambdas(m_MassEnv2);                                                                              // calculate lambdas for star2
-
-    m_Star1->CalculateBindingEnergies(m_Mass1Final, m_MassEnv1, m_Star1->Radius());                                     // calculate binding energies for star1 (uses lambdas)
-    m_Star2->CalculateBindingEnergies(m_Mass2Final, m_MassEnv2, m_Star2->Radius());                                     // calculate binding energies for star2 (uses lambdas)
-
     m_Star1->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star1
     m_Star2->CalculateCommonEnvelopeValues();                                                                           // calculate common envelope values for star2
 
@@ -1567,7 +1571,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
     m_Star2->SetPreCEEValues();                                                                                         // squirrel away pre CEE stellar values for star 2
   	SetPreCEEValues(semiMajorAxisRsol, eccentricity, rRLd1Rsol, rRLd2Rsol);                                             // squirrel away pre CEE binary values
     
-    m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::CE;
+    m_MassTransferTimescale = MT_TIMESCALE::CE;
     m_MassLossRateInRLOF    = DBL_MAX;
     
 	// double common envelope phase prescription (Brown 1995) to calculate new semi-major axis
@@ -1613,8 +1617,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
             
             // stage 1: convective envelope removal on a dynamical timescale; assumes lambda = lambda_He (this still uses the Picker convective envelope mass fit to estimate lambda)
-            double lambda1    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1);
-            double lambda2    = m_Star2->CalculateConvectiveEnvelopeLambdaPicker(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2);
+            double lambda1    = m_Star1->CalculateConvectiveEnvelopeLambdaPicker(std::tie(convectiveEnvelopeMass1, maxConvectiveEnvelopeMass1));
+            double lambda2    = m_Star2->CalculateConvectiveEnvelopeLambdaPicker(std::tie(convectiveEnvelopeMass2, maxConvectiveEnvelopeMass2));
             
             double k1         = m_Star1->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda1 * alphaCE)) * m_Star1->Mass() * (mass1 - endOfFirstStageMass1) / m_Star1->Radius();
             double k2         = m_Star2->IsOneOf(COMPACT_OBJECTS) ? 0.0 : (2.0 / (lambda2 * alphaCE)) * m_Star2->Mass() * (mass2 - endOfFirstStageMass2) / m_Star2->Radius();
@@ -1623,11 +1627,11 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             
             double aFinalRsol = k4 / (k1 + k2 + k3);
             m_SemiMajorAxis   = aFinalRsol * RSOL_TO_AU;
+            semiMajorAxisAfterStage1 = m_SemiMajorAxis;
             
             // stage 2: radiative envelope removal on a thermal timescale; assumed to be fully non-conservative
             // transfer the radiative intershell first from the star that is initially in RLOF (i.e., initiating CE)
             // note that in the case where both stars are in RLOF (m_RLOFDetails.simultaneousRLOF), star 1 is arbitrarily first to transfer its radiative intershell
-            
             if (m_Star1->IsRLOF()) {
                 if (utils::Compare(endOfFirstStageMass1 - m_Mass1Final, 0.0) > 0) {
                     m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), endOfFirstStageMass2, m_Star2->IsDegenerate(), 0.0);
@@ -1718,7 +1722,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
         m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
         m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
-        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, semiMajorAxisAfterStage1 * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
 
         if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {// is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
@@ -1978,19 +1982,22 @@ void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
         if (OPTIONS->UseMassLoss()) {                                                                                                   // mass loss enabled?
 
             // calculate new values assuming mass loss applied
+            //
+            double aPreWinds = m_SemiMajorAxisPrev; 
+            double m1preWinds = m_Star1->Mass();
+            double m2preWinds = m_Star2->Mass();
             double mWinds1 = m_Star1->CalculateMassLossValues(p_Dt, true);                                                   // Mass star 1 after windloss
             double mWinds2 = m_Star2->CalculateMassLossValues(p_Dt, true);                                                   // Mass star 2 after windloss
                              
-            if (OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) &&
-               (HasOneOf({STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF})) {                                                                // Only do this if one star is a WD. This can be removed later when the option is generalized later
+            if ((OPTIONS->WindAccretionPrescription() != WIND_ACCRETION_PRESCRIPTION::NONE) && (HasOneOf(WHITE_DWARFS))) {
 
-                double RLradius1          = CalculateRocheLobeRadius_Static(mWinds1, mWinds2) * AU_TO_RSOL * aWinds * (1.0 - m_Eccentricity);      // RL-radius of star 1
-                bool   IsHeRich1          = m_Star1->IsOneOf(He_RICH_TYPES);                                                                                                // Star 1 is He-rich
+                double RLradius1          = CalculateRocheLobeRadius_Static(m1preWinds, m2preWinds) * AU_TO_RSOL * aPreWinds * (1.0 - m_Eccentricity);      // RL-radius of star 1
+                bool   IsHeRich1          = m_Star1->IsOneOf(He_RICH_TYPES);                                                                                // Star 1 is He-rich
 
-                double RLradius2          = CalculateRocheLobeRadius_Static(mWinds2, mWinds1) * AU_TO_RSOL * aWinds * (1.0 - m_Eccentricity);      // RL-radius of star 2
-                bool   IsHeRich2          = m_Star2->IsOneOf(He_RICH_TYPES);                                                                                                // Star 2 is He-rich
+                double RLradius2          = CalculateRocheLobeRadius_Static(m2preWinds, m1preWinds) * AU_TO_RSOL * aPreWinds * (1.0 - m_Eccentricity);      // RL-radius of star 2
+                bool   IsHeRich2          = m_Star2->IsOneOf(He_RICH_TYPES);                                                                                // Star 2 is He-rich
 
-                CalculateWindAccretionRate(p_Dt, mWinds1, mWinds2, aWinds);   
+                CalculateWindAccretionRate(p_Dt, m2preWinds, m1preWinds, aPreWinds);
 
                 double mGain1 = std::max(0.0, m_Star1->CalculateMassGainValues(p_Dt, RLradius1, IsHeRich2)); 
                 mWinds1 += mGain1;  // calculate new values assuming mass gain applied
@@ -2113,74 +2120,113 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
 
     }
 
-    // if not Bondi
-    //
+    else { // Using wind accretion
 
-    else {
+        BinaryConstituentStar *StarWD;                                                         // Initially more massive star - the primary
+        BinaryConstituentStar *StarRG;                                                         // Initially less massive star - the secondary
+        double massWD;
+        double massRG;
 
-        double windRate1 = m_Star1->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
-        double windRate2 = m_Star2->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 2 ( mSol / yr )
+        if (m_Star1->IsOneOf(WHITE_DWARFS) || m_Star2->IsOneOf(WHITE_DWARFS)) { // Wind accretion only currently treated for WD accretors
+            if (m_Star1->IsOneOf(WHITE_DWARFS)) { 
+                StarWD = m_Star1;
+                StarRG = m_Star2;
+                massWD = p_mass1;
+                massRG = p_mass2;
+            } 
+            else {
+                StarWD = m_Star2;
+                StarRG = m_Star1;
+                massWD = p_mass2;
+                massRG = p_mass1;
+            }
+            StarRG->SetWindAccretionRate(0.0);
 
-        double escapeVelocity1 = std::sqrt(2 * G_AU_Msol_yr * p_mass1 / (m_Star1->Radius() * RSOL_TO_AU)); // AU / yr
-        double escapeVelocity2 = std::sqrt(2 * G_AU_Msol_yr * p_mass2 / (m_Star2->Radius() * RSOL_TO_AU)); // AU / yr
+            double windRateRG = StarRG->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
+            double escapeVelocityRG = std::sqrt(2 * G_AU_Msol_yr * massRG / (StarRG->Radius() * RSOL_TO_AU)); // AU / yr
+            double alpha_wRG = CalculateWindVelocity(massRG, StarRG->Radius(), p_SemiMajorAxis); // Wind for Star2 as donor
+            double windVelocityRG = alpha_wRG * escapeVelocityRG / 2;
+            double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( massWD + massRG ) / p_SemiMajorAxis); // orbital velocity ( AU / yr )^2
+            double aSquared = p_SemiMajorAxis * p_SemiMajorAxis; // AU^2
 
-        double alpha_w1 = CalculateWindVelocity(p_mass1, m_Star1->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor
-        double alpha_w2 = CalculateWindVelocity(p_mass2, m_Star2->Radius(), p_SemiMajorAxis); // Wind for Star2 as donor
+            // Get accretion efficiency, first determine if in Bondi-Hoyle regime or not...
 
-        double windVelocity1 = alpha_w1 * escapeVelocity1 / 2;
-        double windVelocity2 = alpha_w2 * escapeVelocity2 / 2;
-        
-        double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( p_mass1 + p_mass2 ) / p_SemiMajorAxis); // orbital velocity ( AU / yr )^2
-        
-        double aSquared = p_SemiMajorAxis * p_SemiMajorAxis; // AU^2
-
-        // TODO: add check for Bondi
-
-        // if Bondi
-            double maxAccretionEfficiency1 = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * p_mass1, 2) * PPOW(windVelocity2 * windVelocity2 + orbitalVelocitySquared, -3/2) / (aSquared * windVelocity2); // Efficiency with which star 1 accretes wind 
-            double maxAccretionEfficiency2 = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * p_mass2, 2) * PPOW(windVelocity1 * windVelocity1 + orbitalVelocitySquared, -3/2) / (aSquared * windVelocity1); // Efficiency with which star 2 accretes wind 
-
-            double accretionEfficiency1 = std::min(1.0,maxAccretionEfficiency1);
-            double accretionEfficiency2 = std::min(1.0,maxAccretionEfficiency2);
-
-            if ( windVelocity1 == 0 ) {
-                accretionEfficiency2 = 0; 
+            // This comes from Vathachira+2025, who are a bit sloppy with their units.
+            // It looks like they want anything which is a distance to be in units of Rsun, so that they can call the calculation unitless...
+            double rocheLobeRG = CalculateRocheLobeRadius_Static(massRG, massWD); // AU
+            double xi = std::sqrt(500*massRG); // Unitless
+            double omega = 1; // Unitless
+            double rocheLobeLimitRG = (xi *(xi + std::sqrt(xi*xi + 2*omega*StarRG->Radius())) + omega*StarRG->Radius()) *RSOL_TO_AU; // converted to AU
+            
+            double accretionEfficiencyWD;
+            // If the actual roche lobe is larger than the limit, then the wind hits escape velocity and you are in Bondi-Hoyle regime
+            bool useBondiHoyleAccretion = rocheLobeRG > rocheLobeLimitRG; // Check this!!!
+            if (useBondiHoyleAccretion) { // if Bondi
+                double maxAccretionEfficiencyWD = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityRG * windVelocityRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityRG); // Efficiency with which star 1 accretes wind 
+                accretionEfficiencyWD = std::max(0.0, std::min(1.0, maxAccretionEfficiencyWD)); // fix acc eff to between 0 and 1
+            }
+            else { // WRLOF with beta = 0.5    
+                accretionEfficiencyWD = 0.5;
             }
 
-            if ( windVelocity2 == 0 ) {
-                accretionEfficiency1 = 0;   
-            }
+            double windAccretionRateWD = -accretionEfficiencyWD * windRateRG; // Accretion onto Star 1 ( mSol / yr )
+            StarWD->SetWindAccretionRate(windAccretionRateWD) ; // ( mSol / yr )
+                                                                  
 
-        // if WRLOF
-        //     do another thing
-            double accretionEfficiency1 = 0.5;
-            double accretionEfficiency2 = 0.5;
+            // Below replace 1 for WD and 2 for RG
+            //double windRateWD = m_WDstar->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
+            //double windRate1 = m_Star1->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
+            //double windRate2 = m_Star2->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 2 ( mSol / yr )
+            //double escapeVelocityWD = std::sqrt(2 * G_AU_Msol_yr * p_WDmass / (m_WDstar->Radius() * RSOL_TO_AU)); // AU / yr
+            //double escapeVelocity1 = std::sqrt(2 * G_AU_Msol_yr * p_mass1 / (m_Star1->Radius() * RSOL_TO_AU)); // AU / yr
+            //double escapeVelocity2 = std::sqrt(2 * G_AU_Msol_yr * p_mass2 / (m_Star2->Radius() * RSOL_TO_AU)); // AU / yr
+            //double alpha_wWD = CalculateWindVelocity(p_WDmass, m_StarWD->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor
+            //double alpha_w1 = CalculateWindVelocity(p_mass1, m_Star1->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor
+            //double alpha_w2 = CalculateWindVelocity(p_mass2, m_Star2->Radius(), p_SemiMajorAxis); // Wind for Star2 as donor
+            //double windVelocityWD = alpha_wWD * escapeVelocityWD / 2;
+            //double windVelocity1 = alpha_w1 * escapeVelocity1 / 2;
+            //double windVelocity2 = alpha_w2 * escapeVelocity2 / 2;
+            //double rocheLobeWD = CalculateRocheLobeRadius_Static(massWD, massRG); // AU 
+            //double rocheLobe1 = CalculateRocheLobeRadius_Static(mass1, mass2); // AU 
+            //double rocheLobe2 = CalculateRocheLobeRadius_Static(mass2, mass1); // AU
+                                                                               
+            //double xiWD = std::sqrt(500*p_massWD); // Unitless
+            //double xi1 = std::sqrt(500*p_mass1); // Unitless
+            //double xi2 = std::sqrt(500*p_mass2); // Unitless
 
-        double windAccretionRate1 = - accretionEfficiency1 * windRate2; // Accretion onto Star 1 ( mSol / yr )
-        double windAccretionRate2 = - accretionEfficiency2 * windRate1; // Accretion onto Star 2 ( mSol / yr )
-        
+            //double omegaWD = 1; // Unitless
+            //double omega1 = 1; // Unitless
+            //double omega2 = 1; // Unitless
 
-        // The check below is to make sure the acc. star is not larger than the RL, but not really necessary for WD accretors...
-        
-        double radiusBondi1 = 2 * G_AU_Msol_yr * p_mass1 / (windVelocity2 * windVelocity2 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
-        double radiusBondi2 = 2 * G_AU_Msol_yr * p_mass2 / (windVelocity1 * windVelocity1 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
+            //double rocheLobeLimitWD = (xiWD *(xiWD + std::sqrt(xiWD*xiWD + 2*omegaWD*m_StarWD->Radius())) + omegaWD*m_StarWD->Radius()) *RSOL_TO_AU; // converted to AU
+            //double windAccretionRate1 = - accretionEfficiency1 * windRate2; // Accretion onto Star 1 ( mSol / yr )
+            //double windAccretionRate2 = - accretionEfficiency2 * windRate1; // Accretion onto Star 2 ( mSol / yr )
+            
+
+            // The check below is to make sure the acc. star is not larger than the RL, but not really necessary for WD accretors...
+            
+            //if (radiusBondi2 > m_Star2->Radius()) { 
+            //double radiusBondi1 = 2 * G_AU_Msol_yr * p_mass1 / (windVelocity2 * windVelocity2 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
+            //double radiusBondi2 = 2 * G_AU_Msol_yr * p_mass2 / (windVelocity1 * windVelocity1 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
+            //if (m_Star1->StellarType() == STELLAR_TYPE::HELIUM_WHITE_DWARF ||
+            //    m_Star1->StellarType() == STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF ||
+            //    m_Star1->StellarType() == STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF) {        // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
+            //if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1);} // ( mSol / yr )
+            //else { m_Star1->SetWindAccretionRate(0.0);}
+            //}
+            //else {m_Star1->SetWindAccretionRate(0.0);}
+            //
+            //if (m_Star2->StellarType() == STELLAR_TYPE::HELIUM_WHITE_DWARF ||
+            //    m_Star2->StellarType() == STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF ||
+            //    m_Star2->StellarType() == STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF) {        
+            //if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2);} // ( mSol / yr )
+            //else { m_Star2->SetWindAccretionRate(0.0);}
+            //}
+            //else {m_Star2->SetWindAccretionRate(0.0);}
 
 
-        if (m_Star1->StellarType() == STELLAR_TYPE::HELIUM_WHITE_DWARF ||
-            m_Star1->StellarType() == STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF ||
-            m_Star1->StellarType() == STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF) {        // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
-        if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1);} // ( mSol / yr )
-        else { m_Star1->SetWindAccretionRate(0.0);}
         }
-        else {m_Star1->SetWindAccretionRate(0.0);}
-        
-        if (m_Star2->StellarType() == STELLAR_TYPE::HELIUM_WHITE_DWARF ||
-            m_Star2->StellarType() == STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF ||
-            m_Star2->StellarType() == STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF) {        
-        if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2);} // ( mSol / yr )
-        else { m_Star2->SetWindAccretionRate(0.0);}
-        }
-        else {m_Star2->SetWindAccretionRate(0.0);}
+
     }
 
 
@@ -2236,7 +2282,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         jLoss = CalculateGammaAngularMomentumLoss();                                                                            // no - re-calculate angular momentum
     }
     
-    m_MassTransferTimescale         = MASS_TRANSFER_TIMESCALE::NONE;                                                            // initial reset
+    m_MassTransferTimescale         = MT_TIMESCALE::NONE;                                                                       // initial reset
     double betaThermal              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on thermal timescale
     double maximumAccretionRate     = 0.0;                                                                                      // accretion rate if accretion proceeds on thermal timescale
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
@@ -2265,17 +2311,17 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         double zetaLobe        = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
         if (utils::Compare(zetaEquilibrium, zetaLobe) > 0  && massDiffDonor > 0.0) {                                            // yes, it's nuclear timescale mass transfer; no need for utils::Compare here
             m_MassLossRateInRLOF    = massDiffDonor / m_Dt;
-            m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::NUCLEAR;
+            m_MassTransferTimescale = MT_TIMESCALE::NUCLEAR;
             m_ZetaStar              = zetaEquilibrium;
             m_ZetaLobe              = zetaLobe;
         }
     }
-    if (m_MassTransferTimescale != MASS_TRANSFER_TIMESCALE::NUCLEAR) {                                                          // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
+    if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
         m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, betaThermal);
         m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
         m_FractionAccreted      = betaThermal;
-        m_MassTransferTimescale = MASS_TRANSFER_TIMESCALE::THERMAL;
+        m_MassTransferTimescale = MT_TIMESCALE::THERMAL;
         massDiffDonor           = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, betaThermal, 0.0);                    // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
     }
         
@@ -2318,7 +2364,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         bool isEnvelopeRemoved = false;
 
         if (utils::Compare(m_Donor->CoreMass(), 0.0) > 0 && utils::Compare(envMassDonor, 0.0) > 0) {                            // donor has a core and an envelope
-            if (m_MassTransferTimescale == MASS_TRANSFER_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
+            if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
                 // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
                 massDiffDonor     = -envMassDonor;
                 isEnvelopeRemoved = true;
@@ -2374,12 +2420,14 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
     }
     
-	// Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
-	if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star
-        m_Donor->SetRLOFOntoNS();                                                                                               // donor donated mass to a neutron star
+    // Check for recycled pulsars. Not considering CEE as a way of recycling NSs.
+    if (!m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                           // accretor is a neutron star, system is not in CE 
         m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
-	}
-    
+    }
+    else if (m_CEDetails.CEEnow && m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })
+             && OPTIONS->NeutronStarAccretionInCE() != NS_ACCRETION_IN_CE::ZERO) {                                              // accretor is a neutron star, system is in CE
+        m_Accretor->SetRecycledNS();                                                                                            // accretor is (was) a recycled NS
+    }
 }
 
 
@@ -2498,7 +2546,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
 
 	m_MassTransferTrackerHistory = MT_TRACKING::NO_MASS_TRANSFER;	                                                            // Initiating flag, every timestep, to NO_MASS_TRANSFER. If it undergoes to MT or CEE, it should change.
     
-    m_MassTransferTimescale      = MASS_TRANSFER_TIMESCALE::NONE;
+    m_MassTransferTimescale      = MT_TIMESCALE::NONE;
     m_MassLossRateInRLOF         = 0.0;
 
     m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star1
@@ -2694,28 +2742,32 @@ void BaseBinaryStar::ResolveMassChanges() {
 
     STELLAR_TYPE stellarType1 = m_Star1->StellarTypePrev();                                             // star 1 stellar type before updating attributes
     STELLAR_TYPE stellarType2 = m_Star2->StellarTypePrev();                                             // star 2 stellar type before updating attributes
+    
+    double extraAngularMomentumChangeOrbit = 0.0;
 
     // star1
     // determine if the star's mass has already been updated
     // (a sign that ResolveEnvelopeLossAndSwitch() has been called after the full envelope was stripped)
     // no need to resolve mass changes if the mass has already been updated
-    if (utils::Compare(m_Star1->MassPrev(), m_Star1->Mass()) == 0) {                                    // mass already updated?
-                                                                                                        // no - resolve mass changes      
+    if (utils::Compare(m_Star1->MassPrev(), m_Star1->Mass()) == 0) {                                    // resolve mass changes if mass not already updated
         double massChange = m_Star1->MassLossDiff() + m_Star1->MassTransferDiff();                      // mass change due to winds and mass transfer
     
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
-            // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
-            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0)
-		                                    ? massChange * sqrt(G_AU_Msol_yr * m_Star1->Mass() * m_Star1->Radius() * RSOL_TO_AU)
-		                                    : (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
-
-            // update mass of star according to mass loss and mass transfer, then update age accordingly
-            (void)m_Star1->UpdateAttributes(massChange, 0.0);                                           // update mass for star
-            m_Star1->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
-            m_Star1->UpdateAgeAfterMassLoss();                                                          // update age of star
-            m_Star1->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
-            m_Star1->UpdateAttributes(0.0, 0.0, true);
-            m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChange);
+            // yes - calculate new angular momentum
+            if(utils::Compare(massChange, 0.0) < 0) {
+                double angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
+                extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
+                // update mass of star according to mass loss and mass transfer, then update age accordingly
+                (void)m_Star1->UpdateAttributes(massChange, 0.0);                                       // update mass for star
+                m_Star1->UpdateInitialMass();                                                           // update effective initial mass of star (MS, HG & HeMS)
+                m_Star1->UpdateAgeAfterMassLoss();                                                      // update age of star
+                m_Star1->ApplyMassTransferRejuvenationFactor();                                         // apply age rejuvenation factor for star
+                m_Star1->UpdateAttributes(0.0, 0.0, true);
+                m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChangeStar);
+            }
+            
+            if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
+                extraAngularMomentumChangeOrbit += ResolveAccretionAngularMomentumGain(m_Star1, m_Star2, massChange);
         }
     }
         
@@ -2723,31 +2775,42 @@ void BaseBinaryStar::ResolveMassChanges() {
     // determine if the star's mass has already been updated
     // (a sign that ResolveEnvelopeLossAndSwitch() has been called after the full envelope was stripped)
     // no need to resolve mass changes if the mass has already been updated
-    // calculate mass change due to winds and mass transfer
-    if (utils::Compare(m_Star2->MassPrev(), m_Star2->Mass()) == 0) {                                    // mass already updated?
-                                                                                                        // no - resolve mass changes
+    if (utils::Compare(m_Star2->MassPrev(), m_Star2->Mass()) == 0) {                                    // resolve mass changes if mass not already updated
         double massChange = m_Star2->MassLossDiff() + m_Star2->MassTransferDiff();                      // mass change due to winds and mass transfer
         if (utils::Compare(massChange, 0.0) != 0) {                                                     // winds/mass transfer changes mass?
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
-            double angularMomentumChange = (utils::Compare(massChange, 0.0) > 0)
-		                                    ? massChange * sqrt(G_AU_Msol_yr * m_Star2->Mass() * m_Star2->Radius() * RSOL_TO_AU)
-		                                    : (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
-
-            // update mass of star according to mass loss and mass transfer, then update age accordingly
-            (void)m_Star2->UpdateAttributes(massChange, 0.0);                                           // update mass for star
-            m_Star2->UpdateInitialMass();                                                               // update effective initial mass of star (MS, HG & HeMS)
-            m_Star2->UpdateAgeAfterMassLoss();                                                          // update age of star
-            m_Star2->ApplyMassTransferRejuvenationFactor();                                             // apply age rejuvenation factor for star
-            m_Star2->UpdateAttributes(0.0, 0.0, true);
-            m_Star2->SetAngularMomentum(m_Star2->AngularMomentum() + angularMomentumChange);
+            if(utils::Compare(massChange, 0.0) < 0) {
+                double angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
+                extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
+                // update mass of star according to mass loss and mass transfer, then update age accordingly
+                (void)m_Star2->UpdateAttributes(massChange, 0.0);                                       // update mass for star
+                m_Star2->UpdateInitialMass();                                                           // update effective initial mass of star (MS, HG & HeMS)
+                m_Star2->UpdateAgeAfterMassLoss();                                                      // update age of star
+                m_Star2->ApplyMassTransferRejuvenationFactor();                                         // apply age rejuvenation factor for star
+                m_Star2->UpdateAttributes(0.0, 0.0, true);
+                m_Star2->SetAngularMomentum(m_Star2->AngularMomentum() + angularMomentumChangeStar);
+            }
+            
+            if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
+                extraAngularMomentumChangeOrbit += ResolveAccretionAngularMomentumGain(m_Star2, m_Star1, massChange);
         }
     }
 
     // update binary separation, but only if semimajor axis not already infinite and binary does not contain a massless remnant
     // JR: note, this will (probably) fail if option --fp-error-mode is not OFF (the calculation that resulted in m_SemiMajorAxis = inf will (probably) result in a trap)
-    // Maybe use std::isfinite(p_SemiMajorAxis) to ensure p_SemiMajorAxis is not NaN or inf
-    if (!isinf(m_SemiMajorAxis) && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT}))
+    if (std::isfinite(m_SemiMajorAxis) && !HasOneOf({STELLAR_TYPE::MASSLESS_REMNANT})) {
         m_SemiMajorAxis = m_SemiMajorAxisPrev + m_aMassLossDiff + m_aMassTransferDiff;
+        // account for the angular momentum change of the stars to really conserve total angular momentum
+        // this could mean that a donor no longer precisely fills its Roche lobe
+        double orbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
+        double fractionalChangeAngularMomentum = extraAngularMomentumChangeOrbit / orbitalAngularMomentum;
+        if (utils::Compare(fractionalChangeAngularMomentum, -1.0) <= 0) {
+            THROW_ERROR(ERROR::ADDED_EXCESS_AM_TO_STARS);                                               // throw error
+        }
+        else {
+            m_SemiMajorAxis = m_SemiMajorAxis * (1.0 + fractionalChangeAngularMomentum) * (1.0 + fractionalChangeAngularMomentum); // angular momentum is proportional to the square root of the semimajor axis
+        }
+    }
     
     // envelope ejection for convective envelope stars exceeding threshold luminosity to mass ratio: 
     // assume the entire envelope was lost on timescales long relative to the orbit
@@ -2763,6 +2826,87 @@ void BaseBinaryStar::ResolveMassChanges() {
     if ((m_Star1->StellarType() != stellarType1) || (m_Star2->StellarType() != stellarType2)) {         // stellar type change?
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::STELLAR_TYPE_CHANGE_DURING_MASS_RESOLUTION); // yes - print (log) detailed output
     }
+}
+
+
+/*
+ * Resolve stellar gain of angular momentum through accretion
+ *
+ * Assume accretor is adding angular momentum from a circular orbit at the stellar radius
+ *
+ * Adjust stellar rotation and determine how much excess angular momentum is deposited into the orbit (or removed from it to spin up the accretor)
+ * May limit the amount of accreted mass depending on the ResponseToSpinUp():
+ * KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+ * Under TRANSFER_TO_ORBIT,  the star continues to accrete, but excess angular momentum is deposited in the orbit
+ * NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices
+ *
+ * double ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange)
+ *
+ * @param   [IN]    p_Accretor                  Pointer to accretor
+ * @param   [IN]    p_Donor                     Pointer to donor
+ * @param   [IN]    p_MassChange                Desired amount of mass gain
+ * @return                                      Change in orbital angular momentum due to accretion-induced spin-up
+ */
+double BaseBinaryStar::ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange) {
+    
+    double extraAngularMomentumChangeOrbit = 0.0;                                                           // return value
+
+    double angularMomentumChangeStar;
+    switch (OPTIONS->ResponseToSpinUp()) {
+        
+        case RESPONSE_TO_SPIN_UP::KEPLERIAN_LIMIT: {
+            double keplerianFrequency       = p_Accretor->OmegaBreak();                                     // ignore mass and radius change at this stage
+            double maxAngularMomentumGain   = p_Accretor->CalculateMomentOfInertiaAU() * keplerianFrequency - p_Accretor->AngularMomentum();
+            double maxMassGain              = maxAngularMomentumGain / sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            double massLost                 = std::max(p_MassChange - maxMassGain, 0.0);
+            p_MassChange                    = std::min(p_MassChange, maxMassGain);
+            angularMomentumChangeStar       = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            extraAngularMomentumChangeOrbit = - angularMomentumChangeStar - massLost * (p_Donor->Mass()/p_Accretor->Mass()) * CalculateOrbitalAngularMomentum(p_Accretor->Mass(), p_Donor->Mass(), m_SemiMajorAxis, m_Eccentricity) / (p_Accretor->Mass() + p_Donor->Mass());                  // assumes isotropic re-emission of excess mass loss from the accretor; does not account for changing orbital angular momentum (second-order)
+            (void)p_Accretor->UpdateAttributes(p_MassChange, 0.0);                                          // update mass for star
+            p_Accretor->UpdateInitialMass();                                                                // update effective initial mass of star (MS, HG & HeMS)
+            p_Accretor->UpdateAgeAfterMassLoss();                                                           // update age of star
+            p_Accretor->ApplyMassTransferRejuvenationFactor();                                              // apply age rejuvenation factor for star
+            p_Accretor->UpdateAttributes(0.0, 0.0, true);
+            p_Accretor->SetAngularMomentum(p_Accretor->AngularMomentum() + angularMomentumChangeStar);      // note that because stellar properties have been updated, the actual angular momentum may be slightly over or under the Keplerian limit
+        } break;
+        
+        case RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT: {
+            double initialAngularMomentum = p_Accretor->AngularMomentum();
+            (void)p_Accretor->UpdateAttributes(p_MassChange, 0.0);                                          // update mass for star
+            p_Accretor->UpdateInitialMass();                                                                // update effective initial mass of star (MS, HG & HeMS)
+            p_Accretor->UpdateAgeAfterMassLoss();                                                           // update age of star
+            p_Accretor->ApplyMassTransferRejuvenationFactor();                                              // apply age rejuvenation factor for star
+            p_Accretor->UpdateAttributes(0.0, 0.0, true);
+            double keplerianFrequency = p_Accretor->OmegaBreak();
+            double maxAngularMomentum = p_Accretor->CalculateMomentOfInertiaAU() * keplerianFrequency;
+            angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            p_Accretor->SetAngularMomentum(std::min(m_Accretor->AngularMomentum() + angularMomentumChangeStar, maxAngularMomentum));
+            extraAngularMomentumChangeOrbit = - (p_Accretor->AngularMomentum() - initialAngularMomentum);
+        } break;
+            
+        case RESPONSE_TO_SPIN_UP::NO_LIMIT: {
+            (void)p_Accretor->UpdateAttributes(p_MassChange, 0.0);                                          // update mass for star
+            p_Accretor->UpdateInitialMass();                                                                // update effective initial mass of star (MS, HG & HeMS)
+            p_Accretor->UpdateAgeAfterMassLoss();                                                           // update age of star
+            p_Accretor->ApplyMassTransferRejuvenationFactor();                                              // apply age rejuvenation factor for star
+            p_Accretor->UpdateAttributes(0.0, 0.0, true);
+            angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
+            p_Accretor->SetAngularMomentum(m_Accretor->AngularMomentum() + angularMomentumChangeStar);
+            extraAngularMomentumChangeOrbit = -angularMomentumChangeStar;
+        } break;
+        
+        default:                                                                                        // unknown prescription
+            // the only way this can happen is if someone added a RESPONSE_TO_SPIN_UP
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+        
+            THROW_ERROR(ERROR::UNKNOWN_RESPONSE_TO_SPIN_UP);
+    }
+
+    return extraAngularMomentumChangeOrbit;
 }
 
 
@@ -3085,12 +3229,15 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  *
  * double ChooseTimestep(const double p_Multiplier)
  * 
- * @param   [IN]    p_Multiplier                timestep multiplier
+ * @param   [IN]    p_Factor                    factor applied to timestep (in addition to multipliers)
  * @return                                      new timestep in Myr
  */
-double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
+double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
 
-    double dt = std::min(m_Star1->CalculateTimestep(), m_Star2->CalculateTimestep());       // dt = smaller of timesteps required by individual stars
+    double dt1 = m_Star1->CalculateTimestep() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star1->StellarType()));
+    double dt2 = m_Star2->CalculateTimestep() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star2->StellarType()));
+
+    double dt  = std::min(dt1, dt2);                                                        // dt = smaller of timesteps required by individual stars
 
     if (!IsUnbound()) {                                                                     // check that binary is bound
 
@@ -3100,7 +3247,13 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         if ((utils::Compare(radiusToRL1 * (1.0 + 2.0 * OPTIONS->RadialChangeFraction()), 1.0) >= 0 && utils::Compare(radiusToRL1 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) <= 0) ||
             (utils::Compare(radiusToRL2 * (1.0 + 2.0 * OPTIONS->RadialChangeFraction()), 1.0) >= 0 && utils::Compare(radiusToRL2 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) <= 0))
             dt /= 2.0;
-
+        
+        // limit time step for stars losing mass on nuclear timescale
+        if (utils::Compare(radiusToRL1 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
+            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * m_Star1->CalculateRadialExpansionTimescaleDuringMassTransfer());
+        if (utils::Compare(radiusToRL2 * (1.0 + 0.5 * OPTIONS->RadialChangeFraction()), 1.0) > 0)
+            dt = std::min(dt, 0.5 * OPTIONS->RadialChangeFraction() * m_Star2->CalculateRadialExpansionTimescaleDuringMassTransfer());
+        
         if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }
@@ -3139,7 +3292,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Multiplier) {
         }
     }
 
-    dt *= p_Multiplier;	
+    dt *= OPTIONS->TimestepMultiplier() * p_Factor;
 
     return std::max(std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM, TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME * NUCLEAR_MINIMUM_TIMESTEP); // quantised and not less than minimum
 }
@@ -3372,7 +3525,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 }
 
                 // we want the first timestep to be small - calculate timestep and divide by 1000.0
-                dt = ChooseTimestep(OPTIONS->TimestepMultiplier() / 1000.0);                                                            // calculate timestep - make first step small
+                dt = ChooseTimestep(0.001);                                                                                             // calculate timestep - make first step small
             }
 
             unsigned long int stepNum = 1; 
@@ -3502,7 +3655,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                             dt = timesteps[stepNum];
                         }
                         else {                                                                                                          // no - not using user-provided timesteps
-                            dt = ChooseTimestep(OPTIONS->TimestepMultiplier());
+                            dt = ChooseTimestep();
                         }
 
                         stepNum++;                                                                                                      // increment stepNum
