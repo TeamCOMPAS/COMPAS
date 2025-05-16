@@ -64,6 +64,9 @@ public:
         m_CosIPrime                        = p_Star.m_CosIPrime;
         m_IPrime                           = p_Star.m_IPrime;
 
+        m_ImKnm1_tidal                     = p_Star.m_ImKnm1_tidal;
+        m_ImKnm2_tidal                     = p_Star.m_ImKnm2_tidal;
+
         m_JLoss                            = p_Star.m_JLoss;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
@@ -97,7 +100,8 @@ public:
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
-        m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
+        m_SynchronizationTimescale1        = p_Star.m_SynchronizationTimescale1;
+        m_SynchronizationTimescale2        = p_Star.m_SynchronizationTimescale2;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
         m_NormalizedOrbitalAngularMomentumVector = p_Star.m_NormalizedOrbitalAngularMomentumVector;
@@ -179,6 +183,12 @@ public:
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
     bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal() const                        { return m_ImKnm1_tidal; }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal() const                        { return m_ImKnm2_tidal; }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal_eq() const                     { return m_Star1->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal_eq() const                     { return m_Star2->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal_dyn() const                    { return m_Star1->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal_dyn() const                    { return m_Star2->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsHMXRBinary() const;
@@ -246,7 +256,8 @@ public:
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-    double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
+    double              SynchronizationTimescale1() const           { return m_SynchronizationTimescale1; }
+    double              SynchronizationTimescale2() const           { return m_SynchronizationTimescale2; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
     double              SystemicVelocityX() const                   { return m_SystemicVelocity.xValue(); }
     double              SystemicVelocityY() const                   { return m_SystemicVelocity.yValue(); }
@@ -303,6 +314,13 @@ private:
 
     double              m_CircularizationTimescale;
 
+    double              m_DSemiMajorAxis1Dt_tidal;                                          // change in semi-major axis from tides on star1
+    double              m_DSemiMajorAxis2Dt_tidal;                                          // change in semi-major axis from tides on star2
+    double              m_DEccentricity1Dt_tidal;                                           // change in eccentricity from tides on star1
+    double              m_DEccentricity2Dt_tidal;                                           // change in eccentricity from tides on star2
+    double              m_DOmega1Dt_tidal;                                                  // change in spin from tides on star1
+    double              m_DOmega2Dt_tidal;                                                  // change in spin from tides on star2      
+
     bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
@@ -329,6 +347,9 @@ private:
 
     double              m_CosIPrime;
     double              m_IPrime;
+
+    DBL_DBL_DBL_DBL     m_ImKnm1_tidal;
+    DBL_DBL_DBL_DBL     m_ImKnm2_tidal;     
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
@@ -361,7 +382,8 @@ private:
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
-    double              m_SynchronizationTimescale;
+    double              m_SynchronizationTimescale1;
+    double              m_SynchronizationTimescale2;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
     Vector3d            m_NormalizedOrbitalAngularMomentumVector;                           // Orbital AM vector postSN, in preSN frame
