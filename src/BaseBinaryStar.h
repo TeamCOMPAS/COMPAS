@@ -64,9 +64,6 @@ public:
         m_CosIPrime                        = p_Star.m_CosIPrime;
         m_IPrime                           = p_Star.m_IPrime;
 
-        m_ImKnm1_tidal                     = p_Star.m_ImKnm1_tidal;
-        m_ImKnm2_tidal                     = p_Star.m_ImKnm2_tidal;
-
         m_JLoss                            = p_Star.m_JLoss;
 
         m_Mass1Final                       = p_Star.m_Mass1Final;
@@ -183,8 +180,8 @@ public:
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
     bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
-    DBL_DBL_DBL_DBL     ImKnm1_tidal() const                        { return m_ImKnm1_tidal; }
-    DBL_DBL_DBL_DBL     ImKnm2_tidal() const                        { return m_ImKnm2_tidal; }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal() const                        { return m_Star1->CalculateImKnmTidal(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal() const                        { return m_Star2->CalculateImKnmTidal(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass());}
     DBL_DBL_DBL_DBL     ImKnm1_tidal_eq() const                     { return m_Star1->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
     DBL_DBL_DBL_DBL     ImKnm2_tidal_eq() const                     { return m_Star2->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
     DBL_DBL_DBL_DBL     ImKnm1_tidal_dyn() const                    { return m_Star1->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
@@ -313,14 +310,7 @@ private:
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
     double              m_CircularizationTimescale;
-
-    double              m_DSemiMajorAxis1Dt_tidal;                                          // change in semi-major axis from tides on star1
-    double              m_DSemiMajorAxis2Dt_tidal;                                          // change in semi-major axis from tides on star2
-    double              m_DEccentricity1Dt_tidal;                                           // change in eccentricity from tides on star1
-    double              m_DEccentricity2Dt_tidal;                                           // change in eccentricity from tides on star2
-    double              m_DOmega1Dt_tidal;                                                  // change in spin from tides on star1
-    double              m_DOmega2Dt_tidal;                                                  // change in spin from tides on star2      
-
+   
     bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
@@ -346,10 +336,7 @@ private:
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
-    double              m_IPrime;
-
-    DBL_DBL_DBL_DBL     m_ImKnm1_tidal;
-    DBL_DBL_DBL_DBL     m_ImKnm2_tidal;     
+    double              m_IPrime;  
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
