@@ -3411,10 +3411,6 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     double rIn_7  = rIn_2 * rIn_5;
     double rIn_9  = rIn_2 * rIn_7;
 
-    double a_2 = p_SemiMajorAxis * p_SemiMajorAxis;
-    double a_3 = a_2 * p_SemiMajorAxis;
-    double a_6 = a_3 * a_3;
-
     double omegaSpin      = Omega();
     double twoOmegaSpin   = omegaSpin + omegaSpin;
 
