@@ -101,6 +101,8 @@ protected:
 
             double          CalculateBirthMagneticField();
             double          CalculateBirthSpinPeriod();
+    
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const { return 0.0; }
 
     static  double          CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time);
             double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
