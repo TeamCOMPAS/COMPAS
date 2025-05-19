@@ -67,12 +67,7 @@ protected:
                                                const double p_Metallicity) const    { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }        // Use class member variables
 
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                const bool   p_IsHeRich);  
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                const double p_AccretorMassRate,
-                                                const bool   p_IsHeRich)            { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }        // Ignore the input accretion rate for WDs
-
+    
     STELLAR_TYPE    EvolveToNextPhase();
     bool            IsSupernova() const                                             { return m_HeShellDetonation || IsMassAboveChandrasekhar(); };                                             
     bool            ShouldEvolveOnPhase() const                                     { return m_OffCenterIgnition ? false : !IsSupernova(); };                   // From https://ui.adsabs.harvard.edu/abs/2017MNRAS.472.1593W/abstract around the end of section 3.2. Also, allows SN.                                               

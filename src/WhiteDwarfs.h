@@ -76,8 +76,8 @@ protected:
 
             double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? L0_RITTER_HIGH_Z : L0_RITTER_LOW_Z; }
 
-    virtual DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                         const bool   p_IsHeRich)           { return std::make_tuple(0.0, 0.0); }
+            DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                         const bool   p_IsHeRich);          
             DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                          const double p_AccretorMassRate,
                                                          const bool   p_IsHeRich)           { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }
