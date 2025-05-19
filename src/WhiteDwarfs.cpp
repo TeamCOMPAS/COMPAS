@@ -178,7 +178,7 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
  * @param   [IN]    p_AccretedMass              Mass accreted
  */
 void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
-    
+
     switch (m_AccretionRegime) {
 
         case ACCRETION_REGIME::HELIUM_ACCUMULATION:

@@ -1997,7 +1997,7 @@ void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
                 double RLradius2          = CalculateRocheLobeRadius_Static(m2preWinds, m1preWinds) * AU_TO_RSOL * aPreWinds * (1.0 - m_Eccentricity);      // RL-radius of star 2
                 bool   IsHeRich2          = m_Star2->IsOneOf(He_RICH_TYPES);                                                                                // Star 2 is He-rich
 
-                CalculateWindAccretionRate(p_Dt, m2preWinds, m1preWinds, aPreWinds);
+                CalculateWindAccretionRate(p_Dt, m1preWinds, m2preWinds, aPreWinds);
 
                 double mGain1 = std::max(0.0, m_Star1->CalculateMassGainValues(p_Dt, RLradius1, IsHeRich2)); 
                 mWinds1 += mGain1;  // calculate new values assuming mass gain applied
@@ -2153,7 +2153,7 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
 
             // This comes from Vathachira+2025, who are a bit sloppy with their units.
             // It looks like they want anything which is a distance to be in units of Rsun, so that they can call the calculation unitless...
-            double rocheLobeRG = CalculateRocheLobeRadius_Static(massRG, massWD); // AU
+            double rocheLobeRG = CalculateRocheLobeRadius_Static(massRG, massWD) *p_SemiMajorAxis; // AU
             double xi = std::sqrt(500*massRG); // Unitless
             double omega = 1; // Unitless
             double rocheLobeLimitRG = (xi *(xi + std::sqrt(xi*xi + 2*omega*StarRG->Radius())) + omega*StarRG->Radius()) *RSOL_TO_AU; // converted to AU
@@ -2766,8 +2766,9 @@ void BaseBinaryStar::ResolveMassChanges() {
                 m_Star1->SetAngularMomentum(m_Star1->AngularMomentum() + angularMomentumChangeStar);
             }
             
-            if(utils::Compare(massChange, 0.0) > 0)                                                     // check if star has super-Keplerian angular momentum after mass gain and adjust orbit
+            if(utils::Compare(massChange, 0.0) > 0) {                                                   // check if star has super-Keplerian angular momentum after mass gain and adjust orbit 
                 extraAngularMomentumChangeOrbit += ResolveAccretionAngularMomentumGain(m_Star1, m_Star2, massChange);
+            }
         }
     }
         
@@ -2880,7 +2881,7 @@ double BaseBinaryStar::ResolveAccretionAngularMomentumGain(BinaryConstituentStar
             double keplerianFrequency = p_Accretor->OmegaBreak();
             double maxAngularMomentum = p_Accretor->CalculateMomentOfInertiaAU() * keplerianFrequency;
             angularMomentumChangeStar = p_MassChange * sqrt(G_AU_Msol_yr * p_Accretor->Mass() * p_Accretor->Radius() * RSOL_TO_AU);
-            p_Accretor->SetAngularMomentum(std::min(m_Accretor->AngularMomentum() + angularMomentumChangeStar, maxAngularMomentum));
+            p_Accretor->SetAngularMomentum(std::min(initialAngularMomentum + angularMomentumChangeStar, maxAngularMomentum));
             extraAngularMomentumChangeOrbit = - (p_Accretor->AngularMomentum() - initialAngularMomentum);
         } break;
             
