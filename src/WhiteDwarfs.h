@@ -56,7 +56,7 @@ protected:
                                                       const double p_DonorThermalMassLossRate,
                                                       const double p_MassLostByDonor);
 
-            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const        { return HURLEY_HJELLMING_WEBBINK_QCRIT_WD; }
+            double           CalculateCriticalMassRatioHurleyHjellmingWebbink() const       { return HURLEY_HJELLMING_WEBBINK_QCRIT_WD; }
         
             double           CalculateCOCoreMassOnPhase() const                             { return m_COCoreMass; }                                    // NO-OP
 
