@@ -290,7 +290,7 @@ function [LMXBcount, NSLMXBcount] = LMXBplot(file, name, fignumberLMXB, colour, 
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
     timeCE=h5read(file,'/BSE_Common_Envelopes/Time');
     relevantbinary=(star1RLOF>=13 & star1RLOF<=14 & star2RLOF==1 & M2RLOF<=5 & ~RLOFisCE) ...
-        | (star2RLOF>=13 & star2RLOF<=14 & star1RLOF==1 & M1RLOF>=5 & ~RLOFisCE);
+        | (star2RLOF>=13 & star2RLOF<=14 & star1RLOF==1 & M1RLOF<=5 & ~RLOFisCE);
     relevantseedRLOF=cast(seedRLOF, 'int64');  relevantseedRLOF(~relevantbinary)=-1;
     uniqueseeds=unique(seedRLOF(relevantbinary));
     [blah,indexlist]=ismember(cast(uniqueseeds,'int64'), relevantseedRLOF);

@@ -40,7 +40,7 @@ protected:
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
     double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate,
-                                               const double p_massTransferEfficiencyBeta)                       { return 0.0; }                                                         // Should never be called...
+                                               const double p_massTransferEfficiencyBeta)                       { return 0.0; }                                                         // Mass transfer from a 
 
     void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
     void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
