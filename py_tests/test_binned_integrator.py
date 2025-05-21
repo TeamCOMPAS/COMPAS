@@ -1,5 +1,5 @@
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.cosmological_model import CosmologicalModel
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import BBHPopulation
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import BinaryPopulation
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.snr_grid import SNRGrid
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.conversions import *
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator import DetectionMatrix
@@ -19,9 +19,8 @@ def test_cosmological_models(test_archive_dir):
 
 
 def test_bbh_population(fake_compas_output):
-    population = BBHPopulation.from_compas_h5(fake_compas_output)
-    assert population.n_bbh > 2
-    assert population.n_systems >= population.n_bbh
+    population = BinaryPopulation.from_compas_h5(fake_compas_output)
+    assert population.n_systems > 2
     assert population.mass_evolved_per_binary > 0
 
 def test_SNR_grid(test_archive_dir):
@@ -42,14 +41,16 @@ def test_conversions():
     assert np.isclose(m1_new, m1)
     assert np.isclose(m2_new, m2)
 
-def test_binned_cosmic_integration(fake_compas_output,  test_archive_dir,):
+def test_binned_cosmic_integration(fake_compas_output, test_archive_dir,):
+    # fake_compas_output = '/Users/avaj0001/Documents/projects/compas_dev/COMPAS/py_tests/test_data/COMPAS_Output/h5out_5M.h5'
+
     detection_matrix = DetectionMatrix.from_compas_output(
         fake_compas_output, outdir=test_archive_dir, save_plots=True,
         chirp_mass_bins=None, redshift_bins=None, n_bootstrapped_matrices=1
     )
     assert detection_matrix.rate_matrix.shape == (len(detection_matrix.chirp_mass_bins), len(detection_matrix.redshift_bins))
     detection_matrix.save()
-    det_matrix_fn = glob.glob(f'{test_archive_dir}/*.h5')[0]
+    det_matrix_fn = glob.glob(f'{test_archive_dir}/{detection_matrix.label}.h5')[0]
     loaded_det_matrix = DetectionMatrix.from_h5(det_matrix_fn)
     assert np.allclose(detection_matrix.rate_matrix, loaded_det_matrix.rate_matrix)
     loaded_det_matrix.bin_data(mc_bins=50, z_bins=100)

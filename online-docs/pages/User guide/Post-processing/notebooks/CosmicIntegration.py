@@ -42,8 +42,8 @@
 
 # +
 import numpy as np
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import generate_mock_bbh_population_file
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import BBHPopulation
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import generate_mock_population
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import BinaryPopulation
 
 np.random.seed(42)
 
@@ -51,11 +51,11 @@ m1_min = 5
 m1_max = 150
 m2_min = 0.1
 
-compas_fname = generate_mock_bbh_population_file(
-    "mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
+compas_fname = generate_mock_population(
+    "mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1, frac_bhns=0, frac_bns=0,
     m1_min=m1_min, m1_max=m1_max, m2_min=m2_min
 )
-bbh_population = BBHPopulation.from_compas_h5(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
+bbh_population = BinaryPopulation.from_compas_h5(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
 fig = bbh_population.plot()
 # -
 
