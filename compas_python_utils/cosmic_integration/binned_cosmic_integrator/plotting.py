@@ -219,7 +219,7 @@ def plot_snr_grid(
     return plt.gcf()
 
 
-def plot_bbh_population(
+def plot_binary_population(
         data: np.ndarray, params: List[str]
 ) -> plt.Figure:
     n_sys = len(data)
@@ -251,5 +251,5 @@ def plot_bbh_population(
             splines.set_visible(False)
         ax.spines["bottom"].set_visible(True)
 
-    fig.suptitle(f"BBH Population ({n_sys:,} BBHs)")
+    fig.suptitle(f"Binary Population ({n_sys:,} Binaries)")
     return fig
