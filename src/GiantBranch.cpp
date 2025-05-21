@@ -1314,79 +1314,82 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     MT_CASE   massTransferCase = MT_CASE::OTHER;
     double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
     double    M1, M2, M3;
+    double remnantMass;
 
-    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0)                                                             // NS formation regardless of metallicity and MT history
-        return 1.35; //CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
-    
-    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0)                                                             // BH formation regardless of metallicity and MT history
-        return p_HeCoreMass;
-    
-    // determine MT history - this will tell us which Schneider MT case prescription should be used
-    if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
-        massTransferCase = MT_CASE::NONE;
+    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
+        remnantMass = 1.35; //CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
     }
-    else {                                                                                                              // star was MT donor at least once
-        // determine MT_CASE of first MT event
-        STELLAR_TYPE stellarTypeAtFirstDonation = mtHist[0];                                                            // stellar type at first MT event (as donor)
-        BaseStar* newStar                       = stellarUtils::NewStar(stellarTypeAtFirstDonation);                    // create new (empty) star of correct stellar type
-        massTransferCase                        = newStar->DetermineMassTransferTypeAsDonor();                          // get MT type as donor
-        delete newStar; newStar                 = nullptr;                                                              // return the memory allocated for the new star
+    else if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0) {                                                      // BH formation regardless of metallicity and MT history
+        remnantMass = p_HeCoreMass;
     }
-
-    // apply the appropriate remnant mass prescription for the chosen MT case
-    switch (massTransferCase) {                                                                                         // which MT_CASE?
-
-        case MT_CASE::NONE:                                                                                             // no history of MT
-        case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
-
-            M1 = std::min(std::max(MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z, MALTSEV2024_M1SZ01), MALTSEV2024_M1S);
-            M2 = std::min(std::max(MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z, MALTSEV2024_M2SZ01), MALTSEV2024_M2S);
-            M3 = std::min(std::max(MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z, MALTSEV2024_M3SZ01), MALTSEV2024_M3S);
-            break;
-
-        case MT_CASE::A:                                                                                             // case A MT
-            M1 = std::min(std::max(MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z, MALTSEV2024_M1AZ01), MALTSEV2024_M1A);
-            M2 = std::min(std::max(MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z, MALTSEV2024_M2AZ01), MALTSEV2024_M2A);
-            M3 = std::min(std::max(MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z, MALTSEV2024_M3AZ01), MALTSEV2024_M3A);
-            break;
-
-        case MT_CASE::B:                                                                                             // case B MT
-            M1 = std::min(std::max(MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z, MALTSEV2024_M1BZ01), MALTSEV2024_M1B);
-            M2 = std::min(std::max(MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z, MALTSEV2024_M2BZ01), MALTSEV2024_M2B);
-            M3 = std::min(std::max(MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z, MALTSEV2024_M3BZ01), MALTSEV2024_M3B);
-            break;
-
-        case MT_CASE::C:                                                                                             // case C MT
-            M1 = std::min(std::max(MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z, MALTSEV2024_M1CZ01), MALTSEV2024_M1C);
-            M2 = std::min(std::max(MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z, MALTSEV2024_M2CZ01), MALTSEV2024_M2C);
-            M3 = std::min(std::max(MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z, MALTSEV2024_M3CZ01), MALTSEV2024_M3C);
-            break;
-
-        default:                                                                                                        // unknown MT_CASE
-            // the only way this can happen is if someone added an MT_CASE
-            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
-            // account for, and that should be flagged as an error and result in termination of the evolution
-            // of the star or binary.
-            // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
-            // incorrect/superfluous, remove it from the possible MT_CASE values.
-
-            THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error
-    }
-    
-    if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) )              // Complete fallback into BH
-        {                                                                                                                                                
-        return p_HeCoreMass;
+    else {                                                                                                              // Determine MT history - this will tell us which Schneider MT case prescription should be used
+        if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
+            massTransferCase = MT_CASE::NONE;
         }
-    else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 )    // Partial fallback BH formation
-        {
-        // add fallback back on
-        m_SupernovaDetails.fallbackFraction = OPTIONS->MaltsevFallback();
-        double mhe = m_SupernovaDetails.HeCoreMassAtCOFormation;
-        double mns = 1.44;
-        return 1.44 + (mhe - mns) *m_SupernovaDetails.fallbackFraction;
+        else {                                                                                                              // star was MT donor at least once
+            // determine MT_CASE of first MT event
+            STELLAR_TYPE stellarTypeAtFirstDonation = mtHist[0];                                                            // stellar type at first MT event (as donor)
+            BaseStar* newStar                       = stellarUtils::NewStar(stellarTypeAtFirstDonation);                    // create new (empty) star of correct stellar type
+            massTransferCase                        = newStar->DetermineMassTransferTypeAsDonor();                          // get MT type as donor
+            delete newStar; newStar                 = nullptr;                                                              // return the memory allocated for the new star
         }
-    return 1.40;  // slightly lower mass NS - just to distinguish it...
+
+        // apply the appropriate remnant mass prescription for the chosen MT case
+        switch (massTransferCase) {                                                                                         // which MT_CASE?
+
+            case MT_CASE::NONE:                                                                                             // no history of MT
+            case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
+
+                M1 = std::min(std::max(MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z, MALTSEV2024_M1SZ01), MALTSEV2024_M1S);
+                M2 = std::min(std::max(MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z, MALTSEV2024_M2SZ01), MALTSEV2024_M2S);
+                M3 = std::min(std::max(MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z, MALTSEV2024_M3SZ01), MALTSEV2024_M3S);
+                break;
+
+            case MT_CASE::A:                                                                                             // case A MT
+                M1 = std::min(std::max(MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z, MALTSEV2024_M1AZ01), MALTSEV2024_M1A);
+                M2 = std::min(std::max(MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z, MALTSEV2024_M2AZ01), MALTSEV2024_M2A);
+                M3 = std::min(std::max(MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z, MALTSEV2024_M3AZ01), MALTSEV2024_M3A);
+                break;
+
+            case MT_CASE::B:                                                                                             // case B MT
+                M1 = std::min(std::max(MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z, MALTSEV2024_M1BZ01), MALTSEV2024_M1B);
+                M2 = std::min(std::max(MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z, MALTSEV2024_M2BZ01), MALTSEV2024_M2B);
+                M3 = std::min(std::max(MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z, MALTSEV2024_M3BZ01), MALTSEV2024_M3B);
+                break;
+
+            case MT_CASE::C:                                                                                             // case C MT
+                M1 = std::min(std::max(MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z, MALTSEV2024_M1CZ01), MALTSEV2024_M1C);
+                M2 = std::min(std::max(MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z, MALTSEV2024_M2CZ01), MALTSEV2024_M2C);
+                M3 = std::min(std::max(MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z, MALTSEV2024_M3CZ01), MALTSEV2024_M3C);
+                break;
+
+            default:                                                                                                        // unknown MT_CASE
+                // the only way this can happen is if someone added an MT_CASE
+                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+                // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
+                // account for, and that should be flagged as an error and result in termination of the evolution
+                // of the star or binary.
+                // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
+                // incorrect/superfluous, remove it from the possible MT_CASE values.
+
+                THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error
+        }
+        
+        if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) ) {            // Complete fallback into BH
+            remnantMass = p_HeCoreMass;
+        }
+        else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 ) {  // Partial fallback BH formation
+            // add fallback back on
+            m_SupernovaDetails.fallbackFraction = OPTIONS->MaltsevFallback();
+            double mhe = m_SupernovaDetails.HeCoreMassAtCOFormation;
+            double mns = 1.44;
+            remnantMass = mns + (mhe - mns) *m_SupernovaDetails.fallbackFraction;
+        }
+        else {
+            remnantMass = 1.40; // slightly lower mass NS - just to distinguish it...
+        }
+    }
+    return remnantMass;
 }
 
 
