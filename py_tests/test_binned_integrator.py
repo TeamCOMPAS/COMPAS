@@ -42,8 +42,6 @@ def test_conversions():
     assert np.isclose(m2_new, m2)
 
 def test_binned_cosmic_integration(fake_compas_output, test_archive_dir,):
-    # fake_compas_output = '/Users/avaj0001/Documents/projects/compas_dev/COMPAS/py_tests/test_data/COMPAS_Output/h5out_5M.h5'
-
     detection_matrix = DetectionMatrix.from_compas_output(
         fake_compas_output, outdir=test_archive_dir, save_plots=True,
         chirp_mass_bins=None, redshift_bins=None, n_bootstrapped_matrices=1
