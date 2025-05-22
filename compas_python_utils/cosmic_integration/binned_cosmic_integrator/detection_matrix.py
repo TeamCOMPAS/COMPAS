@@ -62,7 +62,8 @@ class DetectionMatrix:
             outdir: str = None,
             save_plots: bool = False,
             n_bootstrapped_matrices: int = 0,
-            sens: str = 'O1'
+            sens: str = 'O1',
+            binary_types_to_include=[]
     ) -> "DetectionMatrix":
 
         dco_population = BinaryPopulation.from_compas_h5(compas_path)
