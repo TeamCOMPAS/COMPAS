@@ -1,9 +1,9 @@
-SSE system detailed output
-==========================
+SSE system snapshot
+===================
 
-Default record definition for the SSE System Detailed Output log file::
+Default record definition for the SSE System Snapshot log file::
 
-    const ANY_PROPERTY_VECTOR SSE_SYSTEM_DETAILED_OUTPUT_REC = {
+    const ANY_PROPERTY_VECTOR SSE_SYSTEM_SNAPSHOT_LOG_REC = {
         STAR_PROPERTY::AGE,
         STAR_PROPERTY::DT,
         STAR_PROPERTY::TIME,

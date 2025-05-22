@@ -758,12 +758,12 @@ Default = -1 (all record types) |br|
 Filename for the Switch Log logfile. |br|
 Default = ’SSE_Switch_Log’ for SSE mode; ’BSE_Switch_Log’ for BSE mode |br|
 
-**--logfile-system-detailed-output** |br|
-Filename for the System Detailed Output logfile. |br|
-Default = ’SSE_System_Detailed_Output’ for SSE mode; ’BSE_System_Detailed_Output’ for BSE mode |br|
+**--logfile-system-snapshot-log** |br|
+Filename for the System Snapshot logfile. |br|
+Default = ’SSE_System_Snapshot_Log’ for SSE mode; ’BSE_System_Snapshot_Log’ for BSE mode |br|
 
-**--logfile-system-detailed-output-record-types** |br|
-Enabled record types for the System Detailed Output logfile. |br|
+**--logfile-system-snapshot-log-record-types** |br|
+Enabled record types for the System Snapshot logfile. |br|
 Default = -1 (all record types) |br|
 
 **--logfile-system-parameters** |br|
@@ -1329,23 +1329,23 @@ Default = TRUE
 Enables printing of the Switch Log logfile. |br|
 Default = FALSE
 
-**--system-detailed-output-age-thresholds** |br|
-Age thresholds for the System Detailed Output logfile. This is a vector option: one or more age threshold values may be specified. |br|
+**--system-snapshot-age-thresholds** |br|
+Age thresholds for the System Snapshot logfile. This is a vector option: one or more age threshold values may be specified. |br|
 See :doc:`Vector program options <./program-options-vector-options>` for option format. |br| |br|
-In SSE mode, writing to the System Detailed Output logfile is triggered when the age of the star exceeds any of the age thresholds set.
-A record is written to the System Detailed Output logfile on the first timestep at which the age threshold is exceeded. |br| |br|
-In BSE mode, writing to the System Detailed Output logfile is triggered when the age of either of the constituent stars exceeds any of the age thresholds set.
-A record is written to the System Detailed Output logfile on the first timestep at which the age threshold is exceeded.  It is possible for two records to be
+In SSE mode, writing to the System Snapshot logfile is triggered when the age of the star exceeds any of the age thresholds set.
+A record is written to the System Snapshot logfile on the first timestep at which the age threshold is exceeded. |br| |br|
+In BSE mode, writing to the System Snapshot logfile is triggered when the age of either of the constituent stars exceeds any of the age thresholds set.
+A record is written to the System Snapshot logfile on the first timestep at which the age threshold is exceeded.  It is possible for two records to be
 logged for each age threshold if the constiuent stars exceed the threshold on different timesteps. |br| |br|
 Note that the age of stars may be reduced for various reasons (phase change, rejuvenation, winds/mass transfer, etc.), and if the age of a star drops below an
 age threshold, another record will be logged if the star then ages beyond the same threshold (so several records might be logged for the same star crossing the
 same threshold if the age of the star oscillates around the threshold).
 
-**--system-detailed-output-time-thresholds** |br|
-Time thresholds for the System Detailed Output logfile. This is a vector option: one or more time threshold values may be specified. |br|
+**--system-snapshot-time-thresholds** |br|
+Time thresholds for the System Snapshot logfile. This is a vector option: one or more time threshold values may be specified. |br|
 See :doc:`Vector program options <./program-options-vector-options>` for option format. |br| |br|
-In SSE and BSE mode, writing to the System Detailed Output logfile is triggered when the simulation time exceeds any of the time thresholds set.
-A record is written to the System Detailed Output logfile on the first timestep at which the simulation time threshold is exceeded.
+In SSE and BSE mode, writing to the System Snapshot logfile is triggered when the simulation time exceeds any of the time thresholds set.
+A record is written to the System Snapshot logfile on the first timestep at which the simulation time threshold is exceeded.
 
 
 .. _options-props-T:
@@ -1576,19 +1576,21 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, 
 --include-WD-binaries-as-DCO,
 --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
---radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
+--radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename,
+--system-snapshot-age-thresholds, --system-snapshot-time-thresholds
 
 --fp-error-mode
 
 --grid, --grid-start-line, --grid-lines-to-process
 
---add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --detailed-output, --enable-warnings, --errors-to-file, 
+--add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --enable-warnings, --errors-to-file, 
 --help, --notes, --notes-hdrs, --population-data-printing, --print-bool-as-string, --quiet, --version
 
 --log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-common-envelopes-record-types, 
 --logfile-detailed-output, --logfile-detailed-output-record-types, --logfile-double-compact-objects, --logfile-double-compact-objects-record-types, 
 --logfile-pulsar-evolution, --logfile-pulsar-evolution-record-type, --logfile-rlof-parameters, --logfile-rlof-parameters-record-types, --logfile-supernovae, 
---logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --output-container, 
+--logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --logfile-system-snapshot-log,
+--logfile-system-snapshot-log-record-types, --output-container, 
 --output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
 
 --create-YAML-file, YAML-template

@@ -9,9 +9,9 @@ For Single Star Evolution (SSE):
 .. toctree::
    :maxdepth: 1
 
-   standard-logfiles-default-record-specifications-SSE-system-detailed
+   standard-logfiles-default-record-specifications-SSE-system-snapshot
    standard-logfiles-default-record-specifications-SSE-sysparms
-   standard-logfiles-default-record-specifications-SSE-detailed
+   standard-logfiles-default-record-specifications-SSE-detailed-output
    standard-logfiles-default-record-specifications-SSE-supernovae
    standard-logfiles-default-record-specifications-SSE-pulsars
    standard-logfiles-default-record-specifications-SSE-switchlog
@@ -21,9 +21,9 @@ For Binary Star Evolution (BSE):
 .. toctree::
    :maxdepth: 1
 
-   standard-logfiles-default-record-specifications-BSE-system-detailed
+   standard-logfiles-default-record-specifications-BSE-system-snapshot
    standard-logfiles-default-record-specifications-BSE-sysparms
-   standard-logfiles-default-record-specifications-BSE-detailed
+   standard-logfiles-default-record-specifications-BSE-detailed-output
    standard-logfiles-default-record-specifications-BSE-supernovae
    standard-logfiles-default-record-specifications-BSE-dco
    standard-logfiles-default-record-specifications-BSE-ce

@@ -5,13 +5,13 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **03.19.00 May 22, 2025**
 
-* Added functionality to create new System Detailed Output logfile |br|
-  Writing to the System Detailed Output logfile is triggered by system age and/or simulation time passing thresholds set by new program options (see below).  |br|
+* Added functionality to create new System Snapshot logfile |br|
+  Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set by new program options (see below).  |br|
   New program options added: |br|
-  ``--logfile-system-detailed-output``: specifies the name of the System Detailed Output logfile (default is "[BSE/SSE]_System_Detailed_Output") |br|
-  ``--logfile-system-detailed-output-record-types``: specifies the enabled record types for System Detailed Output logfile (default is all types) |br|
-  ``--system-detailed-output-age-thresholds``: specifies the age thresholds for System Detailed Output logfile |br|
-  ``--system-detailed-output-time-thresholds``: specifies the time thresholds for System Detailed Output logfile
+  ``--logfile-system-snapshot-log``: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log") |br|
+  ``--logfile-system-snapshot-log-record-types``: specifies the enabled record types for System Snapshot logfile (default is all types) |br|
+  ``--system-snapshot-age-thresholds``: specifies the age thresholds for System Snapshot logfile |br|
+  ``--system-snapshot-time-thresholds``: specifies the time thresholds for System Snapshot logfile
 
 **03.18.02 May 1, 2025**
 

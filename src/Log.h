@@ -577,7 +577,7 @@ private:
     ANY_PROPERTY_VECTOR m_BSE_SNE_Rec          = BSE_SUPERNOVAE_REC;                // default specification
     ANY_PROPERTY_VECTOR m_BSE_Switch_Rec       = BSE_SWITCH_LOG_REC;                // default specification
     ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec     = BSE_SYSTEM_PARAMETERS_REC;         // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Sys_Detailed_Rec = BSE_SYSTEM_DETAILED_OUTPUT_REC;    // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Sys_Snapshot_Rec = BSE_SYSTEM_SNAPSHOT_LOG_REC;       // default specification
 
     // SSE
     ANY_PROPERTY_VECTOR m_SSE_Detailed_Rec     = SSE_DETAILED_OUTPUT_REC;           // default specification
@@ -585,7 +585,7 @@ private:
     ANY_PROPERTY_VECTOR m_SSE_SNE_Rec          = SSE_SUPERNOVAE_REC;                // default specification
     ANY_PROPERTY_VECTOR m_SSE_Switch_Rec       = SSE_SWITCH_LOG_REC;                // default specification
     ANY_PROPERTY_VECTOR m_SSE_SysParms_Rec     = SSE_SYSTEM_PARAMETERS_REC;         // default specification
-    ANY_PROPERTY_VECTOR m_SSE_Sys_Detailed_Rec = SSE_SYSTEM_DETAILED_OUTPUT_REC;    // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Sys_Snapshot_Rec = SSE_SYSTEM_SNAPSHOT_LOG_REC;       // default specification
 
     // logfile annotation specifications
     //
@@ -610,7 +610,7 @@ private:
     BOOL_VECTOR m_BSE_SNE_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_Switch_Notes       = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_SysParms_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_Sys_Detailed_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Sys_Snapshot_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // SSE
     BOOL_VECTOR m_SSE_Detailed_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
@@ -618,7 +618,7 @@ private:
     BOOL_VECTOR m_SSE_SNE_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_SSE_Switch_Notes       = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_SSE_SysParms_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_SSE_Sys_Detailed_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Sys_Snapshot_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // the following block of variables support the BSE Switch Log file
     
@@ -1237,8 +1237,8 @@ public:
                                 const BSE_SYSPARMS_RECORD_TYPE p_RecordType)            { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
-    bool LogBSESystemDetailedOutput(const T* const p_Binary, 
-                                    const BSE_SYSTEM_DETAILED_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_DETAILED_OUTPUT)), 0, LOGFILE::BSE_SYSTEM_DETAILED_OUTPUT, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+    bool LogBSESystemSnapshotLog(const T* const p_Binary, 
+                                    const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG)), 0, LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
                             
     template <class T>
     bool LogCommonEnvelope(const T* const p_Binary,
@@ -1268,8 +1268,8 @@ public:
                                 const SSE_SYSPARMS_RECORD_TYPE p_RecordType)            { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
     template <class T>
-    bool LogSSESystemDetailedOutput(const T* const p_Star, 
-                                    const SSE_SYSTEM_DETAILED_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_DETAILED_OUTPUT)), 0, LOGFILE::SSE_SYSTEM_DETAILED_OUTPUT, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+    bool LogSSESystemSnapshotLog(const T* const p_Star, 
+                                    const SSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG)), 0, LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
                                      
     template <class T>
     bool LogSSEPulsarEvolutionParameters(const T* const p_Star,
