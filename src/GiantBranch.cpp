@@ -2239,14 +2239,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             if (!utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR }))
                 m_SupernovaDetails.rocketKickMagnitude = 0;                                         // only NSs can get rocket kicks
 
-            // Stash SN details for later printing to the SSE Supernova log.
+            // Print SN details to the SSE Supernova log.
             // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
-            // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
-            // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
-            // Need to record the stellar type to which the star will switch if we don't revert state.
-
-            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT)
-                StashSupernovaDetails(stellarType);
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
+                PrintSupernovaDetails();
+            }
        }
     }
 

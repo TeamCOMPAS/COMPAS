@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Thu May  1 20:17:56 2025 by COMPAS v03.18.01
+##~!!~## File Created Thu May 22 20:41:26 2025 by COMPAS v03.19.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -76,6 +76,7 @@ numericalChoices:
 #    --logfile-pulsar-evolution-record-types: -1                           # Default: -1
 #    --logfile-rlof-parameters-record-types: -1                            # Default: -1
 #    --logfile-supernovae-record-types: -1                                 # Default: -1
+#    --logfile-system-snapshot-log-record-types: -1                        # Default: -1
 #    --logfile-system-parameters-record-types: -1                          # Default: -1
 #    --grid-lines-to-process: 9223372036854775807                          # Default: 9223372036854775807
 #    --grid-start-line: 0                                                  # Default: 0
@@ -83,10 +84,12 @@ numericalChoices:
 #    --hdf5-buffer-size: 1                                                 # Default: 1
 #    --log-level: 0                                                        # Default: 0
 #    --mass-change-fraction: 0.001000                                      # Default: 0.001000                                                                                                                                                                         # approximate desired fractional changes in stellar mass per timestep
-#    --maximum-evolution-time: 13700.00                                    # Default: 13700.00                                                                                                                                                                         # maximum physical time a system can be evolved [Myr]
+#    --maximum-evolution-time: 14021.28                                    # Default: 14021.28                                                                                                                                                                         # maximum physical time a system can be evolved [Myr]
 #    --maximum-number-timestep-iterations: 99999                           # Default: 99999
 #    --number-of-systems: 10                                               # Default: 10                                                                                                                                                                               # number of systems per batch
 #    --radial-change-fraction: 0.100000                                    # Default: 0.100000                                                                                                                                                                         # approximate desired fractional changes in stellar radius per timestep
+#    --system-snapshot-age-thresholds: '{ }'                               # Default: ''                                                                                                                                                                               # age thresholds for the system snapshot log
+#    --system-snapshot-time-thresholds: '{ }'                              # Default: ''                                                                                                                                                                               # time thresholds for the system snapshot log
 #    --timestep-multiplier: 1.000000                                       # Default: 1.000000                                                                                                                                                                         # optional multiplier relative to default time step duration
 #    --timestep-multipliers: '{ }'                                         # Default: ''                                                                                                                                                                               # optional phase-dependent multipliers relative to default time step duration
 
@@ -296,6 +299,7 @@ stringChoices:
 #    --logfile-rlof-parameters: 'BSE_RLOF'                                 # Default: 'BSE_RLOF'
 #    --logfile-supernovae: 'BSE_Supernovae'                                # Default: 'BSE_Supernovae'
 #    --logfile-switch-log: 'BSE_Switch_Log'                                # Default: 'BSE_Switch_Log'
+#    --logfile-system-snapshot-log: 'BSE_System_Snapshot_Log'              # Default: 'BSE_System_Snapshot_Log'
 #    --logfile-system-parameters: 'BSE_System_Parameters'                  # Default: 'BSE_System_Parameters'
 #    --output-path: '.'                                                    # Default: '.'
 
