@@ -1563,8 +1563,8 @@
 //                                           --logfile-system-detailed-output-record-types: specifies the enabled record types for System Detailed Output logfile (default is all types)
 //                                           --system-detailed-output-age-thresholds: specifies the age thresholds for System Detailed Output logfile
 //                                           --system-detailed-output-time-thresholds: specifies the time thresholds for System Detailed Output logfile
-//                                      - Removed stashing to SSE SNe file - printing is now done directly (stashing no loger required since we now don'r save/revert).
-//                                        I was going to remove the save/revert state functios - we don't need them (we have clone functions), but I left them in for now (just in case we find a need...).
+//                                      - Removed stashing to SSE SNe file - printing is now done directly (stashing no longer required since we now don'r save/revert).
+//                                        I was going to remove the save/revert state functions - we don't need them (we have clone functions), but I left them in for now (just in case we find a need...).
 
 const std::string VERSION_STRING = "03.19.00";
 

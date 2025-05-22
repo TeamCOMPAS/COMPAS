@@ -3393,7 +3393,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                     printSysDetailedOutputRec |= m_DetailedOutputAgeFlags2[threshold] < 0.0 && m_Star2->Age() >= thresholdValue;        // star2
 
                     // record the current age of the stars in the threshold flag - this is how we check for re-crossing a threshold
-                    // if the age of a star has dropped below the threshold value, we reset the theshold flag for that star
+                    // if the age of a star has dropped below the threshold value, we reset the threshold flag for that star
                     // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
                     m_DetailedOutputAgeFlags1[threshold] = (m_Star1->Age() < thresholdValue) ? -1.0 : m_Star1->Age();
                     m_DetailedOutputAgeFlags2[threshold] = (m_Star2->Age() < thresholdValue) ? -1.0 : m_Star2->Age();
