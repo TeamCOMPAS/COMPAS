@@ -22,6 +22,7 @@ def test_bbh_population(fake_compas_output):
     population = BinaryPopulation.from_compas_h5(fake_compas_output)
     assert population.n_systems > 2
     assert population.mass_evolved_per_binary > 0
+    assert population.n_dcos > 0
 
 def test_SNR_grid(test_archive_dir):
     snr_grid = SNRGrid()

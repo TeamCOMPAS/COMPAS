@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from typing import Dict
+from typing import Dict, List
 import h5py as h5
 from tqdm.auto import trange
 
@@ -26,6 +26,7 @@ class DetectionMatrix:
             n_dcos: int,
             outdir: str = None,
             sens: str = 'O1',
+            dcos_included: List[str] = ["BBH"],
             bootstrapped_rate_matrices: np.ndarray = None
     ):
         self.compas_path = compas_path
@@ -37,6 +38,7 @@ class DetectionMatrix:
         self.bootstrapped_rate_matrices = bootstrapped_rate_matrices
         self.n_systems = n_systems
         self.n_dcos = n_dcos
+        self.dcos_included = dcos_included
         self.sens = sens
 
     @property
@@ -63,10 +65,10 @@ class DetectionMatrix:
             save_plots: bool = False,
             n_bootstrapped_matrices: int = 0,
             sens: str = 'O1',
-            binary_types_to_include=[]
+            dcos_included: List[str] = ["BBH"],
     ) -> "DetectionMatrix":
 
-        dco_population = BinaryPopulation.from_compas_h5(compas_path)
+        dco_population = BinaryPopulation.from_compas_h5(compas_path, dcos_included=dcos_included)
         cosmological_model = CosmologicalModel(**cosmological_parameters)
         snr_grid = SNRGrid(sensitivity=sens)
 

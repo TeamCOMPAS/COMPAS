@@ -259,11 +259,11 @@ def _generate_dco_mask(
 
     masks = []
     for dco in dcos_included:
-        if dco not in DCO_GROUPS:
-            continue
-        a, b = DCO_GROUPS[dco]
-        # check if t1 in set 'a' of stellar types and t2 in set 'b' of stellar types
-        masks.append((np.isin(t1, a) & np.isin(t2, b)) | (np.isin(t1, b) & np.isin(t2, a)))
+        if dco in DCO_GROUPS:
+            a = [type.value for type in DCO_GROUPS[dco][0]]
+            b = [type.value for type in DCO_GROUPS[dco][1]]
+            # check if t1 in set 'a' of stellar types and t2 in set 'b' of stellar types
+            masks.append((np.isin(t1, a) & np.isin(t2, b)) | (np.isin(t1, b) & np.isin(t2, a)))
 
     if not masks:
         raise ValueError("At least one DCO type must be included.")
