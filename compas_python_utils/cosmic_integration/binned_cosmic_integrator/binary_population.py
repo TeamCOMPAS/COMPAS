@@ -309,6 +309,8 @@ def generate_mock_population(
         seeds = np.arange(n_systems)
         f["BSE_System_Parameters"].create_dataset("SEED", data=seeds)
         f["BSE_System_Parameters"].create_dataset("Metallicity@ZAMS(1)", data=np.random.uniform(1e-4,1e-2,n_systems))
+        f["BSE_System_Parameters"].create_dataset("Mass@ZAMS(1)", data=m1)
+        f["BSE_System_Parameters"].create_dataset("Mass@ZAMS(2)", data=m2)
         # CE
         ce_seeds = np.arange(n_ce)
         f["BSE_Common_Envelopes"].create_dataset("SEED", data=ce_seeds)
