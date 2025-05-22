@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 
 class STELLAR_TYPE(Enum):
-    MS_LTE_07 = auto()
+    MS_LTE_07 = 0
     MS_GT_07 = auto()
     HERTZSPRUNG_GAP = auto()
     FIRST_GIANT_BRANCH = auto()
@@ -22,7 +22,6 @@ class STELLAR_TYPE(Enum):
     STAR = auto()
     BINARY_STAR = auto()
     NONE = auto()
-
 
 BH = [STELLAR_TYPE.BLACK_HOLE]
 NS = [STELLAR_TYPE.NEUTRON_STAR]
