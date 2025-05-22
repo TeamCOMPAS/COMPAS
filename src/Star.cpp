@@ -39,6 +39,10 @@ Star::Star(const unsigned long int p_RandomSeed,
     }
 
     m_SaveStar = nullptr;
+   
+    // thresholds flags for system detailed output file
+    if (OPTIONS->SysDetailedOutputAgeThresholds().size()  > 0) m_DetailedOutputAgeFlags.assign(OPTIONS->SysDetailedOutputAgeThresholds().size(), -1.0);
+    if (OPTIONS->SysDetailedOutputTimeThresholds().size() > 0) m_DetailedOutputTimeFlags.assign(OPTIONS->SysDetailedOutputTimeThresholds().size(), false);
 }
 
 
@@ -375,8 +379,6 @@ void Star::EvolveOneTimestep(const double p_Dt) {
         (void)m_Star->SpinDownIsolatedPulsar(p_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR);                             // update pulsar parameters due to spin down as an isolated pulsar; convert timestep to seconds for this function (uses cgs units)
     }
 
-    (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
-
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::POST_MASS_LOSS);                          // log record - post mass loss
 
 }
@@ -458,7 +460,46 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                 UpdateAttributes(0.0, 0.0, true);                                                               // keeps SSE in sync with BSE
 
                 (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);          // log detailed output record 
-                
+
+                // check thresholds for system detailed output printing
+                // don't use utils::Compare() here - not for time/age
+
+                bool printSysDetailedOutputRec = false;                                                         // so we only print this timestep once
+
+                // age threshold
+                // we print a record each timestep the star crosses the threshold from below
+                // notes:
+                //    (a) the age of individual stars can drop for various reasons (phase change, rejuvenation, winds/mass transfer, etc.),
+                //        and if the age of the star drops below an age threshold, we will log another record if the star then ages beyond
+                //        the same threshold (so we might log several records for the star crossing the same threshold if the age of the
+                //        star oscillates around the threshold)
+                //    (b) we will print multiple records for exceeding the age threshold if the constituent stars exceed the age threshold
+                //        at different timesteps (likely)
+                for (size_t threshold = 0; threshold < OPTIONS->SysDetailedOutputAgeThresholds().size(); threshold++) { // for each system detailed output age threshold
+
+                    double thresholdValue = OPTIONS->SysDetailedOutputAgeThresholds(threshold);                 // this threshold value
+      
+                    // flag need to print (log) system detailed output
+                    // we don't want to print multiple records for the same timestep, so we flag need rather than print here
+                    printSysDetailedOutputRec |= m_DetailedOutputAgeFlags[threshold] < 0.0 && m_Star->Age() >= thresholdValue;
+
+                    // record the current age of the star in the threshold flag - this is how we check for re-crossing a threshold
+                    // if the age of the star has dropped below the threshold value, we reset the theshold flag for the star
+                    // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
+                    m_DetailedOutputAgeFlags[threshold] = (m_Star->Age() < thresholdValue) ? -1.0 : m_Star->Age();
+                }
+
+                // time threshold
+                // we print a record at the first timestep that the simulation time exceeds the time threshold
+                for (size_t threshold = 0; threshold < OPTIONS->SysDetailedOutputTimeThresholds().size(); threshold++) { // for each system detailed output time threshold
+                    if (!m_DetailedOutputTimeFlags[threshold] && m_Star->Time() >= OPTIONS->SysDetailedOutputTimeThresholds(threshold)) { // need to action?
+                        m_DetailedOutputTimeFlags[threshold] = true;                                            // yes, flag action taken
+                        printSysDetailedOutputRec            = true;                                            // flag need to print (log) system detailed output
+                    }
+                }
+
+                if (printSysDetailedOutputRec) (void)m_Star->PrintSystemDetailedOutput();                       // print (log) system detailed output record if necessary
+
                 if (m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR && OPTIONS->EvolvePulsars()){           // Pulsar output if star is a neutron star and user wants pulsar output
                     (void)m_Star->PrintPulsarEvolutionParameters(SSE_PULSAR_RECORD_TYPE::TIMESTEP_COMPLETED);   // log pulsar evolution parameters
                 } 
@@ -469,8 +510,6 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                         // no - set status
             SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                           // show warning
         }
-
-        (void)m_Star->PrintStashedSupernovaDetails();                                                           // print final stashed SSE Supernova log record if necessary
 
         (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                         // log detailed output record 
 

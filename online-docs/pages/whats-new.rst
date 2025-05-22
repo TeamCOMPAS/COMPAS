@@ -3,6 +3,16 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.19.00 May 22, 2025**
+
+* Added functionality to create new System Detailed Output logfile |br|
+  Writing to the System Detailed Output logfile is triggered by system age and/or simulation time passing thresholds set by new program options (see below).  |br|
+  New program options added: |br|
+  ``--logfile-system-detailed-output``: specifies the name of the System Detailed Output logfile (default is "[BSE/SSE]_System_Detailed_Output") |br|
+  ``--logfile-system-detailed-output-record-types``: specifies the enabled record types for System Detailed Output logfile (default is all types) |br|
+  ``--system-detailed-output-age-thresholds``: specifies the age thresholds for System Detailed Output logfile |br|
+  ``--system-detailed-output-time-thresholds``: specifies the time thresholds for System Detailed Output logfile
+
 **03.18.02 May 1, 2025**
 
 * Changed default for Nanjing lambdas to use enhanced lambdas and interpolate in mass and metallicity

@@ -63,7 +63,7 @@
 /*    to the function AllowedOptionValues() here so that we can easily extract the        */
 /*    allowed values for that option.                                                     */
 /*                                                                                        */
-/* 10. Add the new option to one or more of the following vectors in Options.h, as        */
+/* 10. Add the new option to the following vectors in Options.h, as                       */
 /*     required:                                                                          */
 /*                                                                                        */
 /*         m_ShorthandAllowed: options for which shorthand notation is allowed            */
@@ -208,6 +208,9 @@ void Options::OptionValues::Initialise() {
     m_PrintBoolAsString                                             = false;
     m_Quiet                                                         = false;
     m_RlofPrinting                                                  = true;
+
+    m_SysDetailedOutputAgeThresholds.clear();
+    m_SysDetailedOutputTimeThresholds.clear();
 
     m_ShortHelp                                                     = true;
 
@@ -650,6 +653,8 @@ void Options::OptionValues::Initialise() {
     m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));          // assume BSE - get real answer when we know mode
     m_LogfileSupernovaeRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));          // assume BSE - get real answer when we know mode
+    m_LogfileSystemDetailedOutput                                   = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_DETAILED_OUTPUT));
+    m_LogfileSystemDetailedOutputRecordTypes                        = -1;                                                                   // all record types
     m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
     m_LogfileSystemParametersRecordTypes                            = -1;                                                                   // all record types
 
@@ -693,39 +698,74 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
     // create default strings for std::vector<type> types (too hard to do inline)
 
     // debug classes
-    std::ostringstream ss1;
-    for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss1 << *debugClass << ",";
-    std::string defaultDebugClasses = ss1.str();
+    std::string defaultDebugClasses;
+    {
+        std::ostringstream ss;
+        for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss << *debugClass << ",";
+        defaultDebugClasses = ss.str();
+    }
     if (defaultDebugClasses.length() > 0) defaultDebugClasses.erase(defaultDebugClasses.length() - 1);
     defaultDebugClasses = "{" + defaultDebugClasses + "}";
 
     // log classes
-    std::ostringstream ss2;
-    for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss2 << *logClass << ",";
-    std::string defaultLogClasses = ss2.str();
+    std::string defaultLogClasses;
+    {
+        std::ostringstream ss;
+        for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss << *logClass << ",";
+        defaultLogClasses = ss.str();
+    }
     if (defaultLogClasses.length() > 0) defaultLogClasses.erase(defaultLogClasses.length() - 1);
     defaultLogClasses = "{" + defaultLogClasses + "}";
 
     // annotations
-    std::ostringstream ss3;
-    for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss3 << *note << ",";
-    std::string defaultNotes = ss3.str();
+    std::string defaultNotes;
+    {
+        std::ostringstream ss;
+        for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss << *note << ",";
+        defaultNotes = ss.str();
+    }
     if (defaultNotes.length() > 0) defaultNotes.erase(defaultNotes.length() - 1);
     defaultNotes = "{" + defaultNotes + "}";
 
     // annotation headers
-    std::ostringstream ss4;
-    for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss4 << *noteHdr << ",";
-    std::string defaultNotesHdrs = ss4.str();
+    std::string defaultNotesHdrs;
+    {
+        std::ostringstream ss;
+        for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss << *noteHdr << ",";
+        defaultNotesHdrs = ss.str();
+    }
     if (defaultNotesHdrs.length() > 0) defaultNotesHdrs.erase(defaultNotesHdrs.length() - 1);
     defaultNotesHdrs = "{" + defaultNotesHdrs + "}";
 
     // phase-dependent timestep multipliers
-    std::ostringstream ss5;
-    for (auto multiplier = p_Options->m_TimestepMultipliers.begin(); multiplier != p_Options->m_TimestepMultipliers.end(); ++multiplier) ss5 << *multiplier << ",";
-    std::string defaultTimestepMultipliers = ss5.str();
+    std::string defaultTimestepMultipliers;
+    {
+        std::ostringstream ss;
+        for (auto multiplier = p_Options->m_TimestepMultipliers.begin(); multiplier != p_Options->m_TimestepMultipliers.end(); ++multiplier) ss << *multiplier << ",";
+        defaultTimestepMultipliers = ss.str();
+    }
     if (defaultTimestepMultipliers.length() > 0) defaultTimestepMultipliers.erase(defaultTimestepMultipliers.length() - 1);
     defaultTimestepMultipliers = "{" + defaultTimestepMultipliers + "}";
+
+    // system detailed output age thresholds
+    std::string defaultSysDetailedOutputAgeThresholds;
+    {
+        std::ostringstream ss;
+        for (auto threshold = p_Options->m_SysDetailedOutputAgeThresholds.begin(); threshold != p_Options->m_SysDetailedOutputAgeThresholds.end(); ++threshold) ss << *threshold << ",";
+        defaultSysDetailedOutputAgeThresholds = ss.str();
+    }
+    if (defaultSysDetailedOutputAgeThresholds.length() > 0) defaultSysDetailedOutputAgeThresholds.erase(defaultSysDetailedOutputAgeThresholds.length() - 1);
+    defaultSysDetailedOutputAgeThresholds = "{" + defaultSysDetailedOutputAgeThresholds + "}";
+
+    // system detailed output time thresholds
+    std::string defaultSysDetailedOutputTimeThresholds;
+    {
+        std::ostringstream ss;
+        for (auto threshold = p_Options->m_SysDetailedOutputTimeThresholds.begin(); threshold != p_Options->m_SysDetailedOutputTimeThresholds.end(); ++threshold) ss << *threshold << ",";
+        defaultSysDetailedOutputTimeThresholds = ss.str();
+    }
+    if (defaultSysDetailedOutputTimeThresholds.length() > 0) defaultSysDetailedOutputTimeThresholds.erase(defaultSysDetailedOutputTimeThresholds.length() - 1);
+    defaultSysDetailedOutputTimeThresholds = "{" + defaultSysDetailedOutputTimeThresholds + "}";
 
     // add options
 
@@ -744,7 +784,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "help,h",                                                      
-            po::bool_switch(), "Print this help message"
+            po::bool_switch(), "Print this help message (-h is short form, --help includes more information)"
         )
         (
             "version,v",                                                   
@@ -1030,7 +1070,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "logfile-detailed-output-record-types",                                 
             po::value<int>(&p_Options->m_LogfileDetailedOutputRecordTypes)->default_value(p_Options->m_LogfileDetailedOutputRecordTypes),                                                                      
-            ("Enabled record types for BSE Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileDetailedOutputRecordTypes) + ")").c_str()
+            ("Enabled record types for Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileDetailedOutputRecordTypes) + ")").c_str()
         )
         (
             "logfile-double-compact-objects-record-types",                          
@@ -1051,6 +1091,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "logfile-supernovae-record-types",                                      
             po::value<int>(&p_Options->m_LogfileSupernovaeRecordTypes)->default_value(p_Options->m_LogfileSupernovaeRecordTypes),                                                                              
             ("Enabled record types for Supernovae logfile (default = " + std::to_string(p_Options->m_LogfileSupernovaeRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-system-detailed-output-record-types",                               
+            po::value<int>(&p_Options->m_LogfileSystemDetailedOutputRecordTypes)->default_value(p_Options->m_LogfileSystemDetailedOutputRecordTypes),                                                                  
+            ("Enabled record types for System Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileSystemDetailedOutputRecordTypes) + ")").c_str()
         )
         (
             "logfile-system-parameters-record-types",                               
@@ -1677,6 +1722,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
             ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
         )
+        (
+            "system-detailed-output-age-thresholds",                                         
+            po::value<DBL_VECTOR>(&p_Options->m_SysDetailedOutputAgeThresholds)->multitoken()->default_value(p_Options->m_SysDetailedOutputAgeThresholds),                                                              
+            ("System detailed output logging system age thresholds (default = " + defaultSysDetailedOutputAgeThresholds + ")").c_str()
+        )
+        (
+            "system-detailed-output-time-thresholds",                                         
+            po::value<DBL_VECTOR>(&p_Options->m_SysDetailedOutputTimeThresholds)->multitoken()->default_value(p_Options->m_SysDetailedOutputTimeThresholds),                                                              
+            ("System detailed output logging simulation time thresholds (default = " + defaultSysDetailedOutputTimeThresholds + ")").c_str()
+        )
 
         (
             "timestep-multiplier",
@@ -1836,6 +1891,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "logfile-supernovae",                                      
             po::value<std::string>(&p_Options->m_LogfileSupernovae)->default_value(p_Options->m_LogfileSupernovae),                                                                              
             ("Filename for Supernovae logfile (default = " + p_Options->m_LogfileSupernovae + ")").c_str()
+        )
+        (
+            "logfile-system-detailed-output",                               
+            po::value<std::string>(&p_Options->m_LogfileSystemDetailedOutput)->default_value(p_Options->m_LogfileSystemDetailedOutput),                                                                  
+            ("Filename for System Detailed Output logfile (default = " + p_Options->m_LogfileSystemDetailedOutput + ")").c_str()
         )
         (
             "logfile-system-parameters",                               
@@ -2556,6 +2616,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
+
+        for (size_t idx = 0; idx < m_SysDetailedOutputAgeThresholds.size(); idx++) {
+            COMPLAIN_IF(m_SysDetailedOutputAgeThresholds[idx] < 0.0, "System detailed output age threshold (--system-detailed-output-age-threshold) index " + std::to_string(idx) + " < 0");
+        }
+
+        for (size_t idx = 0; idx < m_SysDetailedOutputTimeThresholds.size(); idx++) {
+            COMPLAIN_IF(m_SysDetailedOutputTimeThresholds[idx] < 0.0, "System detailed output time threshold (--system-detailed-output-time-threshold) index " + std::to_string(idx) + " < 0");
+        }
 
         COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
         COMPLAIN_IF(m_TimestepMultiplier > MAXIMUM_TIMESTEP_MULTIPLIER, "Timestep multiplier (--timestep-multiplier) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ")");
