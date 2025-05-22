@@ -484,7 +484,7 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                     printSysDetailedOutputRec |= m_DetailedOutputAgeFlags[threshold] < 0.0 && m_Star->Age() >= thresholdValue;
 
                     // record the current age of the star in the threshold flag - this is how we check for re-crossing a threshold
-                    // if the age of the star has dropped below the threshold value, we reset the theshold flag for the star
+                    // if the age of the star has dropped below the threshold value, we reset the threshold flag for the star
                     // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
                     m_DetailedOutputAgeFlags[threshold] = (m_Star->Age() < thresholdValue) ? -1.0 : m_Star->Age();
                 }
