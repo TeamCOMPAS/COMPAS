@@ -3,6 +3,16 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.19.00 May 22, 2025**
+
+* Added functionality to create new System Snapshot logfile |br|
+  Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set by new program options (see below).  |br|
+  New program options added: |br|
+  ``--logfile-system-snapshot-log``: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log") |br|
+  ``--logfile-system-snapshot-log-record-types``: specifies the enabled record types for System Snapshot logfile (default is all types) |br|
+  ``--system-snapshot-age-thresholds``: specifies the age thresholds for System Snapshot logfile |br|
+  ``--system-snapshot-time-thresholds``: specifies the time thresholds for System Snapshot logfile
+
 **03.18.02 May 1, 2025**
 
 * Changed default for Nanjing lambdas to use enhanced lambdas and interpolate in mass and metallicity
