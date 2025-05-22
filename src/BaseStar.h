@@ -375,8 +375,8 @@ public:
         return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogSSESwitchLog(this) : true) : true;                      // Write record to SSE Switchlog log file
     }
 
-    bool PrintSystemDetailedOutput(const SSE_SYSTEM_DETAILED_RECORD_TYPE p_RecordType = SSE_SYSTEM_DETAILED_RECORD_TYPE::DEFAULT) const {
-        return LOGGING->LogSSESystemDetailedOutput(this, p_RecordType);                                                                                                             // Write record to SSE System Parameters file
+    bool PrintSystemSnapshotLog(const SSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType = SSE_SYSTEM_SNAPSHOT_RECORD_TYPE::DEFAULT) const {
+        return LOGGING->LogSSESystemSnapshotLog(this, p_RecordType);                                                                                                                // Write record to SSE System Parameters file
     }
 
     bool PrintSystemParameters(const SSE_SYSPARMS_RECORD_TYPE p_RecordType = SSE_SYSPARMS_RECORD_TYPE::DEFAULT) const {

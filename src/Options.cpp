@@ -144,6 +144,12 @@ namespace std {
 } 
 
 
+#define OPT_VALUE1(optName, optValue, fallback)  ((m_GridLine.optionValues.m_Populated && \
+    (!m_GridLine.optionValues.m_VM[optName].defaulted() || !fallback)) \
+       ? m_GridLine.optionValues.optValue \
+       : m_CmdLine.optionValues.optValue)
+
+
 Options* Options::Instance() {
     if (!m_Instance) {
         m_Instance = new Options();
@@ -209,8 +215,8 @@ void Options::OptionValues::Initialise() {
     m_Quiet                                                         = false;
     m_RlofPrinting                                                  = true;
 
-    m_SysDetailedOutputAgeThresholds.clear();
-    m_SysDetailedOutputTimeThresholds.clear();
+    m_SystemSnapshotAgeThresholds.clear();
+    m_SystemSnapshotTimeThresholds.clear();
 
     m_ShortHelp                                                     = true;
 
@@ -235,7 +241,7 @@ void Options::OptionValues::Initialise() {
     m_RandomSeed                                                    = 0;
 
     // Specify how long to evolve for
-    m_MaxEvolutionTime                                              = 13700.0;
+    m_MaxEvolutionTime                                              = HUBBLE_TIME / SECONDS_IN_MYR; //13700.0;
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepsFileName                                             = "";
 
@@ -653,9 +659,9 @@ void Options::OptionValues::Initialise() {
     m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));          // assume BSE - get real answer when we know mode
     m_LogfileSupernovaeRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));          // assume BSE - get real answer when we know mode
-    m_LogfileSystemDetailedOutput                                   = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_DETAILED_OUTPUT));
-    m_LogfileSystemDetailedOutputRecordTypes                        = -1;                                                                   // all record types
-    m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
+    m_LogfileSystemSnapshotLog                                      = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG)); // assume BSE - get real answer when we know mode
+    m_LogfileSystemSnapshotLogRecordTypes                           = -1;                                                                   // all record types
+    m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));   // assume BSE - get real answer when we know mode
     m_LogfileSystemParametersRecordTypes                            = -1;                                                                   // all record types
 
     m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::GRID;
@@ -748,24 +754,24 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
     defaultTimestepMultipliers = "{" + defaultTimestepMultipliers + "}";
 
     // system detailed output age thresholds
-    std::string defaultSysDetailedOutputAgeThresholds;
+    std::string defaultSystemSnapshotAgeThresholds;
     {
         std::ostringstream ss;
-        for (auto threshold = p_Options->m_SysDetailedOutputAgeThresholds.begin(); threshold != p_Options->m_SysDetailedOutputAgeThresholds.end(); ++threshold) ss << *threshold << ",";
-        defaultSysDetailedOutputAgeThresholds = ss.str();
+        for (auto threshold = p_Options->m_SystemSnapshotAgeThresholds.begin(); threshold != p_Options->m_SystemSnapshotAgeThresholds.end(); ++threshold) ss << *threshold << ",";
+        defaultSystemSnapshotAgeThresholds = ss.str();
     }
-    if (defaultSysDetailedOutputAgeThresholds.length() > 0) defaultSysDetailedOutputAgeThresholds.erase(defaultSysDetailedOutputAgeThresholds.length() - 1);
-    defaultSysDetailedOutputAgeThresholds = "{" + defaultSysDetailedOutputAgeThresholds + "}";
+    if (defaultSystemSnapshotAgeThresholds.length() > 0) defaultSystemSnapshotAgeThresholds.erase(defaultSystemSnapshotAgeThresholds.length() - 1);
+    defaultSystemSnapshotAgeThresholds = "{" + defaultSystemSnapshotAgeThresholds + "}";
 
     // system detailed output time thresholds
-    std::string defaultSysDetailedOutputTimeThresholds;
+    std::string defaultSystemSnapshotTimeThresholds;
     {
         std::ostringstream ss;
-        for (auto threshold = p_Options->m_SysDetailedOutputTimeThresholds.begin(); threshold != p_Options->m_SysDetailedOutputTimeThresholds.end(); ++threshold) ss << *threshold << ",";
-        defaultSysDetailedOutputTimeThresholds = ss.str();
+        for (auto threshold = p_Options->m_SystemSnapshotTimeThresholds.begin(); threshold != p_Options->m_SystemSnapshotTimeThresholds.end(); ++threshold) ss << *threshold << ",";
+        defaultSystemSnapshotTimeThresholds = ss.str();
     }
-    if (defaultSysDetailedOutputTimeThresholds.length() > 0) defaultSysDetailedOutputTimeThresholds.erase(defaultSysDetailedOutputTimeThresholds.length() - 1);
-    defaultSysDetailedOutputTimeThresholds = "{" + defaultSysDetailedOutputTimeThresholds + "}";
+    if (defaultSystemSnapshotTimeThresholds.length() > 0) defaultSystemSnapshotTimeThresholds.erase(defaultSystemSnapshotTimeThresholds.length() - 1);
+    defaultSystemSnapshotTimeThresholds = "{" + defaultSystemSnapshotTimeThresholds + "}";
 
     // add options
 
@@ -1093,9 +1099,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enabled record types for Supernovae logfile (default = " + std::to_string(p_Options->m_LogfileSupernovaeRecordTypes) + ")").c_str()
         )
         (
-            "logfile-system-detailed-output-record-types",                               
-            po::value<int>(&p_Options->m_LogfileSystemDetailedOutputRecordTypes)->default_value(p_Options->m_LogfileSystemDetailedOutputRecordTypes),                                                                  
-            ("Enabled record types for System Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileSystemDetailedOutputRecordTypes) + ")").c_str()
+            "logfile-system-snapshot-log-record-types",                               
+            po::value<int>(&p_Options->m_LogfileSystemSnapshotLogRecordTypes)->default_value(p_Options->m_LogfileSystemSnapshotLogRecordTypes),                                                                  
+            ("Enabled record types for System Snapshot logfile (default = " + std::to_string(p_Options->m_LogfileSystemSnapshotLogRecordTypes) + ")").c_str()
         )
         (
             "logfile-system-parameters-record-types",                               
@@ -1723,14 +1729,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
         )
         (
-            "system-detailed-output-age-thresholds",                                         
-            po::value<DBL_VECTOR>(&p_Options->m_SysDetailedOutputAgeThresholds)->multitoken()->default_value(p_Options->m_SysDetailedOutputAgeThresholds),                                                              
-            ("System detailed output logging system age thresholds (default = " + defaultSysDetailedOutputAgeThresholds + ")").c_str()
+            "system-snapshot-age-thresholds",                                         
+            po::value<DBL_VECTOR>(&p_Options->m_SystemSnapshotAgeThresholds)->multitoken()->default_value(p_Options->m_SystemSnapshotAgeThresholds),                                                              
+            ("System detailed output logging system age thresholds (default = " + defaultSystemSnapshotAgeThresholds + ")").c_str()
         )
         (
-            "system-detailed-output-time-thresholds",                                         
-            po::value<DBL_VECTOR>(&p_Options->m_SysDetailedOutputTimeThresholds)->multitoken()->default_value(p_Options->m_SysDetailedOutputTimeThresholds),                                                              
-            ("System detailed output logging simulation time thresholds (default = " + defaultSysDetailedOutputTimeThresholds + ")").c_str()
+            "system-snapshot-time-thresholds",                                         
+            po::value<DBL_VECTOR>(&p_Options->m_SystemSnapshotTimeThresholds)->multitoken()->default_value(p_Options->m_SystemSnapshotTimeThresholds),                                                              
+            ("System detailed output logging simulation time thresholds (default = " + defaultSystemSnapshotTimeThresholds + ")").c_str()
         )
 
         (
@@ -1893,9 +1899,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Filename for Supernovae logfile (default = " + p_Options->m_LogfileSupernovae + ")").c_str()
         )
         (
-            "logfile-system-detailed-output",                               
-            po::value<std::string>(&p_Options->m_LogfileSystemDetailedOutput)->default_value(p_Options->m_LogfileSystemDetailedOutput),                                                                  
-            ("Filename for System Detailed Output logfile (default = " + p_Options->m_LogfileSystemDetailedOutput + ")").c_str()
+            "logfile-system-snapshot-log",                               
+            po::value<std::string>(&p_Options->m_LogfileSystemSnapshotLog)->default_value(p_Options->m_LogfileSystemSnapshotLog),                                                                  
+            ("Filename for System Snapshot logfile (default = " + p_Options->m_LogfileSystemSnapshotLog + ")").c_str()
         )
         (
             "logfile-system-parameters",                               
@@ -2565,6 +2571,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
+        COMPLAIN_IF(m_MaxEvolutionTime > HUBBLE_TIME / SECONDS_IN_MYR, "Maximum evolution time in Myr (--maxEvolutionTime) must be <= " + std::to_string(HUBBLE_TIME / SECONDS_IN_MYR) + " Myr");
 
         COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
         COMPLAIN_IF(m_MetallicityDistributionMin < MINIMUM_METALLICITY || m_MetallicityDistributionMin > MAXIMUM_METALLICITY, "Minimum metallicity (--metallicity-min) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
@@ -2617,12 +2624,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
-        for (size_t idx = 0; idx < m_SysDetailedOutputAgeThresholds.size(); idx++) {
-            COMPLAIN_IF(m_SysDetailedOutputAgeThresholds[idx] < 0.0, "System detailed output age threshold (--system-detailed-output-age-threshold) index " + std::to_string(idx) + " < 0");
+        for (size_t idx = 0; idx < m_SystemSnapshotAgeThresholds.size(); idx++) {
+            COMPLAIN_IF(m_SystemSnapshotAgeThresholds[idx] < 0.0, "System snapshot age threshold (--system-snapshot-age-thresholds) index " + std::to_string(idx) + " < 0");
+            COMPLAIN_IF(m_SystemSnapshotAgeThresholds[idx] > m_MaxEvolutionTime, "System snapshot age threshold (--system-snapshot-age-thresholds) index " + std::to_string(idx) + " > " + std::to_string(m_MaxEvolutionTime));
         }
 
-        for (size_t idx = 0; idx < m_SysDetailedOutputTimeThresholds.size(); idx++) {
-            COMPLAIN_IF(m_SysDetailedOutputTimeThresholds[idx] < 0.0, "System detailed output time threshold (--system-detailed-output-time-threshold) index " + std::to_string(idx) + " < 0");
+        for (size_t idx = 0; idx < m_SystemSnapshotTimeThresholds.size(); idx++) {
+            COMPLAIN_IF(m_SystemSnapshotTimeThresholds[idx] < 0.0, "System detailed output time threshold (--system-snapshot-time-thresholds) index " + std::to_string(idx) + " < 0");
+            COMPLAIN_IF(m_SystemSnapshotTimeThresholds[idx] > m_MaxEvolutionTime, "System snapshot age threshold (--system-snapshot-time-thresholds) index " + std::to_string(idx) + " > " + std::to_string(m_MaxEvolutionTime));
         }
 
         COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");

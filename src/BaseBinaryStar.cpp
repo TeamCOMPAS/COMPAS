@@ -473,12 +473,12 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.propsPostMT                        = &m_RLOFDetails.props1;
     m_RLOFDetails.propsPreMT                         = &m_RLOFDetails.props2;
 
-    // thresholds flags for system detailed output file
-    if (OPTIONS->SysDetailedOutputAgeThresholds().size() > 0) {
-        m_DetailedOutputAgeFlags1.assign(OPTIONS->SysDetailedOutputAgeThresholds().size(), -1.0);
-        m_DetailedOutputAgeFlags2.assign(OPTIONS->SysDetailedOutputAgeThresholds().size(), -1.0);
+    // thresholds flags for system snapshot file
+    if (OPTIONS->SystemSnapshotAgeThresholds().size() > 0) {
+        m_SystemSnapshotAgeFlags1.assign(OPTIONS->SystemSnapshotAgeThresholds().size(), -1.0);
+        m_SystemSnapshotAgeFlags2.assign(OPTIONS->SystemSnapshotAgeThresholds().size(), -1.0);
     }
-    if (OPTIONS->SysDetailedOutputTimeThresholds().size() > 0) m_DetailedOutputTimeFlags.assign(OPTIONS->SysDetailedOutputTimeThresholds().size(), false);
+    if (OPTIONS->SystemSnapshotTimeThresholds().size() > 0) m_SystemSnapshotTimeFlags.assign(OPTIONS->SystemSnapshotTimeThresholds().size(), false);
 
     // pointers
 
@@ -3369,10 +3369,10 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                          // print (log) detailed output: this is after all changes made in the timestep
 
-                // check thresholds for system detailed output printing
+                // check thresholds for system snapshot printing
                 // don't use utils::Compare() here - not for time/age
 
-                bool printSysDetailedOutputRec = false;                                                                                 // so we only print this timestep once
+                bool printSysSnapshotRec = false;                                                                                       // so we only print this timestep once
                 
                 // age threshold
                 // we print a record each timestep that either star crosses the threshold from below
@@ -3383,32 +3383,32 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                 //        the star oscillates around the threshold)
                 //    (b) we will print multiple records for exceeding the age threshold if the constituent stars exceed the age threshold
                 //        at different timesteps (likely)
-                for (size_t threshold = 0; threshold < OPTIONS->SysDetailedOutputAgeThresholds().size(); threshold++) {                 // for each system detailed output age threshold
+                for (size_t threshold = 0; threshold < OPTIONS->SystemSnapshotAgeThresholds().size(); threshold++) {                    // for each system snapshot age threshold
 
-                    double thresholdValue = OPTIONS->SysDetailedOutputAgeThresholds(threshold);                                         // this threshold value
+                    double thresholdValue = OPTIONS->SystemSnapshotAgeThresholds(threshold);                                            // this threshold value
       
-                    // flag need to print (log) system detailed output
+                    // flag need to print (log) system snapshot record
                     // we don't want to print multiple records for the same timestep, so we flag need rather than print here
-                    printSysDetailedOutputRec |= m_DetailedOutputAgeFlags1[threshold] < 0.0 && m_Star1->Age() >= thresholdValue;        // star1
-                    printSysDetailedOutputRec |= m_DetailedOutputAgeFlags2[threshold] < 0.0 && m_Star2->Age() >= thresholdValue;        // star2
+                    printSysSnapshotRec |= m_SystemSnapshotAgeFlags1[threshold] < 0.0 && m_Star1->Age() >= thresholdValue;              // star1
+                    printSysSnapshotRec |= m_SystemSnapshotAgeFlags2[threshold] < 0.0 && m_Star2->Age() >= thresholdValue;              // star2
 
                     // record the current age of the stars in the threshold flag - this is how we check for re-crossing a threshold
                     // if the age of a star has dropped below the threshold value, we reset the threshold flag for that star
                     // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
-                    m_DetailedOutputAgeFlags1[threshold] = (m_Star1->Age() < thresholdValue) ? -1.0 : m_Star1->Age();
-                    m_DetailedOutputAgeFlags2[threshold] = (m_Star2->Age() < thresholdValue) ? -1.0 : m_Star2->Age();
+                    m_SystemSnapshotAgeFlags1[threshold] = (m_Star1->Age() < thresholdValue) ? -1.0 : m_Star1->Age();
+                    m_SystemSnapshotAgeFlags2[threshold] = (m_Star2->Age() < thresholdValue) ? -1.0 : m_Star2->Age();
                 }
 
                 // time threshold
                 // we print a record at the first timestep that the simulation time exceeds the time threshold
-                for (size_t threshold = 0; threshold < OPTIONS->SysDetailedOutputTimeThresholds().size(); threshold++) {                // for each system detailed output time threshold
-                    if (!m_DetailedOutputTimeFlags[threshold] && Time() >= OPTIONS->SysDetailedOutputTimeThresholds(threshold)) {       // need to action?
-                        m_DetailedOutputTimeFlags[threshold] = true;                                                                    // yes, flag action taken
-                        printSysDetailedOutputRec            = true;                                                                    // flag need to print (log) system detailed output
+                for (size_t threshold = 0; threshold < OPTIONS->SystemSnapshotTimeThresholds().size(); threshold++) {                   // for each system snapshot time threshold
+                    if (!m_SystemSnapshotTimeFlags[threshold] && Time() >= OPTIONS->SystemSnapshotTimeThresholds(threshold)) {          // need to action?
+                        m_SystemSnapshotTimeFlags[threshold] = true;                                                                    // yes, flag action taken
+                        printSysSnapshotRec                  = true;                                                                    // flag need to print (log) system snapshot record
                     }
                 }
 
-                if (printSysDetailedOutputRec) (void)PrintSystemDetailedOutput();                                                       // print (log) system detailed output record if necessary
+                if (printSysSnapshotRec) (void)PrintSystemSnapshotLog();                                                                // print (log) system snapshot record if necessary
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes

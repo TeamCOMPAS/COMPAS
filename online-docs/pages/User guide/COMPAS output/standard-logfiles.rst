@@ -2,7 +2,7 @@ Standard log files
 ==================
 
 COMPAS defines several standard log files that may be produced depending upon the simulation mode (Single Star Evolution (SSE), 
-or Binary Star Evolution (BSE), see the ``--mode`` program option)), and the value of various program options.
+or Binary Star Evolution (BSE), see the ``--mode`` program option), and the value of various program options.
 
 The standard log files are:
 
@@ -19,10 +19,10 @@ The standard log files are:
          - Records summary information for all stars that experience a SN event during evolution.
        * -
          -
-       * - System Detailed Output
+       * - System Snapshot Log
          - Records detailed system information during evolution.
        * -
-         - Enable with program option ``--system-detailed-output-age-thresholds`` and/or ``--system-detailed-output-time-thresholds``.
+         - Enable with program option ``--system-snapshot-age-thresholds`` and/or ``--system-snapshot-time-thresholds``.
        * -
          -
        * - BSE/SSE Detailed Output

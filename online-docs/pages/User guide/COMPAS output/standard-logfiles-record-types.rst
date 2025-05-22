@@ -26,8 +26,8 @@ Each standard log file has its own set of record types - select a file below to 
    standard-logfiles-record-types-sse-system-parameters
    standard-logfiles-record-types-sse-supernovae
    standard-logfiles-record-types-sse-pulsar-evolution
-   standard-logfiles-record-types-sse-system-detailed-output
    standard-logfiles-record-types-sse-detailed-output
+   standard-logfiles-record-types-sse-system-snapshot
 
    standard-logfiles-record-types-bse-system-parameters
    standard-logfiles-record-types-bse-supernovae
@@ -35,8 +35,8 @@ Each standard log file has its own set of record types - select a file below to 
    standard-logfiles-record-types-bse-pulsar-evolution
    standard-logfiles-record-types-bse-double-compact-objects
    standard-logfiles-record-types-bse-common-envelopes
-   standard-logfiles-record-types-bse-system-detailed-output
    standard-logfiles-record-types-bse-detailed-output
+   standard-logfiles-record-types-bse-system-snapshot
 
 Since the record type property is an unsigned integer, filtering the output files by record type is very simple.  Even so, users may
 want to disable the logging of some record types - perhaps to limit the size of the log files produced.  For this reason, program options

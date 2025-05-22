@@ -1730,14 +1730,14 @@ enum class LOGFILE: int {
     BSE_RLOF_PARAMETERS,
     BSE_SUPERNOVAE,
     BSE_SWITCH_LOG,
-    BSE_SYSTEM_DETAILED_OUTPUT,
+    BSE_SYSTEM_SNAPSHOT_LOG,
     BSE_SYSTEM_PARAMETERS,
 
     SSE_DETAILED_OUTPUT,
     SSE_PULSAR_EVOLUTION,
     SSE_SUPERNOVAE,
     SSE_SWITCH_LOG,
-    SSE_SYSTEM_DETAILED_OUTPUT,
+    SSE_SYSTEM_SNAPSHOT_LOG,
     SSE_SYSTEM_PARAMETERS
 };
 
@@ -1813,12 +1813,12 @@ enum class SSE_SYSPARMS_RECORD_TYPE: unsigned int {                             
     DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_PARAMETERS file record type
 };
 
-enum class BSE_SYSTEM_DETAILED_RECORD_TYPE: unsigned int {                                                          // BSE_SYSTEM_DETAILED_OUTPUT file record type
-    DEFAULT = 1                                                                                                     // 1 - default BSE_SYSTEM_DETAILED_OUTPUT file record type
+enum class BSE_SYSTEM_SNAPSHOT_RECORD_TYPE: unsigned int {                                                          // BSE_SYSTEM_SNAPSHOT_LOG file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_SYSTEM_SNAPSHOT_LOG file record type
 };
 
-enum class SSE_SYSTEM_DETAILED_RECORD_TYPE: unsigned int {                                                          // SSE_SYSTEM_DETAILED_OUTPUT file record type
-    DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_DETAILED_OUTPUT file record type
+enum class SSE_SYSTEM_SNAPSHOT_RECORD_TYPE: unsigned int {                                                          // SSE_SYSTEM_SNAPSHOT_LOG file record type
+    DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_SNAPSHOT_LOG file record type
 };
 
 
@@ -2226,11 +2226,11 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
 };
 
 
-// BSE_SYSTEM_DETAILED_OUTPUT_REC
+// BSE_SYSTEM_SNAPSHOT_LOG_REC
 //
-// Default record definition for the BSE System Detailed Output logfile
+// Default record definition for the BSE System Snapshot logfile
 //
-const ANY_PROPERTY_VECTOR BSE_SYSTEM_DETAILED_OUTPUT_REC = {
+const ANY_PROPERTY_VECTOR BSE_SYSTEM_SNAPSHOT_LOG_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     BINARY_PROPERTY::DT,
     BINARY_PROPERTY::TIME,
@@ -2424,11 +2424,11 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
 };
 
 
-// SSE_SYSTEM_DETAILED_OUTPUT_REC
+// SSE_SYSTEM_SNAPSHOT_LOG_REC
 //
-// Default record definition for the SSE System Detailed Output logfile
+// Default record definition for the SSE System Snapshot logfile
 //
-const ANY_PROPERTY_VECTOR SSE_SYSTEM_DETAILED_OUTPUT_REC = {
+const ANY_PROPERTY_VECTOR SSE_SYSTEM_SNAPSHOT_LOG_REC = {
     STAR_PROPERTY::AGE,
     STAR_PROPERTY::DT,
     STAR_PROPERTY::TIME,
@@ -2474,14 +2474,14 @@ const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
     { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",             BSE_SUPERNOVAE_REC,             "BSE_SNE",          "BSE_SNE_REC",          LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",             BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",   "BSE_SWITCH_REC",       LOGFILE_CLASS::BINARY }},
     { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",      BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",     "BSE_SYSPARMS_REC",     LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SYSTEM_DETAILED_OUTPUT, { "BSE_System_Detailed_Output", BSE_SYSTEM_DETAILED_OUTPUT_REC, "BSE_SYS_DETAILED", "BSE_SYS_DETAILED_REC", LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG,    { "BSE_System_Snapshot_Log",    BSE_SYSTEM_SNAPSHOT_LOG_REC,    "BSE_SYS_SNAPSHOT", "BSE_SYS_SNAPSHOT_REC", LOGFILE_CLASS::BINARY }},
 
     { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",        SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",     "SSE_DETAILED_REC",     LOGFILE_CLASS::STELLAR }},
     { LOGFILE::SSE_PULSAR_EVOLUTION,       { "SSE_Pulsar_Evolution",       SSE_PULSAR_EVOLUTION_REC,       "SSE_PULSARS",      "SSE_PULSARS_REC",      LOGFILE_CLASS::STELLAR }},
     { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",             SSE_SUPERNOVAE_REC,             "SSE_SNE",          "SSE_SNE_REC",          LOGFILE_CLASS::STELLAR }},
     { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",             SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",   "SSE_SWITCH_REC",       LOGFILE_CLASS::STELLAR }},
     { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",      SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",     "SSE_SYSPARMS_REC",     LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SYSTEM_DETAILED_OUTPUT, { "SSE_System_Detailed_Output", SSE_SYSTEM_DETAILED_OUTPUT_REC, "SSE_SYS_DETAILED", "SSE_SYS_DETAILED_REC", LOGFILE_CLASS::STELLAR }}
+    { LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG,    { "SSE_System_Snapshot_Log",    SSE_SYSTEM_SNAPSHOT_LOG_REC,    "SSE_SYS_SNAPSHOT", "SSE_SYS_SNAPSHOT_REC", LOGFILE_CLASS::STELLAR }}
 };
 
 #endif // __LogTypedefs_h__

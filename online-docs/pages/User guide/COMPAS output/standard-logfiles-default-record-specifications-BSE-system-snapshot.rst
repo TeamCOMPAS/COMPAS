@@ -1,9 +1,9 @@
-BSE system detailed output
-==========================
+BSE system snapshot
+===================
 
-Default record definition for the BSE System Detailed Output log file::
+Default record definition for the BSE System Snapshot log file::
 
-    const ANY_PROPERTY_VECTOR BSE_SYSTEM_DETAILED_OUTPUT_REC = {
+    const ANY_PROPERTY_VECTOR BSE_SYSTEM_SNAPSHOT_LOG_REC = {
         BINARY_PROPERTY::RANDOM_SEED,
         BINARY_PROPERTY::DT,
         BINARY_PROPERTY::TIME,

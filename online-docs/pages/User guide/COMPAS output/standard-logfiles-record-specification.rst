@@ -42,7 +42,7 @@ Log file definitions file specification
 
     <rec_name>   ::= "SSE_SYSPARMS_REC"     |   # SSE only
                      "SSE_DETAILED_REC"     |   # SSE only
-                     "SSE_SYS_DETAILED_REC" |   # SSE only
+                     "SSE_SYS_SNAPSHOT_REC" |   # SSE only
                      "SSE_SNE_REC"          |   # SSE only
                      "SSE_SWITCH_REC"       |   # SSE only
                      "BSE_SYSPARMS_REC"     |   # BSE only
@@ -53,7 +53,7 @@ Log file definitions file specification
                      "BSE_PULSARS_REC"      |   # BSE only
                      "BSE_RLOF_REC"         |   # BSE only
                      "BSE_DETAILED_REC"     |   # BSE only
-                     "BSE_SYS_DETAILED_REC" |   # BSE only
+                     "BSE_SYS_SNAPSHOT_REC" |   # BSE only
    
     <op>         ::= "=" | "+=" | "-="
 

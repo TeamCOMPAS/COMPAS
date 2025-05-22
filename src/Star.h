@@ -305,9 +305,9 @@ private:
 
     std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 
-    // thresholds flags for system detailed output file
-    DBL_VECTOR  m_DetailedOutputAgeFlags;
-    BOOL_VECTOR m_DetailedOutputTimeFlags;
+    // thresholds flags for system snapshot file
+    DBL_VECTOR  m_SystemSnapshotAgeFlags;
+    BOOL_VECTOR m_SystemSnapshotTimeFlags;
 
 protected:
 
