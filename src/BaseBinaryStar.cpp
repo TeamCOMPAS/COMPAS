@@ -2086,6 +2086,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
         isUnstable   = utils::Compare((m_Accretor->Mass() / m_Donor->Mass()), qCrit) < 0;
+        if ((OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK) && (m_Donor->IsOneOf(WHITE_DWARFS))) {
+            m_Flags.stellarMerger = true;
+        }
     }
     else {                                                                                                                      // determine stability based on zetas
         isUnstable   = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
