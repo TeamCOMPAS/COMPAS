@@ -226,7 +226,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
     if (error != ERROR::NONE) {                                                                                                         // ok?
         m_EvolutionStatus   = EVOLUTION_STATUS::BINARY_ERROR;                                                                           // set evolutionary status
-        (void)PrintBinarySystemParameters();                                                                                            // no - print (log) binary system parameters
+        (void)PrintSystemParameters();                                                                                                  // no - print (log) binary system parameters
         THROW_ERROR(error);                                                                                                             // throw error - can't return it...
     }
     else {                                                                                                                              // yes - ok
@@ -473,6 +473,12 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.propsPostMT                        = &m_RLOFDetails.props1;
     m_RLOFDetails.propsPreMT                         = &m_RLOFDetails.props2;
 
+    // thresholds flags for system detailed output file
+    if (OPTIONS->SysDetailedOutputAgeThresholds().size() > 0) {
+        m_DetailedOutputAgeFlags1.assign(OPTIONS->SysDetailedOutputAgeThresholds().size(), -1.0);
+        m_DetailedOutputAgeFlags2.assign(OPTIONS->SysDetailedOutputAgeThresholds().size(), -1.0);
+    }
+    if (OPTIONS->SysDetailedOutputTimeThresholds().size() > 0) m_DetailedOutputTimeFlags.assign(OPTIONS->SysDetailedOutputTimeThresholds().size(), false);
 
     // pointers
 
@@ -3363,6 +3369,46 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                          // print (log) detailed output: this is after all changes made in the timestep
 
+                // check thresholds for system detailed output printing
+                // don't use utils::Compare() here - not for time/age
+
+                bool printSysDetailedOutputRec = false;                                                                                 // so we only print this timestep once
+                
+                // age threshold
+                // we print a record each timestep that either star crosses the threshold from below
+                // notes:
+                //    (a) the age of individual stars can drop for various reasons (phase change, rejuvenation, winds/mass transfer, etc.),
+                //        and if the age of a star drops below an age threshold, we will log another record if that star then ages beyond
+                //        the same threshold (so we might log several records for the same star crossing the same threshold if the age of
+                //        the star oscillates around the threshold)
+                //    (b) we will print multiple records for exceeding the age threshold if the constituent stars exceed the age threshold
+                //        at different timesteps (likely)
+                for (size_t threshold = 0; threshold < OPTIONS->SysDetailedOutputAgeThresholds().size(); threshold++) {                 // for each system detailed output age threshold
+
+                    double thresholdValue = OPTIONS->SysDetailedOutputAgeThresholds(threshold);                                         // this threshold value
+      
+                    // flag need to print (log) system detailed output
+                    // we don't want to print multiple records for the same timestep, so we flag need rather than print here
+                    printSysDetailedOutputRec |= m_DetailedOutputAgeFlags1[threshold] < 0.0 && m_Star1->Age() >= thresholdValue;        // star1
+                    printSysDetailedOutputRec |= m_DetailedOutputAgeFlags2[threshold] < 0.0 && m_Star2->Age() >= thresholdValue;        // star2
+
+                    // record the current age of the stars in the threshold flag - this is how we check for re-crossing a threshold
+                    // if the age of a star has dropped below the threshold value, we reset the theshold flag for that star
+                    // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
+                    m_DetailedOutputAgeFlags1[threshold] = (m_Star1->Age() < thresholdValue) ? -1.0 : m_Star1->Age();
+                    m_DetailedOutputAgeFlags2[threshold] = (m_Star2->Age() < thresholdValue) ? -1.0 : m_Star2->Age();
+                }
+
+                // time threshold
+                // we print a record at the first timestep that the simulation time exceeds the time threshold
+                for (size_t threshold = 0; threshold < OPTIONS->SysDetailedOutputTimeThresholds().size(); threshold++) {                // for each system detailed output time threshold
+                    if (!m_DetailedOutputTimeFlags[threshold] && Time() >= OPTIONS->SysDetailedOutputTimeThresholds(threshold)) {       // need to action?
+                        m_DetailedOutputTimeFlags[threshold] = true;                                                                    // yes, flag action taken
+                        printSysDetailedOutputRec            = true;                                                                    // flag need to print (log) system detailed output
+                    }
+                }
+
+                if (printSysDetailedOutputRec) (void)PrintSystemDetailedOutput();                                                       // print (log) system detailed output record if necessary
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes
@@ -3448,7 +3494,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     m_EvolutionStatus = evolutionStatus;
 
-    (void)PrintBinarySystemParameters();                                                                                                // print (log) binary system parameters
+    (void)PrintSystemParameters();                                                                                                      // print (log) binary system parameters
 
     return evolutionStatus;
 }

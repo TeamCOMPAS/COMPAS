@@ -711,11 +711,11 @@ Filename for logfile record definitions file. |br|
 Default = ’’ (None)
 
 **--logfile-detailed-output** |br|
-Filename for the Detailed Output logfile. |br|
+Filename for the BSE/SSE Detailed Output logfile. |br|
 Default = ’SSE_Detailed_Output’ for SSE mode; ’BSE_Detailed_Output’ for BSE mode |br|
 
 **--logfile-detailed-output-record-types** |br|
-Enabled record types for the Detailed Output logfile. |br|
+Enabled record types for the BSE/SSE Detailed Output logfile. |br|
 Default = -1 (all record types) |br|
 
 **--logfile-double-compact-objects** |br|
@@ -757,6 +757,14 @@ Default = -1 (all record types) |br|
 **--logfile-switch-log** |br|
 Filename for the Switch Log logfile. |br|
 Default = ’SSE_Switch_Log’ for SSE mode; ’BSE_Switch_Log’ for BSE mode |br|
+
+**--logfile-system-detailed-output** |br|
+Filename for the System Detailed Output logfile. |br|
+Default = ’SSE_System_Detailed_Output’ for SSE mode; ’BSE_System_Detailed_Output’ for BSE mode |br|
+
+**--logfile-system-detailed-output-record-types** |br|
+Enabled record types for the System Detailed Output logfile. |br|
+Default = -1 (all record types) |br|
 
 **--logfile-system-parameters** |br|
 Filename for the System Parameters logfile (BSE mode). |br|
@@ -1321,6 +1329,25 @@ Default = TRUE
 Enables printing of the Switch Log logfile. |br|
 Default = FALSE
 
+**--system-detailed-output-age-thresholds** |br|
+Age thresholds for the System Detailed Output logfile. This is a vector option: one or more age threshold values may be specified. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br| |br|
+In SSE mode, writing to the System Detailed Output logfile is triggered when the age of the star exceeds any of the age thresholds set.
+A record is written to the System Detailed Output logfile on the first timestep at which the age threshold is exceeded. |br| |br|
+In BSE mode, writing to the System Detailed Output logfile is triggered when the age of either of the constituent stars exceeds any of the age thresholds set.
+A record is written to the System Detailed Output logfile on the first timestep at which the age threshold is exceeded.  It is possible for two records to be
+logged for each age threshold if the constiuent stars exceed the threshold on different timesteps. |br| |br|
+Note that the age of stars may be reduced for various reasons (phase change, rejuvenation, winds/mass transfer, etc.), and if the age of a star drops below an
+age threshold, another record will be logged if the star then ages beyond the same threshold (so several records might be logged for the same star crossing the
+same threshold if the age of the star oscillates around the threshold).
+
+**--system-detailed-output-time-thresholds** |br|
+Time thresholds for the System Detailed Output logfile. This is a vector option: one or more time threshold values may be specified. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br| |br|
+In SSE and BSE mode, writing to the System Detailed Output logfile is triggered when the simulation time exceeds any of the time thresholds set.
+A record is written to the System Detailed Output logfile on the first timestep at which the simulation time threshold is exceeded.
+
+
 .. _options-props-T:
 
 :ref:`Back to Top <options-props-top>`
@@ -1348,7 +1375,7 @@ Default = 1.0 |br| |br|
 This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
 
 **--timestep-multipliers** |br|
-Phase-dependent multiplicative factors for timestep duration. |br|
+Phase-dependent multiplicative factors for timestep duration. This is a vector option: one or more timestep multiplier values may be specified. |br|
 See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the 
 option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 

@@ -13,8 +13,8 @@
 
 // common type definitions
 // easiest way of making them available globally is to put them here
-typedef std::vector<std::string> STR_VECTOR;
-typedef std::vector<double> DBL_VECTOR;
+typedef std::vector<std::string>                                        STR_VECTOR;
+typedef std::vector<double>                                             DBL_VECTOR;
 typedef std::vector<int>                                                INT_VECTOR;
 typedef std::vector<bool>                                               BOOL_VECTOR;
 typedef std::tuple <double, double>                                     DBL_DBL;
@@ -23,10 +23,11 @@ typedef std::tuple <double, double, double, double>                     DBL_DBL_
 typedef std::tuple<std::string, std::string>                            STR_STR;
 typedef std::tuple<std::string, std::string, std::string>               STR_STR_STR;
 typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
+
 typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR> GE_QCRIT_TABLE; 
-typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR_HE;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE> GE_QCRIT_TABLE_HE; 
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR>             GE_QCRIT_TABLE; 
+typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>>                 GE_QCRIT_RADII_QCRIT_VECTOR_HE;
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE>          GE_QCRIT_TABLE_HE; 
 
 
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed

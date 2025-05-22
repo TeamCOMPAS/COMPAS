@@ -1730,12 +1730,14 @@ enum class LOGFILE: int {
     BSE_RLOF_PARAMETERS,
     BSE_SUPERNOVAE,
     BSE_SWITCH_LOG,
+    BSE_SYSTEM_DETAILED_OUTPUT,
     BSE_SYSTEM_PARAMETERS,
 
     SSE_DETAILED_OUTPUT,
     SSE_PULSAR_EVOLUTION,
     SSE_SUPERNOVAE,
     SSE_SWITCH_LOG,
+    SSE_SYSTEM_DETAILED_OUTPUT,
     SSE_SYSTEM_PARAMETERS
 };
 
@@ -1809,6 +1811,14 @@ enum class BSE_SYSPARMS_RECORD_TYPE: unsigned int {                             
 
 enum class SSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // SSE_SYSTEM_PARAMETERS file record type
     DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_PARAMETERS file record type
+};
+
+enum class BSE_SYSTEM_DETAILED_RECORD_TYPE: unsigned int {                                                          // BSE_SYSTEM_DETAILED_OUTPUT file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_SYSTEM_DETAILED_OUTPUT file record type
+};
+
+enum class SSE_SYSTEM_DETAILED_RECORD_TYPE: unsigned int {                                                          // SSE_SYSTEM_DETAILED_OUTPUT file record type
+    DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_DETAILED_OUTPUT file record type
 };
 
 
@@ -2216,6 +2226,94 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
 };
 
 
+// BSE_SYSTEM_DETAILED_OUTPUT_REC
+//
+// Default record definition for the BSE System Detailed Output logfile
+//
+const ANY_PROPERTY_VECTOR BSE_SYSTEM_DETAILED_OUTPUT_REC = {
+    BINARY_PROPERTY::RANDOM_SEED,
+    BINARY_PROPERTY::DT,
+    BINARY_PROPERTY::TIME,
+    BINARY_PROPERTY::UNBOUND,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
+    BINARY_PROPERTY::ECCENTRICITY,
+    STAR_1_PROPERTY::MZAMS,
+    STAR_2_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::MASS_0,
+    STAR_2_PROPERTY::MASS_0,
+    STAR_1_PROPERTY::MASS,
+    STAR_2_PROPERTY::MASS,
+    STAR_1_PROPERTY::ENV_MASS,
+    STAR_2_PROPERTY::ENV_MASS,
+    STAR_1_PROPERTY::CORE_MASS,
+    STAR_2_PROPERTY::CORE_MASS,
+    STAR_1_PROPERTY::HE_CORE_MASS,
+    STAR_2_PROPERTY::HE_CORE_MASS,
+    STAR_1_PROPERTY::CO_CORE_MASS,
+    STAR_2_PROPERTY::CO_CORE_MASS,
+    STAR_1_PROPERTY::RADIUS,
+    STAR_2_PROPERTY::RADIUS,
+    BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,
+    BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,
+    STAR_1_PROPERTY::OMEGA,
+    STAR_2_PROPERTY::OMEGA,
+    STAR_1_PROPERTY::OMEGA_BREAK,
+    STAR_2_PROPERTY::OMEGA_BREAK,
+    STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
+    STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
+    STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::AGE,
+    STAR_2_PROPERTY::AGE,
+    STAR_1_PROPERTY::LUMINOSITY,
+    STAR_2_PROPERTY::LUMINOSITY,
+    STAR_1_PROPERTY::TEMPERATURE,
+    STAR_2_PROPERTY::TEMPERATURE,
+    STAR_1_PROPERTY::ANGULAR_MOMENTUM,
+    STAR_2_PROPERTY::ANGULAR_MOMENTUM,
+    STAR_1_PROPERTY::DYNAMICAL_TIMESCALE,
+    STAR_2_PROPERTY::DYNAMICAL_TIMESCALE,
+    STAR_1_PROPERTY::THERMAL_TIMESCALE,
+    STAR_2_PROPERTY::THERMAL_TIMESCALE,
+    STAR_1_PROPERTY::ZETA_SOBERMAN,
+    STAR_2_PROPERTY::ZETA_SOBERMAN,
+    STAR_1_PROPERTY::ZETA_SOBERMAN_HE,
+    STAR_2_PROPERTY::ZETA_SOBERMAN_HE,
+    STAR_1_PROPERTY::ZETA_HURLEY,
+    STAR_2_PROPERTY::ZETA_HURLEY,
+    STAR_1_PROPERTY::ZETA_HURLEY_HE,
+    STAR_2_PROPERTY::ZETA_HURLEY_HE,
+    STAR_1_PROPERTY::MASS_LOSS_DIFF,
+    STAR_2_PROPERTY::MASS_LOSS_DIFF,
+    STAR_1_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_2_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_1_PROPERTY::MASS_TRANSFER_DIFF,
+    STAR_2_PROPERTY::MASS_TRANSFER_DIFF,
+    STAR_1_PROPERTY::MDOT,
+    STAR_2_PROPERTY::MDOT,
+    BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,
+    BINARY_PROPERTY::TOTAL_ENERGY,
+    STAR_1_PROPERTY::METALLICITY,
+    STAR_2_PROPERTY::METALLICITY,
+    BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
+    STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
+    STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
+    STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_2_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
+    STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
+    BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,
+    BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,
+    BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY
+};
+
+
 // SSE output record definitions
 
 // SSE_DETAILED_OUTPUT_REC
@@ -2325,6 +2423,34 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     PROGRAM_OPTION::NOTES
 };
 
+
+// SSE_SYSTEM_DETAILED_OUTPUT_REC
+//
+// Default record definition for the SSE System Detailed Output logfile
+//
+const ANY_PROPERTY_VECTOR SSE_SYSTEM_DETAILED_OUTPUT_REC = {
+    STAR_PROPERTY::AGE,
+    STAR_PROPERTY::DT,
+    STAR_PROPERTY::TIME,
+    STAR_PROPERTY::STELLAR_TYPE,
+    STAR_PROPERTY::METALLICITY,
+    STAR_PROPERTY::MASS_0,
+    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::RADIUS,
+    STAR_PROPERTY::RZAMS,
+    STAR_PROPERTY::LUMINOSITY,
+    STAR_PROPERTY::TEMPERATURE,
+    STAR_PROPERTY::CORE_MASS,
+    STAR_PROPERTY::CO_CORE_MASS,
+    STAR_PROPERTY::HE_CORE_MASS,
+    STAR_PROPERTY::MDOT,
+    STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_PROPERTY::TIMESCALE_MS,
+    STAR_PROPERTY::OMEGA,
+    STAR_PROPERTY::OMEGA_BREAK
+};
+
+
 // enum class LOGFILE_CLASS
 // Symbolic names for logfile types
 enum class LOGFILE_CLASS: int { NONE, STELLAR, BINARY };
@@ -2335,25 +2461,27 @@ enum class LOGFILE_CLASS: int { NONE, STELLAR, BINARY };
 // (the short names are for logfile definitions file parsing)
 typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, LOGFILE_CLASS> LOGFILE_DESCRIPTOR_T;
 const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
-    { LOGFILE::NONE,                       { "" ,                              {},                             "",                "",                    LOGFILE_CLASS::NONE}},
+    { LOGFILE::NONE,                       { "" ,                          {},                             "",                 "",                     LOGFILE_CLASS::NONE}},
 
-    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
-    { LOGFILE::ERROR_LOG,                  { "Error_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
+    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                 "",                     LOGFILE_CLASS::NONE }},
+    { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                 "",                     LOGFILE_CLASS::NONE }},
 
-    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                       BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",          BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",       BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",          "BSE_CEE_REC",          LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",     "BSE_DETAILED_REC",     LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects", BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",          "BSE_DCO_REC",          LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",       BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",      "BSE_PULSARS_REC",      LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                   BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",         "BSE_RLOF_REC",         LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",             BSE_SUPERNOVAE_REC,             "BSE_SNE",          "BSE_SNE_REC",          LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",             BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",   "BSE_SWITCH_REC",       LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",      BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",     "BSE_SYSPARMS_REC",     LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SYSTEM_DETAILED_OUTPUT, { "BSE_System_Detailed_Output", BSE_SYSTEM_DETAILED_OUTPUT_REC, "BSE_SYS_DETAILED", "BSE_SYS_DETAILED_REC", LOGFILE_CLASS::BINARY }},
 
-    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_DETAILED_REC",    LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_PULSAR_EVOLUTION,       { "SSE_Pulsar_Evolution",           SSE_PULSAR_EVOLUTION_REC,       "SSE_PULSARS",     "SSE_PULSARS_REC",     LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",          SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",    "SSE_SYSPARMS_REC",    LOGFILE_CLASS::STELLAR }}
+    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",        SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",     "SSE_DETAILED_REC",     LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_PULSAR_EVOLUTION,       { "SSE_Pulsar_Evolution",       SSE_PULSAR_EVOLUTION_REC,       "SSE_PULSARS",      "SSE_PULSARS_REC",      LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",             SSE_SUPERNOVAE_REC,             "SSE_SNE",          "SSE_SNE_REC",          LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",             SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",   "SSE_SWITCH_REC",       LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",      SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",     "SSE_SYSPARMS_REC",     LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SYSTEM_DETAILED_OUTPUT, { "SSE_System_Detailed_Output", SSE_SYSTEM_DETAILED_OUTPUT_REC, "SSE_SYS_DETAILED", "SSE_SYS_DETAILED_REC", LOGFILE_CLASS::STELLAR }}
 };
 
 #endif // __LogTypedefs_h__

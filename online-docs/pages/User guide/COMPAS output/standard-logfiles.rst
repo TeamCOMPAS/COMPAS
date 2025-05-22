@@ -7,7 +7,7 @@ or Binary Star Evolution (BSE), see the ``--mode`` program option)), and the val
 The standard log files are:
 
     .. list-table::
-       :widths: 22 78 
+       :widths: 32 68 
        :header-rows: 0
        :class: aligned-text
 
@@ -19,7 +19,13 @@ The standard log files are:
          - Records summary information for all stars that experience a SN event during evolution.
        * -
          -
-       * - Detailed Output
+       * - System Detailed Output
+         - Records detailed system information during evolution.
+       * -
+         - Enable with program option ``--system-detailed-output-age-thresholds`` and/or ``--system-detailed-output-time-thresholds``.
+       * -
+         -
+       * - BSE/SSE Detailed Output
          - Records detailed information for a star, or binary star, during evolution.
        * -
          - Enable with program option ``--detailed-output``.
