@@ -2158,8 +2158,8 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
             double windRateRG = StarRG->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
             double escapeVelocityRG = std::sqrt(2 * G_AU_Msol_yr * massRG / (StarRG->Radius() * RSOL_TO_AU)); // AU / yr
             double alpha_wRG = CalculateWindVelocity(massRG, StarRG->Radius(), p_SemiMajorAxis); // Wind of donor
-            double windVelocityRG = alpha_wRG * escapeVelocityRG / 2;
-            // double windVelocityRG = escapeVelocityRG / 2;
+            // double windVelocityRG = alpha_wRG * escapeVelocityRG / 2;
+            double windVelocityRG = escapeVelocityRG / 2;
             double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( massWD + massRG ) / p_SemiMajorAxis); // orbital velocity ( AU / yr )^2
             double aSquared = p_SemiMajorAxis * p_SemiMajorAxis; // AU^2
 
@@ -2187,24 +2187,26 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
             
             // bool useBondiHoyleAccretion = utils::Compare(windVelocityAtRocheLobe, rocheLobeEscapeVelocity) > 0;
             
-            bool useBondiHoyleAccretion = relativeDustRocheLobe < 1;
+            bool useWRLOF = relativeDustRocheLobe > 1;
 
-            if (useBondiHoyleAccretion) { // if Bondi
-                double maxAccretionEfficiencyWD = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityRG * windVelocityRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityRG); // Efficiency with which star 1 accretes wind 
+            double maxAccretionEfficiencyWD = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityRG * windVelocityRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityRG); // Efficiency with which star 1 accretes wind 
 
-                if (maxAccretionEfficiencyWD > 1.0) {std::cout << " new: " << windVelocityRG * AU_TO_KM / SECONDS_IN_YEAR << ' ' << std::sqrt(aSquared) * AU_TO_RSOL << " " << massRG << " " << StarRG->Radius() << " " << StarRG->Temperature() * TSOL << " ";}
+            // if (maxAccretionEfficiencyWD > 0.1) {std::cout << " new: " << windVelocityRG * AU_TO_KM / SECONDS_IN_YEAR << ' ' << std::sqrt(aSquared) * AU_TO_RSOL << " " << massRG << " " << StarRG->Radius() << " " << StarRG->Temperature() * TSOL << " ";}
 
-                accretionEfficiencyWD = std::max(0.0, std::min(1.0, maxAccretionEfficiencyWD)); // fix acc eff to between 0 and 1
-            }
-            else { // WRLOF with beta = 0.5    
+            double accretionEfficiencyWDforBHL = std::max(0.0, std::min(1.0, maxAccretionEfficiencyWD)); // fix acc eff to between 0 and 1
+            double accretionEfficiencyWDforWRLOF = 0.0;
+
+            if (useWRLOF) {
 
                 double q_squared = (massWD/massRG) * (massWD/massRG); // unitless
 
-                accretionEfficiencyWD = std::max(0.0, std::min(25/9 * q_squared * (-0.284 * relativeDustRocheLobe*relativeDustRocheLobe + 0.918 * relativeDustRocheLobe - 0.234), 0.5)); // unitless
-
-                // if (accretionEfficiencyWD < 0.05) {std::cout << accretionEfficiencyWD;}
+                 accretionEfficiencyWDforWRLOF = std::max(0.0, std::min(25/9 * q_squared * (-0.284 * relativeDustRocheLobe*relativeDustRocheLobe + 0.918 * relativeDustRocheLobe - 0.234), 0.5)); // unitless
 
             }
+
+            accretionEfficiencyWD = std::max(accretionEfficiencyWDforBHL, accretionEfficiencyWDforWRLOF);
+
+            if (accretionEfficiencyWD == accretionEfficiencyWDforWRLOF) { std::cout << " " << accretionEfficiencyWDforWRLOF << " "; }
 
             double windAccretionRateWD = -accretionEfficiencyWD * windRateRG; // Accretion onto Star 1 ( mSol / yr )
             StarWD->SetWindAccretionRate(windAccretionRateWD); // ( mSol / yr )
