@@ -1561,6 +1561,7 @@
 //                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
 //                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
 //                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
+//                                          - Set merger on unstable RLOF from WD
 //
 
 const std::string VERSION_STRING = "03.18.08";
