@@ -1652,7 +1652,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
-    if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                              // stellar merger
+    if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2) || (m_Star1->IsRLOF() && m_Star1->IsOneOf(WHITE_DWARFS)) || (m_Star2->IsRLOF() && m_Star2->IsOneOf(WHITE_DWARFS))) {                                                              // stellar merger
         m_MassTransferTrackerHistory = MT_TRACKING::MERGER; 
         m_Flags.stellarMerger        = true;
     }
@@ -2086,9 +2086,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
         isUnstable   = utils::Compare((m_Accretor->Mass() / m_Donor->Mass()), qCrit) < 0;
-        if ((OPTIONS->QCritPrescription() == QCRIT_PRESCRIPTION::HURLEY_HJELLMING_WEBBINK) && (m_Donor->IsOneOf(WHITE_DWARFS))) {
-            m_Flags.stellarMerger = true;
-        }
     }
     else {                                                                                                                      // determine stability based on zetas
         isUnstable   = (utils::Compare(m_ZetaStar, m_ZetaLobe) < 0);
