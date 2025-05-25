@@ -2637,16 +2637,11 @@ void BaseStar::ResolveMassLoss(double p_Dt) {
         double angularMomentumChange = (2.0 / 3.0) * (mass - m_Mass) * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * Omega();
                 
         // JR: this is here to keep attributes in sync BSE vs SSE
-        // Supernovae are caught in UpdateAttributesAndAgeOneTimestep() (hence the need to move the
-        // call to PrintStashedSupernovaDetails() in Star:EvolveOneTimestep())
+        // Supernovae are caught in UpdateAttributesAndAgeOneTimestep()
         // Don't resolve envelope loss here (JR: we're not going to switch anyway... need to revisit this)
         STELLAR_TYPE st = UpdateAttributesAndAgeOneTimestep(mass - m_Mass, 0.0, 0.0, false, false); // recalculate stellar attributes
         if (st != m_StellarType) {                                                                  // should switch?
             SHOW_WARN(ERROR::SWITCH_NOT_TAKEN);                                                     // show warning if we think we should switch again...
-            
-            // we may have stashed SN details - need to clear them if we're not going to switch,
-            // but only if not an ephemeral clone (ephemeral clones don't write to the stash)
-            if (IsSupernova() && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) ClearSupernovaStash();
         }
 
         UpdateInitialMass();                                                                        // update effective initial mass (MS, HG & HeMS)

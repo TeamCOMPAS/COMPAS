@@ -400,6 +400,10 @@ private:
     double              m_ZetaLobe;
     double              m_ZetaStar;
 
+    // thresholds flags for system detailed output file
+    DBL_VECTOR          m_SystemSnapshotAgeFlags1;
+    DBL_VECTOR          m_SystemSnapshotAgeFlags2;
+    BOOL_VECTOR         m_SystemSnapshotTimeFlags;
 
     // Binaries contain two stars
     BinaryConstituentStar *m_Star1;                                                         // Initially more massive star - the primary
@@ -538,8 +542,12 @@ private:
 
     bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
     
-    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+    bool PrintSystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintSystemSnapshotLog(const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType = BSE_SYSTEM_SNAPSHOT_RECORD_TYPE::DEFAULT) const { 
+        return LOGGING->LogBSESystemSnapshotLog(this, p_RecordType);
     }
     
     bool PrintDetailedOutput(const long int p_Id, const BSE_DETAILED_RECORD_TYPE p_RecordType) const {

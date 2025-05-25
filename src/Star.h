@@ -305,6 +305,10 @@ private:
 
     std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
 
+    // thresholds flags for system snapshot file
+    DBL_VECTOR  m_SystemSnapshotAgeFlags;
+    BOOL_VECTOR m_SystemSnapshotTimeFlags;
+
 protected:
 
     OBJECT_ID          m_ObjectId;              // instantiated object's unique object id

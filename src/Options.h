@@ -287,15 +287,18 @@ private:
 
         // trying to keep entries alphabetical so easier to find specific entries
 
-        // option name            default allowed   default value type   default value
-        { "debug-classes",        false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many classes to specify
+        // option name                       default allowed   default value type   default value
+        { "debug-classes",                   false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many classes to specify
 
-        { "log-classes",          false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many classes to specify
+        { "log-classes",                     false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many classes to specify
 
-        { "notes",                true,             TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // allow defaults - number of notes is 0..#notes-hdrs
-        { "notes-hdrs",           false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many headers to specify
+        { "notes",                           true,             TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // allow defaults - number of notes is 0..#notes-hdrs
+        { "notes-hdrs",                      false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many headers to specify
 
-        { "timestep-multipliers", true,             TYPENAME::DOUBLE,    ShorthandDefault_t(1.0) }                              // allow defaults - number of multipliers is the number of stellar types
+        { "timestep-multipliers",            true,             TYPENAME::DOUBLE,    ShorthandDefault_t(1.0) },           // allow defaults - number of multipliers is the number of stellar types
+
+        { "system-snapshot-age-thresholds",  false,            TYPENAME::DOUBLE,    ShorthandDefault_t(-1.0) },         // don't allow defaults - no need
+        { "system-snapshot-time-thresholds", false,            TYPENAME::DOUBLE,    ShorthandDefault_t(-1.0) }          // don't allow defaults - no need
     };
 
 
@@ -357,6 +360,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -617,6 +622,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -666,6 +673,8 @@ private:
         "stellar-zeta-prescription",
         "store-input-files",
         "switch-log",
+        "system-snapshot-age-thresholds",
+        "system-snapshot-time-thresholds",
 
         "tides-prescription",
 
@@ -728,6 +737,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -753,6 +764,8 @@ private:
 
         "store-input-files",
         "switch-log",
+        "system-snapshot-age-thresholds",
+        "system-snapshot-time-thresholds",
 
         "timesteps-filename",
         "timestep-multipliers",
@@ -818,6 +831,9 @@ public:
             bool                                                m_PrintBoolAsString;                                            // Flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
             bool                                                m_Quiet;                                                        // Suppress some output
             bool                                                m_RlofPrinting;                                                 // RLOF printing
+
+            DBL_VECTOR                                          m_SystemSnapshotAgeThresholds;                                  // System age thresholds for logging to system snapshot file
+            DBL_VECTOR                                          m_SystemSnapshotTimeThresholds;                                 // Simulation time thresholds for logging to system snapshot file
 
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
 
@@ -1159,6 +1175,7 @@ public:
             ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
             std::string                                         m_LogfileSystemParameters;                                      // output file name: system parameters
+            std::string                                         m_LogfileSystemSnapshotLog;                                     // output file name: system snapshot
             std::string                                         m_LogfileDetailedOutput;                                        // output file name: detailed output
             std::string                                         m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
             std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
@@ -1168,6 +1185,7 @@ public:
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
             int                                                 m_LogfileSystemParametersRecordTypes;                           // enabled record types: system parameters
+            int                                                 m_LogfileSystemSnapshotLogRecordTypes;                          // enabled record types: system snapshot
             int                                                 m_LogfileDetailedOutputRecordTypes;                             // enabled record types: detailed output
             int                                                 m_LogfileDoubleCompactObjectsRecordTypes;                       // enabled record types: double compact objects
             int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
@@ -1509,6 +1527,14 @@ public:
                                                                                                                                         : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
+    std::string                                 LogfileSystemSnapshotLog() const                                        { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-snapshot-log"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSystemSnapshotLog
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG))
+                                                                                                                                      );
+                                                                                                                        }
+    int                                         LogfileSystemSnapshotLogRecordTypes() const                             { return m_CmdLine.optionValues.m_LogfileSystemSnapshotLogRecordTypes; }
     std::string                                 LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSystemParameters
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1517,6 +1543,7 @@ public:
                                                                                                                                       );
                                                                                                                         }
     int                                         LogfileSystemParametersRecordTypes() const                              { return m_CmdLine.optionValues.m_LogfileSystemParametersRecordTypes; }
+
     LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
     std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
@@ -1685,10 +1712,14 @@ public:
     double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, true); }
     double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, true); }
 
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
-    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
+    double                                      SystemSnapshotAgeThresholds(const size_t p_Idx) const                   { return OPT_VALUE("system-snapshot-age-thresholds", m_SystemSnapshotAgeThresholds[p_Idx], true); }
+    DBL_VECTOR                                  SystemSnapshotAgeThresholds() const                                     { return OPT_VALUE("system-snapshot-age-thresholds", m_SystemSnapshotAgeThresholds, true); }
+    double                                      SystemSnapshotTimeThresholds(const size_t p_Idx) const                  { return OPT_VALUE("system-snapshot-time-thresholds", m_SystemSnapshotTimeThresholds[p_Idx], true); }
+    DBL_VECTOR                                  SystemSnapshotTimeThresholds() const                                    { return OPT_VALUE("system-snapshot-time-thresholds", m_SystemSnapshotTimeThresholds, true); }
 
     TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
