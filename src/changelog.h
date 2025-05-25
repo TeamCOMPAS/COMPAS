@@ -1565,7 +1565,11 @@
 //                                           --system-snapshot-time-thresholds: specifies the time thresholds for System Snapshot logfile
 //                                      - Removed stashing to SSE SNe file - printing is now done directly (stashing no longer required since we now don't save/revert).
 //                                        I was going to remove the save/revert state functions - we don't need them (we have clone functions), but I left them in for now (just in case we find a need...).
+//  03.20.00    VK - May 25, 2025   - Enhancement, Defect repair:
+//                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the reference.
+//                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
+//                                      - Added variables for circularization timescale, synchronization timescales (for both stars), and all the tidal ImKnm potential Love numbers to BSE output.
 
-const std::string VERSION_STRING = "03.19.00";
+const std::string VERSION_STRING = "03.20.00";
 
 # endif // __changelog_h__

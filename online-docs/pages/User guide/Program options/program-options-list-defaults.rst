@@ -1354,10 +1354,10 @@ A record is written to the System Snapshot logfile on the first timestep at whic
 
 **--tides-prescription** |br|
 Prescription for tidal evolution of the binary. |br|
-Options: { NONE, PERFECT, KAPIL2024 } |br|
+Options: { NONE, PERFECT, KAPIL2025 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). |br|
+``KAPIL2025`` uses the prescription from Kapil+ (2025). |br|
 Default = NONE
 
 **--timestep-filename** |br|
