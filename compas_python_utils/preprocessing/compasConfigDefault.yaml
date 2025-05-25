@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Thu May 22 20:41:26 2025 by COMPAS v03.19.00
+##~!!~## File Created Sun May 25 00:33:11 2025 by COMPAS v03.20.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -274,7 +274,7 @@ stringChoices:
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
 
     ### TIDES
-#    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2024','PERFECT','NONE']
+#    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2025','PERFECT','NONE']
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks-mode: 'FALLBACK'                                   # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
