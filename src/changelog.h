@@ -1558,6 +1558,7 @@
 //  03.19.00    VK - May 13, 2025   - Enhancement, Defect repair:
 //                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the paper.
 //                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
+//                                      - Added variables for circularization timescale, synchronization timescales (for both stars), and all the tidal ImKnm potential Love numbers to BSE output.
 const std::string VERSION_STRING = "03.19.00";
 
 # endif // __changelog_h__
