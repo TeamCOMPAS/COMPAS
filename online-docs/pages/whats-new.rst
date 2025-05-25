@@ -7,6 +7,8 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 * Replaced the name of the ``KAPIL2024`` tides prescription with ``KAPIL2025``.
 * Updated the equilibrium and dynamical tides equations to match the paper.
+* New outputs for BSE_DETAILED_OUTPUT from tidal evolution, including ``CIRCULARIZATION_TIMESCALE``, ``SYNCHRONIZATION_TIMESCALE_1``, ``SYNCHRONIZATION_TIMESCALE_2``, ``TIDAL_POTENTIAL_LOVE_NUMBER_22_1``, ``TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1``, and ``TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2``
+
 
 **03.18.02 May 1, 2025**
 

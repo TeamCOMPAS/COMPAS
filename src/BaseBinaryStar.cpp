@@ -2752,12 +2752,17 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                
                 m_Star1->SetOmega(m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 1 spin
                 m_Star2->SetOmega(m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 2 spin
-                m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR);       // evolve separation
-                m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR);          // evolve eccentricity
+                m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR);         // evolve separation
+                m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR);            // evolve eccentricity
                 
-                m_CircularizationTimescale  = - m_Eccentricity /  (DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * YEAR_TO_MYR;                                     // Circularization timescale in Myr (for output files)
+                m_CircularizationTimescale  = - m_Eccentricity /  (DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * YEAR_TO_MYR;                                       // Circularization timescale in Myr (for output files)
+                m_CircularizationTimescale  =   (std::isnan(m_CircularizationTimescale) || std::isinf(m_CircularizationTimescale))? 0.0 : m_CircularizationTimescale;    // check for NaN or Inf for circular binaries
+                
                 m_SynchronizationTimescale1 = - (m_Star1->Omega() - omega) / DOmega1Dt_tidal * YEAR_TO_MYR;                                                              // Synchronization timescale for Star1 in Myr (for output files)
+                m_SynchronizationTimescale1 =   (std::isnan(m_SynchronizationTimescale1) || std::isinf(m_SynchronizationTimescale1))? 0.0 : m_SynchronizationTimescale1; // check for NaN or Inf for synchronized binaries
+                
                 m_SynchronizationTimescale2 = - (m_Star2->Omega() - omega) / DOmega2Dt_tidal * YEAR_TO_MYR;                                                              // Synchronization timescale for Star2 in Myr (for output files)
+                m_SynchronizationTimescale2 =   (std::isnan(m_SynchronizationTimescale2) || std::isinf(m_SynchronizationTimescale2))? 0.0 : m_SynchronizationTimescale2; // check for NaN or Inf for synchronized binaries
 
                 m_TotalAngularMomentum   = CalculateAngularMomentum();                                                                                                      // re-calculate angular momenta
                 m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
