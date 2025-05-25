@@ -3,12 +3,22 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.19.00 May 13, 2025**
+**03.20.00 May 25, 2025**
 
 * Replaced the name of the ``KAPIL2024`` tides prescription with ``KAPIL2025``.
 * Updated the equilibrium and dynamical tides equations to match the paper.
 * New outputs for BSE_DETAILED_OUTPUT from tidal evolution, including ``CIRCULARIZATION_TIMESCALE``, ``SYNCHRONIZATION_TIMESCALE_1``, ``SYNCHRONIZATION_TIMESCALE_2``, ``TIDAL_POTENTIAL_LOVE_NUMBER_22_1``, ``TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1``, and ``TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2``
 
+
+**03.19.00 May 22, 2025**
+
+* Added functionality to create new System Snapshot logfile |br|
+  Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set by new program options (see below).  |br|
+  New program options added: |br|
+  ``--logfile-system-snapshot-log``: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log") |br|
+  ``--logfile-system-snapshot-log-record-types``: specifies the enabled record types for System Snapshot logfile (default is all types) |br|
+  ``--system-snapshot-age-thresholds``: specifies the age thresholds for System Snapshot logfile |br|
+  ``--system-snapshot-time-thresholds``: specifies the time thresholds for System Snapshot logfile
 
 **03.18.02 May 1, 2025**
 

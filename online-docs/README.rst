@@ -37,15 +37,12 @@ In the repository root directory:
 
 View results in 'docs/online-docs/_build/html/index.html'
 
-Make sure there arnt any broken links! See the build logs:
+Make sure there aren't any broken links! See the build logs:
 
-```
-(pages/User guide/docker: line   22) ok        https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container
-(pages/Developer guide/Developer build/docker-developer: line   23) ok        https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment
-(pages/User guide/Running COMPAS/running-via-docker: line   41) broken    https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container#:~:text=An%20instance%20of%20an%20image,of%20layers%20as%20you%20describe.&text=You%20can%20see%20all%20your,an%20image%20is%20a%20container - Anchor '%3A~%3Atext%3DAn%20instance%20of%20an%20image%2Cof%20layers%20as%20you%20describe.%26text%3DYou%20can%20see%20all%20your%2Can%20image%20is%20a%20container' not found
-(pages/User guide/docker: line   49) ok        https://www.docker.com/
-
-```
+.. (pages/User guide/docker: line   22) ok        https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container
+.. (pages/Developer guide/Developer build/docker-developer: line   23) ok        https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment
+.. (pages/User guide/Running COMPAS/running-via-docker: line   41) broken    https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container#:~:text=An%20instance%20of%20an%20image,of%20layers%20as%20you%20describe.&text=You%20can%20see%20all%20your,an%20image%20is%20a%20container - Anchor '%3A~%3Atext%3DAn%20instance%20of%20an%20image%2Cof%20layers%20as%20you%20describe.%26text%3DYou%20can%20see%20all%20your%2Can%20image%20is%20a%20container' not found
+.. (pages/User guide/docker: line   49) ok        https://www.docker.com/
 
 
 Pushing the changes online
