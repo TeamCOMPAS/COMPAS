@@ -1317,9 +1317,11 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     double remnantMass;
 
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
+        m_SupernovaDetails.fallbackFraction = 0;
         remnantMass = 1.35; //CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
     }
     else if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0) {                                                      // BH formation regardless of metallicity and MT history
+        m_SupernovaDetails.fallbackFraction = 1;
         remnantMass = p_HeCoreMass;
     }
     else {                                                                                                              // Determine MT history - this will tell us which Schneider MT case prescription should be used
@@ -1377,6 +1379,7 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
         
         if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) ) {            // Complete fallback into BH
             remnantMass = p_HeCoreMass;
+            m_SupernovaDetails.fallbackFraction = 1;
         }
         else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 ) {  // Partial fallback BH formation
             // add fallback back on
@@ -1386,6 +1389,7 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
             remnantMass = mns + (mhe - mns) *m_SupernovaDetails.fallbackFraction;
         }
         else {
+            m_SupernovaDetails.fallbackFraction = 0;
             remnantMass = 1.40; // slightly lower mass NS - just to distinguish it...
         }
     }
