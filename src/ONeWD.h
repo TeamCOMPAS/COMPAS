@@ -41,7 +41,6 @@ public:
                                                                                                                                             p_Time, 
                                                                                                                                             p_Metallicity, 
                                                                                                                                             WD_Baryon_Number.at(STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)); }
-    
 
 protected:
 
@@ -70,6 +69,7 @@ protected:
                                                 const double p_Metallicity) const   { return CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity); }
 
     double          CalculateLuminosityOnPhase() const                              { return CalculateLuminosityOnPhase(m_Mass, m_Age, m_Metallicity); }    // Use class member variables
+
 
     STELLAR_TYPE    EvolveToNextPhase();
     bool            IsSupernova() const;                                             

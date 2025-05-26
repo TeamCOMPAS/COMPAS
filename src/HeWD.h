@@ -41,7 +41,7 @@ public:
                         return WhiteDwarfs::CalculateLuminosityOnPhase_Static(p_Mass, p_Time, p_Metallicity, WD_Baryon_Number.at(STELLAR_TYPE::HELIUM_WHITE_DWARF));
                     }
 
-    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich, const double p_DonorThermalMassLossRate);
+    ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorThermalMassLossRate, const bool p_HeRich);
 
 protected:
 
