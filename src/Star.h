@@ -170,9 +170,9 @@ public:
     
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
     
-    DBL_DBL_DBL_DBL CalculateImKlmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)  { return m_Star->CalculateImKlmDynamical(p_Omega, p_SemiMajorAxis, p_M2); }
-    DBL_DBL_DBL_DBL CalculateImKlmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2){ return m_Star->CalculateImKlmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2); }
-    DBL_DBL_DBL_DBL CalculateImKlmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)      { return m_Star->CalculateImKlmTidal(p_Omega, p_SemiMajorAxis, p_M2); }
+    DBL_DBL_DBL_DBL CalculateImKnmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)  { return m_Star->CalculateImKnmDynamical(p_Omega, p_SemiMajorAxis, p_M2); }
+    DBL_DBL_DBL_DBL CalculateImKnmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2){ return m_Star->CalculateImKnmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2); }
+    DBL_DBL_DBL_DBL CalculateImKnmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)      { return m_Star->CalculateImKnmTidal(p_Omega, p_SemiMajorAxis, p_M2); }
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, 
                                                 const double p_AccretorMassRate,
@@ -304,6 +304,10 @@ private:
     BaseStar *m_SaveStar;                       // pointer to saved star
 
     std::vector<double> m_Timesteps;            // timesteps vector - for debugging/testing
+
+    // thresholds flags for system snapshot file
+    DBL_VECTOR  m_SystemSnapshotAgeFlags;
+    BOOL_VECTOR m_SystemSnapshotTimeFlags;
 
 protected:
 

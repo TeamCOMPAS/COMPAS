@@ -284,21 +284,23 @@ void Log::Start(const string      p_LogBasePathString,
         // may be changed if a logfile definitions file is present and processed.
 
         // BSE
-        if (NotesPropertyPresent(m_BSE_CEE_Rec        )) m_BSE_CEE_Notes         = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_DCO_Rec        )) m_BSE_DCO_Notes         = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Pulsars_Rec    )) m_BSE_Pulsars_Notes     = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_RLOF_Rec       )) m_BSE_RLOF_Notes        = BOOL_VECTOR(m_BSE_RLOF_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_SNE_Rec        )) m_BSE_SNE_Notes         = BOOL_VECTOR(m_BSE_SNE_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Switch_Rec     )) m_BSE_Switch_Notes      = BOOL_VECTOR(m_BSE_Switch_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_SysParms_Rec   )) m_BSE_SysParms_Notes    = BOOL_VECTOR(m_BSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_CEE_Rec         )) m_BSE_CEE_Notes          = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_DCO_Rec         )) m_BSE_DCO_Notes          = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Detailed_Rec    )) m_BSE_Detailed_Notes     = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Pulsars_Rec     )) m_BSE_Pulsars_Notes      = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_RLOF_Rec        )) m_BSE_RLOF_Notes         = BOOL_VECTOR(m_BSE_RLOF_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SNE_Rec         )) m_BSE_SNE_Notes          = BOOL_VECTOR(m_BSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Switch_Rec      )) m_BSE_Switch_Notes       = BOOL_VECTOR(m_BSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SysParms_Rec    )) m_BSE_SysParms_Notes     = BOOL_VECTOR(m_BSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Sys_Snapshot_Rec)) m_BSE_Sys_Snapshot_Notes = BOOL_VECTOR(m_BSE_Sys_Snapshot_Notes.size(), true);
 
         // SSE
-        if (NotesPropertyPresent(m_SSE_Detailed_Rec   )) m_SSE_Detailed_Notes    = BOOL_VECTOR(m_SSE_Detailed_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_Pulsars_Rec    )) m_SSE_Pulsars_Notes     = BOOL_VECTOR(m_SSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Detailed_Rec    )) m_SSE_Detailed_Notes     = BOOL_VECTOR(m_SSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Pulsars_Rec     )) m_SSE_Pulsars_Notes      = BOOL_VECTOR(m_SSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SNE_Rec         )) m_SSE_SNE_Notes          = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Switch_Rec      )) m_SSE_Switch_Notes       = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SysParms_Rec    )) m_SSE_SysParms_Notes     = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Sys_Snapshot_Rec)) m_SSE_Sys_Snapshot_Notes = BOOL_VECTOR(m_SSE_Sys_Snapshot_Notes.size(), true);
 
         // process the logfile definitions file if specified
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
@@ -2099,6 +2101,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 annotations      = m_BSE_Switch_Notes;                                                                              // logfile annotations
                 break;
 
+            case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG:                                                                                  // BSE_SYSTEM_SNAPSHOT_LOG
+                recordProperties = m_BSE_Sys_Snapshot_Rec;                                                                          // record properties
+                annotations      = m_BSE_Sys_Snapshot_Notes;                                                                        // logfile annotations
+                break;
+
             case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
                 recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
                 annotations      = m_BSE_SysParms_Notes;                                                                            // logfile annotations
@@ -2120,8 +2127,8 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 break;
 
             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                      // SSE_DETAILED_OUTPUT
-                recordProperties = m_SSE_SNE_Rec;                                                                                   // record properties
-                annotations      = m_SSE_SNE_Notes;                                                                                 // logfile annotations
+                recordProperties = m_SSE_Detailed_Rec;                                                                              // record properties
+                annotations      = m_SSE_Detailed_Notes;                                                                            // logfile annotations
                 break;
 
             case LOGFILE::SSE_SUPERNOVAE:                                                                                           // SSE_SUPERNOVAE
@@ -2137,6 +2144,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
             case LOGFILE::SSE_PULSAR_EVOLUTION:                                                                                     // SSE_PULSAR_EVOLUTION
                 recordProperties = m_SSE_Pulsars_Rec;                                                                               // record properties
                 annotations      = m_SSE_Pulsars_Notes;                                                                             // logfile annotations
+                break;
+
+            case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG:                                                                                  // SSE_SYSTEM_SNAPSHOT_LOG
+                recordProperties = m_SSE_Sys_Snapshot_Rec;                                                                          // record properties
+                annotations      = m_SSE_Sys_Snapshot_Notes;                                                                        // logfile annotations
                 break;
 
             case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
@@ -2463,6 +2475,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.annotations      = m_BSE_Switch_Notes;
                     break;
 
+                case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG:                                                                                          // BSE_SYSTEM_SNAPSHOT_LOG
+                    fileDetails.filename         = OPTIONS->LogfileSystemSnapshotLog();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSystemSnapshotLogRecordTypes();
+                    fileDetails.recordProperties = m_BSE_Sys_Snapshot_Rec;
+                    fileDetails.annotations      = m_BSE_Sys_Snapshot_Notes;
+                    break;
+
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
                     fileDetails.recordTypes      = OPTIONS->LogfileSystemParametersRecordTypes();
@@ -2504,6 +2523,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.recordTypes      = OPTIONS->LogfilePulsarEvolutionRecordTypes();
                     fileDetails.recordProperties = m_SSE_Pulsars_Rec;
                     fileDetails.annotations      = m_SSE_Pulsars_Notes;
+                    break;
+
+                case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG:                                                                                          // SSE_SYSTEM_SNAPSHOT_LOG
+                    fileDetails.filename         = OPTIONS->LogfileSystemSnapshotLog();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSystemSnapshotLogRecordTypes();
+                    fileDetails.recordProperties = m_SSE_Sys_Snapshot_Rec;
+                    fileDetails.annotations      = m_SSE_Sys_Snapshot_Notes;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
@@ -3139,6 +3165,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = m_BSE_Switch_Rec;
             baseNotes = m_BSE_Switch_Notes;
             break;
+        case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG:
+            if (p_UseDefaultProps) baseProps = m_BSE_Sys_Snapshot_Rec;
+            baseNotes = m_BSE_Sys_Snapshot_Notes;
+            break;
         case LOGFILE::BSE_SYSTEM_PARAMETERS:
             if (p_UseDefaultProps) baseProps = m_BSE_SysParms_Rec;
             baseNotes = m_BSE_SysParms_Notes;
@@ -3158,6 +3188,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::SSE_PULSAR_EVOLUTION:
             if (p_UseDefaultProps) baseProps = m_SSE_Pulsars_Rec;
             baseNotes = m_SSE_Pulsars_Notes;
+            break;
+        case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG:
+            if (p_UseDefaultProps) baseProps = m_SSE_Sys_Snapshot_Rec;
+            baseNotes = m_SSE_Sys_Snapshot_Notes;
             break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS:
             if (p_UseDefaultProps) baseProps = m_SSE_SysParms_Rec;
@@ -3253,19 +3287,21 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
 
     // replace existing props and annotations vector for given logfile
     switch (p_Logfile) {
-        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; m_BSE_CEE_Notes         = newNotes; break;
-        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; m_BSE_Detailed_Notes    = newNotes; break;
-        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; m_BSE_DCO_Notes         = newNotes; break;
-        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; m_BSE_Pulsars_Notes     = newNotes; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; m_BSE_RLOF_Notes        = newNotes; break;
-        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; m_BSE_SNE_Notes         = newNotes; break;
-        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; m_BSE_Switch_Notes      = newNotes; break;
-        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; m_BSE_SysParms_Notes    = newNotes; break;
-        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; m_SSE_Detailed_Notes    = newNotes; break;
-        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; m_SSE_SNE_Notes         = newNotes; break;
-        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; m_SSE_Switch_Notes      = newNotes; break;
-        case LOGFILE::SSE_PULSAR_EVOLUTION      : m_SSE_Pulsars_Rec     = newProps; m_SSE_Pulsars_Notes     = newNotes; break;
-        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; m_SSE_SysParms_Notes    = newNotes; break;
+        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec          = newProps; m_BSE_CEE_Notes          = newNotes; break;
+        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec     = newProps; m_BSE_Detailed_Notes     = newNotes; break;
+        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec          = newProps; m_BSE_DCO_Notes          = newNotes; break;
+        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec      = newProps; m_BSE_Pulsars_Notes      = newNotes; break;
+        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec         = newProps; m_BSE_RLOF_Notes         = newNotes; break;
+        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec          = newProps; m_BSE_SNE_Notes          = newNotes; break;
+        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec       = newProps; m_BSE_Switch_Notes       = newNotes; break;
+        case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG   : m_BSE_Sys_Snapshot_Rec = newProps; m_BSE_Sys_Snapshot_Notes = newNotes; break;
+        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec     = newProps; m_BSE_SysParms_Notes     = newNotes; break;
+        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec     = newProps; m_SSE_Detailed_Notes     = newNotes; break;
+        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec          = newProps; m_SSE_SNE_Notes          = newNotes; break;
+        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec       = newProps; m_SSE_Switch_Notes       = newNotes; break;
+        case LOGFILE::SSE_PULSAR_EVOLUTION      : m_SSE_Pulsars_Rec      = newProps; m_SSE_Pulsars_Notes      = newNotes; break;
+        case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG   : m_SSE_Sys_Snapshot_Rec = newProps; m_SSE_Sys_Snapshot_Notes = newNotes; break;
+        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec     = newProps; m_SSE_SysParms_Notes     = newNotes; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
 }
