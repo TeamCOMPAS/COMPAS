@@ -1673,8 +1673,8 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             THROW_ERROR(ERROR::UNKNOWN_CE_FORMALISM);                                                                   // throw error
     }
     
-	double rRLdfin1     = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                // Roche-lobe radius in AU after CEE, seen by star1
-	double rRLdfin2     = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                // Roche-lobe radius in AU after CEE, seen by star2
+    double rRLdfin1     = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass1Final, m_Mass2Final);                // Roche-lobe radius in AU after CEE, seen by star1
+    double rRLdfin2     = m_SemiMajorAxis * CalculateRocheLobeRadius_Static(m_Mass2Final, m_Mass1Final);                // Roche-lobe radius in AU after CEE, seen by star2
     double rRLdfin1Rsol = rRLdfin1 * AU_TO_RSOL;                                                                        // Roche-lobe radius in Rsol after CEE, seen by star1
     double rRLdfin2Rsol = rRLdfin2 * AU_TO_RSOL;                                                                        // Roche-lobe radius in Rsol after CEE, seen by star2
     m_Eccentricity      = 0.0;                                                                                          // we assume that a common envelope event (CEE) circularises the binary
@@ -1684,13 +1684,13 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
     // update stellar type after losing its envelope. Star1, Star2 or both if double CEE.
 
-    if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2)) {                                                              // stellar merger
+    if (isDonorMS || (!envelopeFlag1 && !envelopeFlag2) || (m_Star1->IsRLOF() && m_Star1->IsOneOf(WHITE_DWARFS)) || (m_Star2->IsRLOF() && m_Star2->IsOneOf(WHITE_DWARFS))) {                                                              // stellar merger
         m_MassTransferTrackerHistory = MT_TRACKING::MERGER; 
         m_Flags.stellarMerger        = true;
     }
     else if ((m_Star1->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star1->IsOneOf(ALL_MAIN_SEQUENCE)) ||
              (m_Star2->DetermineEnvelopeType()==ENVELOPE::RADIATIVE && !m_Star2->IsOneOf(ALL_MAIN_SEQUENCE)) ) {        // check if we have a non-MS radiative-envelope star
-        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() && OPTIONS->CommonEnvelopeFormalism()!=CE_FORMALISM::TWO_STAGE) { // stellar merger
+        if (!OPTIONS->AllowRadiativeEnvelopeStarToSurviveCommonEnvelope() && OPTIONS->CommonEnvelopeFormalism() != CE_FORMALISM::TWO_STAGE) { // stellar merger
             m_CEDetails.optimisticCE     = true;
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;
             m_Flags.stellarMerger        = true;
@@ -1702,7 +1702,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
         m_Flags.stellarMerger = true;
     }
     
-	if (!m_Flags.stellarMerger) {                                                                                       // stellar merger?
+    if (!m_Flags.stellarMerger) {                                                                                       // stellar merger?
                                                                                                                         // no - continue evolution
         STELLAR_TYPE stellarType1 = m_Star1->StellarType();                                                             // star 1 stellar type before resolving envelope loss
         STELLAR_TYPE stellarType2 = m_Star2->StellarType();                                                             // star 2 stellar type before resolving envelope loss
@@ -1731,7 +1731,7 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
 
         m_Star1->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 1
         m_Star2->SetPostCEEValues();                                                                                    // squirrel away post CEE stellar values for star 2
-        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, semiMajorAxisAfterStage1 * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol);                     // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
+        SetPostCEEValues(m_SemiMajorAxis * AU_TO_RSOL, semiMajorAxisAfterStage1 * AU_TO_RSOL, m_Eccentricity, rRLdfin1Rsol, rRLdfin2Rsol); // squirrel away post CEE binary values (checks for post-CE RLOF, so should be done at end)
 
         if (m_RLOFDetails.immediateRLOFPostCEE == true && !OPTIONS->AllowImmediateRLOFpostCEToSurviveCommonEnvelope()) {// is there immediate post-CE RLOF which is not allowed?
             m_MassTransferTrackerHistory = MT_TRACKING::MERGER;

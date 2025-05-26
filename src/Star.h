@@ -215,8 +215,8 @@ public:
 
     void            ClearCurrentSNEvent()                                                                           { m_Star->ClearCurrentSNEvent(); }
 
-    ACCRETION_REGIME DetermineAccretionRegime(const bool p_HeRich,
-                                              const double p_DonorThermalMassLossRate)                              { return m_Star->DetermineAccretionRegime(p_HeRich, p_DonorThermalMassLossRate); }
+    ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorThermalMassLossRate,
+                                              const bool p_HeRich)                                                  { return m_Star->DetermineAccretionRegime(p_DonorThermalMassLossRate, p_HeRich); }
 
     ENVELOPE        DetermineEnvelopeType() const                                                                   { return m_Star->DetermineEnvelopeType(); }
 

@@ -1569,7 +1569,17 @@
 //                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the reference.
 //                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
 //                                      - Added variables for circularization timescale, synchronization timescales (for both stars), and all the tidal ImKnm potential Love numbers to BSE output.
+//  03.20.01    SS/NRS - May 26, 2025   - Enhancement:
+//                                      - Improvements to mass accretion for massive ONe WDs
+//                                          - Added ONe::CalculateMassAcceptanceRate
+//                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
+//                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
+//                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
+//                                          - Set merger on unstable RLOF from WD
+//
 
-const std::string VERSION_STRING = "03.20.00";
+
+const std::string VERSION_STRING = "03.20.01";
+
 
 # endif // __changelog_h__
