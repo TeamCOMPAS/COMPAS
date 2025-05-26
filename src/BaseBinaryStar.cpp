@@ -226,7 +226,7 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
 
     if (error != ERROR::NONE) {                                                                                                         // ok?
         m_EvolutionStatus   = EVOLUTION_STATUS::BINARY_ERROR;                                                                           // set evolutionary status
-        (void)PrintBinarySystemParameters();                                                                                            // no - print (log) binary system parameters
+        (void)PrintSystemParameters();                                                                                                  // no - print (log) binary system parameters
         THROW_ERROR(error);                                                                                                             // throw error - can't return it...
     }
     else {                                                                                                                              // yes - ok
@@ -398,9 +398,10 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_PhiE                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_PsiE                                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
-	m_SynchronizationTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
+	m_SynchronizationTimescale1                      = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_SynchronizationTimescale2                      = DEFAULT_INITIAL_DOUBLE_VALUE;
 	m_CircularizationTimescale                       = DEFAULT_INITIAL_DOUBLE_VALUE;
-
+    
 	// RLOF details
     m_RLOFDetails.experiencedRLOF                    = false;
     m_RLOFDetails.immediateRLOFPostCEE               = false;
@@ -473,6 +474,12 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.propsPostMT                        = &m_RLOFDetails.props1;
     m_RLOFDetails.propsPreMT                         = &m_RLOFDetails.props2;
 
+    // thresholds flags for system snapshot file
+    if (OPTIONS->SystemSnapshotAgeThresholds().size() > 0) {
+        m_SystemSnapshotAgeFlags1.assign(OPTIONS->SystemSnapshotAgeThresholds().size(), -1.0);
+        m_SystemSnapshotAgeFlags2.assign(OPTIONS->SystemSnapshotAgeThresholds().size(), -1.0);
+    }
+    if (OPTIONS->SystemSnapshotTimeThresholds().size() > 0) m_SystemSnapshotTimeFlags.assign(OPTIONS->SystemSnapshotTimeThresholds().size(), false);
 
     // pointers
 
@@ -625,11 +632,36 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE:              value = STELLAR_TYPE_LABEL.at(StellarType2PreCEE());                        break;
         case BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE:                    value = SN_OrbitInclinationAngle();                                         break;
         case BINARY_PROPERTY::SUPERNOVA_STATE:                                      value = SN_State();                                                         break;
-        case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE:                            value = SynchronizationTimescale();                                         break;
+        case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_1:                          value = SynchronizationTimescale1();                                        break;
+        case BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_2:                          value = SynchronizationTimescale2();                                        break;
         case BINARY_PROPERTY::SYSTEMIC_SPEED:                                       value = SystemicSpeed();                                                    break;
         case BINARY_PROPERTY::SYSTEMIC_VELOCITY_X:                                  value = SystemicVelocityX();                                                break;
         case BINARY_PROPERTY::SYSTEMIC_VELOCITY_Y:                                  value = SystemicVelocityY();                                                break;
         case BINARY_PROPERTY::SYSTEMIC_VELOCITY_Z:                                  value = SystemicVelocityZ();                                                break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_1:                     std::tie(value, std::ignore, std::ignore, std::ignore) = ImKnm1_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_1:                     std::tie(std::ignore, value, std::ignore, std::ignore) = ImKnm1_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_1:                     std::tie(std::ignore, std::ignore, value, std::ignore) = ImKnm1_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_1:                     std::tie(std::ignore, std::ignore, std::ignore, value) = ImKnm1_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_2:                     std::tie(value, std::ignore, std::ignore, std::ignore) = ImKnm2_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_2:                     std::tie(std::ignore, value, std::ignore, std::ignore) = ImKnm2_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_2:                     std::tie(std::ignore, std::ignore, value, std::ignore) = ImKnm2_tidal();    break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_2:                     std::tie(std::ignore, std::ignore, std::ignore, value) = ImKnm2_tidal();    break;        
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1:                  std::tie(value, std::ignore, std::ignore, std::ignore) = ImKnm1_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1:                  std::tie(std::ignore, value, std::ignore, std::ignore) = ImKnm1_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1:                  std::tie(std::ignore, std::ignore, value, std::ignore) = ImKnm1_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_1:                  std::tie(std::ignore, std::ignore, std::ignore, value) = ImKnm1_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2:                  std::tie(value, std::ignore, std::ignore, std::ignore) = ImKnm2_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2:                  std::tie(std::ignore, value, std::ignore, std::ignore) = ImKnm2_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2:                  std::tie(std::ignore, std::ignore, value, std::ignore) = ImKnm2_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2:                  std::tie(std::ignore, std::ignore, std::ignore, value) = ImKnm2_tidal_eq(); break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1:                 std::tie(value, std::ignore, std::ignore, std::ignore) = ImKnm1_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1:                 std::tie(std::ignore, value, std::ignore, std::ignore) = ImKnm1_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1:                 std::tie(std::ignore, std::ignore, value, std::ignore) = ImKnm1_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_1:                 std::tie(std::ignore, std::ignore, std::ignore, value) = ImKnm1_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2:                 std::tie(value, std::ignore, std::ignore, std::ignore) = ImKnm2_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2:                 std::tie(std::ignore, value, std::ignore, std::ignore) = ImKnm2_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2:                 std::tie(std::ignore, std::ignore, value, std::ignore) = ImKnm2_tidal_dyn();break;
+        case BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2:                 std::tie(std::ignore, std::ignore, std::ignore, value) = ImKnm2_tidal_dyn();break;
         case BINARY_PROPERTY::TIME:                                                 value = Time();                                                             break;
         case BINARY_PROPERTY::TIME_TO_COALESCENCE:                                  value = TimeToCoalescence();                                                break;
         case BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM:                               value = TotalAngularMomentum();                                             break;
@@ -1039,20 +1071,20 @@ void BaseBinaryStar::ResolveCoalescence() {
  * Zahn, 1977, Eq. (3.7)
  *
  *
- * double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ * double CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star)
  *
- * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_ImKnm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
  * @param   [IN]    p_Star                      Star for which impact on eccentricity is to be calculated
  * @return                                      Change in Eccentricity for binary (1/yr)
  */    
-double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star) {
     
     double massStar      = p_Star->Mass();
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
 
     double ImK10, ImK12, ImK22, ImK32;
-    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
@@ -1068,20 +1100,20 @@ double BaseBinaryStar::CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImK
  * Zahn, 1977, Eq. (3.8)
  *
  *
- * double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ * double CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star)
  *
- * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_ImKnm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
  * @param   [IN]    p_Star                      Star for which impact on spin is to be calculated
  * @return                                      Change in Omega for star (1/yr/yr)
  */    
-double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star) {
  
     double MoIstar       = p_Star->CalculateMomentOfInertiaAU();
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
 
     double ImK10, ImK12, ImK22, ImK32;
-    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
@@ -1099,20 +1131,20 @@ double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, con
  * Zahn, 1977, Eq. (3.6)
  *
  *
- * double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star)
+ * double CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star)
  *
- * @param   [IN]    p_ImKlm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
+ * @param   [IN]    p_ImKnm                     Imaginary [(1,0), (1,2), (2,2), (3,2)] components of the potential tidal Love number of star (unitless)
  * @param   [IN]    p_Star                      Star for which impact on semi-major axis is to be calculated
  * @return                                      Change in semi-major axis for binary (AU/yr)
  */    
-double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star) {
+double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star) {
     
     double massStar      = p_Star->Mass();
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
     
     double ImK10, ImK12, ImK22, ImK32;
-    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKlm;
+    std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
@@ -2701,35 +2733,44 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                     
             } break;
         
-            case TIDES_PRESCRIPTION::KAPIL2024: {                                                                               // KAPIL2024
+            case TIDES_PRESCRIPTION::KAPIL2025: {                                                                               // KAPIL2025
 
-                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2024
+                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2025
 
-                DBL_DBL_DBL_DBL ImKlm1   = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
-                DBL_DBL_DBL_DBL ImKlm2   = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
+                DBL_DBL_DBL_DBL ImKnm1_tidal   = m_Star1->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
+                DBL_DBL_DBL_DBL ImKnm2_tidal   = m_Star2->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
 
-                double DSemiMajorAxis1Dt = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);                                                                        // change in semi-major axis from star1
-                double DSemiMajorAxis2Dt = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);                                                                        // change in semi-major axis from star2
+                double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKnm1_tidal, m_Star1);                                                                        // change in semi-major axis from star1
+                double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKnm2_tidal, m_Star2);                                                                        // change in semi-major axis from star2
 
-                double DEccentricity1Dt  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);                                                                         // change in eccentricity from star1
-                double DEccentricity2Dt  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);                                                                         // change in eccentricity from star2
+                double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKnm1_tidal, m_Star1);                                                                         // change in eccentricity from star1
+                double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKnm2_tidal, m_Star2);                                                                         // change in eccentricity from star2
 
-                double DOmega1Dt         = CalculateDOmegaTidalDt(ImKlm1, m_Star1);                                                                                // change in spin from star1
-                double DOmega2Dt         = CalculateDOmegaTidalDt(ImKlm2, m_Star2);                                                                                // change in spin from star2
+                double DOmega1Dt_tidal         = CalculateDOmegaTidalDt(ImKnm1_tidal, m_Star1);                                                                                // change in spin from star1
+                double DOmega2Dt_tidal         = CalculateDOmegaTidalDt(ImKnm2_tidal, m_Star2);                                                                                // change in spin from star2
                                 
                 // limit change in stellar and orbital properties from tides to a maximum fraction of the current value
                 double fraction_tidal_change = 1.0;
-                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega1Dt * p_Dt * MYR_TO_YEAR)));
-                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega2Dt * p_Dt * MYR_TO_YEAR)));
-                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR)));
-                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR)));
                
-                m_Star1->SetOmega(m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt * p_Dt * MYR_TO_YEAR));                                                    // evolve star 1 spin
-                m_Star2->SetOmega(m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt * p_Dt * MYR_TO_YEAR));                                                    // evolve star 2 spin
-                m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt + DSemiMajorAxis2Dt) * p_Dt * MYR_TO_YEAR);               // evolve separation
-                m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt + DEccentricity2Dt) * p_Dt * MYR_TO_YEAR);                  // evolve eccentricity
+                m_Star1->SetOmega(m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 1 spin
+                m_Star2->SetOmega(m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 2 spin
+                m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR);         // evolve separation
+                m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR);            // evolve eccentricity
                 
-                m_TotalAngularMomentum   = CalculateAngularMomentum();                                                                                             // re-calculate angular momenta
+                m_CircularizationTimescale  = - m_Eccentricity /  (DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * YEAR_TO_MYR;                                       // Circularization timescale in Myr (for output files)
+                m_CircularizationTimescale  =   (std::isnan(m_CircularizationTimescale) || std::isinf(m_CircularizationTimescale))? 0.0 : m_CircularizationTimescale;    // check for NaN or Inf for circular binaries
+                
+                m_SynchronizationTimescale1 = - (m_Star1->Omega() - omega) / DOmega1Dt_tidal * YEAR_TO_MYR;                                                              // Synchronization timescale for Star1 in Myr (for output files)
+                m_SynchronizationTimescale1 =   (std::isnan(m_SynchronizationTimescale1) || std::isinf(m_SynchronizationTimescale1))? 0.0 : m_SynchronizationTimescale1; // check for NaN or Inf for synchronized binaries
+                
+                m_SynchronizationTimescale2 = - (m_Star2->Omega() - omega) / DOmega2Dt_tidal * YEAR_TO_MYR;                                                              // Synchronization timescale for Star2 in Myr (for output files)
+                m_SynchronizationTimescale2 =   (std::isnan(m_SynchronizationTimescale2) || std::isinf(m_SynchronizationTimescale2))? 0.0 : m_SynchronizationTimescale2; // check for NaN or Inf for synchronized binaries
+
+                m_TotalAngularMomentum   = CalculateAngularMomentum();                                                                                                      // re-calculate angular momenta
                 m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
 
             } break;
@@ -2995,30 +3036,30 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }
     
-        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2024) {                // tides prescription = KAPIL2024
+        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2025) {                // tides prescription = KAPIL2025
                                                                                             // yes - need to adjust dt     
             double omega                  = OrbitalAngularVelocity();
             
-            DBL_DBL_DBL_DBL ImKlm1        = m_Star1->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
-            DBL_DBL_DBL_DBL ImKlm2        = m_Star2->CalculateImKlmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
+            DBL_DBL_DBL_DBL ImKnm1_tidal                = m_Star1->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
+            DBL_DBL_DBL_DBL ImKnm2_tidal                = m_Star2->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
 
-            double DSemiMajorAxis1DtTidal = CalculateDSemiMajorAxisTidalDt(ImKlm1, m_Star1);
-            double DSemiMajorAxis2DtTidal = CalculateDSemiMajorAxisTidalDt(ImKlm2, m_Star2);
+            double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKnm1_tidal, m_Star1);
+            double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKnm2_tidal, m_Star2);
 
-            double DEccentricity1DtTidal  = CalculateDEccentricityTidalDt(ImKlm1, m_Star1);
-            double DEccentricity2DtTidal  = CalculateDEccentricityTidalDt(ImKlm2, m_Star2);
+            double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKnm1_tidal, m_Star1);
+            double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKnm2_tidal, m_Star2);
                                                         
-            double DOmega1Dt_tidal        = CalculateDOmegaTidalDt(ImKlm1, m_Star1);
-            double DOmega2Dt_tidal        = CalculateDOmegaTidalDt(ImKlm2, m_Star2);
+            double DOmega1Dt_tidal        = CalculateDOmegaTidalDt(ImKnm1_tidal, m_Star1);
+            double DOmega2Dt_tidal        = CalculateDOmegaTidalDt(ImKnm2_tidal, m_Star2);
                                                                     
             // Ensure that the change in orbital and spin properties due to tides in a single timestep is constrained (to 1 percent by default)
             // Limit the spin evolution of each star based on the orbital frequency rather than its spin frequency, since tides should not cause major problems until synchronization. 
-            double Dt_SemiMajorAxis1Tidal = utils::Compare(DSemiMajorAxis1DtTidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis1DtTidal) * YEAR_TO_MYR;
-            double Dt_SemiMajorAxis2Tidal = utils::Compare(DSemiMajorAxis2DtTidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis2DtTidal) * YEAR_TO_MYR;
+            double Dt_SemiMajorAxis1Tidal = utils::Compare(DSemiMajorAxis1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis1Dt_tidal) * YEAR_TO_MYR;
+            double Dt_SemiMajorAxis2Tidal = utils::Compare(DSemiMajorAxis2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / DSemiMajorAxis2Dt_tidal) * YEAR_TO_MYR;
             double Dt_SemiMajorAxisTidal  = std::min(Dt_SemiMajorAxis1Tidal, Dt_SemiMajorAxis2Tidal);
 
-            double Dt_Eccentricity1Tidal  = utils::Compare(DEccentricity1DtTidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity1DtTidal) * YEAR_TO_MYR;
-            double Dt_Eccentricity2Tidal  = utils::Compare(DEccentricity2DtTidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity2DtTidal) * YEAR_TO_MYR;
+            double Dt_Eccentricity1Tidal  = utils::Compare(DEccentricity1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity1Dt_tidal) * YEAR_TO_MYR;
+            double Dt_Eccentricity2Tidal  = utils::Compare(DEccentricity2Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / DEccentricity2Dt_tidal) * YEAR_TO_MYR;
             double Dt_EccentricityTidal   = std::min(Dt_Eccentricity1Tidal, Dt_Eccentricity2Tidal);
 
             double Dt_Omega1Tidal         = utils::Compare(DOmega1Dt_tidal, 0.0) == 0 ? dt : std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * omega / DOmega1Dt_tidal) * YEAR_TO_MYR;
@@ -3101,7 +3142,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
 
         CalculateEnergyAndAngularMomentum();                                                                            // perform energy and angular momentum calculations
-    
+        
         ProcessTides(p_Dt);                                                                                             // process tides if required
 
         // assign new values to "previous" values, for following timestep
@@ -3363,6 +3404,46 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
                 (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);                                          // print (log) detailed output: this is after all changes made in the timestep
 
+                // check thresholds for system snapshot printing
+                // don't use utils::Compare() here - not for time/age
+
+                bool printSysSnapshotRec = false;                                                                                       // so we only print this timestep once
+                
+                // age threshold
+                // we print a record each timestep that either star crosses the threshold from below
+                // notes:
+                //    (a) the age of individual stars can drop for various reasons (phase change, rejuvenation, winds/mass transfer, etc.),
+                //        and if the age of a star drops below an age threshold, we will log another record if that star then ages beyond
+                //        the same threshold (so we might log several records for the same star crossing the same threshold if the age of
+                //        the star oscillates around the threshold)
+                //    (b) we will print multiple records for exceeding the age threshold if the constituent stars exceed the age threshold
+                //        at different timesteps (likely)
+                for (size_t threshold = 0; threshold < OPTIONS->SystemSnapshotAgeThresholds().size(); threshold++) {                    // for each system snapshot age threshold
+
+                    double thresholdValue = OPTIONS->SystemSnapshotAgeThresholds(threshold);                                            // this threshold value
+      
+                    // flag need to print (log) system snapshot record
+                    // we don't want to print multiple records for the same timestep, so we flag need rather than print here
+                    printSysSnapshotRec |= m_SystemSnapshotAgeFlags1[threshold] < 0.0 && m_Star1->Age() >= thresholdValue;              // star1
+                    printSysSnapshotRec |= m_SystemSnapshotAgeFlags2[threshold] < 0.0 && m_Star2->Age() >= thresholdValue;              // star2
+
+                    // record the current age of the stars in the threshold flag - this is how we check for re-crossing a threshold
+                    // if the age of a star has dropped below the threshold value, we reset the threshold flag for that star
+                    // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
+                    m_SystemSnapshotAgeFlags1[threshold] = (m_Star1->Age() < thresholdValue) ? -1.0 : m_Star1->Age();
+                    m_SystemSnapshotAgeFlags2[threshold] = (m_Star2->Age() < thresholdValue) ? -1.0 : m_Star2->Age();
+                }
+
+                // time threshold
+                // we print a record at the first timestep that the simulation time exceeds the time threshold
+                for (size_t threshold = 0; threshold < OPTIONS->SystemSnapshotTimeThresholds().size(); threshold++) {                   // for each system snapshot time threshold
+                    if (!m_SystemSnapshotTimeFlags[threshold] && Time() >= OPTIONS->SystemSnapshotTimeThresholds(threshold)) {          // need to action?
+                        m_SystemSnapshotTimeFlags[threshold] = true;                                                                    // yes, flag action taken
+                        printSysSnapshotRec                  = true;                                                                    // flag need to print (log) system snapshot record
+                    }
+                }
+
+                if (printSysSnapshotRec) (void)PrintSystemSnapshotLog();                                                                // print (log) system snapshot record if necessary
 
                 if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                    // continue evolution?
                                                                                                                                         // yes
@@ -3448,7 +3529,7 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     m_EvolutionStatus = evolutionStatus;
 
-    (void)PrintBinarySystemParameters();                                                                                                // print (log) binary system parameters
+    (void)PrintSystemParameters();                                                                                                      // print (log) binary system parameters
 
     return evolutionStatus;
 }

@@ -40,18 +40,20 @@ Log file definitions file specification
 
     <rec_spec>   ::= <rec_name> <op> "{" { [ <props_list> ] } "}" <spec_delim>
 
-    <rec_name>   ::= "SSE_SYSPARMS_REC"    |   # SSE only
-                     "SSE_DETAILED_REC"    |   # SSE only
-                     "SSE_SNE_REC"         |   # SSE only
-                     "SSE_SWITCH_REC"      |   # SSE only
-                     "BSE_SYSPARMS_REC"    |   # BSE only
-                     "BSE_SWITCH_REC"      |   # BSE only
-                     "BSE_DCO_REC"         |   # BSE only
-                     "BSE_SNE_REC"         |   # BSE only
-                     "BSE_CEE_REC"         |   # BSE only
-                     "BSE_PULSARS_REC"     |   # BSE only
-                     "BSE_RLOF_REC"        |   # BSE only
-                     "BSE_DETAILED_REC"    |   # BSE only
+    <rec_name>   ::= "SSE_SYSPARMS_REC"     |   # SSE only
+                     "SSE_DETAILED_REC"     |   # SSE only
+                     "SSE_SYS_SNAPSHOT_REC" |   # SSE only
+                     "SSE_SNE_REC"          |   # SSE only
+                     "SSE_SWITCH_REC"       |   # SSE only
+                     "BSE_SYSPARMS_REC"     |   # BSE only
+                     "BSE_SWITCH_REC"       |   # BSE only
+                     "BSE_DCO_REC"          |   # BSE only
+                     "BSE_SNE_REC"          |   # BSE only
+                     "BSE_CEE_REC"          |   # BSE only
+                     "BSE_PULSARS_REC"      |   # BSE only
+                     "BSE_RLOF_REC"         |   # BSE only
+                     "BSE_DETAILED_REC"     |   # BSE only
+                     "BSE_SYS_SNAPSHOT_REC" |   # BSE only
    
     <op>         ::= "=" | "+=" | "-="
 
