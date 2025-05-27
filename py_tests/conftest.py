@@ -4,8 +4,8 @@ from typing import Any, Dict
 import subprocess
 import h5py
 import pytest
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import \
-    generate_mock_bbh_population_file
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import \
+    generate_mock_population
 
 HERE = os.path.dirname(__file__)
 TEST_CONFIG_DIR = os.path.join(HERE, "test_data")
@@ -58,7 +58,7 @@ def get_compas_data(path: str) -> Dict[str, Any]:
 @pytest.fixture
 def fake_compas_output(tmpdir) -> str:
     fname = f"{tmpdir}/COMPAS_mock_output.h5"
-    generate_mock_bbh_population_file(
+    generate_mock_population(
         filename=fname,
     )
     return fname
