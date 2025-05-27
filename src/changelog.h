@@ -1537,7 +1537,49 @@
 //  03.18.00    JR - Apr 14, 2025   - Enhancement:
 //                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
 //                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
+//  03.18.01    AB - Apr 28, 2025   - Defect repair:
+//                                      - Updated coefficients from Shikauchi et al. (2024) for main-sequence core mass calculations
+//                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
+//  03.18.02    IM - May 1, 2025    - Enhancement:
+//                                      - Added several outputs to the BSE and SSE Switch logs necessary for inter-run post-processing comparisons
+//                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
+//  03.18.03    IM - May 2, 2025    - Defect repair:
+//                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
+//  03.18.04    IM - May 4, 2025    - Defect repair:
+//                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
+//  03.18.05    JR - May 8, 2025    - Defect repair:
+//                                      - Fix for issue #1378: reinstate "false" fallback option for `kick-magnitude-random*` options (mistakenly changed to "true" in v03.00.00)
+//  03.18.06    IM - May 9, 2025    - Enhancement, defect repair:
+//                                      - Added several outputs to provide more information and aid code testing: SEMI_MAJOR_AXIS_POST_STAGE_1_CE (for the 2-stage CE); BINDING_ENERGY_CONVECTIVE_ENVELOPE, CONVECTIVE_ENV_MASS, LAMBDA_CONVECTIVE_ENVELOPE (convective envelope binding energy,  mass, and lambda, respectively, Picker prescription)
+//                                      - Ensure that the MANDEL main sequence core mass prescription never provides a core mass exceeding the total mass
+//                                      - Corrected several erroneous comments, cleaned up a few function definitions
+//  03.18.07    IM - May 11, 2025   - Defect repair:
+//                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
+//  03.19.00    JR - May 21, 2025   - Enhancement:
+//                                      - Added functionality to create new System Snapshot logfile
+//                                        Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set
+//                                        by new program options (see below).  New program options added:
+//                                           --logfile-system-snapshot-log: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log")
+//                                           --logfile-system-snapshot-log-record-types: specifies the enabled record types for System Snapshot logfile (default is all types)
+//                                           --system-snapshot-age-thresholds: specifies the age thresholds for System Snapshot logfile
+//                                           --system-snapshot-time-thresholds: specifies the time thresholds for System Snapshot logfile
+//                                      - Removed stashing to SSE SNe file - printing is now done directly (stashing no longer required since we now don't save/revert).
+//                                        I was going to remove the save/revert state functions - we don't need them (we have clone functions), but I left them in for now (just in case we find a need...).
+//  03.20.00    VK - May 25, 2025   - Enhancement, Defect repair:
+//                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the reference.
+//                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
+//                                      - Added variables for circularization timescale, synchronization timescales (for both stars), and all the tidal ImKnm potential Love numbers to BSE output.
+//  03.20.01    SS/NRS - May 26, 2025   - Enhancement:
+//                                      - Improvements to mass accretion for massive ONe WDs
+//                                          - Added ONe::CalculateMassAcceptanceRate
+//                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
+//                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
+//                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
+//                                          - Set merger on unstable RLOF from WD
+//
 
-const std::string VERSION_STRING = "03.18.00";
+
+const std::string VERSION_STRING = "03.20.01";
+
 
 # endif // __changelog_h__

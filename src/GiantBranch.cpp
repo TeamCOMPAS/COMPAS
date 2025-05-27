@@ -692,17 +692,8 @@ double GiantBranch::CalculateRemnantRadius() const {
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
     double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
     std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
-    if (utils::Compare(convectiveEnvelopeMass, 0.0) <= 0 || utils::Compare(convectiveEnvelopeMassMax, 0.0) <= 0 ) return 0.0;   // massless convective envelope has zero radial extent
-    
-    double convectiveCoreMass   = CalculateConvectiveCoreMass();
-    double convectiveCoreRadius = CalculateConvectiveCoreRadius();
-    // assume that the final radiative intershell (if any) would have a density that is a geometric mean of the core density and total density
-    double radiativeIntershellMass           = m_Mass - convectiveCoreMass - convectiveEnvelopeMassMax;
-    double convectiveCoreRadiusCubed         = convectiveCoreRadius * convectiveCoreRadius * convectiveCoreRadius;
-    double radiativeIntershellDensity        = 1.0 / (4.0 /3.0 * M_PI) * std::sqrt(convectiveCoreMass / convectiveCoreRadiusCubed * m_Mass / m_Radius / m_Radius / m_Radius);
-    double outerEdgeRadiativeIntershellCubed = radiativeIntershellMass / (4.0 / 3.0 * M_PI * radiativeIntershellDensity) + convectiveCoreRadiusCubed;
-    
-    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - std::cbrt(outerEdgeRadiativeIntershellCubed));
+    if (utils::Compare(convectiveEnvelopeMass, 0.0) <= 0 || utils::Compare(convectiveEnvelopeMassMax, 0.0) <= 0 ) return 0.0;   // massless convective envelope has zero radial extent        
+    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - CalculateConvectiveCoreRadius());
 }
 
 
@@ -2265,14 +2256,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             if (!utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR }))
                 m_SupernovaDetails.rocketKickMagnitude = 0;                                         // only NSs can get rocket kicks
 
-            // Stash SN details for later printing to the SSE Supernova log.
+            // Print SN details to the SSE Supernova log.
             // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
-            // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
-            // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
-            // Need to record the stellar type to which the star will switch if we don't revert state.
-
-            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT)
-                StashSupernovaDetails(stellarType);
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
+                PrintSupernovaDetails();
+            }
        }
     }
 

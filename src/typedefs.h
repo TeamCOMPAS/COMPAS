@@ -927,11 +927,11 @@ const COMPASUnorderedMap<STELLAR_POPULATION, std::string> STELLAR_POPULATION_LAB
 };
 
 // tides prescriptions
-enum class TIDES_PRESCRIPTION: int { NONE, PERFECT, KAPIL2024 };
+enum class TIDES_PRESCRIPTION: int { NONE, PERFECT, KAPIL2025 };
 const COMPASUnorderedMap<TIDES_PRESCRIPTION, std::string> TIDES_PRESCRIPTION_LABEL = {
     { TIDES_PRESCRIPTION::NONE,      "NONE" },
     { TIDES_PRESCRIPTION::PERFECT,   "PERFECT" },
-    { TIDES_PRESCRIPTION::KAPIL2024, "KAPIL2024" }
+    { TIDES_PRESCRIPTION::KAPIL2025, "KAPIL2025" }
 };
 
 // symbolic names for timescales
@@ -1257,6 +1257,7 @@ typedef struct BinaryCEESavedValues {
    	double rocheLobe1to2;
 	double rocheLobe2to1;
     double semiMajorAxis;
+    double semiMajorAxisAfterStage1;
 } BinaryCEESavedValuesT;
 
 // JR: add descriptive comments
@@ -1296,7 +1297,6 @@ typedef struct StellarCEDetails {                           // Common Envelope d
     double                 lambda;
     double                 convectiveEnvelopeMass;          // for two-stage CE formalism
     double                 radiativeIntershellMass;         // for two-stage CE formalism
-    double                 convectiveEnvelopeBindingEnergy; // for two-stage CE formalism
 } StellarCEDetailsT; // was CommonEnvelopeDetailsT;
 
 

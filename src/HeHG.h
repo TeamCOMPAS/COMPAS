@@ -69,13 +69,19 @@ protected:
             double          CalculateCoreMassOnPhase() const                                                        { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
-            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return HURLEY_HJELLMING_WEBBINK_QCRIT_HE_GIANT; }
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
+    
+            double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                                          { return 0.0; }
+            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 0.0; }
+            
+            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return 0.0; }
+            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; }
 
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
             double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }        // 0.0 are dummy values that are not used

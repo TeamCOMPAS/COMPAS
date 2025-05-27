@@ -70,12 +70,18 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //       grid line
 //
 //    2. if 'fallback' is 'true':
-//           the value specified on the commandline IFF the user did not specify the 
-//           option on the grid line but did specify the option on the commandline
+//           the value specified on the commandline if the user did not specify the 
+//           option on the grid line (regardless of whether they specified the option
+//           on the commandline).  In this case, if the user did not speify a value on
+//           the commandline, the commandline value is set according to the default
+//           behaviour for the option, and the grid line value is set from that.  Note
+//           that for options whose default behaviours is to draw a random number, this
+//           will only be done once for the commandline value, and each grid line that
+//           falls back to the commandline will take the same value as the commandline.
+//           Consider using 'fallback' = 'false' for those cases.
+//
 //       else if 'fallback' is 'false':
 //           the default value for the option
-//
-//    3. the default value for the option
 //
 // For most options we will use
 //
@@ -216,10 +222,11 @@ private:
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",          "GE20",    "GE",      false },
-        { "critical-mass-ratio-prescription",          "GE20_IC", "GE_IC",   false },
-        { "pulsational-pair-instability-prescription", "COMPAS",  "WOOSLEY", false},
-	    { "pulsar-birth-spin-period-distribution",     "ZERO",    "NOSPIN",  false }
+        { "critical-mass-ratio-prescription",          "GE20",      "GE",        false },
+        { "critical-mass-ratio-prescription",          "GE20_IC",   "GE_IC",     false },
+        { "pulsational-pair-instability-prescription", "COMPAS",    "WOOSLEY",   false },
+	    { "pulsar-birth-spin-period-distribution",     "ZERO",      "NOSPIN",    false },
+        { "tides-prescription",                        "KAPIL2024", "KAPIL2025", false }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
@@ -280,15 +287,18 @@ private:
 
         // trying to keep entries alphabetical so easier to find specific entries
 
-        // option name            default allowed   default value type   default value
-        { "debug-classes",        false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many classes to specify
+        // option name                       default allowed   default value type   default value
+        { "debug-classes",                   false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many classes to specify
 
-        { "log-classes",          false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many classes to specify
+        { "log-classes",                     false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many classes to specify
 
-        { "notes",                true,             TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // allow defaults - number of notes is 0..#notes-hdrs
-        { "notes-hdrs",           false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) },                   // don't allow defaults - we don't know how many headers to specify
+        { "notes",                           true,             TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // allow defaults - number of notes is 0..#notes-hdrs
+        { "notes-hdrs",                      false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many headers to specify
 
-        { "timestep-multipliers", true,             TYPENAME::DOUBLE,    ShorthandDefault_t(1.0) }                              // allow defaults - number of multipliers is the number of stellar types
+        { "timestep-multipliers",            true,             TYPENAME::DOUBLE,    ShorthandDefault_t(1.0) },           // allow defaults - number of multipliers is the number of stellar types
+
+        { "system-snapshot-age-thresholds",  false,            TYPENAME::DOUBLE,    ShorthandDefault_t(-1.0) },         // don't allow defaults - no need
+        { "system-snapshot-time-thresholds", false,            TYPENAME::DOUBLE,    ShorthandDefault_t(-1.0) }          // don't allow defaults - no need
     };
 
 
@@ -350,6 +360,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -611,6 +623,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -660,6 +674,8 @@ private:
         "stellar-zeta-prescription",
         "store-input-files",
         "switch-log",
+        "system-snapshot-age-thresholds",
+        "system-snapshot-time-thresholds",
 
         "tides-prescription",
 
@@ -722,6 +738,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -747,6 +765,8 @@ private:
 
         "store-input-files",
         "switch-log",
+        "system-snapshot-age-thresholds",
+        "system-snapshot-time-thresholds",
 
         "timesteps-filename",
         "timestep-multipliers",
@@ -812,6 +832,9 @@ public:
             bool                                                m_PrintBoolAsString;                                            // Flag used to indicate that boolean properties should be printed as "TRUE" or "FALSE" (default is 1 or 0)
             bool                                                m_Quiet;                                                        // Suppress some output
             bool                                                m_RlofPrinting;                                                 // RLOF printing
+
+            DBL_VECTOR                                          m_SystemSnapshotAgeThresholds;                                  // System age thresholds for logging to system snapshot file
+            DBL_VECTOR                                          m_SystemSnapshotTimeThresholds;                                 // Simulation time thresholds for logging to system snapshot file
 
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
 
@@ -1156,6 +1179,7 @@ public:
             ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
             std::string                                         m_LogfileSystemParameters;                                      // output file name: system parameters
+            std::string                                         m_LogfileSystemSnapshotLog;                                     // output file name: system snapshot
             std::string                                         m_LogfileDetailedOutput;                                        // output file name: detailed output
             std::string                                         m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
             std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
@@ -1165,6 +1189,7 @@ public:
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
             int                                                 m_LogfileSystemParametersRecordTypes;                           // enabled record types: system parameters
+            int                                                 m_LogfileSystemSnapshotLogRecordTypes;                          // enabled record types: system snapshot
             int                                                 m_LogfileDetailedOutputRecordTypes;                             // enabled record types: detailed output
             int                                                 m_LogfileDoubleCompactObjectsRecordTypes;                       // enabled record types: double compact objects
             int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
@@ -1462,9 +1487,9 @@ public:
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
 
-    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, true); }
-    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, true); }
-    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
+    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
+    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
+    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, false); }
 
     STR_VECTOR                                  LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
@@ -1506,6 +1531,14 @@ public:
                                                                                                                                         : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
+    std::string                                 LogfileSystemSnapshotLog() const                                        { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-snapshot-log"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSystemSnapshotLog
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG))
+                                                                                                                                      );
+                                                                                                                        }
+    int                                         LogfileSystemSnapshotLogRecordTypes() const                             { return m_CmdLine.optionValues.m_LogfileSystemSnapshotLogRecordTypes; }
     std::string                                 LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSystemParameters
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1514,6 +1547,7 @@ public:
                                                                                                                                       );
                                                                                                                         }
     int                                         LogfileSystemParametersRecordTypes() const                              { return m_CmdLine.optionValues.m_LogfileSystemParametersRecordTypes; }
+
     LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
     std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
@@ -1684,10 +1718,14 @@ public:
     double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, true); }
     double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, true); }
 
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
-    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
+    double                                      SystemSnapshotAgeThresholds(const size_t p_Idx) const                   { return OPT_VALUE("system-snapshot-age-thresholds", m_SystemSnapshotAgeThresholds[p_Idx], true); }
+    DBL_VECTOR                                  SystemSnapshotAgeThresholds() const                                     { return OPT_VALUE("system-snapshot-age-thresholds", m_SystemSnapshotAgeThresholds, true); }
+    double                                      SystemSnapshotTimeThresholds(const size_t p_Idx) const                  { return OPT_VALUE("system-snapshot-time-thresholds", m_SystemSnapshotTimeThresholds[p_Idx], true); }
+    DBL_VECTOR                                  SystemSnapshotTimeThresholds() const                                    { return OPT_VALUE("system-snapshot-time-thresholds", m_SystemSnapshotTimeThresholds, true); }
 
     TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 

@@ -31,7 +31,8 @@ public:
 
     MT_CASE         DetermineMassTransferTypeAsDonor() const                                { return MT_CASE::OTHER; }                                  // Not A, B, C, or NONE
 
-
+    ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorThermalMassLossRate, const bool p_HeRich);                                            // Get the current accretion regime. Can also change m_HeShellDetonation and m_OffCenterIgnition flags.
+    
     void            ResolveShellChange(const double p_AccretedMass);
 
 
@@ -54,6 +55,8 @@ protected:
                                                       const bool   p_DonorIsGiant,
                                                       const double p_DonorThermalMassLossRate,
                                                       const double p_MassLostByDonor);
+
+            double           CalculateCriticalMassRatioHurleyHjellmingWebbink() const       { return HURLEY_HJELLMING_WEBBINK_QCRIT_WD; }
         
             double           CalculateCOCoreMassOnPhase() const                             { return m_COCoreMass; }                                    // NO-OP
 
@@ -71,10 +74,10 @@ protected:
 
             double           CalculateEtaPTY(const double p_MassIntakeRate);
 
-            double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? 1995262.3 : 31622.8; }    // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
+            double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? L0_RITTER_HIGH_Z : L0_RITTER_LOW_Z; }
 
-    virtual DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                         const bool   p_IsHeRich)           { return std::make_tuple(0.0, 0.0); }
+            DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                         const bool   p_IsHeRich);          
             DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                          const double p_AccretorMassRate,
                                                          const bool   p_IsHeRich)           { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }

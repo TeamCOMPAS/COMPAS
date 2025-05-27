@@ -13,8 +13,8 @@
 
 // common type definitions
 // easiest way of making them available globally is to put them here
-typedef std::vector<std::string> STR_VECTOR;
-typedef std::vector<double> DBL_VECTOR;
+typedef std::vector<std::string>                                        STR_VECTOR;
+typedef std::vector<double>                                             DBL_VECTOR;
 typedef std::vector<int>                                                INT_VECTOR;
 typedef std::vector<bool>                                               BOOL_VECTOR;
 typedef std::tuple <double, double>                                     DBL_DBL;
@@ -23,10 +23,11 @@ typedef std::tuple <double, double, double, double>                     DBL_DBL_
 typedef std::tuple<std::string, std::string>                            STR_STR;
 typedef std::tuple<std::string, std::string, std::string>               STR_STR_STR;
 typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
+
 typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR> GE_QCRIT_TABLE; 
-typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR_HE;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE> GE_QCRIT_TABLE_HE; 
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR>             GE_QCRIT_TABLE; 
+typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>>                 GE_QCRIT_RADII_QCRIT_VECTOR_HE;
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE>          GE_QCRIT_TABLE_HE; 
 
 
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
@@ -292,7 +293,7 @@ constexpr int    TIDES_OMEGA_MAX_TRIES                  = 30;                   
 constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 50;                                                       // Maximum number of root finder iterations in BaseBinaryStar::OmegaAfterCircularisation()
 constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 constexpr double TIDES_MINIMUM_FRACTIONAL_EXTENT        = 1.0E-4;                                                   // Minimum fractional radius or mass of the stellar core or envelope, above which a given tidal dissipation mechanism is considered applicable
-constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2024 tides in a single timestep - 1% expressed as a fraction
+constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2025 tides in a single timestep - 1% expressed as a fraction
 constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME  = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
 
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
@@ -426,20 +427,55 @@ constexpr double HEWD_HE_MDOT_CRIT                      = 2.0E-8;               
 constexpr double HEWD_MINIMUM_MASS_IGNITION             = 0.35;                                                     // Minimum mass for HeMS burning
 constexpr double MASS_DOUBLE_DETONATION_CO              = 0.9;                                                      // Minimum mass for detonation which would yield something similar to SN Ia. Ruiter+ 2014.
 constexpr double Q_HYDROGEN_BURNING                     = 6.4E18 * MSOL_TO_G / (SECONDS_IN_YEAR * LSOL);            // 6.4E18 is the energy yield of H burning in erg/g as given in Nomoto+ 2007 (2007ApJ...663.1269N)
+constexpr double L0_RITTER_HIGH_Z                       = 1995262.3;                                                // Luminosity constant which depends on metallicity in Ritter 1999, eq 10
+constexpr double L0_RITTER_LOW_Z                        = 31622.8;
 constexpr double WD_HE_SHELL_MCRIT_DETONATION           = 0.05;                                                     // Minimum shell mass of He for detonation. Should be composed of helium (so, exclude burnt material), but not implemented yet. Ruiter+ 2014.
-constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0      = -6.84;
-constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1      = 1.349;
-constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0      = -8.115;
-constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1      = 2.29;
-constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0      = -8.313;
-constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1      = 1.018;
-constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0      = -8.33017155;
-constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1      = 2.88247131;
-constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2      = -0.98023471;
-constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.21757267;
-constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.57319872;
-constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2137735;
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0      = -6.84;                                                    // Constant from Piersanti et al. 2014 see Table A1
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1      = 1.349;                                                    // Constant from Piersanti et al. 2014 see Table A1
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0      = -8.115;                                                   // Constant from Piersanti et al. 2014 see Table A1
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1      = 2.29;                                                     // Constant from Piersanti et al. 2014 see Table A1
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0      = -8.313;                                                   // Constant from Piersanti et al. 2014 see Table A1
+constexpr double WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1      = 1.018;                                                    // Constant from Piersanti et al. 2014 see Table A1
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0      = -8.3302;                                                  // Quadratic fit to results from Nomoto et al. 2007 Table 5
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1      = 2.8825;                                                   // Quadratic fit to results from Nomoto et al. 2007 Table 5
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2      = -0.9802;                                                  // Quadratic fit to results from Nomoto et al. 2007 Table 5
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_0        = -9.2176;                                                  // Quadratic fit to results from Nomoto et al. 2007 Table 5
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_1        = 3.5732;                                                   // Quadratic fit to results from Nomoto et al. 2007 Table 5
+constexpr double WD_LOG_MT_LIMIT_NOMOTO_STABLE_2        = -1.2138;                                                  // Quadratic fit to results from Nomoto et al. 2007 Table 5
+constexpr double WD_MP                                  = 5.7E-4;                                                   // White dwarf mass parameter determining where mass-radius relation changes for low-mass white dwarfs
+constexpr double WD_BELCZYNSKI_SN_CONSTANT              = 1.34;                                                     // Constant from Eq 62, Belczynski+ 2008
+constexpr double WD_BELCZYNSKI_SN_LINEAR                = 4.0E8;                                                    // Linear term factor from Eq 62, Belczynski+ 2008
+constexpr double WD_BELCZYNSKI_IMMEDIATE_FLASH          = 1.64E-6;                                                  // Accretion limit from eq 61, Belczynski+ 2008.
+constexpr double WD_BELCZYNSKI_MINIMUM_HE_CONSTANT      = 0.13;                                                     // Constant from Eq 61, Belczynski+ 2008
+constexpr double WD_BELCZYNSKI_MINIMUM_HE_LINEAR        = 7.8E-4;                                                   // Linear term factor from Eq 61, Belczynski+ 2008
+constexpr double WD_PIERSANTI_M060_G0                   = 6.0E-3;                                                   // This and the following PIERSANTI constants follow table A3 in Piersanti+2014
+constexpr double WD_PIERSANTI_M060_G1                   = 5.1E-2;
+constexpr double WD_PIERSANTI_M060_G2                   = 8.3E-3;
+constexpr double WD_PIERSANTI_M060_G3                   = 3.317E-4;
+constexpr double WD_PIERSANTI_M070_G0                   = 3.5E-2;
+constexpr double WD_PIERSANTI_M070_G1                   = 7.5E-2;
+constexpr double WD_PIERSANTI_M070_G2                   = 1.8E-3;
+constexpr double WD_PIERSANTI_M070_G3                   = 3.266E-5;
+constexpr double WD_PIERSANTI_M081_G0                   = 9.3E-2;
+constexpr double WD_PIERSANTI_M081_G1                   = 1.8E-2;
+constexpr double WD_PIERSANTI_M081_G2                   = 1.6E-3;
+constexpr double WD_PIERSANTI_M081_G3                   = 4.111E-5;
+constexpr double WD_PIERSANTI_M092_G0                   = 7.59E-2;
+constexpr double WD_PIERSANTI_M092_G1                   = 1.54E-2;
+constexpr double WD_PIERSANTI_M092_G2                   = 4.0E-4;
+constexpr double WD_PIERSANTI_M092_G3                   = 5.905E-6;
+constexpr double WD_PIERSANTI_M102_G0                   = 3.23E-1;
+constexpr double WD_PIERSANTI_M102_G1                   = 4.1E-2;
+constexpr double WD_PIERSANTI_M102_G2                   = 7.0E-4;
+constexpr double WD_PIERSANTI_M102_G3                   = 4.733E-6;
 
+// Critical mass ratio constants for CalculateCriticalMassRatioHurleyHjellmingWebbink().
+// Based on Hurley+ 2002 section 2.6.1 and BSE code (inverse of the quoted values).
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_MS_LTE_07 = 1.44;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_MS_GT_07  = 0.33;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_HG        = 0.25;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_HE_GIANT  = 1.28;
+constexpr double HURLEY_HJELLMING_WEBBINK_QCRIT_WD        = 1.59;
 
 // coefficients for the calculation of initial angular frequency for Chemically Homogeneous Evolution
 // Mandel from Butler 2018
@@ -3755,6 +3791,8 @@ const std::vector<std::vector<std::vector<LoveridgeCoefficients>>> LOVERIDGE_COE
 
 // Coefficients for determining Main Sequence core mass
 // from Shikauchi et al. (2024), https://arxiv.org/abs/2409.00460
+// Section A.4
+const DBL_VECTOR SHIKAUCHI_DELTA_COEFFICIENTS = {0.54491412, -0.00900365, 0.08936248};
 // Table 2
 const std::vector<DBL_VECTOR> SHIKAUCHI_ALPHA_COEFFICIENTS = {
     {0.45, -0.0557105,  -0.86589929},       // 0.1*Z_Sun
@@ -3769,9 +3807,9 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_FMIX_COEFFICIENTS = {
 };
 // Table 4
 const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
-    {3.2555795,  1.84666823, -0.79986388, -0.75728099, -0.38831172, 0.08223542, 0.49543834, 0.31314176, -0.36705796, 1.72200581},   // 0.1*Z_Sun
-    {3.35622529, 1.96904931, -0.88894808, -0.81112488, -0.47925922, 0.09056925, 0.53094768, 0.33971972, -0.35581284, 1.65390003},   // 1/3*Z_Sun
-    {3.27883249, 1.79370338, -0.71413866, -0.77019351, -0.3898752,  0.07499563, 0.5920458,  0.33846556, -0.49649838, 1.71263853}    // Solar metallicity Z_Sun
+    {3.38627891, 1.13599187, -0.97389238, -0.87675442, 1.65386007, 0.07661174, -1.78737297, 0.622451,   -0.47511355,  0.02483567, 0.94243277, -0.06798225, 0.11086108, -0.14859538, 1.78029915},   // 0.1*Z_Sun
+    {3.45464814, 0.94880846, -1.11409154, -0.86672079, 2.38986855, 0.04448855, -2.74913945, 0.60905625, -0.27648361,  0.03514139, 1.37569819, -0.19184532, 0.12816567, -0.14392935, 1.76390159},   // 1/3*Z_Sun
+    {3.80166901, 0.37407948, -1.29904749, -1.34541622, 3.70934166, 0.28320469, -3.92327169, 0.92444477, -0.40146717, -0.00821364, 1.80297947, -0.15776603, 0.09205681, -0.21913557, 1.78496679}    // Solar metallicity Z_Sun
 };
 
 #endif // __constants_h__

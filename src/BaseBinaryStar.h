@@ -97,7 +97,8 @@ public:
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
-        m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
+        m_SynchronizationTimescale1        = p_Star.m_SynchronizationTimescale1;
+        m_SynchronizationTimescale2        = p_Star.m_SynchronizationTimescale2;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
         m_NormalizedOrbitalAngularMomentumVector = p_Star.m_NormalizedOrbitalAngularMomentumVector;
@@ -179,6 +180,12 @@ public:
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
     bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal() const                        { return m_Star1->CalculateImKnmTidal(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal() const                        { return m_Star2->CalculateImKnmTidal(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass());}
+    DBL_DBL_DBL_DBL     ImKnm1_tidal_eq() const                     { return m_Star1->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal_eq() const                     { return m_Star2->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal_dyn() const                    { return m_Star1->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal_dyn() const                    { return m_Star2->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsHMXRBinary() const;
@@ -226,6 +233,7 @@ public:
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
     double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              SemiMajorAxisAfterStage1CEE() const         { return m_CEDetails.postCEE.semiMajorAxisAfterStage1; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -245,7 +253,8 @@ public:
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-    double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
+    double              SynchronizationTimescale1() const           { return m_SynchronizationTimescale1; }
+    double              SynchronizationTimescale2() const           { return m_SynchronizationTimescale2; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
     double              SystemicVelocityX() const                   { return m_SystemicVelocity.xValue(); }
     double              SystemicVelocityY() const                   { return m_SystemicVelocity.yValue(); }
@@ -301,7 +310,7 @@ private:
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
     double              m_CircularizationTimescale;
-
+   
     bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
@@ -327,7 +336,7 @@ private:
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
-    double              m_IPrime;
+    double              m_IPrime;  
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
@@ -360,7 +369,8 @@ private:
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
-    double              m_SynchronizationTimescale;
+    double              m_SynchronizationTimescale1;
+    double              m_SynchronizationTimescale2;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
     Vector3d            m_NormalizedOrbitalAngularMomentumVector;                           // Orbital AM vector postSN, in preSN frame
@@ -390,6 +400,10 @@ private:
     double              m_ZetaLobe;
     double              m_ZetaStar;
 
+    // thresholds flags for system detailed output file
+    DBL_VECTOR          m_SystemSnapshotAgeFlags1;
+    DBL_VECTOR          m_SystemSnapshotAgeFlags2;
+    BOOL_VECTOR         m_SystemSnapshotTimeFlags;
 
     // Binaries contain two stars
     BinaryConstituentStar *m_Star1;                                                         // Initially more massive star - the primary
@@ -422,9 +436,9 @@ private:
 
     void    CalculateEnergyAndAngularMomentum();
 
-    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
-    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
-    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
+    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
+    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
+    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     
     static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
     double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
@@ -496,6 +510,7 @@ private:
     void    SetRemainingValues();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
+                             const double p_SemiMajorAxisAfterStage1,
                              const double p_Eccentricity,
                              const double p_RocheLobe1to2,
                              const double p_RocheLobe2to1);
@@ -527,8 +542,12 @@ private:
 
     bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
     
-    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+    bool PrintSystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintSystemSnapshotLog(const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType = BSE_SYSTEM_SNAPSHOT_RECORD_TYPE::DEFAULT) const { 
+        return LOGGING->LogBSESystemSnapshotLog(this, p_RecordType);
     }
     
     bool PrintDetailedOutput(const long int p_Id, const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
