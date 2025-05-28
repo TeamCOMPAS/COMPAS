@@ -135,10 +135,9 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
 
 
 /*
- * Calculate the spin period of a Pulsar at birth according to selected distribution (by commandline option)
- * Users should note that when choosing the NOSPIN option, 
- * pulsar spin frequency is set to 0 and spin period is infinity. 
- *
+ * Calculate the spin period of a Pulsar at birth according to how it was formed
+ * (either through accretion induced collapse (AIC) or a normal pulsar formed through a CCSN)
+ * 
  * double CalculateBirthSpinPeriod()
  *
  * @return                                      Birth spin period of Pulsar in s
@@ -147,6 +146,59 @@ double NS::CalculateBirthSpinPeriod() {
 
 	double pSpin;
 
+    if (ExperiencedAIC()){
+        pSpin = CalculateBirthSpinPeriodAIC();
+    }
+    else{
+        pSpin = CalculateBirthSpinPeriodNormal();
+    }
+
+    return pSpin;
+}
+
+/*
+ * Calculate the birth spin period of a pulsar formed through accretion induced collapse (AIC)
+ * 
+ * 
+ */
+double NS::CalculateBirthSpinPeriodAIC() {
+    
+    double pSpin = 0.0;
+    
+    switch (OPTIONS->PulsarBirthSpinPeriodDistributionAIC()) {
+
+        case PULSAR_BIRTH_SPIN_DISTRIBUTION_AIC::UNIFORM: {  
+            constexpr double maximum = OPTIONS->PulsarBirthSpinPeriodDistributionMax();
+            constexpr double minimum = OPTIONS->PulsarBirthSpinPeriodDistributionMin();
+
+            pSpin = minimum + (RAND->Random() * (maximum - minimum));
+        } break;
+
+        case PULSAR_BIRTH_SPIN_DISTRIBUTION_AIC::LOGNORMAL: {
+            // implement following dist elsewhere in code.
+            pSpin = 0.0
+        }
+
+    }
+
+    return pSpin * SECONDS_IN_MS;
+}
+
+
+/*
+ * Calculate the birth spin period for a normal pulsar according to the 
+ * selected distribution (by commandline option)
+ * Users should note that when choosing the NOSPIN option, 
+ * pulsar spin frequency is set to 0 and spin period is infinity. 
+ * 
+ * double CalculateBirthSpinPeriodNormal()
+ * 
+ * @return                                      Birth spin period of pulsar in s
+ */
+double NS::CalculateBirthSpinPeriodNormal() {
+    
+    double pSpin = 0.0;
+    
     switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                     // which distribution?
 
         case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
