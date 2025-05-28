@@ -2,7 +2,7 @@ from tqdm.auto import trange
 from scipy.interpolate import interp1d
 import numpy as np
 
-from .bbh_population import BBHPopulation
+from .binary_population import BinaryPopulation
 from .cosmological_model import CosmologicalModel
 from .snr_grid import SNRGrid
 from .gpu_utils import xp
@@ -10,7 +10,7 @@ from .bin_2d_data import bin_2d_data
 
 
 def compute_binned_detection_rates(
-        bbh_population: BBHPopulation,
+        dco_population: BinaryPopulation,
         cosmological_model: CosmologicalModel,
         snr_grid: SNRGrid,
         chirp_mass_bins: np.ndarray,
@@ -25,7 +25,7 @@ def compute_binned_detection_rates(
     If the GPU is not available, this function will perform the computation on the CPU.
 
     """
-    n_formed = cosmological_model.sfr / bbh_population.avg_sf_mass_needed
+    n_formed = cosmological_model.sfr / dco_population.avg_sf_mass_needed
     # Divide the star formation rate density by the representative SF mass
 
     # calculate the formation and merger rates using what we computed above
@@ -38,10 +38,10 @@ def compute_binned_detection_rates(
         dPdlogZ=cosmological_model.dPdlogZ,
         metallicities=cosmological_model.metallicities,
         p_draw_metallicity=cosmological_model.p_draw_metallicity,
-        COMPAS_metallicites=bbh_population.z_zams,
-        COMPAS_delay_times=bbh_population.t_delay,
-        COMPAS_Mc=bbh_population.chirp_mass,
-        COMPAS_eta=bbh_population.eta,
+        COMPAS_metallicites=dco_population.z_zams,
+        COMPAS_delay_times=dco_population.t_delay,
+        COMPAS_Mc=dco_population.chirp_mass,
+        COMPAS_eta=dco_population.eta,
         distances=cosmological_model.distance,
         snr_grid_at_1Mpc=snr_grid.snr_grid_at_1Mpc,
         detection_probability_from_snr=snr_grid.pdetection,

@@ -1555,7 +1555,31 @@
 //                                      - Corrected several erroneous comments, cleaned up a few function definitions
 //  03.18.07    IM - May 11, 2025   - Defect repair:
 //                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
+//  03.19.00    JR - May 21, 2025   - Enhancement:
+//                                      - Added functionality to create new System Snapshot logfile
+//                                        Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set
+//                                        by new program options (see below).  New program options added:
+//                                           --logfile-system-snapshot-log: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log")
+//                                           --logfile-system-snapshot-log-record-types: specifies the enabled record types for System Snapshot logfile (default is all types)
+//                                           --system-snapshot-age-thresholds: specifies the age thresholds for System Snapshot logfile
+//                                           --system-snapshot-time-thresholds: specifies the time thresholds for System Snapshot logfile
+//                                      - Removed stashing to SSE SNe file - printing is now done directly (stashing no longer required since we now don't save/revert).
+//                                        I was going to remove the save/revert state functions - we don't need them (we have clone functions), but I left them in for now (just in case we find a need...).
+//  03.20.00    VK - May 25, 2025   - Enhancement, Defect repair:
+//                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the reference.
+//                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
+//                                      - Added variables for circularization timescale, synchronization timescales (for both stars), and all the tidal ImKnm potential Love numbers to BSE output.
+//  03.20.01    SS/NRS - May 26, 2025   - Enhancement:
+//                                      - Improvements to mass accretion for massive ONe WDs
+//                                          - Added ONe::CalculateMassAcceptanceRate
+//                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
+//                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
+//                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
+//                                          - Set merger on unstable RLOF from WD
+//
 
-const std::string VERSION_STRING = "03.18.07";
+
+const std::string VERSION_STRING = "03.20.01";
+
 
 # endif // __changelog_h__
