@@ -888,6 +888,8 @@ public:
             double                                              m_ScaleTerminalWindVelocityWithMetallicityPower;                // Power with which to scale terminal wind velocity with metallicity (v_inf ~ Z^x)
 
             // Wind accretion
+            double                                              m_RSGTerminalWindVelocityFactor;                                // Ratio between the terminal velocity and the escape velocity
+
             ENUM_OPT<WIND_ACCRETION_PRESCRIPTION>               m_WindAccretionPrescription;                                    // Which wind accretion prescription is used
             double                                              m_WindAccretionFactor;                                      // Efficiency of wind accretion according to Bondi, 1944
             double                                              m_WindVelocityBeta;                                             // Free parameter of the beta velocity law
@@ -1667,7 +1669,6 @@ public:
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
-    bool                                        WRLOFPrinting() const                                                   { return m_CmdLine.optionValues.m_WrlofPrinting; }
 
     double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }
     double                                      RocketKickMagnitude2() const                                            { return OPT_VALUE("rocket-kick-magnitude-2", m_RocketKickMagnitude2, true); }
@@ -1681,6 +1682,8 @@ public:
     double                                      RotationalFrequency1() const                                            { return OPT_VALUE("rotational-frequency-1", m_RotationalFrequency1, true); }
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
+
+    double                                      RSGTerminalWindVelocityFactor() const                                   { return OPT_VALUE("RSG-terminal-wind-velocity-factor", m_RSGTerminalWindVelocityFactor, true);}
 
     bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, false); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
@@ -1718,8 +1721,9 @@ public:
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                       { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}
-    double                                      WindAccretionFactor() const                                           { return OPT_VALUE("wind-accretion-factor", m_WindAccretionFactor, true);}
+    double                                      WindAccretionFactor() const                                             { return OPT_VALUE("wind-accretion-factor", m_WindAccretionFactor, true);}
     double                                      WindVelocityBeta() const                                                { return OPT_VALUE("wind-velocity-beta", m_WindVelocityBeta, true);}
+    bool                                        WRLOFPrinting() const                                                   { return m_CmdLine.optionValues.m_WrlofPrinting; }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
     WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }
     std::string                                 YAMLfilename() const                                                    { return m_CmdLine.optionValues.m_YAMLfilename; }

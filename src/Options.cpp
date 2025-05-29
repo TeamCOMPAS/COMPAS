@@ -448,6 +448,8 @@ void Options::OptionValues::Initialise() {
 
     m_WindVelocityBeta                                              = 3.0;
 
+    m_RSGTerminalWindVelocityFactor                                 = 0.5;
+
     // Core mass prescription
     m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
     m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
@@ -1676,7 +1678,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_RotationalFrequency2)->default_value(p_Options->m_RotationalFrequency2),                                                        
             ("Initial rotational frequency for the secondary star for BSE (Hz) (default = " + std::to_string(p_Options->m_RotationalFrequency2) + ")").c_str()
         )        
-        
+        (
+            "factor-wind-terminal-wind-velocity",
+
+            po::value<double>(&p_Options->m_RSGTerminalWindVelocityFactor)->default_value(p_Options->m_RSGTerminalWindVelocityFactor),
+            ("The ratio of the terminal velocity differs and the escape velocity. (default = " + std::to_string(p_Options->m_RSGTerminalWindVelocityFactor) + ")").c_str()
+        )
         (
             "scale-terminal-wind-velocity-with-metallicity-power",                                         
             po::value<double>(&p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower)->default_value(p_Options->m_ScaleTerminalWindVelocityWithMetallicityPower),                                                              
