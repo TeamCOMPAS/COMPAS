@@ -2189,15 +2189,26 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
             }
             double accretionEfficiencyBHL = std::max(0.0, std::min(0.1, maxAccretionEfficiencyBHL)); // fix acc eff to between 0 and 0.1
 
+            double accretionEfficiencyWD;
+
             // WRLOF 
+            if (OPTIONS->UseWRLOF()) {
 
-            double q_squared = (massWD/massRG) * (massWD/massRG); // unitless
-            
-            double accretionEfficiencyWRLOF = std::max(0.0, std::min(25/9 * q_squared * (-0.284 * relativeDustRocheLobe*relativeDustRocheLobe + 0.918 * relativeDustRocheLobe - 0.234), 0.5)); // unitless
+                double q_squared = (massWD/massRG) * (massWD/massRG); // unitless
+                
+                double accretionEfficiencyWRLOF = std::max(0.0, std::min(25/9 * q_squared * (-0.284 * relativeDustRocheLobe*relativeDustRocheLobe + 0.918 * relativeDustRocheLobe - 0.234), 0.5)); // unitless
 
-            // The accretion efficiency is taken to be the maximum value of the BHL and the WRLOF accretion regime
+                // The accretion efficiency is taken to be the maximum value of the BHL and the WRLOF accretion regime
 
-            double accretionEfficiencyWD = std::max(accretionEfficiencyBHL, accretionEfficiencyWRLOF); // unitless
+                accretionEfficiencyWD = std::max(accretionEfficiencyBHL, accretionEfficiencyWRLOF); // unitless
+
+            }
+
+            else {
+                accretionEfficiencyWD = accretionEfficiencyBHL;
+            }
+
+
 
             double windAccretionRateWD = -accretionEfficiencyWD * windRateRG; // Accretion onto StarWD ( mSol / yr )
             StarWD->SetWindAccretionRate(windAccretionRateWD); // ( mSol / yr )

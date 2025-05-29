@@ -527,6 +527,7 @@ private:
         "semi-major-axis-max",
         "semi-major-axis-min",
 
+        "use-wrlof",
         "wind-accretion-prescription"
     };
 
@@ -889,6 +890,8 @@ public:
 
             // Wind accretion
             double                                              m_RSGTerminalWindVelocityFactor;                                // Ratio between the terminal velocity and the escape velocity
+
+            bool                                                m_UseWRLOF;                                                     // Whether WRLOF overflow is used in the case of wind accretion (default = true)
 
             ENUM_OPT<WIND_ACCRETION_PRESCRIPTION>               m_WindAccretionPrescription;                                    // Which wind accretion prescription is used
             double                                              m_WindAccretionFactor;                                      // Efficiency of wind accretion according to Bondi, 1944
@@ -1718,6 +1721,7 @@ public:
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
+    bool                                        UseWRLOF() const                                                        { return OPT_VALUE("use-wrlof", m_UseWRLOF, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                       { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}

@@ -442,6 +442,8 @@ void Options::OptionValues::Initialise() {
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
     // Wind accretion
+    m_UseWRLOF                                                      = true;
+
     m_WindAccretionPrescription.type                                = WIND_ACCRETION_PRESCRIPTION::NONE;
     m_WindAccretionPrescription.typeString                          = WIND_ACCRETION_PRESCRIPTION_LABEL.at(m_WindAccretionPrescription.type);
     m_WindAccretionFactor                                           = 0.75;
@@ -990,6 +992,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "use-mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "use-wrlof",
+            po::value<bool>(&p_Options->m_UseWRLOF)->default_value(p_Options->m_UseWRLOF)->implicit_value(true),                                                                    
+            ("Enable mass transfer (default = " + std::string(p_Options->m_UseWRLOF ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "wrlof-printing",                                                
