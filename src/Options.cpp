@@ -600,7 +600,6 @@ void Options::OptionValues::Initialise() {
     m_PulsarBirthMagneticFieldDistributionMean                      = 12.65;
     m_PulsarBirthMagneticFieldDistributionSigma                     = 0.55;
 
-
     // Pulsar birth spin period distribution string
     m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL;
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
@@ -609,9 +608,13 @@ void Options::OptionValues::Initialise() {
     m_PulsarBirthSpinPeriodDistributionMean                         = 75.0;
     m_PulsarBirthSpinPeriodDistributionSigma                        = 25.0;
 
+    // Pulsar magnetic field decay options
+    m_PulsarMagneticFieldDecayAccretionModel.type                   = PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::EXPONENTIAL;
+    m_PulsarMagneticFieldDecayAccretionModel.typeString             = PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL.at(m_PulsarMagneticFieldDecayAccretionModel.type);
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
+
 
     // Response to super-critical spin-up prescription
     m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT;
@@ -2028,6 +2031,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Pulsar Birth Spin Period distribution (" + AllowedOptionValuesFormatted("pulsar-birth-spin-period-distribution") + ", default = '" + p_Options->m_PulsarBirthSpinPeriodDistribution.typeString + "')").c_str()
         )
         (
+            "pulsar-magnetic-field-decay-accretion-model",
+            po::value<std::string>(&p_Options->m_PulsarMagneticFieldDecayAccretionModel.typeString)->default_value(p_Options->m_PulsarMagneticFieldDecayAccretionModel.typeString),  
+            ("Pulsar Magnetic Field Decay Accretion model (" + AllowedOptionValuesFormatted("pulsar-magnetic-field-decay-accretion-model") + ", default = '" + p_Options->m_PulsarMagneticFieldDecayAccretionModel.typeString + "')").c_str()
+        )
+        (
             "pulsational-pair-instability-prescription",                   
             po::value<std::string>(&p_Options->m_PulsationalPairInstabilityPrescription.typeString)->default_value(p_Options->m_PulsationalPairInstabilityPrescription.typeString),                              
             ("Pulsational Pair Instability prescription (" + AllowedOptionValuesFormatted("pulsational-pair-instability-prescription") + ", default = '" + p_Options->m_PulsationalPairInstabilityPrescription.typeString + "')").c_str()
@@ -2470,6 +2478,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
         }
 
+        if (!DEFAULTED("pulsar-magnetic-field-decay-accretion-model")) {                                                                  // pulsar birth spin period distribution
+            std::tie(found, m_PulsarMagneticFieldDecayAccretionModel.type) = utils::GetMapKey(m_PulsarMagneticFieldDecayAccretionModel.typeString, PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL, m_PulsarMagneticFieldDecayAccretionModel.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Magnetic Field Decay Accretion Model");
+        }
+
         if (!DEFAULTED("pulsational-pair-instability-prescription")) {                                                              // pulsational pair instability prescription
             std::tie(found, m_PulsationalPairInstabilityPrescription.type) = utils::GetMapKey(m_PulsationalPairInstabilityPrescription.typeString, PPI_PRESCRIPTION_LABEL, m_PulsationalPairInstabilityPrescription.type);
             COMPLAIN_IF(!found, "Unknown Pulsational Pair Instability Prescription");
@@ -2770,49 +2783,50 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
 
     switch (_(p_OptionString.c_str())) {    // which option?
 
-        case _("add-options-to-sysparms")                           : POPULATE_RET(ADD_OPTIONS_TO_SYSPARMS_LABEL);                  break;
-        case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                    break;
-        case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);           break;
-        case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                 break;
-        case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                             break;
-        case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                   break;
-        case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                break;
-        case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                       break;
-        case _("envelope-state-prescription")                       : POPULATE_RET(ENVELOPE_STATE_PRESCRIPTION_LABEL);              break;
-        case _("eccentricity-distribution")                         : POPULATE_RET(ECCENTRICITY_DISTRIBUTION_LABEL);                break;
-        case _("fp-error-mode")                                     : POPULATE_RET(FP_ERROR_MODE_LABEL);                            break;
-        case _("fryer-supernova-engine")                            : POPULATE_RET(SN_ENGINE_LABEL);                                break;
-        case _("initial-mass-function")                             : POPULATE_RET(INITIAL_MASS_FUNCTION_LABEL);                    break;
-        case _("kick-direction-distribution")                       : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);              break;
-        case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);              break;
-        case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
-        case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
-        case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
-        case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
-        case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
-        case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;
-        case _("mass-transfer-angular-momentum-loss-prescription")  : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);    break;
-        case _("mass-transfer-rejuvenation-prescription")           : POPULATE_RET(MT_REJUVENATION_PRESCRIPTION_LABEL);             break;
-        case _("mass-transfer-thermal-limit-accretor-multiplier")   : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);           break;
-        case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
-        case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
-        case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
-        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                       break;
-        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                   break;
-        case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
-        case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
-        case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL); break;
-        case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);    break;
-        case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
-        case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
-        case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
-        case _("response-to-spin-up")                               : POPULATE_RET(RESPONSE_TO_SPIN_UP_LABEL);                      break;
-        case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
-        case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
-        case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
-        case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
-        case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break;
-        case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break;
+        case _("add-options-to-sysparms")                           : POPULATE_RET(ADD_OPTIONS_TO_SYSPARMS_LABEL);                      break;
+        case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                        break;
+        case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);               break;
+        case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                     break;
+        case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                                 break;
+        case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                       break;
+        case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                    break;
+        case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                           break;
+        case _("envelope-state-prescription")                       : POPULATE_RET(ENVELOPE_STATE_PRESCRIPTION_LABEL);                  break;
+        case _("eccentricity-distribution")                         : POPULATE_RET(ECCENTRICITY_DISTRIBUTION_LABEL);                    break;
+        case _("fp-error-mode")                                     : POPULATE_RET(FP_ERROR_MODE_LABEL);                                break;
+        case _("fryer-supernova-engine")                            : POPULATE_RET(SN_ENGINE_LABEL);                                    break;
+        case _("initial-mass-function")                             : POPULATE_RET(INITIAL_MASS_FUNCTION_LABEL);                        break;
+        case _("kick-direction-distribution")                       : POPULATE_RET(KICK_DIRECTION_DISTRIBUTION_LABEL);                  break;
+        case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);                  break;
+        case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                                   break;
+        case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
+        case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                       break;
+        case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                       break;
+        case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                      break;
+        case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);         break;
+        case _("mass-transfer-angular-momentum-loss-prescription")  : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);        break;
+        case _("mass-transfer-rejuvenation-prescription")           : POPULATE_RET(MT_REJUVENATION_PRESCRIPTION_LABEL);                 break;
+        case _("mass-transfer-thermal-limit-accretor-multiplier")   : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);               break;
+        case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                     break;
+        case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                               break;
+        case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);              break;
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                           break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                       break;
+        case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                    break;
+        case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);                  break;
+        case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);     break;
+        case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);        break;
+        case _("pulsar-magnetic-field-decay-accretion-model")       : POPULATE_RET(PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL);  break;
+        case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                             break;
+        case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
+        case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                    break;
+        case _("response-to-spin-up")                               : POPULATE_RET(RESPONSE_TO_SPIN_UP_LABEL);                          break;
+        case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);             break;
+        case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);                 break;
+        case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                            break;
+        case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                           break;
+        case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
+        case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                    break;
         default: break;
     }
     return ret;
@@ -5036,6 +5050,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX      : value = PulsarBirthSpinPeriodDistributionMax();                               break;
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN      : value = PulsarBirthSpinPeriodDistributionMin();                               break;
 
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL    : value = static_cast<int>(PulsarMagneticFieldDecayAccretionModel());           break;
         case PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD                  : value = PulsarLog10MinimumMagneticField();                                    break;
 
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE         : value = PulsarMagneticFieldDecayMassscale();                                  break;

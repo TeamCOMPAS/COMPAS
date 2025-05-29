@@ -243,6 +243,79 @@ double NS::CalculateBirthMagneticField() {
     return log10B;
 }
 
+/*
+ * Calculate the magnetic field decay due to accretion using user selected model
+ * 
+ * double CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain)
+ * 
+ * @param   [IN]    p_initialMagField           Initial magnetic field of neutron star
+ * @param   [IN]    p_MassGain                  Amount of mass accreted by neutron star
+ * @return                                      Final magnetic field of neutron star
+ * 
+ */
+double NS::CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain){
+
+    double magneticFieldNew = 0.0;
+
+    switch (OPTIONS->PulsarMagneticFieldDecayAccretionModel()) {                                    // Which model to use for magnetic field decay due to accretion
+
+        case PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::NONE: {
+            magneticFieldNew = p_initialMagField;
+        } break;
+
+        case PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::EXPONENTIAL: {
+            magneticFieldNew = CalculateMagneticFieldDecayAccretionExponential_Static(p_initialMagField, p_MassGain);
+        } break;
+
+        case PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::SHIBAZAKI: {
+            magneticFieldNew = CalculateMagneticFieldDecayAccretionShibazaki_Static(p_initialMagField, p_MassGain);
+        } break;
+
+        default:
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL);               // Throw error
+        break;
+    }
+
+    return magneticFieldNew;
+}
+
+/* 
+ * Calculate the magnetic field decay due to accretion using the exponential model
+ * 
+ * See e.g., Equation 7 in Osłowski et al. 2011 (https://doi.org/10.1111/j.1365-2966.2010.18147.x)
+ * 
+ * double CalculateMagneticFieldDecayAccretionExponential_Static(const double p_initialMagField, const double p_MassGain)
+ * 
+ * @param   [IN]    p_initialMagField           Initial magnetic field of neutron star
+ * @param   [IN]    p_MassGain                  Amount of mass accreted by neutron star
+ * @return                                      Final magnetic field of neutron star
+ */
+double NS::CalculateMagneticFieldDecayAccretionExponential_Static(const double p_initialMagField, const double p_MassGain){
+
+    double magneticFieldNew = (p_initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+
+    return magneticFieldNew;
+}
+
+/* 
+ * Calculate the magnetic field decay due to accretion using the model from Shibazaki et al. 1989
+ * 
+ * See Equation 1 in Shibazaki et al. 1989 (https://ui.adsabs.harvard.edu/abs/1989Natur.342..656S/abstract)
+ * 
+ * We also impose a minimum magnetic field strength here.
+ * 
+ * double CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_initialMagField, const double p_MassGain)
+ * 
+ * @param   [IN]    p_initialMagField           Initial magnetic field of neutron star
+ * @param   [IN]    p_MassGain                  Amount of mass accreted by neutron star
+ * @return                                      Final magnetic field of neutron star
+ */
+double NS::CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_initialMagField, const double p_MassGain){
+
+    double magneticFieldNew = NS::NS_MAG_FIELD_LOWER_LIMIT + (p_initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) / (1.0 + p_MassGain/NS::NS_DECAY_MASS_SCALE);
+
+    return magneticFieldNew;
+}
 
 /*
  * Calculate the moment of inertia for a Neutron Star using a model independent relation between
@@ -480,7 +553,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT;
         }
         else {
-            m_PulsarDetails.magneticField = (m_PulsarDetails.magneticField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / G_TO_KG / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT; // eq. 12 in arxiv:1912.02415 
+            //m_PulsarDetails.magneticField = (m_PulsarDetails.magneticField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / G_TO_KG / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT; // eq. 12 in arxiv:1912.02415 
+            m_PulsarDetails.magneticField = CalculateMagneticFieldDecayAccretion_Static(m_PulsarDetails.magneticField, p_MassGain);
         }
         
         double previousSpinFrequency  = m_PulsarDetails.spinFrequency;
@@ -532,7 +606,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             // p_MassDelta is the cumulative change in mass of the NS
             void operator () (const state_type& x, state_type& dxdm, double p_MassDelta ) const {
                 double m = p_Mass + p_MassDelta;
-                double B = (p_MagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassDelta / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+                // double B = (p_MagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassDelta / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+                double B = CalculateMagneticFieldDecayAccretion_Static(p_MagField, p_MassDelta);
                 double f = x[0] / CalculateMomentOfInertiaCGS_Static(m, p_Radius);
                 dxdm[0]  = DeltaJByAccretion_Static(m, p_Radius_6, B, f, p_Mdot, p_Epsilon);                                    
             }
@@ -551,7 +626,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
             m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT;
         }
         else {
-            m_PulsarDetails.magneticField = (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+            //m_PulsarDetails.magneticField = (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassGain / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
+            m_PulsarDetails.magneticField = CalculateMagneticFieldDecayAccretion_Static(initialMagField, p_MassGain);
         }
         m_PulsarDetails.spinFrequency = m_AngularMomentum_CGS / m_MomentOfInertia_CGS;
         m_PulsarDetails.spinPeriod    = _2_PI / m_PulsarDetails.spinFrequency;

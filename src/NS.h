@@ -109,6 +109,10 @@ protected:
 
             double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
     
+    static  double          CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain);                               // 
+    static  double          CalculateMagneticFieldDecayAccretionExponential_Static(const double p_initialMagField, const double p_MassGain);                    
+    static  double          CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_initialMagField, const double p_MassGain);
+
     static  double          CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double p_Radius);                                                     // MoI in CGS            
             double          CalculateMomentOfInertiaCGS() const                 { return CalculateMomentOfInertiaCGS_Static(m_Mass * MSOL_TO_G, m_Radius * RSOL_TO_CM); } // MOI in CGS - use member variables
             double          CalculateMomentOfInertia() const                    { return CalculateMomentOfInertiaCGS() / MSOL_TO_G / RSOL_TO_CM / RSOL_TO_CM; } // MoI (default is solar units)

@@ -655,6 +655,7 @@ private:
         "print-bool-as-string",
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
+        "pulsar-magnetic-field-decay-accretion-model",
         "pulsational-pair-instability",
         "pulsational-pair-instability-prescription",
 
@@ -1144,10 +1145,12 @@ public:
             double                                              m_PulsarBirthSpinPeriodDistributionMean;                        // Mean of normal or lognormal distribution for birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionSigma;                       // Standard deviation of normal or lognormal distribution for birth spin period (ms)
 
+            // Pulsar magnetic field decay options
+            ENUM_OPT<PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL> m_PulsarMagneticFieldDecayAccretionModel;                     // Model for decay of pulsar magnetic field due to accretion
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
-
+            
 
             // Rotational Velocity distribution options
             ENUM_OPT<ROTATIONAL_VELOCITY_DISTRIBUTION>          m_RotationalVelocityDistribution;                               // Rotational velocity distribution
@@ -1652,8 +1655,8 @@ public:
     double                                      PulsarBirthSpinPeriodDistributionMean() const                           { return OPT_VALUE("pulsar-birth-spin-period-distribution-mean", m_PulsarBirthSpinPeriodDistributionMean, true); }
     double                                      PulsarBirthSpinPeriodDistributionSigma() const                          { return OPT_VALUE("pulsar-birth-spin-period-distribution-sigma", m_PulsarBirthSpinPeriodDistributionSigma, true); }
 
+    PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL PulsarMagneticFieldDecayAccretionModel() const                          { return OPT_VALUE("pulsar-magnetic-field-decay-accretion-model", m_PulsarMagneticFieldDecayAccretionModel.type, true); }                     // Model for decay of pulsar magnetic field due to accretion
     double                                      PulsarLog10MinimumMagneticField() const                                 { return OPT_VALUE("pulsar-minimum-magnetic-field", m_PulsarLog10MinimumMagneticField, true); }
-
     double                                      PulsarMagneticFieldDecayMassscale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-massscale", m_PulsarMagneticFieldDecayMassscale, true); }
     double                                      PulsarMagneticFieldDecayTimescale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-timescale", m_PulsarMagneticFieldDecayTimescale, true); }
 
