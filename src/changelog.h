@@ -1576,10 +1576,11 @@
 //                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
 //                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
 //                                          - Set merger on unstable RLOF from WD
-//
+//  03.20.02   IM - May 30, 2026        - Defect repair:
+//                                          - Included unit conversion in WhiteDwarfs::CalculateEtaPTY()
 
 
-const std::string VERSION_STRING = "03.20.01";
+const std::string VERSION_STRING = "03.20.02";
 
 
 # endif // __changelog_h__
