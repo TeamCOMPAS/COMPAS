@@ -1578,7 +1578,7 @@
 //                                          - Set merger on unstable RLOF from WD
 //  03.20.02   IM - May 30, 2026        - Defect repair, enhancement:
 //                                          - Included unit conversion in WhiteDwarfs::CalculateEtaPTY()
-//                                          - All critical mass ratios now return 0 for remnant donors (only stable mass transfer) as fix for issue #1385
+//                                          - All critical mass ratios now return the HURLEY_HJELLMING_WEBBINK_QCRIT_WD for white dwards and 0 for other remnant donors (only stable mass transfer) as fix for issue #1385
 
 
 const std::string VERSION_STRING = "03.20.02";
