@@ -1818,9 +1818,9 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
 /*
  * Calculate the fraction of specific angular momentum with which the non-accreted mass leaves the system
  *
- * This is gamma (as in Pols's notes) or jloss (as in Belczynski et al. 2008
+ * This is gamma (as in Pols's notes) or jloss (as in Belczynski et al. 2008)
  * which is the fraction of specific angular momentum with which the non-accreted mass leaves the system.
- * Macleod_linear comes from Willcox et al. (2022)
+ * Macleod_linear comes from Willcox et al. (2023)
  *
  * Calculation is based on user-specified Angular Momentum Loss prescription
  *
@@ -2606,7 +2606,7 @@ void BaseBinaryStar::ResolveMassChanges() {
  * Adjust stellar rotation and determine how much excess angular momentum is deposited into the orbit (or removed from it to spin up the accretor)
  * May limit the amount of accreted mass depending on the ResponseToSpinUp():
  * KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
- * Under TRANSFER_TO_ORBIT,  the star continues to accrete, but excess angular momentum is deposited in the orbit
+ * Under TRANSFER_TO_ORBIT, the star continues to accrete, but excess angular momentum is deposited in the orbit
  * NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices
  *
  * double ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange)

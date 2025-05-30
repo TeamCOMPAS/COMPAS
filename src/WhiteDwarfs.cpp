@@ -90,14 +90,14 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
  *
  * double CalculateEtaPTY(const double p_MassTransferRate)
  *
- * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
+ * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/Myr)
  * @return                                 Accretion efficiency during the first stron helium flash, Piersanti+ 2014
  */
 double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
 
-    double etaPTY = 0.0;                        // default return value
+    double etaPTY = 0.0;                            // default return value
 
-    double massRate   = p_MassTransferRate;
+    double massRate   = p_MassTransferRate * 100;   // Piersanti + 2014 assumes the rate is in units of 10^-8 Msun / yr (see Eq. A3)
     double massRate_2 = massRate * massRate;
     double massRate_3 = massRate_2 * massRate;
 
