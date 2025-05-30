@@ -56,6 +56,11 @@ protected:
                                                       const double p_DonorThermalMassLossRate,
                                                       const double p_MassLostByDonor);
 
+            double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate,
+                                               const double p_massTransferEfficiencyBeta)                       { return CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
+            double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
+            double          CalculateCriticalMassRatioGeEtAl(const QCRIT_PRESCRIPTION p_qCritPrescription,
+                                                     const double p_massTransferEfficiencyBeta)                 { return CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
             double           CalculateCriticalMassRatioHurleyHjellmingWebbink() const       { return HURLEY_HJELLMING_WEBBINK_QCRIT_WD; }
         
             double           CalculateCOCoreMassOnPhase() const                             { return m_COCoreMass; }                                    // NO-OP
