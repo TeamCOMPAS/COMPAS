@@ -42,20 +42,28 @@
 
 # +
 import numpy as np
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import generate_mock_bbh_population_file
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import BBHPopulation
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import generate_mock_population
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import BinaryPopulation
 
 np.random.seed(42)
 
-m1_min = 5
-m1_max = 150
-m2_min = 0.1
 
-compas_fname = generate_mock_bbh_population_file(
-    "mock_compas_data.h5", n_systems=int(1e4), frac_bbh=1,
-    m1_min=m1_min, m1_max=m1_max, m2_min=m2_min
+mass_params = dict(
+    m1_min = 5,
+    m1_max = 150,
+    m2_min = 0.1,
 )
-bbh_population = BBHPopulation.from_compas_h5(compas_fname, m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
+
+compas_fname = generate_mock_population(
+    "mock_compas_data.h5", n_systems=int(1e4),
+    frac_bbh=1, frac_bhns=0, frac_bns=0,
+    **mass_params,
+)
+bbh_population = BinaryPopulation.from_compas_h5(
+    compas_fname,
+    dcos_included=['BBH'],
+    **mass_params
+)
 fig = bbh_population.plot()
 # -
 
@@ -112,7 +120,7 @@ fig = cosmological_model.plot()
 # +
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.snr_grid import SNRGrid
 
-snr_grid = SNRGrid()
+snr_grid = SNRGrid(sensitivity="O3")
 fig = snr_grid.plot()
 # -
 
@@ -135,7 +143,10 @@ rate_matrix = compute_binned_detection_rates(
 # We have a helper class to do this in one go:
 
 detection_matrix = DetectionMatrix.from_compas_output(
-        compas_fname,  save_plots=False,
+        compas_fname,
+        sens="O3",
+        dcos_included=["BBH"],
+        save_plots=False,
         chirp_mass_bins=50, redshift_bins=100,
         cosmological_parameters=dict(aSF=0.01, dSF=4.70, mu_z=-.23, sigma_z=0),
     )
