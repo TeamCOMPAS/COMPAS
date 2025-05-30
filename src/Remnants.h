@@ -40,9 +40,14 @@ protected:
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
     double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate,
-                                               const double p_massTransferEfficiencyBeta)                       { return 0.0; }                                                         // Mass transfer from a 
+                                               const double p_massTransferEfficiencyBeta)                       { return 0.0; }                                                         // Mass transfer from a compact remnant always treated as stable
 
+    double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return 0.0; }
+    double          CalculateCriticalMassRatioGeEtAl(const QCRIT_PRESCRIPTION p_qCritPrescription,
+                                                     const double p_massTransferEfficiencyBeta)                 { return 0.0; }
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return 0.0; }
+    
+    double
 
     void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
     void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
