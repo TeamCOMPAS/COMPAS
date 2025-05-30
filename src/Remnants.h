@@ -40,7 +40,7 @@ protected:
     double          CalculateCoreMassOnPhase() const                                                            { return m_Mass; }                                                      // Return m_Mass
 
     double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate,
-                                               const double p_massTransferEfficiencyBeta)                       { return 0.0; }                                                         // Mass transfer from a compact remnant always treated as stable
+                                               const double p_massTransferEfficiencyBeta)                       { return 0.0; }                                                         // Should not be called (but if it is, mass transfer from a neutron star always treated as stable)
 
     double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return 0.0; }
     double          CalculateCriticalMassRatioGeEtAl(const QCRIT_PRESCRIPTION p_qCritPrescription,
