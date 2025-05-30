@@ -81,7 +81,7 @@ protected:
     double          CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time) const;                                                           //  Ignore previous core mass constraint when computing expected core mass
     
     double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
-    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const        { return 0.25; }                                                                            // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const        { return HURLEY_HJELLMING_WEBBINK_QCRIT_HG; }
     
     double          CalculateHeCoreMassAtPhaseEnd() const                           { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass
     double          CalculateHeCoreMassOnPhase() const                              { return m_CoreMass; }                                                                      // McHe(HG) = Core Mass

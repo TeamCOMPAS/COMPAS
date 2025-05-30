@@ -2,8 +2,8 @@ from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
     IMF, get_COMPAS_fraction, analytical_star_forming_mass_per_binary_using_kroupa_imf,
     star_forming_mass_per_binary, inverse_sample_IMF,
 )
-from compas_python_utils.cosmic_integration.binned_cosmic_integrator.bbh_population import \
-    generate_mock_bbh_population_file
+from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import \
+    generate_mock_population
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py as h5
@@ -90,7 +90,7 @@ def plot_star_forming_mass_per_binary_comparison(
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
             fname = f"{tmpdir}/test_{i}.h5"
-            generate_mock_bbh_population_file(tmpdir, n_systems=int(n))
+            generate_mock_population(tmpdir, n_systems=int(n))
             vals[i] = (star_forming_mass_per_binary(fname, m1_min, m1_max, m2_min, fbin))
         numerical_vals.append(vals)
 

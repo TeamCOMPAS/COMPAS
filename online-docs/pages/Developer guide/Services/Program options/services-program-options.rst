@@ -30,7 +30,7 @@ Adding new program options
 
 To add a new program option, take the following steps (these are duplicated at the top of the ``Options.cpp`` source file):
 
-1. Decide on a string for the option - this is the string the user will use on the commandline or in the grid file (e.g. "random-seed"). The convention is hyphenated lower case. Try to be consistent with existing option names.  For example, if you are adding a new prescription for something, make sure the option name ends with "-prescription", or if you are adding a new distribution for something, make sure the option name ends with "-distribution".                                          */
+1. Decide on a string for the option - this is the string the user will use on the commandline or in the grid file (e.g. "random-seed"). The convention is hyphenated lower case. Try to be consistent with existing option names.  For example, if you are adding a new prescription for something, make sure the option name ends with "-prescription", or if you are adding a new distribution for something, make sure the option name ends with "-distribution".
 
 2. Decide on a class member variable name for the option (e.g. m_RandomSeed).
 

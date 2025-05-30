@@ -1,26 +1,28 @@
 #include "WhiteDwarfs.h"
 #include "NS.h"
 
+
+
 /* Calculate eta_hydrogen from Claeys+ 2014, appendix B. This parameter depends 
  * on three regimes for the mass transfer rate, which here are distinguished by the 
  * thresholds logMdotUppH and logMdotLowH. In Claeys+ 2014, the mass transfer rate is
  * \dot{M}_{tr} and the thresholds are \dot{M}_{cr,H} and \dot{M}_{cr,H}/8, respectively. 
  *
- * However, we have used improved thresholds from Nomoto+ 2007, in which the 
+ * However, we have used improved thresholds from Nomoto+ 2007 in which the 
  * lower boundary is \dot{M}_{stable} and the upper boundary is \dot{M}_{RG}. 
  * More precisely, we implemented quadratic fits to the values in Nomoto+ 2007,
- * table 5, as described in Rodriguez+ (in prep). 
+ * table 5, as described in the second COMPAS methods paper (in prep). 
  *
  * double CalculateEtaH(const double p_MassTransferRate)
  *
- * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
+ * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/Myr)
  * @return                                 Hydrogen accretion efficiency
  */
 double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
 
     double etaH = 0.0;                                      // default return value
 
-    double logMassTransferRate = log10(p_MassTransferRate);
+    double logMassTransferRate = log10(p_MassTransferRate / MYR_TO_YEAR);
     double m_Mass_2            = m_Mass * m_Mass;
 
     // The following coefficients come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
@@ -52,14 +54,14 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
  *
  * double CalculateEtaHe(const double p_MassTransferRate)
  *
- * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/yr)
+ * @param   [IN]    p_MassTransferRate     Mass transfer rate onto the WD surface (Msun/Myr)
  * @return                                 Helium accretion efficiency
  */
 double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
 
     double etaHe = 1.0;                                     // default return value - so we can have double detonations
     
-    double logMassTransferRate = log10(p_MassTransferRate);
+    double logMassTransferRate = log10(p_MassTransferRate / MYR_TO_YEAR);
 
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
     double logMdotUppHe = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 * m_Mass;
@@ -81,7 +83,7 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
 
 
 /* Calculate accretion efficiency as indicated in Piersanti+ 2014, section A3. Their recipe works
- * for specific mass and Mdot values, so a better implementation requires interpolation and
+ * for specific mass and Mdot values, so a better implementation would require interpolation and
  * extrapolation (specially towards the low-mass end). Right now, we just adopt a
  * piece-wise approach. Note that the authors also specify that this is based on the first
  * strong flash only, but we use it for all episodes.
@@ -101,19 +103,19 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
 
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
     if (utils::Compare(m_Mass, 0.6) <= 0) {
-        etaPTY = 6.0e-3   + 5.1e-2  * massRate + 8.3e-3 * massRate_2 - 3.317e-4 * massRate_3;
+        etaPTY = WD_PIERSANTI_M060_G0 + WD_PIERSANTI_M060_G1 * massRate + WD_PIERSANTI_M060_G2 * massRate_2 - WD_PIERSANTI_M060_G3 * massRate_3;
     } 
     else if  (utils::Compare(m_Mass, 0.7) <= 0) {
-        etaPTY = -3.5e-2  + 7.5e-2  * massRate - 1.8e-3 * massRate_2 + 3.266e-5 * massRate_3;
+        etaPTY = -WD_PIERSANTI_M070_G0 + WD_PIERSANTI_M070_G1 * massRate - WD_PIERSANTI_M070_G2 * massRate_2 + WD_PIERSANTI_M070_G3 * massRate_3;
     } 
     else if (utils::Compare(m_Mass, 0.81) <= 0) {
-        etaPTY = 9.3e-2   + 1.8e-2  * massRate + 1.6e-3 * massRate_2 - 4.111e-5 * massRate_3;
+        etaPTY = WD_PIERSANTI_M081_G0 + WD_PIERSANTI_M081_G1 * massRate + WD_PIERSANTI_M081_G2 * massRate_2 - WD_PIERSANTI_M081_G3 * massRate_3;
     } 
     else if (utils::Compare(m_Mass, 0.92) <= 0) { 
-        etaPTY = -7.59e-2 + 1.54e-2 * massRate + 4.0e-4 * massRate_2 - 5.905e-6 * massRate_3;
+        etaPTY = -WD_PIERSANTI_M092_G0 + WD_PIERSANTI_M092_G1 * massRate + WD_PIERSANTI_M092_G2 * massRate_2 - WD_PIERSANTI_M092_G3 * massRate_3;
     } 
     else {
-        etaPTY = -0.323   + 4.1e-2  * massRate - 7.0e-4 * massRate_2 + 4.733e-6 * massRate_3;
+        etaPTY = -WD_PIERSANTI_M102_G0 + WD_PIERSANTI_M102_G1 * massRate - WD_PIERSANTI_M102_G2 * massRate_2 + WD_PIERSANTI_M102_G3 * massRate_3;
     }
 
     return etaPTY;
@@ -138,12 +140,46 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
     return (635.0 * p_Mass * PPOW(p_Metallicity, 0.4)) / PPOW(p_BaryonNumber * (p_Time + 0.1), 1.4);
 }
 
+/* Calculate:
+ *
+ *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
+ *     (b) the retention efficiency parameter
+ *
+ * Currently used for COWDs and ONeWDs
+ *
+ * For a given mass transfer rate, this function computes the amount of mass a WD would retain after
+ * flashes, as given by appendix B of Claeys+ 2014. 
+ * https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract 
+ *
+ *
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich)
+ *
+ * @param   [IN]    p_DonorMassRate             Mass transfer rate from the donor
+ * @param   [IN]    p_IsHeRich                  Material is He-rich or not
+ * @return                                      Tuple containing the Maximum Mass Acceptance Rate (Msun/yr) and Retention Efficiency Parameter
+ */
+DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
+
+    m_AccretionRegime = DetermineAccretionRegime(p_DonorMassRate, p_IsHeRich); 
+                                                                               
+    double acceptanceRate   = 0.0;                                                       // acceptance mass rate - default = 0.0
+    double fractionAccreted = 0.0;                                                       // accretion fraction - default = 0.0
+
+    acceptanceRate = p_DonorMassRate * CalculateEtaHe(p_DonorMassRate);
+    if (!p_IsHeRich) acceptanceRate *= CalculateEtaH(p_DonorMassRate);
+
+    fractionAccreted = acceptanceRate / p_DonorMassRate;
+
+    return std::make_tuple(acceptanceRate, fractionAccreted);
+}
 
 /*
  * Calculate the radius of a white dwarf - good for all types of WD
  *
- * Hurley et al. 2000, eq 91 (from Tout et al. 1997)
- *
+ * Originally from Eggleton 1986, quoted in Verbunt & Rappaport 1988 and Marsh et al. 2004 (eq. 24).
+ * Compared to the Hurley et al. 2000 prescription, the additional factor that includes WD_MP allows
+ * for the change to a constant density configuration at low masses (e.g., Zapolsky & Salpeter 1969)
+ * after mass loss episodes.
  *
  * double CalculateRadiusOnPhase_Static(const double p_Mass)
  *
@@ -157,10 +193,84 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
     
     if (utils::Compare(p_Mass, MCH) >= 0) return NEUTRON_STAR_RADIUS;                               // only expected to come up if asking for the core or remnant radius of a giant star
     
-    double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
-    double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+    const double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
+    const double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
+    
+    double MP_Mass = WD_MP / p_Mass;
+    double MP_Mass_two_thirds = MP_Mass / std::cbrt(WD_MP / p_Mass); 
 
-    return std::max(NEUTRON_STAR_RADIUS, 0.0115 * std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds)));
+    double firstFactor = std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds));
+    double preSecondFactor = 1.0 + 3.5 * MP_Mass_two_thirds + MP_Mass;
+    double secondFactor = std::cbrt(preSecondFactor) / preSecondFactor;
+
+    return std::max(NEUTRON_STAR_RADIUS, 0.0114 * firstFactor * secondFactor);
+}
+
+
+/* 
+ * Determine the WD accretion regime based on the MT rate and whether the donor is He rich. Also,
+ * initialize He-Shell detonation or Off-center ignition when necessary, by changing the value
+ * of m_HeShellDetonation or m_OffCenterIgnition (respectively).
+ *
+ * The accretion regime is one of the options listed in enum ACCRETION_REGIME (constants.h)
+ *
+ * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
+ *
+ * ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich) 
+ *
+ * @param   [IN]    p_DonorMassLossRate      Donor mass loss rate, in units of Msol / Myr
+ * @param   [IN]    p_HeRich                 Whether the accreted material is helium-rich or not
+ * @return                                   Current WD accretion regime
+ */
+ACCRETION_REGIME WhiteDwarfs::DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich) {
+
+    double logMdot          = log10(p_DonorMassLossRate / MYR_TO_YEAR);                                                     // logarithm of the accreted mass (M_sun/yr)
+    ACCRETION_REGIME regime = ACCRETION_REGIME::ZERO;
+
+    if (p_HeRich) {
+        // The following coefficients in logMassTransfer limits come from table A1 in Piersanti+ 2014.
+        double logMassTransferCrit       = WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_0 + WD_LOG_MT_LIMIT_PIERSANTI_RG_SS_1 * m_Mass;
+        double logMassTransferStable     = WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_0 + WD_LOG_MT_LIMIT_PIERSANTI_SS_MF_1 * m_Mass;  // Piersanti+2014 has several Flashes regimes. Here we group them into one.
+        double logMassTransferDetonation = WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_0 + WD_LOG_MT_LIMIT_PIERSANTI_SF_Dt_1 * m_Mass;  // critical value for double detonation regime in Piersanti+ 2014
+        if (utils::Compare(logMdot, logMassTransferStable) < 0) {
+            if (utils::Compare(logMdot, logMassTransferDetonation) > 0) {
+                regime = ACCRETION_REGIME::HELIUM_FLASHES;
+            } 
+            else {
+                regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
+                if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
+                    m_HeShellDetonation = true;
+                }
+            }
+        } 
+        else if (utils::Compare(logMdot, logMassTransferCrit) > 0) {
+            regime = ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS;
+        } 
+        else {
+            regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
+            if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
+                m_OffCenterIgnition = true;
+            }
+        }
+    } 
+    else {
+        // The following coefficients in logMassTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
+        double m_Mass_2 = m_Mass * m_Mass;
+        double logMassTransferCrit   = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 * m_Mass_2;
+        double logMassTransferStable = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   * m_Mass_2;
+
+        if (utils::Compare(logMdot, logMassTransferStable) < 0) {
+            regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
+        } 
+        else if (utils::Compare(logMdot, logMassTransferCrit) > 0) {
+            regime = ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS;
+        } 
+        else {
+            regime = ACCRETION_REGIME::HYDROGEN_STABLE_BURNING;
+        }
+    }
+
+    return regime;
 }
 
 

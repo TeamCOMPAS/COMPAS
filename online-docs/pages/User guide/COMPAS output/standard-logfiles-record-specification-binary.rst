@@ -1818,16 +1818,32 @@ both. If both are printed then the file will contain two columns with the same h
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **SYNCHRONIZATION_TIMESCALE**
+   * - :cspan:`2` **SYNCHRONIZATION_TIMESCALE_1**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_SynchronizationTimescale
+     - BaseBinaryStar::m_SynchronizationTimescale1
    * - Description:
-     - Tidal synchronisation timescale (Myr).
+     - Tidal synchronisation timescale for the primary star (Myr).
    * - Header String:
-     - Tau_Sync
+     - Tau_Sync(1)
+  
+  .. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SYNCHRONIZATION_TIMESCALE_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_SynchronizationTimescale2
+   * - Description:
+     - Tidal synchronisation timescale for the secondary star (Myr).
+   * - Header String:
+     - Tau_Sync(2)
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1896,6 +1912,103 @@ both. If both are printed then the file will contain two columns with the same h
 .. _binary-props-T:
 
 :ref:`Back to Top <binary-props-top>`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TIDAL_POTENTIAL_LOVE_NUMBER_10_1, TIDAL_POTENTIAL_LOVE_NUMBER_12_1, TIDAL_POTENTIAL_LOVE_NUMBER_22_1, TIDAL_POTENTIAL_LOVE_NUMBER_32_1**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseStar::CalculateImKnmTidal()
+   * - Description:
+     - l=2 components of the tidal potential Love number for the primary star, indexed by (n,m).
+   * - Header String:
+     - ImKnm1_10, ImKnm1_12, ImKnm1_22, ImKnm1_32
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TIDAL_POTENTIAL_LOVE_NUMBER_10_2, TIDAL_POTENTIAL_LOVE_NUMBER_12_2, TIDAL_POTENTIAL_LOVE_NUMBER_22_2, TIDAL_POTENTIAL_LOVE_NUMBER_32_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseStar::CalculateImKnmTidal()
+   * - Description:
+     - l=2 components of the tidal potential Love number for the secondary star, indexed by (n,m).
+   * - Header String:
+     - ImKnm2_10, ImKnm2_12, ImKnm2_22, ImKnm2_32
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1, TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1, TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1, TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_1**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseStar::CalculateImKnmEquilibrium()
+   * - Description:
+     - l=2 components of the equilibrium tidal potential Love number for the primary star, indexed by (n,m).
+   * - Header String:
+     - ImKnm1_10_eq, ImKnm1_12_eq, ImKnm1_22_eq, ImKnm1_32_eq
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2, TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2, TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2, TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseStar::CalculateImKnmEquilibrium()
+   * - Description:
+     - l=2 components of the equilibrium tidal potential Love number for the secondary star, indexed by (n,m).
+   * - Header String:
+     - ImKnm2_10_eq, ImKnm2_12_eq, ImKnm2_22_eq, ImKnm2_32_eq
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1, TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1, TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1, TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_1**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseStar::CalculateImKnmDynamical()
+   * - Description:
+     - l=2 components of the dynamical tidal potential Love number for the primary star, indexed by (n,m).
+   * - Header String:
+     - ImKnm1_10_dyn, ImKnm1_12_dyn, ImKnm1_22_dyn, ImKnm1_32_dyn
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2, TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2, TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2, TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - `derived from` BaseStar::CalculateImKnmDynamical()
+   * - Description:
+     - l=2 components of the dynamical tidal potential Love number for the secondary star, indexed by (n,m).
+   * - Header String:
+     - ImKnm2_10_dyn, ImKnm2_12_dyn, ImKnm2_22_dyn, ImKnm2_32_dyn
+
 
 .. flat-table::
    :widths: 25 75 1 1

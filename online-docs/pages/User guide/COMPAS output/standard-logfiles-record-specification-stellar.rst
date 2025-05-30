@@ -97,8 +97,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - COMPAS variable:
      - 
    * - Description:   
-     - Absolute value of the binding energy of the convective portion of the envelope, via the :cite:`Picker2024` formalism, used for calculating post-CE separation in the 2-stage formalism 
-(erg).
+     - Absolute value of the binding energy of the convective portion of the envelope, via the :cite:`Picker2024` formalism, used for calculating post-CE separation in the 2-stage formalism (erg).
    * - Header Strings:
      -  BE_ConvectiveEnvelope
    
@@ -307,11 +306,6 @@ Following is an alphabetical list of stellar properties available for inclusion 
      - Velocity of single star, equal to binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
    * - Header String:
      - ComponentSpeed    
-
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
 
 .. flat-table::   
    :widths: 25 75 1 1  
