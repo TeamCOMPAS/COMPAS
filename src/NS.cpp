@@ -41,12 +41,12 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
  */
 DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
-    double NSMassAccretionEfficiencyParameter = 1.0;                // This has always been the case, now is just explicit. Make a free parameter/option
+    double NSMassAccretionEfficiencyParameter = OPTIONS->NeutronStarAccretionEfficiencyParameter();                // Neutron star accretion efficiency parameter
     double massAccretionRateEddington = CalculateEddingtonCriticalRate();
-
+    
     double acceptanceRate   = std::min(massAccretionRateEddington, p_DonorMassRate) * NSMassAccretionEfficiencyParameter;
     double fractionAccreted = acceptanceRate / p_DonorMassRate;
-    
+
     return std::make_tuple(acceptanceRate, fractionAccreted);
 }
 
