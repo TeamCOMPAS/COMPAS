@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.21.00 May 29, 2025**
+
+* Updates relevant to formation of millisecond pulsars:
+  - Added more flexible function, CalculateMagneticFieldDecayAccretion_Static, for dealing with magnetic field decay due to accretion
+  - Added Shibazaki et al. 1989 model of magnetic field decay due to accretion
+  - Added new option ``--neutron-star-accretion-efficiency-parameter``
+
 **03.20.01 May 26, 2025**
 
 * Updates to mass accretion for massive ONe WD 

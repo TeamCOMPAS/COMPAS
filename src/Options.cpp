@@ -582,10 +582,10 @@ void Options::OptionValues::Initialise() {
     m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
-    // Neutron star accretion scenario in common envelope
-    m_NeutronStarAccretionInCE.type                                 = NS_ACCRETION_IN_CE::ZERO;
+    // Neutron star accretion
+    m_NeutronStarAccretionInCE.type                                 = NS_ACCRETION_IN_CE::ZERO;                                             // During CE
     m_NeutronStarAccretionInCE.typeString                           = NS_ACCRETION_IN_CE_LABEL.at(m_NeutronStarAccretionInCE.type);
-
+    m_NeutronStarAccretionEfficiencyParameter                       = 1.0;                                                                  // During MT
 
     // Neutron star equation of state
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
@@ -1549,6 +1549,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "muller-mandel-sigma-kick",                                        
             po::value<double>(&p_Options->m_MullerMandelSigmaKick)->default_value(p_Options->m_MullerMandelSigmaKick),                                                                                  
             ("Kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKick) + ")").c_str()
+        )
+
+        (
+            "neutron-star-accretion-efficiency-parameter",
+            po::value<double>(&p_Options->m_NeutronStarAccretionEfficiencyParameter)->default_value(p_Options->m_NeutronStarAccretionEfficiencyParameter),
+            ("Neutron star accretion efficiency parameter during stable MT (default = " + std::to_string(p_Options->m_NeutronStarAccretionEfficiencyParameter) + ")").c_str()
         )
 
         (
@@ -2603,6 +2609,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (m_NeutrinoMassLossAssumptionBH.type == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_FRACTION) {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
+
+        COMPLAIN_IF(m_NeutronStarAccretionEfficiencyParameter < 0.0, "Neutron star accretion efficiency parameter (--neutron-star-accretion-efficiency-parameter) < 0.0")
+        COMPLAIN_IF(m_NeutronStarAccretionEfficiencyParameter > 1.0, "Neutron star accretion efficiency parameter (--neutron-star-accretion-efficiency-parameter) > 1.0")
 
         // check for duplicate notes header strings
         if (!DEFAULTED("notes-hdrs") && m_NotesHdrs.size() > 1) {
@@ -5030,8 +5039,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::NOTES                                          : value = Notes();                                                              break;
 
         case PROGRAM_OPTION::NS_ACCRETION_IN_CE                             : value = static_cast<int>(NeutronStarAccretionInCE());                         break;
+        case PROGRAM_OPTION::NS_ACCRETION_EFFICIENCY_PARAMETER              : value = NeutronStarAccretionEfficiencyParameter();                            break;
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
-
+        
         case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = OrbitalPeriod();                                                      break;
         case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION                    : value = static_cast<int>(OrbitalPeriodDistribution());                        break;
         case PROGRAM_OPTION::ORBITAL_PERIOD_DISTRIBUTION_MAX                : value = OrbitalPeriodDistributionMax();                                       break;

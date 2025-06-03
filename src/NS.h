@@ -109,6 +109,12 @@ protected:
 
             double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
     
+            DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const double p_AccretorMassRate);
+            DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                const double p_AccretorMassRate,
+                                                const bool   p_IsHeRich)                                        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
+
     static  double          CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain);                               // 
     static  double          CalculateMagneticFieldDecayAccretionExponential_Static(const double p_initialMagField, const double p_MassGain);                    
     static  double          CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_initialMagField, const double p_MassGain);

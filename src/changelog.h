@@ -1577,9 +1577,14 @@
 //                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
 //                                          - Set merger on unstable RLOF from WD
 //
+//  03.21.00   SS       - May 29, 2025  - Enhancement:
+//                                         - Added more flexible function, CalculateMagneticFieldDecayAccretion_Static, for dealing with magnetic field decay due to accretion
+//                                         - Added Shibazaki et al. 1989 model of magnetic field decay due to accretion
+//                                         - Added new option --neutron-star-accretion-efficiency-parameter
+//                                         
+//
 
-
-const std::string VERSION_STRING = "03.20.01";
+const std::string VERSION_STRING = "03.21.00";
 
 
 # endif // __changelog_h__
