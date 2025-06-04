@@ -135,12 +135,15 @@ public:
     double              OmegaBreak() const                                              { return CalculateOmegaBreak(); }
     double              OmegaZAMS() const                                               { return m_OmegaZAMS; }
     COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
+    double              PulsarBirthPeriod() const                                       { return m_PulsarDetails.birthPeriod; }
+    double              PulsarBirthSpinDownRate() const                                 { return m_PulsarDetails.birthSpinDownRate; }
+    double              PulsarCoRotationRadius() const                                  { return m_PulsarDetails.coRotationRadius; }
     double              PulsarMagneticField() const                                     { return m_PulsarDetails.magneticField; }
+    double              PulsarMagneticRadius() const                                    { return m_PulsarDetails.magneticRadius; }
     double              PulsarSpinPeriod() const                                        { return m_PulsarDetails.spinPeriod; }
     double              PulsarSpinFrequency() const                                     { return m_PulsarDetails.spinFrequency; }
     double              PulsarSpinDownRate() const                                      { return m_PulsarDetails.spinDownRate; }
-    double              PulsarBirthPeriod() const                                       { return m_PulsarDetails.birthPeriod; }
-    double              PulsarBirthSpinDownRate() const                                 { return m_PulsarDetails.birthSpinDownRate; }
+    bool                PulsarPropellerMode() const                                     { return m_PulsarDetails.propellerMode; }
     double              Radius() const                                                  { return m_Radius; }
     double              RadiusPrev() const                                              { return m_RadiusPrev; }
     unsigned long int   RandomSeed() const                                              { return m_RandomSeed; }

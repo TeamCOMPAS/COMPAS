@@ -517,15 +517,16 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
 
     // calculate the Alfven radius for an accreting neutron star
     // see eq 10 in arxiv:1912.02415 
+    double spinPeriod     = _2_PI / p_SpinFrequency; 
     double p              = p_Radius_6 * p_Radius_6 / (p_mDot * p_mDot * p_Mass);
     double q              = PPOW(p, 1.0 / 7.0);
     double magneticRadius = ALFVEN_CONST * q * PPOW(p_MagField, 4.0 / 7.0) / 2.0;               // Alfven radius / 2.0 (cm)
-    
+
     // calculate the difference in the keplerian angular velocity at the magnetic radius and surface angular velocity of the NS
     // see eq 2 in 1994MNRAS.269..455J / eq 9 in arxiv:1912.02415 
     double omegaK = std::sqrt(G_CGS * p_Mass / magneticRadius) / magneticRadius;                // rad/s
     double vDiff  = omegaK - p_SpinFrequency;                                                   // rad/s
-
+    
     return p_Epsilon * vDiff * magneticRadius * magneticRadius;                                 // eq 12 in arXiv:0805.0059 / eq 8 in arxiv:1912.02415
 }
 
@@ -611,7 +612,19 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         double mDot                       = p_MassGain / p_Stepsize;                                                                        // required mass transfer rate (g s^-1)
         double massFinal                  = initialMass + p_MassGain;                                                                       // required final mass of NS (after accretion) in g
 
+        // Calculate the co-rotation radius based on Eq. 10 in Li et al. 2021
+        m_PulsarDetails.coRotationRadius  = 1.5E8 * PPOW(m_Mass * m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod , 1.0/3.0) ;
 
+        // calculate the Magnetic/Alfven radius for an accreting neutron star
+        // see eq 10 in arxiv:1912.02415 
+        double p              = radius_6 * radius_6 / (mDot * mDot * initialMass);
+        double q              = PPOW(p, 1.0 / 7.0);
+        m_PulsarDetails.magneticRadius = ALFVEN_CONST * q * PPOW(initialMagField, 4.0 / 7.0) / 2.0;   
+        // double vDiff3         = std::sqrt(G_CGS * initialMass / m_PulsarDetails.magneticRadius) / m_PulsarDetails.magneticRadius - m_PulsarDetails.spinFrequency;
+        
+        // std::cout <<m_PulsarDetails.coRotationRadius << " " << m_PulsarDetails.magneticRadius<< " " << vDiff3 << " " << m_Mass << " " << m_PulsarDetails.spinPeriod << std::endl;
+        if (utils::Compare(m_PulsarDetails.magneticRadius, m_PulsarDetails.coRotationRadius) > 0 ) {m_PulsarDetails.propellerMode = true ;}
+        else {m_PulsarDetails.propellerMode = false ;}
         // calculate initial mass slice size for integration
         double jAcc      = DeltaJByAccretion_Static(initialMass, radius_6, m_PulsarDetails.magneticField, m_PulsarDetails.spinFrequency, mDot, p_Epsilon);
         double massSlice = std::fabs(m_AngularMomentum_CGS / 1000.0 / jAcc);                                                                // abs(Jx10^-3 / dJdM)
@@ -625,9 +638,9 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
 
         // ODE
         struct ode {
-            double p_Mass, p_Radius, p_Radius_6, p_MagField, p_Mdot, p_Epsilon;
-            ode(double mass, double radius, double radius_6, double magField, double mdot, double epsilon) :
-                p_Mass(mass), p_Radius(radius), p_Radius_6(radius_6), p_MagField(magField), p_Mdot(mdot), p_Epsilon(epsilon) { }
+            double p_Mass, p_Radius, p_Radius_6, p_MagField, p_Mdot, p_Epsilon, p_Propeller;
+            ode(double mass, double radius, double radius_6, double magField, double mdot, double epsilon, bool propeller) :
+                p_Mass(mass), p_Radius(radius), p_Radius_6(radius_6), p_MagField(magField), p_Mdot(mdot), p_Epsilon(epsilon), p_Propeller(propeller) { }
 
             // x is the current state of the ODE (x[0] = angular momentum J)
             // dxdm is the change of state wrt mass (dxdm[0] = dJdm)
@@ -637,13 +650,19 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
                 // double B = (p_MagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_MassDelta / NS::NS_DECAY_MASS_SCALE) + NS::NS_MAG_FIELD_LOWER_LIMIT;
                 double B = CalculateMagneticFieldDecayAccretion_Static(p_MagField, p_MassDelta);
                 double f = x[0] / CalculateMomentOfInertiaCGS_Static(m, p_Radius);
-                dxdm[0]  = DeltaJByAccretion_Static(m, p_Radius_6, B, f, p_Mdot, p_Epsilon);                                    
+                dxdm[0]  = DeltaJByAccretion_Static(m, p_Radius_6, B, f, p_Mdot, p_Epsilon);   
+                // if (p_Propeller) {
+                //     dxdm[0]  = -1.0 * abs(DeltaJByAccretion_Static(m, p_Radius_6, B, f, p_Mdot, p_Epsilon));         
+                // }
+                // else {
+                //     dxdm[0]  = abs(DeltaJByAccretion_Static(m, p_Radius_6, B, f, p_Mdot, p_Epsilon));         
+                // }                         
             }
         };
 
         // integrate
         controlled_stepper_type stepper;
-        (void)integrate_adaptive(stepper, ode{ initialMass, radius, radius_6, initialMagField, mDot, p_Epsilon }, x, 0.0, p_MassGain, massSlice);
+        (void)integrate_adaptive(stepper, ode{ initialMass, radius, radius_6, initialMagField, mDot, p_Epsilon, m_PulsarDetails.propellerMode }, x, 0.0, p_MassGain, massSlice);
                 
         // final values
         m_AngularMomentum_CGS = x[0];
