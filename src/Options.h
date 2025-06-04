@@ -1124,8 +1124,9 @@ public:
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
-            // Neutron star accretion in common envelope
+            // Neutron star accretion 
             ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NeutronStarAccretionInCE;                                     // NS accretion in common envelope
+            double                                              m_NeutronStarAccretionEfficiencyParameter;                      // Efficiency of accretion onto NS during stable MT
 
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
@@ -1616,8 +1617,9 @@ public:
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
     NS_ACCRETION_IN_CE                          NeutronStarAccretionInCE() const                                        { return OPT_VALUE("neutron-star-accretion-in-ce", m_NeutronStarAccretionInCE.type, true); }
+    double                                      NeutronStarAccretionEfficiencyParameter() const                         { return OPT_VALUE("neutron-star-accretion-efficiency-parameter", m_NeutronStarAccretionEfficiencyParameter, true); } 
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
-
+    
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
     STR_VECTOR                                  Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
     std::string                                 NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }

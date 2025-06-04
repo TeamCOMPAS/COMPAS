@@ -21,6 +21,34 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
     return 0.02 * PPOW(p_Mass, 2.0 / 3.0) / (t * t);
 }
 
+/*
+ * Calculate:
+ *
+ *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
+ *     (b) the accretion efficiency parameter
+ *
+ * The maximum acceptance rate of the accretor star during mass transfer is based on stellar type: this function
+ * is for neutron stars (NS, BH).
+ *
+ * Mass transfer is assumed Eddington limited for NSs. We further impose a maximum accretion efficiency, to account for
+ * inefficiencies in the mass transfer process such as disc instabilities and the propeller effect
+ *
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
+ *
+ * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
+ * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
+ * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
+ */
+DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
+
+    double NSMassAccretionEfficiencyParameter = 1.0;                // This has always been the case, now is just explicit. Make a free parameter/option
+    double massAccretionRateEddington = CalculateEddingtonCriticalRate();
+
+    double acceptanceRate   = std::min(massAccretionRateEddington, p_DonorMassRate) * NSMassAccretionEfficiencyParameter;
+    double fractionAccreted = acceptanceRate / p_DonorMassRate;
+    
+    return std::make_tuple(acceptanceRate, fractionAccreted);
+}
 
 /*
  * Choose timestep for Pulsar Evolution
