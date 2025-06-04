@@ -1193,6 +1193,9 @@ typedef struct PulsarDetails {
     double spinDownRate;                                    // Pulsar spin down rate as time derivative of spin frequency (fdot, rad s^-2)
     double birthPeriod;                                     // Pulsar birth period (s)
     double birthSpinDownRate;                               // Pulsar birth down rate as Pdot (s s^-1)
+    double magneticRadius;                                  // Pulsar mangetic radius during mass transfer (cm)
+    double coRotationRadius;                                // Pulsar co-rotation radius (cm)
+    bool   propellerMode;                                   // Mode of pulsar during mass transfer. True = propeller mode; False = accretion mode. 
 } PulsarDetailsT;
 
 

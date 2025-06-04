@@ -207,6 +207,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.birthPeriod                = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.birthSpinDownRate          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_PulsarDetails.magneticRadius             = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_PulsarDetails.coRotationRadius           = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_PulsarDetails.propellerMode              = DEFAULT_INITIAL_BOOLEAN_VALUE;
+
 
     // Mass Transfer Donor Type History
     m_MassTransferDonorHistory                 = ST_VECTOR();
@@ -362,6 +366,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = PulsarSpinPeriod();                                     break;
         case ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD:                                value = PulsarBirthPeriod();                                    break;
         case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE:                        value = PulsarBirthSpinDownRate();                              break;
+        case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_RADIUS:                             value = PulsarMagneticRadius();                                 break;
+        case ANY_STAR_PROPERTY::PULSAR_COROTATION_RADIUS:                           value = PulsarCoRotationRadius();                               break;
+        case ANY_STAR_PROPERTY::PULSAR_PROPELLER_MODE:                              value = PulsarPropellerMode();                                  break;
         case ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE:                         value = CalculateRadialExpansionTimescale();                    break;
         case ANY_STAR_PROPERTY::RADIUS:                                             value = Radius();                                               break;
         case ANY_STAR_PROPERTY::RANDOM_SEED:                                        value = RandomSeed();                                           break;

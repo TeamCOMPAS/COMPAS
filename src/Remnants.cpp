@@ -30,6 +30,7 @@ DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
     double thisMassRate     = CalculateEddingtonCriticalRate(); 
 
     double acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
+    //if (m_PulsarDetails.propellerMode){ acceptanceRate = 0.0; } //If pulsar is in propellor mode, no mass accretion. 
     double fractionAccreted = acceptanceRate / p_DonorMassRate;
 
     return std::make_tuple(acceptanceRate, fractionAccreted);
