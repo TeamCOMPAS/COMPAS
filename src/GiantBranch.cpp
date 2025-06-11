@@ -1304,8 +1304,10 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
     MT_CASE   massTransferCase = MT_CASE::OTHER;
     double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
+    double    log10Zsol_div_10 = -1;           
+    double    log10Zsol_div_50 = -1.69897;         
     double    M1, M2, M3;
-    double remnantMass;
+    double    remnantMass;
 
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
         m_SupernovaDetails.fallbackFraction = 0;
@@ -1317,17 +1319,19 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     }
     else {                                                                                                              // Determine MT history - this will tell us which Schneider MT case prescription should be used
 
-        // RTW add in the code here for the different cases
         double log10Z_bounded;                                                                      
-        switch (OPTIONS->MaltsevMode()) {                                                                                  // TODO
+        switch (OPTIONS->MaltsevMode()) {                                                                                  
 
-            case MALTSEV_MODE::OPTIMISTIC:                                                                                   // TODO
+            case MALTSEV_MODE::OPTIMISTIC:                                                                                   
                 log10Z_bounded = log10Z;
-            case MALTSEV_MODE::BALANCED:                                                                                     // TODO
-                log10Z_bounded = std::min(std::max(log10Z, LOG10_ZSOL/50), LOG10_ZSOL);
-            case MALTSEV_MODE::PESSIMISTIC:                                                                                  // TODO
-                log10Z_bounded = std::min(std::max(log10Z, LOG10_ZSOL/10), LOG10_ZSOL);
-            default:                                                                                                        // unknown MT_CASE
+                break;
+            case MALTSEV_MODE::BALANCED:                                                                                     
+                log10Z_bounded = std::min(std::max(log10Z, log10Zsol_div_50), LOG10_ZSOL);
+                break;
+            case MALTSEV_MODE::PESSIMISTIC:                                                                                  
+                log10Z_bounded = std::min(std::max(log10Z, log10Zsol_div_10), LOG10_ZSOL);
+                break;
+            default:                                                                                                        
                 // TODO: rewrite this
                 // the only way this can happen is if someone added an MT_CASE
                 // and it isn't accounted for in this code.  We should not default here, with or without a warning.
