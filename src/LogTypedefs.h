@@ -882,6 +882,7 @@ enum class PROGRAM_OPTION: int {
     LBV_MASS_LOSS_PRESCRIPTION,
 
     MALTSEV_FALLBACK,
+    MALTSEV_MODE,
 
     MASS_LOSS_PRESCRIPTION,
 
@@ -1109,6 +1110,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
 
     { PROGRAM_OPTION::MALTSEV_FALLBACK,                                 "MALTSEV_FALLBACK" },
+    { PROGRAM_OPTION::MALTSEV_MODE,                                     "MALTSEV_MODE" },
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
     { PROGRAM_OPTION::MASS_RATIO,                                       "MASS_RATIO" },
@@ -1692,6 +1694,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::MALTSEV_FALLBACK,                                         { TYPENAME::DOUBLE,     "PO_Maltsev_Fallback",                       "-",         24, 15}},
+    { PROGRAM_OPTION::MALTSEV_MODE,                                             { TYPENAME::INT,        "PO_Maltsev_Mode",                           "-",          4, 1 }},
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_RATIO,                                               { TYPENAME::DOUBLE,     "PO_Mass_Ratio",                             "-",         24, 15}},

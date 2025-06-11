@@ -1316,6 +1316,30 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
         remnantMass = p_HeCoreMass;
     }
     else {                                                                                                              // Determine MT history - this will tell us which Schneider MT case prescription should be used
+
+        // RTW add in the code here for the different cases
+        double log10Z_bounded;                                                                      
+        switch (OPTIONS->MaltsevMode()) {                                                                                  // TODO
+
+            case MALTSEV_MODE::OPTIMISTIC:                                                                                   // TODO
+                log10Z_bounded = log10Z;
+            case MALTSEV_MODE::BALANCED:                                                                                     // TODO
+                log10Z_bounded = std::min(std::max(log10Z, LOG10_ZSOL/50), LOG10_ZSOL);
+            case MALTSEV_MODE::PESSIMISTIC:                                                                                  // TODO
+                log10Z_bounded = std::min(std::max(log10Z, LOG10_ZSOL/10), LOG10_ZSOL);
+            default:                                                                                                        // unknown MT_CASE
+                // TODO: rewrite this
+                // the only way this can happen is if someone added an MT_CASE
+                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+                // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
+                // account for, and that should be flagged as an error and result in termination of the evolution
+                // of the star or binary.
+                // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
+                // incorrect/superfluous, remove it from the possible MT_CASE values.
+
+                THROW_ERROR(ERROR::UNKNOWN_MALTSEV_MODE);                                                                   // throw error
+        }
+
         if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
             massTransferCase = MT_CASE::NONE;
         }
@@ -1332,28 +1356,27 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
 
             case MT_CASE::NONE:                                                                                             // no history of MT
             case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
-
-                M1 = std::min(std::max(MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z, MALTSEV2024_M1SZ01), MALTSEV2024_M1S);
-                M2 = std::min(std::max(MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z, MALTSEV2024_M2SZ01), MALTSEV2024_M2S);
-                M3 = std::min(std::max(MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z, MALTSEV2024_M3SZ01), MALTSEV2024_M3S);
+                M1 = MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z_bounded;
                 break;
 
             case MT_CASE::A:                                                                                             // case A MT
-                M1 = std::min(std::max(MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z, MALTSEV2024_M1AZ01), MALTSEV2024_M1A);
-                M2 = std::min(std::max(MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z, MALTSEV2024_M2AZ01), MALTSEV2024_M2A);
-                M3 = std::min(std::max(MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z, MALTSEV2024_M3AZ01), MALTSEV2024_M3A);
+                M1 = MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z_bounded;
                 break;
 
             case MT_CASE::B:                                                                                             // case B MT
-                M1 = std::min(std::max(MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z, MALTSEV2024_M1BZ01), MALTSEV2024_M1B);
-                M2 = std::min(std::max(MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z, MALTSEV2024_M2BZ01), MALTSEV2024_M2B);
-                M3 = std::min(std::max(MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z, MALTSEV2024_M3BZ01), MALTSEV2024_M3B);
+                M1 = MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z_bounded;
                 break;
 
             case MT_CASE::C:                                                                                             // case C MT
-                M1 = std::min(std::max(MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z, MALTSEV2024_M1CZ01), MALTSEV2024_M1C);
-                M2 = std::min(std::max(MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z, MALTSEV2024_M2CZ01), MALTSEV2024_M2C);
-                M3 = std::min(std::max(MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z, MALTSEV2024_M3CZ01), MALTSEV2024_M3C);
+                M1 = MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z_bounded;
                 break;
 
             default:                                                                                                        // unknown MT_CASE

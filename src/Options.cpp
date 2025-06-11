@@ -359,6 +359,8 @@ void Options::OptionValues::Initialise() {
     m_BlackHoleKicksMode.typeString                                 = BLACK_HOLE_KICKS_MODE_LABEL.at(m_BlackHoleKicksMode.type);
 
     m_MaltsevFallback                                               = 0.5;
+    m_MaltsevMode.type                                              = MALTSEV_MODE::BALANCED;
+    m_MaltsevMode.typeString                                        = MALTSEV_MODE_LABEL.at(m_MaltsevMode.type);
 
     // Rocket kicks
     m_RocketKickMagnitude1                                          = 0.0;
@@ -1948,6 +1950,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Main Sequence core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-mass-prescription") + ", default = '" + p_Options->m_MainSequenceCoreMassPrescription.typeString + "')").c_str()
         )
         (
+            "maltsev-mode",
+            po::value<std::string>(&p_Options->m_MaltsevMode.typeString)->default_value(p_Options->m_MaltsevMode.typeString),                                                                  
+            ("Maltsev mode (" + AllowedOptionValuesFormatted("maltsev-mode") + ", default = '" + p_Options->m_MaltsevMode.typeString + "')").c_str()
+        )
+        (
             "mass-loss-prescription",
             po::value<std::string>(&p_Options->m_MassLossPrescription.typeString)->default_value(p_Options->m_MassLossPrescription.typeString),                                                                  
             ("Mass loss prescription (" + AllowedOptionValuesFormatted("mass-loss-prescription") + ", default = '" + p_Options->m_MassLossPrescription.typeString + "')").c_str()
@@ -2400,6 +2407,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
         }
         
+        if (!DEFAULTED("maltsev-mode")) {                                                                                 // mass loss prescription
+            std::tie(found, m_MaltsevMode.type) = utils::GetMapKey(m_MaltsevMode.typeString, MALTSEV_MODE_LABEL, m_MaltsevMode.type);
+            COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
+        }
+
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
             std::tie(found, m_MassLossPrescription.type) = utils::GetMapKey(m_MassLossPrescription.typeString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
@@ -2798,6 +2810,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
+        case _("maltsev-mode")                                      : POPULATE_RET(MALTSEV_MODE_LABEL);                             break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
         case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;
@@ -4968,7 +4981,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
 
         case PROGRAM_OPTION::MALTSEV_FALLBACK                               : value = MaltsevFallback();                                                    break;                     
-            
+        case PROGRAM_OPTION::MALTSEV_MODE                                   : value = static_cast<int>(MaltsevMode());                                      break;                     
+
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
         case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
