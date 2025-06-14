@@ -1310,15 +1310,6 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     double    M1, M2, M3;
     double    remnantMass;
 
-    std::cout << 
-        "\nLOG10_ZSOL = " << LOG10_ZSOL <<
-        "\nlog10Zsol_div_10 = " << log10Zsol_div_10 <<
-        "\nlog10Zsol_div_50 = " << log10Zsol_div_50 <<
-        "\nm_Log10Metallicity = " << m_Log10Metallicity <<  
-        "\nlog10Z = " << log10Z << std::endl;
-
-
-
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
         m_SupernovaDetails.fallbackFraction = 0;
         remnantMass = 1.35; //CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
