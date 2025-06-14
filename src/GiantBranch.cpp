@@ -1304,10 +1304,20 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
     MT_CASE   massTransferCase = MT_CASE::OTHER;
     double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
-    double    log10Zsol_div_10 = -1;           
-    double    log10Zsol_div_50 = -1.69897;         
+    double    log10_1          = 0;                                                                                     // useful for the limits later 
+    double    log10_1_div_10   = -1;                                                                                    // useful for the limits later             
+    double    log10_1_div_50   = -1.69897;                                                                              // useful for the limits later                 
     double    M1, M2, M3;
     double    remnantMass;
+
+    std::cout << 
+        "\nLOG10_ZSOL = " << LOG10_ZSOL <<
+        "\nlog10Zsol_div_10 = " << log10Zsol_div_10 <<
+        "\nlog10Zsol_div_50 = " << log10Zsol_div_50 <<
+        "\nm_Log10Metallicity = " << m_Log10Metallicity <<  
+        "\nlog10Z = " << log10Z << std::endl;
+
+
 
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
         m_SupernovaDetails.fallbackFraction = 0;
@@ -1319,17 +1329,17 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     }
     else {                                                                                                              // Determine MT history - this will tell us which Schneider MT case prescription should be used
 
-        double log10Z_bounded;                                                                      
+        double log10Z_bounded; // This is really log10(Z/Zsol), so it is 0 for Z=Zsol, -1 for Z=Zsol/10 and log10(1/50) for ...                                                                      
         switch (OPTIONS->MaltsevMode()) {                                                                                  
 
             case MALTSEV_MODE::OPTIMISTIC:                                                                                   
                 log10Z_bounded = log10Z;
                 break;
             case MALTSEV_MODE::BALANCED:                                                                                     
-                log10Z_bounded = std::min(std::max(log10Z, log10Zsol_div_50), LOG10_ZSOL);
+                log10Z_bounded = std::min(std::max(log10Z, log10_1_div_50), log10_1);
                 break;
             case MALTSEV_MODE::PESSIMISTIC:                                                                                  
-                log10Z_bounded = std::min(std::max(log10Z, log10Zsol_div_10), LOG10_ZSOL);
+                log10Z_bounded = std::min(std::max(log10Z, log10_1_div_10), log10_1);
                 break;
             default:                                                                                                        
                 // TODO: rewrite this
