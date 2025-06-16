@@ -21,34 +21,39 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
     return 0.02 * PPOW(p_Mass, 2.0 / 3.0) / (t * t);
 }
 
-/*
- * Calculate:
- *
- *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
- *     (b) the accretion efficiency parameter
- *
- * The maximum acceptance rate of the accretor star during mass transfer is based on stellar type: this function
- * is for neutron stars (NS, BH).
- *
- * Mass transfer is assumed Eddington limited for NSs. We further impose a maximum accretion efficiency, to account for
- * inefficiencies in the mass transfer process such as disc instabilities and the propeller effect
- *
- * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
- *
- * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
- * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
- * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
- */
-DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
+// /*
+//  * Calculate:
+//  *
+//  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
+//  *     (b) the accretion efficiency parameter
+//  *
+//  * The maximum acceptance rate of the accretor star during mass transfer is based on stellar type: this function
+//  * is for neutron stars (NS, BH).
+//  *
+//  * Mass transfer is assumed Eddington limited for NSs. We further impose a maximum accretion efficiency, to account for
+//  * inefficiencies in the mass transfer process such as disc instabilities and the propeller effect
+//  *
+//  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
+//  *
+//  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
+//  * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
+//  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
+//  */
+// DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
-    double NSMassAccretionEfficiencyParameter = OPTIONS->NeutronStarAccretionEfficiencyParameter();                // Neutron star accretion efficiency parameter
-    double massAccretionRateEddington = CalculateEddingtonCriticalRate();
-    
-    double acceptanceRate   = std::min(massAccretionRateEddington, p_DonorMassRate) * NSMassAccretionEfficiencyParameter;
-    double fractionAccreted = acceptanceRate / p_DonorMassRate;
+//     double NSMassAccretionEfficiencyParameter = OPTIONS->NeutronStarAccretionEfficiencyParameter();                // Neutron star accretion efficiency parameter
+//     double massAccretionRateEddington = CalculateEddingtonCriticalRate();
 
-    return std::make_tuple(acceptanceRate, fractionAccreted);
-}
+//     std::cout << "massAccretionRateEddington = " << massAccretionRateEddington << std::endl;
+
+//     double acceptanceRate   = std::min(massAccretionRateEddington, p_DonorMassRate) * NSMassAccretionEfficiencyParameter;
+//     double fractionAccreted = acceptanceRate / p_DonorMassRate;
+
+//     std::cout << "NS::CalculateMassAcceptanceRate" << std::endl;
+//     std::cout << "acceptanceRate, fractionAccreted = " << acceptanceRate << " " << fractionAccreted << std::endl;
+
+//     return std::make_tuple(acceptanceRate, fractionAccreted);
+// }
 
 /*
  * Choose timestep for Pulsar Evolution
@@ -70,12 +75,13 @@ double NS::ChooseTimestep(const double p_Time) const {
          if (p_Time < 0.01 ) result = 0.001;
     else if (p_Time < 0.1  ) result = 0.01;
     else if (p_Time < 1.0  ) result = 0.1;
-    else if (p_Time < 10.0 ) result = 1.0;
-    else if (p_Time < 500.0) {
-        double slope      = 1.58859191006;                      // 1.58859191006 = log10(500.0) / (log10(500.0) - 1.0)
-        double log10_step = slope * (log10(p_Time) - 1.0);
-        result            = PPOW(10.0, log10_step);
-    }
+    else if (p_Time < 3000.0 ) result = 1.0;
+    else if (p_Time > 3000.0 ) result = 100.0;
+    // else if (p_Time < 500.0) {
+    //     double slope      = 1.58859191006;                      // 1.58859191006 = log10(500.0) / (log10(500.0) - 1.0)
+    //     double log10_step = slope * (log10(p_Time) - 1.0);
+    //     result            = PPOW(10.0, log10_step);
+    // }
 
     return result;
 }

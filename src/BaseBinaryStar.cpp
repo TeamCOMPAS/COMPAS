@@ -2060,17 +2060,45 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                                                                                           m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                                                                           donorIsHeRich);
     double massDiffDonor = 0.0;
-        
+    
+    std::cout << "CalculateMassTransfer" << std::endl;
+    std::cout << "Time = " << m_Time << std::endl;
+    std::cout << "Donor mass = " << m_Donor->Mass() << std::endl;
+    std::cout << "Accretor mass = " << m_Accretor->Mass() << std::endl;
+    std::cout << "maximumAccretionRate, betaThermal = " <<  maximumAccretionRate << " " << betaThermal << std::endl;
+
     // can the mass transfer happen on a nuclear timescale?
     if (m_Donor->IsOneOf(NON_COMPACT_OBJECTS)) {
         // technically, we do not know how much mass the accretor should gain until we do the calculation, 
         // which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
         double maximumAccretedMass = maximumAccretionRate * m_Dt;
+
+        std::cout << "maximumAccretionRate = " << maximumAccretionRate << std::endl;
+        std::cout << "m_Dt = " << m_Dt << std::endl;
+        std::cout << "maximumAccretedMass = " << maximumAccretedMass << std::endl;
+
         if (OPTIONS->MassTransferAccretionEfficiencyPrescription() == MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED) {
             massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, maximumAccretedMass);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed accretion amount
             m_FractionAccreted = std::min(maximumAccretedMass, massDiffDonor) / massDiffDonor;
+
+            std::cout << "NON_COMPACT_OBJECT donor, THERMALLY LIMITED" << std::endl;
+            std::cout << "massDiffDonor = " << massDiffDonor << std::endl;
+            std::cout << "maximumAccretedMass = " << maximumAccretedMass << std::endl;
+            std::cout << "std::min(maximumAccretedMass, massDiffDonor) = " << std::min(maximumAccretedMass, massDiffDonor) << std::endl;
+            std::cout << "m_FractionAccreted = " << m_FractionAccreted << std::endl;
+            
+            // The above statement can result in m_FractionAccreted = 1 for sub-Eddington accretion.
+            // There are two options here. We can either multiply m_FractionAccreted by the NeutronStarAccretionEfficiencyParameter
+            // or we can set m_FractionAccreted to be the minimum of NeutronStarAccretionEfficiencyParameter and m_FractionAccreted 
+            // Jeff suggests that we could put this into a ::CalculateFractionAccreted function
+            if (m_Accretor->StellarType() == STELLAR_TYPE::NEUTRON_STAR){
+                m_FractionAccreted *= OPTIONS->NeutronStarAccretionEfficiencyParameter(); 
+            } 
+            // m_FractionAccreted = std::min(m_FractionAccreted, OPTIONS->NeutronStarAccretionEfficiencyParameter());
+            std::cout << "m_FractionAccreted = " << m_FractionAccreted << std::endl;
         }
         else {
+            std::cout << "NON_COMPACT_OBJECT donor, else" << std::endl;
             m_FractionAccreted = maximumAccretionRate / donorMassLossRateThermal;   // relevant for MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION
             massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);              // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
         }
@@ -2160,6 +2188,10 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
             double massGainAccretor  = -massDiffDonor * m_FractionAccreted;                                                     // set accretor mass gain to mass loss * conservativeness
             double omegaDonor_pre_MT = m_Donor->Omega();                                                                        // used if full donor envelope is removed
+
+            std::cout << "massGainAccretor = " << massGainAccretor << std::endl;
+            std::cout << "massDiffDonor = " << massDiffDonor << std::endl;
+            std::cout << "m_FractionAccreted = " << m_FractionAccreted << std::endl << std::endl;
 
             m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass gain rate for MS accretor
             m_Accretor->UpdateMainSequenceCoreMass(p_Dt, massGainAccretor / (p_Dt * MYR_TO_YEAR));                              // update core mass for MS accretor
