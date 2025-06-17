@@ -1149,6 +1149,7 @@ public:
             // Pulsar magnetic field decay options
             ENUM_OPT<PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL> m_PulsarMagneticFieldDecayAccretionModel;                     // Model for decay of pulsar magnetic field due to accretion
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
+            double                                              m_PulsarMagneticFieldDecayTimescalePower;                       // Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
             
@@ -1661,6 +1662,7 @@ public:
     double                                      PulsarLog10MinimumMagneticField() const                                 { return OPT_VALUE("pulsar-minimum-magnetic-field", m_PulsarLog10MinimumMagneticField, true); }
     double                                      PulsarMagneticFieldDecayMassscale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-massscale", m_PulsarMagneticFieldDecayMassscale, true); }
     double                                      PulsarMagneticFieldDecayTimescale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-timescale", m_PulsarMagneticFieldDecayTimescale, true); }
+    double                                      PulsarMagneticFieldDecayTimescalePower() const                          { return OPT_VALUE("pulsar-magnetic-field-decay-timescale-power", m_PulsarMagneticFieldDecayTimescalePower, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }

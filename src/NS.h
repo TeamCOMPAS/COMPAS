@@ -106,18 +106,15 @@ protected:
 
     static  double          CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time);
             double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
-
-            double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
     
-            // DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-            //                                     const double p_AccretorMassRate);
-            // DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-            //                                     const double p_AccretorMassRate,
-            //                                     const bool   p_IsHeRich)                                        { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
-
     static  double          CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain);                               // 
     static  double          CalculateMagneticFieldDecayAccretionExponential_Static(const double p_initialMagField, const double p_MassGain);                    
     static  double          CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_initialMagField, const double p_MassGain);
+
+            double          CalculateMagneticFieldDecayTimescale();
+            double          CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField);
+
+            double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds
 
     static  double          CalculateMomentOfInertiaCGS_Static(const double p_Mass, const double p_Radius);                                                     // MoI in CGS            
             double          CalculateMomentOfInertiaCGS() const                 { return CalculateMomentOfInertiaCGS_Static(m_Mass * MSOL_TO_G, m_Radius * RSOL_TO_CM); } // MOI in CGS - use member variables
@@ -130,7 +127,8 @@ protected:
             double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const { return CalculateRadiusOnPhase(); }                               // not a meaningful calculation for NS, ignore arguments
 
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
-  
+            double          CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod);
+
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                              // not a meaningful calculation for NS and BH
             void            CalculateTimescales() { }                                                                                                           // not a meaningful calculation for NS and BH
 

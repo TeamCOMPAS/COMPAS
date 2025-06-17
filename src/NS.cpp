@@ -21,40 +21,6 @@ double NS::CalculateLuminosityOnPhase_Static(const double p_Mass, const double p
     return 0.02 * PPOW(p_Mass, 2.0 / 3.0) / (t * t);
 }
 
-// /*
-//  * Calculate:
-//  *
-//  *     (a) the maximum mass acceptance rate of this star, as the accretor, during mass transfer, and
-//  *     (b) the accretion efficiency parameter
-//  *
-//  * The maximum acceptance rate of the accretor star during mass transfer is based on stellar type: this function
-//  * is for neutron stars (NS, BH).
-//  *
-//  * Mass transfer is assumed Eddington limited for NSs. We further impose a maximum accretion efficiency, to account for
-//  * inefficiencies in the mass transfer process such as disc instabilities and the propeller effect
-//  *
-//  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
-//  *
-//  * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
-//  * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
-//  * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
-//  */
-// DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
-
-//     double NSMassAccretionEfficiencyParameter = OPTIONS->NeutronStarAccretionEfficiencyParameter();                // Neutron star accretion efficiency parameter
-//     double massAccretionRateEddington = CalculateEddingtonCriticalRate();
-
-//     std::cout << "massAccretionRateEddington = " << massAccretionRateEddington << std::endl;
-
-//     double acceptanceRate   = std::min(massAccretionRateEddington, p_DonorMassRate) * NSMassAccretionEfficiencyParameter;
-//     double fractionAccreted = acceptanceRate / p_DonorMassRate;
-
-//     std::cout << "NS::CalculateMassAcceptanceRate" << std::endl;
-//     std::cout << "acceptanceRate, fractionAccreted = " << acceptanceRate << " " << fractionAccreted << std::endl;
-
-//     return std::make_tuple(acceptanceRate, fractionAccreted);
-// }
-
 /*
  * Choose timestep for Pulsar Evolution
  *
@@ -440,6 +406,80 @@ void NS::CalculateAndSetPulsarParameters() {
     m_AngularMomentum_CGS             = m_MomentOfInertia_CGS * m_PulsarDetails.spinFrequency;                              // in CGS g cm^2 s^-1
 }
 
+/*
+ * Calculate the NS magnetic field decay timescale (in Myr)
+ * 
+ * taud = tauconst * (Bref/B)**alpha
+ * where tauconst is taud(B=Bref). We assume Bref = 1E11 G.
+ * 
+ * From Dall'Osso et al. 2012 (https://academic.oup.com/mnras/article/422/4/2878/1048228) 
+ * following Colpi et al. 2000 (https://iopscience.iop.org/article/10.1086/312448)
+ * 
+ * double CalculateMagneticFieldDecayTimescale
+ * 
+ * @return                                      Magnetic field decay timescale for an isolated neutron star in Myr
+ *  
+ * */
+double NS::CalculateMagneticFieldDecayTimescale(){
+
+    std::cout << "CalculateMagneticFieldDecayTimescale" << std::endl;
+
+    double taud                 = 0.0;                                                          // Initialise variable to hold magnetic field decay timescale
+    double Bref                 = 1E11;                                                         // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
+    double initialMagField_G    = m_PulsarDetails.magneticField * TESLA_TO_GAUSS;               // Convert T to G 
+
+    std::cout << "Bref = " << Bref << std::endl;
+    std::cout << "initialMagField_G = " << initialMagField_G << std::endl;
+
+    if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){                              // No scaling with magnetic field
+        std::cout << "alpha = 0" << std::endl;
+        taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                                    // Decay timescale is just a constant
+    }
+    else{
+        std::cout << "alpha != 0" << std::endl;
+        std::cout << "B = " << m_PulsarDetails.magneticField << std::endl;
+        taud = OPTIONS->PulsarMagneticFieldDecayTimescale() * PPOW(Bref/initialMagField_G, OPTIONS->PulsarMagneticFieldDecayTimescalePower());
+    }
+    
+    std::cout << "tauconst = " << OPTIONS->PulsarMagneticFieldDecayTimescale() << std::endl;
+    std::cout << "taud = " << taud << std::endl;
+
+    return taud;
+}
+
+/*
+ * Calculate the magnetic field strength as a function of time due to magnetic field decay
+ * 
+ * double CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField)
+ * 
+ * @param       [IN]    p_Time                  Time in seconds
+ * @param       [IN]    p_initialMagField       Initial magnetic field strength in G
+ * @return              Magnetic field strength timescale for an isolated neutron star in Myr
+ * 
+ */
+double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField){
+
+    std::cout << "CalculateMagneticFieldStrengthOnPhase" << std::endl;
+    std::cout << "p_Time " << p_Time << std::endl;
+
+    double magneticFieldStrength = 0.0;
+
+    double magFieldLowerLimit    = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA; 
+    double tau                   = CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
+    const double alpha           = OPTIONS->PulsarMagneticFieldDecayTimescalePower();                                
+
+    if (alpha == 0.0){              // see Equation 6 in  arXiv:0903.3538v2    
+        std::cout << "alpha == 0" << std::endl;
+        magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * exp(-p_Time / tau);   // update pulsar magnetic field in SI. 
+    }
+    else{                   // Equation 8 in Dall'Osso et al. 2012 (https://ui.adsabs.harvard.edu/abs/2012MNRAS.422.2878D/abstract) but with a minimum magnetic field
+        std::cout << "alpha != 0" << std::endl;
+        magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * PPOW(1.0 + alpha*(p_Time/tau), -1.0/alpha);
+        std::cout << "p_initialMagField, magneticFieldStrength = " << p_initialMagField << " " << magneticFieldStrength << std::endl;
+    }
+
+    return magneticFieldStrength;
+}
 
 /*
  * Update the magnetic field and spins of isolated pulsar

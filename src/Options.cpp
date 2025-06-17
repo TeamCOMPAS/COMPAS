@@ -612,6 +612,7 @@ void Options::OptionValues::Initialise() {
     m_PulsarMagneticFieldDecayAccretionModel.type                   = PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::EXPONENTIAL;
     m_PulsarMagneticFieldDecayAccretionModel.typeString             = PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL.at(m_PulsarMagneticFieldDecayAccretionModel.type);
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
+    m_PulsarMagneticFieldDecayTimescalePower                        = 0.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
@@ -1659,6 +1660,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Timescale on which magnetic field decays, in Myr (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
         )
         (
+            "pulsar-magnetic-field-decay-timescale-power",                       
+            po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescalePower)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescalePower),                                                    
+            ("Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescalePower) + ")").c_str()
+        )
+        (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
@@ -2629,6 +2635,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_OverallWindMassLossMultiplier < 0.0, "Overall wind mass loss multiplier (--overall-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale") && m_PulsarMagneticFieldDecayTimescale <= 0.0, "Pulsar magnetic field decay timescale (--pulsar-magnetic-field-decay-timescale) <= 0");
+        COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale-power") && m_PulsarMagneticFieldDecayTimescalePower < 0.0, "Pulsar magnetic field decay timescale power (--pulsar-magnetic-field-decay-timescale-power) < 0"); // Power should be >= 0
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
         COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMax <= m_PulsarBirthMagneticFieldDistributionMin, "Pulsar birth magnetic field max (--pulsar-birth-magnetic-field-distribution-max) <= min (--pulsar-birth-magnetic-field-distribution-max)");
