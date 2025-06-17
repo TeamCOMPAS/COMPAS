@@ -336,7 +336,7 @@ public:
     
             bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
 
-    virtual void            SpinDownIsolatedPulsar(const double p_Stepsize)                                     { }                                                                 // Default is NO-OP
+    virtual void            SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS)                                     { }                                                                 // Default is NO-OP
 
     virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                     // Except MS stars
     

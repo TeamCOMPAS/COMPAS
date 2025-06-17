@@ -501,8 +501,9 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
  * void SpinDownIsolatedPulsar(const double p_Stepsize)
  *
  * @param   [IN]    p_Stepsize                  Timestep size for integration (in seconds)
+ * @param   [IN]    p_RecycledNS                Boolean flag indicating whether this star is/was a recycled NS
  */
-void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
+void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS) {
 
     double radius_IN_CM      = m_Radius * RSOL_TO_KM * KM_TO_CM;
     double radius_3          = radius_IN_CM * radius_IN_CM * radius_IN_CM;
@@ -513,16 +514,24 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     double initialMagField   = m_PulsarDetails.magneticField;     
     double initialSpinPeriod = m_PulsarDetails.spinPeriod;
  
-    // calculate the decay of magnetic field for an isolated neutron star
-    // see Equation 6 in  arXiv:0903.3538v2       
-    if (utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
-        // if magnetic field is already lower than the lower limit, 
-        // set it to the value at the beginning of the timestep.
+    // If the NS is not recycled, calculate magnetic field decay
+    if (!p_RecycledNS){
+        // calculate the decay of magnetic field for an isolated neutron star
+        // see Equation 6 in  arXiv:0903.3538v2       
+        if (utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
+            // if magnetic field is already lower than the lower limit, 
+            // set it to the value at the beginning of the timestep.
+            m_PulsarDetails.magneticField = initialMagField;
+        }
+        else {
+            m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
+        }
+    }
+    else{
+        // Assume constant magnetic field strength
         m_PulsarDetails.magneticField = initialMagField;
     }
-    else {
-        m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
-    }
+
     // calculate the spin down rate for isolated neutron stars
     // see Equation 3 in arxiv:2406.11428
     // Note that magnetic and rotational axes are orthogonal, leading to sin^2(alpha) = 1 in this equation. 
@@ -614,7 +623,7 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
 
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGain, 0.0) == 0 )) {                                 // 'classical' isolated pulsars
         std::cout << "Isolated spindown 1" << std::endl;
-        SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // spin down
+        SpinDownIsolatedPulsar(p_Stepsize, p_RecycledNS);                                                                                                 // spin down
     }
     else if (p_CommonEnvelope && (OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::SURFACE)) {                                    // mass transfer through CE when accretion happens at the surface of the NS
 
@@ -728,14 +737,11 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         double fDot                   = (m_AngularMomentum_CGS - initialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;          // eq. 11 in arxiv:1912.02415 
         m_PulsarDetails.spinDownRate  = -fDot * m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod / _2_PI;
     }      
-    // This last block is meant to be a catch all for other situations
-    // However it seems to apply isolated pulsar spin down to recycled pulsars.
-    // At the moment, we don't want to do this.
-    // else {          
-    //     std::cout << "Isolated spindown 2" << std::endl;                                                                                                                        // otherwise...    
-    //     std::cout << "p_RecylcedNS = " << p_RecycledNS << std::endl;
-    //     SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // ...treat the pulsar as isolated - spin down
-    // }
+    else {          
+        std::cout << "Isolated spindown 2" << std::endl;                                                                                                                        // otherwise...    
+        std::cout << "p_RecylcedNS = " << p_RecycledNS << std::endl;
+        SpinDownIsolatedPulsar(p_Stepsize, p_RecycledNS);                                                                                                 // ...treat the pulsar as isolated - spin down
+    }
 }
 
 

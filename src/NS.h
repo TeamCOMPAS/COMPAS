@@ -142,7 +142,7 @@ protected:
                                                            const double p_CompanionEnvelope = 0.0);
     
             bool            ShouldEvolveOnPhase() const                         { return (m_Mass <= OPTIONS->MaximumNeutronStarMass()); }                       // Evolve as a neutron star unless mass > maximum neutron star mass (e.g. through accretion)
-            void            SpinDownIsolatedPulsar(const double p_Stepsize);
+            void            SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS);
             void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                        const bool   p_RecycledNS,
                                                        const double p_Stepsize,

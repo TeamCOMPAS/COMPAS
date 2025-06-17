@@ -254,8 +254,8 @@ public:
     double     	    SN_RocketKickPhi()       									                                    { return m_Star->SN_RocketKickPhi(); }
     double     	    SN_RocketKickTheta()       									                                    { return m_Star->SN_RocketKickTheta(); }
     
-    void            SpinDownIsolatedPulsar(const double p_Stepsize)                                                 { m_Star->SpinDownIsolatedPulsar(p_Stepsize); }
-
+    void            SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS)                        { m_Star->SpinDownIsolatedPulsar(p_Stepsize, p_RecycledNS); }
+    
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
     
     double          TAMSCoreMass() const                                                                            { return m_Star->TAMSCoreMass(); }
