@@ -613,6 +613,7 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, double p_Stepsize, double p_MassGain, const double p_Epsilon) {
 
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGain, 0.0) == 0 )) {                                 // 'classical' isolated pulsars
+        std::cout << "Isolated spindown 1" << std::endl;
         SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // spin down
     }
     else if (p_CommonEnvelope && (OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::SURFACE)) {                                    // mass transfer through CE when accretion happens at the surface of the NS
@@ -727,9 +728,14 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         double fDot                   = (m_AngularMomentum_CGS - initialAngularMomentum_CGS) / m_MomentOfInertia_CGS / p_Stepsize;          // eq. 11 in arxiv:1912.02415 
         m_PulsarDetails.spinDownRate  = -fDot * m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod / _2_PI;
     }      
-    else {                                                                                                                                  // otherwise...    
-        SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // ...treat the pulsar as isolated - spin down
-    }
+    // This last block is meant to be a catch all for other situations
+    // However it seems to apply isolated pulsar spin down to recycled pulsars.
+    // At the moment, we don't want to do this.
+    // else {          
+    //     std::cout << "Isolated spindown 2" << std::endl;                                                                                                                        // otherwise...    
+    //     std::cout << "p_RecylcedNS = " << p_RecycledNS << std::endl;
+    //     SpinDownIsolatedPulsar(p_Stepsize);                                                                                                 // ...treat the pulsar as isolated - spin down
+    // }
 }
 
 
