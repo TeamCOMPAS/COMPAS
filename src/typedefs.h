@@ -522,7 +522,6 @@ enum class GBP: int {
     McBGB,                  // Core mass at BGB (Base of Giant Branch)
     McBAGB,                 // Core mass at BAGB (Base of Asymptotic Giant Branch).  Hurley et al. 2000, eq 66 (also see eq 75 and discussion)
     McDU,                   // Core mass at second dredge up.  Hurley et al. 2000, eq 69
-    McSN,                   // Core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
 
     COUNT                   // Sentinel for entry count
 };

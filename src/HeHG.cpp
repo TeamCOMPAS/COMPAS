@@ -65,8 +65,6 @@ void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 	gbParams(McBAGB) = CalculateCoreMassAtBAGB();
 	gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
-
 #undef gbParams
 }
 
@@ -133,8 +131,6 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
     
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
-
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
@@ -412,12 +408,10 @@ double HeHG::ChooseTimestep(const double p_Time) const {
  * @return                                      Boolean flag: true if evolution on this phase should continue, false if not
  */
 bool HeHG::ShouldEvolveOnPhase() const {
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
-
-#undef gbParams
+    double McSN  = CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)]);
+    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, McSN) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
 }
 
 
@@ -484,7 +478,7 @@ bool HeHG::IsSupernova() const {
         return (utils::Compare(m_Mass, MECS) > 0);
     }
         
-    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
+    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
 }
 
 /*

@@ -978,8 +978,11 @@ double TPAGB::ChooseTimestep(const double p_Time) const {
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
 bool TPAGB::IsSupernova() const {
-    // no supernova if CO core mass is too low or helium core mass is too low at base of AGB or the envelope has already been removed
-    return utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && 
-           utils::Compare(CalculateInitialSupernovaMass(), OPTIONS->MCBUR1())    >= 0 && 
-           utils::Compare(m_COCoreMass, m_Mass) < 0;
+    double snMass = CalculateInitialSupernovaMass();
+    bool isCCSN = utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
+        utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
+    bool isECSN = utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN()) &&
+        utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
+        utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
+    return isCCSN || isECSN;
 }
