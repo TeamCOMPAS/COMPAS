@@ -9,6 +9,9 @@ Please also cite:
 .. _cite-compas:
 
     Team COMPAS: J. Riley `et al.` [:cite:year:`compas2021`]. |_| |_| |_| |_| |_| |_| :download:`Bibtex citation <../COMPAS-2021methodsPaper.bib>`
+    
+    Team COMPAS: I. Mandel `et al.` [:cite:year:`compas2025`]. |_| |_| |_| |_| |_| |_| :download:`Bibtex citation <../COMPAS-2025methodsPaper.bib>`
+    
 
 |br|
 We would also greatly appreciate an acknowledgement of the form:
