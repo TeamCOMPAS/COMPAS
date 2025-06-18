@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.20.03 June 18, 2025**
+
+* Resolved an issue that appeared in 03.10.02 with some TPAGB stars in the ECSN range (but not satisfying ECSN conditions) exploding as core-collapse supernovae
+
 **03.20.01 May 26, 2025**
 
 * Updates to mass accretion for massive ONe WD 

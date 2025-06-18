@@ -1576,10 +1576,10 @@
 //                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
 //                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
 //                                          - Set merger on unstable RLOF from WD
-//  03.20.02   IM - May 30, 2026        - Defect repair, enhancement:
+//  03.20.02   IM - May 30, 2025        - Defect repair, enhancement:
 //                                          - Included unit conversion in WhiteDwarfs::CalculateEtaPTY()
 //                                          - All critical mass ratios now return the HURLEY_HJELLMING_WEBBINK_QCRIT_WD for white dwarfs and 0 for other remnant donors (only stable mass transfer) as fix for issue #1385
-//  03.20.03   IM - June 18, 2026       - Defect repair, enhancement:
+//  03.20.03   IM - June 18, 2025       - Defect repair, enhancement:
 //                                          - TPAGB stars should no longer experience supernovae if SN conditions are not satisfied, rather than defaulting to CCSN (corrects the partial fix in 03.10.02)
 //                                          - Added new parameter (threshold mass, generally expected to be MCH or MECS) to CalculateCoreMassAtSupernova_Static()
 //                                          - Removed McSN from GBParams, instead computed on the fly when needed
