@@ -36,7 +36,7 @@ protected:
             double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMassAtBGB_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_GBParams);
             double          CalculateCoreMassAtHeIgnition(const double p_Mass) const;
-    static  double          CalculateCoreMassAtSupernova_Static(const double p_McBAGB);
+    static  double          CalculateCoreMassAtSupernova_Static(const double p_Mthreshold, const double p_McBAGB);
 
     static  double          CalculateCoreMass_Luminosity_B_Static(const double p_Mass);
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs);

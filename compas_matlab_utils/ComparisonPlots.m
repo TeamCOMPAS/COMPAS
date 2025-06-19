@@ -85,8 +85,8 @@ function ComparisonPlots(filename1, name1, filename2, name2)
         DWDplot(filename2, name2, 6, 'b', 20);
     end;
     figure(6); hold off;  set(gca,'FontSize',20); title('Double White Dwarfs'); legend;
-    xlabel('$M*a [M_\odot * R_\odot]$ @ ZAMS', 'Interpreter', 'latex'); 
-    ylabel('$M*a [M_\odot * R_\odot]$ @ end', 'Interpreter', 'latex');
+    xlabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ ZAMS', 'Interpreter', 'latex'); 
+    ylabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ end', 'Interpreter', 'latex');
 
 
     [binariescount1, SNcount1, BHcompletecount1, SNbothcount1, SNonecount1, ...
@@ -189,7 +189,7 @@ function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE] = ...
          'DisplayName', ['CE, ', name]); hold on;
     scatter(log10(P(BNS & ~isCE)), e(BNS & ~isCE), point, colour,  'DisplayName', ['Stable, ', name]);
 
-    %%%
+    %%% TO CLEAN
     good = mergingBBH & isCE & OKCE;
     type1CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(1)<CE');
     type2CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(2)<CE');
@@ -330,8 +330,8 @@ function DWDplot(file, name, fignumberDWD, colour, point)
     SeedRLOF=h5read(file, '/BSE_RLOF/SEED');
     [hadRLOF,RLOFIndex]=ismember(ind,SeedRLOF);
     figure(fignumberDWD), hold on;
-    scatter(MAZAMS(~hadRLOF), MAWD(~hadRLOF), point, 'filled', colour, 'DisplayName', ['DWDs without mass transfer, ', name]);
-    scatter(MAZAMS(hadRLOF), MAWD(hadRLOF), point, colour, 'DisplayName', ['DWDs after mass transfer, ', name]);
+    scatter(log10(MAZAMS(~hadRLOF)), log10(MAWD(~hadRLOF)), point, 'filled', colour, 'DisplayName', ['DWDs without mass transfer, ', name]);
+    scatter(log10(MAZAMS(hadRLOF)), log10(MAWD(hadRLOF)), point, colour, 'DisplayName', ['DWDs after mass transfer, ', name]);
 end %end of DWDplot
 
 %SN varieties -- just count

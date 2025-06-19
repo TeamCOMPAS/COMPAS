@@ -944,10 +944,10 @@
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 // 02.33.01     RTW - Sep 26, 2022   - Defect repair:
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
-// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+// 02.33.02     IM - Nov 27, 2022    - Defect repair:
 //                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
 //                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
-// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+// 02.34.00     IM - Nov 28, 2022    - Enhancement:
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
 //                                      - Placed Dewi CE prescription on parity with others
@@ -1576,12 +1576,15 @@
 //                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
 //                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
 //                                          - Set merger on unstable RLOF from WD
-//  03.20.02   IM - May 30, 2026        - Defect repair, enhancement:
+//  03.20.02   IM - May 30, 2025        - Defect repair, enhancement:
 //                                          - Included unit conversion in WhiteDwarfs::CalculateEtaPTY()
 //                                          - All critical mass ratios now return the HURLEY_HJELLMING_WEBBINK_QCRIT_WD for white dwarfs and 0 for other remnant donors (only stable mass transfer) as fix for issue #1385
+//  03.20.03   IM - June 18, 2025       - Defect repair, enhancement:
+//                                          - TPAGB stars should no longer experience supernovae if SN conditions are not satisfied, rather than defaulting to CCSN (corrects the partial fix in 03.10.02)
+//                                          - Added new parameter (threshold mass, generally expected to be MCH or MECS) to CalculateCoreMassAtSupernova_Static()
+//                                          - Removed McSN from GBParams, instead computed on the fly when needed
 
-
-const std::string VERSION_STRING = "03.20.02";
+const std::string VERSION_STRING = "03.20.03";
 
 
 # endif // __changelog_h__
