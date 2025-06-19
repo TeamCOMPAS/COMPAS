@@ -48,7 +48,7 @@ protected:
 
    // member functions - alphabetically
             DBL_DBL         CalculateConvectiveEnvelopeMass() const                                                 { return std::tuple<double, double> (m_Mass-m_CoreMass, m_Mass-m_CoreMass); }    // assume entire envelope is convective for TPAGB stars
-            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return (utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0) ? m_COCoreMass : m_Mass; }
+            double          CalculateCOCoreMassAtPhaseEnd() const                                                   { return (utils::Compare(m_COCoreMass, m_Mass) < 0) ? m_COCoreMass : m_Mass; }
             double          CalculateCOCoreMassOnPhase() const                                                      { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                    // McCO(TPAGB) = Mc(TPAGB)Same as on phase
 
             double          CalculateConvectiveCoreRadius() const                                                   { return std::min(5.0 * CalculateRemnantRadius(), m_Radius); }       // Last paragraph of section 6 of Hurley+ 2000
@@ -103,7 +103,7 @@ protected:
             void            ResolveHeliumFlash() { }                                                                                                                                                        // NO-OP
             STELLAR_TYPE    ResolveSkippedPhase()                                                                   { return m_StellarType; }                                                               // NO-OP
 
-            bool            ShouldEvolveOnPhase() const                                                             { return ((utils::Compare(m_COCoreMass, std::min(m_GBParams[static_cast<int>(GBP::McSN)], m_Mass)) < 0) && !ShouldEnvelopeBeExpelledByPulsations()); } // Evolve on TPAGB phase if envelope is not lost and not going supernova
+            bool            ShouldEvolveOnPhase() const                                                             { return (utils::Compare(m_COCoreMass, m_Mass) < 0 && !IsSupernova() && !ShouldEnvelopeBeExpelledByPulsations()); }                        // Evolve on TPAGB phase if envelope is not lost and not going supernova
             bool            ShouldSkipPhase() const                                                                 { return false; }                                                                       // Never skip TPAGB phase
 
 };

@@ -1078,14 +1078,12 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_Force) {
  */
 bool EAGB::ShouldSkipPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
-    double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why? **Ilya**
+    double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                       // hack from Hurley fortran code, doesn't seem to be in the paper
 
     return (utils::Compare(McSN, m_COCoreMass) < 0);                                            // skip phase if core is heavy enough to go supernova
 
-#undef gbParams
 #undef timescales
 }
 
@@ -1121,14 +1119,12 @@ bool EAGB::ShouldEvolveOnPhase() const {
  */
 bool EAGB::IsSupernova() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
-    double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why? **Ilya**
+    double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why? **Ilya**
 
     return (utils::Compare(McSN, m_COCoreMass) <= 0);                                           // core is heavy enough to go Supernova
 
-#undef gbParams
 #undef timescales
 }
 
