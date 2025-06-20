@@ -423,6 +423,10 @@ STELLAR_TYPE CH::EvolveToNextPhase() {
     if (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]) {           // evolving off because of age?
         stellarType = STELLAR_TYPE::MS_GT_07;                               // no - must have spun down - evolve as MS star now
         m_CHE       = false;                                                // evolved CH->MS
+        
+        // if BRCEK core mass calculations enabled, initialise the core mass based on current mass and central helium fraction
+        if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
+            m_MainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_Mass, m_HeliumAbundanceCore);
     }
     else {                                                                  // yes
         stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                   // evolve as HeMS star now
