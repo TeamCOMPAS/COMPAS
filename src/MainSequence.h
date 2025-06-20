@@ -25,9 +25,7 @@ public:
 protected:
     
     // member variables
-    
     double          m_HeliumAbundanceCoreOut      = m_InitialHeliumAbundance;                                                                                       // Helium abundance just outside the core, used for rejuvenation calculations
-    double          m_InitialMainSequenceCoreMass = 0.0;                                                                                                            // Initial mass of the mixing core is initialised in MS_gt_07 class
 
     // member functions - alphabetically
     double          CalculateAlphaL(const double p_Mass) const;
@@ -78,7 +76,7 @@ protected:
     double          CalculateLuminosityShikauchi(const double p_CoreMass, const double p_HeliumAbundanceCore) const;
     double          CalculateLuminosityTransitionToHG(const double p_Mass, const double p_Age, double const p_LZAMS) const;
     DBL_DBL         CalculateMainSequenceCoreMassBrcek(const double p_Dt, const double p_MassLossRate);
-    double          CalculateInitialMainSequenceCoreMass(const double p_MZAMS) const;
+    double          CalculateInitialMainSequenceCoreMass(const double p_Mass, const double p_HeliumAbundanceCore) const;
     double          CalculateMomentOfInertia() const                                        { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                      // k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
 
     double          CalculatePerturbationMu() const                                         { return 5.0; }                                                         // mu(MS) = 5.0 (Hurley et al. 2000, eqs 97 & 98)

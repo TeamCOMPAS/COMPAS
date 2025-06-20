@@ -48,7 +48,7 @@ protected:
             utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0                         &&                                                             // ZAMS mass >= BRCEK_LOWER_MASS_LIMIT?
             m_Time <= 0.0) {                                                                                                                            // star not yet aged past creation?
                                                                                                                                                         // yes - initialise
-            m_InitialMainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_MZAMS);
+            m_InitialMainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_MZAMS, m_InitialHeliumAbundance);
             m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;
             m_Luminosity                  = MainSequence::CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0);
             m_Radius                      = MainSequence::CalculateRadiusOnPhase(m_Mass, m_Tau, m_RZAMS0);
