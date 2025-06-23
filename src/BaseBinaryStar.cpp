@@ -1780,7 +1780,7 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
         
         // total hydrogen masses (from the core, envelope, and the intermediate region between the core and envelope)
         double hydrogenMass1 = m_Star1->HydrogenAbundanceCore() * m_Star1->MainSequenceCoreMass() + (m_Star1->HydrogenAbundanceCore() + m_Star1->HydrogenAbundanceSurface()) * (std::min(m_Star1->InitialMainSequenceCoreMass(), m_Star1->Mass()) - m_Star1->MainSequenceCoreMass()) / 2.0 + initialHydrogenFraction * std::max(m_Star1->Mass() - m_Star1->InitialMainSequenceCoreMass(), 0.0);
-        double hydrogenMass2 = m_Star2->HydrogenAbundanceCore() * m_Star2->MainSequenceCoreMass() + (m_Star2->HydrogenAbundanceCore() + m_Star2->HydrogenAbundanceSurface()) * (std::min(m_Star2->InitialMainSequenceCoreMass(), m_Star2->Mass()) - m_Star2->MainSequenceCoreMass()) / 2.0 + initialHydrogenFraction * std::max(m_Star2->Mass() - m_Star1->InitialMainSequenceCoreMass(), 0.0);
+        double hydrogenMass2 = m_Star2->HydrogenAbundanceCore() * m_Star2->MainSequenceCoreMass() + (m_Star2->HydrogenAbundanceCore() + m_Star2->HydrogenAbundanceSurface()) * (std::min(m_Star2->InitialMainSequenceCoreMass(), m_Star2->Mass()) - m_Star2->MainSequenceCoreMass()) / 2.0 + initialHydrogenFraction * std::max(m_Star2->Mass() - m_Star2->InitialMainSequenceCoreMass(), 0.0);
         
         // final hydrogen mass in the merger product, assuming that the lost mass comes from the envelope of the star with higher surface hydrogen abundance
         finalHydrogenMass = hydrogenMass1 + hydrogenMass2 - (m_Star1->Mass() + m_Star2->Mass() - finalMass) * std::max(m_Star1->HydrogenAbundanceSurface(), m_Star2->HydrogenAbundanceSurface());
