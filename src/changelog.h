@@ -1583,8 +1583,11 @@
 //                                          - TPAGB stars should no longer experience supernovae if SN conditions are not satisfied, rather than defaulting to CCSN (corrects the partial fix in 03.10.02)
 //                                          - Added new parameter (threshold mass, generally expected to be MCH or MECS) to CalculateCoreMassAtSupernova_Static()
 //                                          - Removed McSN from GBParams, instead computed on the fly when needed
+//  03.20.04   AB - Jun 23, 2025        - Defect repair, enhancement:
+//                                          - Fixes to MS mergers and CHE when BRCEK core mass prescription is used -- MS core mass is now correctly initialised after full mixing in MS
+//                                            mergers and CH stars that spun down
 
-const std::string VERSION_STRING = "03.20.03";
+const std::string VERSION_STRING = "03.20.04";
 
 
 # endif // __changelog_h__
