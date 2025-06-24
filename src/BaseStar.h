@@ -106,6 +106,7 @@ public:
     double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
     double              InitialHeliumAbundance() const                                  { return m_InitialHeliumAbundance; }
     double              InitialHydrogenAbundance() const                                { return m_InitialHydrogenAbundance; }
+    double              InitialMainSequenceCoreMass() const                             { return m_InitialMainSequenceCoreMass; }
     bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
     bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
@@ -404,6 +405,7 @@ protected:
     // Zero Age Main Sequence
     double                  m_InitialHeliumAbundance;                   // Initial helium abundance (Y)
     double                  m_InitialHydrogenAbundance;                 // Initial hydrogen abundance (X)
+    double                  m_InitialMainSequenceCoreMass;              // Initial main sequence core mass (used in BRCEK core mass prescription)
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
     double                  m_OmegaZAMS;                                // ZAMS Angular Frequency

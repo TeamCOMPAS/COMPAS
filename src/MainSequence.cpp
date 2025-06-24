@@ -289,8 +289,9 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
     // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024) during core hydrogen burning (valid for MZAMS >= 15 Msol) or
-    // luminosity that smoothly connects MS and HG during MS hook (valid for MZAMS >= BRCEK_LOWER_MASS_LIMIT)
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+    // luminosity that smoothly connects MS and HG during MS hook (valid for MZAMS >= BRCEK_LOWER_MASS_LIMIT); do not use Shikauchi luminosity
+    // prescription during CHE
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) && !m_CHE) {
         if (utils::Compare(p_Time, 0.99 * timescales(tMS)) > 0)                                                                 // star in MS hook?
             return CalculateLuminosityTransitionToHG(p_Mass, p_Time, p_LZAMS);
         else {
@@ -826,18 +827,30 @@ DBL_DBL MainSequence::CalculateMainSequenceCoreMassBrcek(const double p_Dt, cons
 
 
 /*
- * Calculate the initial convective core mass of a main sequence star using Equation (A3) from Shikauchi et al. (2024),
- * also used for calculating core mass after MS merger
+ * Calculate the initial convective core mass of a main sequence star at ZAMS using Equation (A3) from Shikauchi+ (2024),
+ * or after full mixing (due to merger or CHE) for an arbitrary central helium fraction using the approach
+ * described in Brcek+ (2025)
  *
- * double CalculateInitialMainSequenceCoreMass(const double p_MZAMS)
+ * double CalculateInitialMainSequenceCoreMass(const double p_Mass, const double p_HeliumAbundanceCore)
  *
- * @param   [IN]    p_MZAMS                     Mass at ZAMS or after merger in Msol
+ * @param   [IN]    p_Mass                      Mass at ZAMS, after merger or after spin down of CH star in Msol
+ * @param   [IN]    p_HeliumAbundanceCore       Central helium fraction
  * @return                                      Mass of the convective core at ZAMS or after merger in Msol
  */
-double MainSequence::CalculateInitialMainSequenceCoreMass(const double p_MZAMS) const {
-    DBL_VECTOR fmixCoefficients = std::get<1>(SHIKAUCHI_COEFFICIENTS);
-    double fmix                 = fmixCoefficients[0] + fmixCoefficients[1] * std::exp(-p_MZAMS / fmixCoefficients[2]);
-    return fmix * p_MZAMS;
+double MainSequence::CalculateInitialMainSequenceCoreMass(const double p_Mass, const double p_HeliumAbundanceCore) const {
+    
+    double fmix = 0.0;
+    // At ZAMS, use the approach from Shikauchi+ (2024)
+    if (utils::Compare(p_HeliumAbundanceCore, m_InitialHeliumAbundance) == 0) {
+        DBL_VECTOR fmixCoefficients = std::get<1>(SHIKAUCHI_COEFFICIENTS);
+        fmix                        = fmixCoefficients[0] + fmixCoefficients[1] * std::exp(-p_Mass / fmixCoefficients[2]);
+    }
+    // After full mixing not at ZAMS, use the approach from Brcek+ (2025)
+    else {
+        double h = PPOW(10.0, p_HeliumAbundanceCore * (p_HeliumAbundanceCore + 2.0) / 4.0);
+        fmix     = BRCEK_FMIX_COEFFICIENTS[0] + BRCEK_FMIX_COEFFICIENTS[1] * std::exp(-p_Mass * h / BRCEK_FMIX_COEFFICIENTS[2]) * PPOW(1.0 - BRCEK_FMIX_COEFFICIENTS[4] / (p_Mass * h), BRCEK_FMIX_COEFFICIENTS[3]);
+    }
+    return fmix * p_Mass;
 }
 
 
@@ -1142,12 +1155,14 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_Age = m_Tau * timescales(tMS);
     
     m_HeliumAbundanceCore   = 1.0 - m_Metallicity - p_HydrogenMass / p_Mass;
-    
     m_HydrogenAbundanceCore = 1.0 - m_Metallicity - m_HeliumAbundanceCore;
     
+    m_HeliumAbundanceSurface   = m_HeliumAbundanceCore;                                         // abundances are the same throughout the star, assuming uniform mixing after merger
+    m_HydrogenAbundanceSurface = m_HydrogenAbundanceCore;
+    
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
-        m_InitialMainSequenceCoreMass = CalculateInitialMainSequenceCoreMass(p_Mass);           // update initial mixing core mass
-        m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;                          // update core mass
+        m_InitialMainSequenceCoreMass = CalculateInitialMainSequenceCoreMass(p_Mass, m_HeliumAbundanceCore);           // update initial mixing core mass
+        m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;                                                 // update core mass
     }
     
     UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);
