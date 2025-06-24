@@ -1778,15 +1778,14 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
         (utils::Compare(m_Star1->MZAMS(), BRCEK_LOWER_MASS_LIMIT) >= 0)                &&
         (utils::Compare(m_Star2->MZAMS(), BRCEK_LOWER_MASS_LIMIT) >= 0)) {
         
-        double coreMass1       = m_Star1->MainSequenceCoreMass();
-        double coreMass2       = m_Star2->MainSequenceCoreMass();
+        // total hydrogen masses (from the core, envelope, and the intermediate region between the core and envelope)
+        double hydrogenMass1 = m_Star1->HydrogenAbundanceCore() * m_Star1->MainSequenceCoreMass() + (m_Star1->HydrogenAbundanceCore() + m_Star1->HydrogenAbundanceSurface()) * (std::min(m_Star1->InitialMainSequenceCoreMass(), m_Star1->Mass()) - m_Star1->MainSequenceCoreMass()) / 2.0 + m_Star1->HydrogenAbundanceSurface() * std::max(m_Star1->Mass() - m_Star1->InitialMainSequenceCoreMass(), 0.0);
+        double hydrogenMass2 = m_Star2->HydrogenAbundanceCore() * m_Star2->MainSequenceCoreMass() + (m_Star2->HydrogenAbundanceCore() + m_Star2->HydrogenAbundanceSurface()) * (std::min(m_Star2->InitialMainSequenceCoreMass(), m_Star2->Mass()) - m_Star2->MainSequenceCoreMass()) / 2.0 + m_Star2->HydrogenAbundanceSurface() * std::max(m_Star2->Mass() - m_Star2->InitialMainSequenceCoreMass(), 0.0);
         
-        double coreHeliumMass1 = m_Star1->HeliumAbundanceCore() * coreMass1;
-        double coreHeliumMass2 = m_Star2->HeliumAbundanceCore() * coreMass2;
-        
-        finalHydrogenMass      = finalMass * initialHydrogenFraction - coreHeliumMass1 - coreHeliumMass2;
+        // final hydrogen mass in the merger product, assuming that the lost mass comes from the envelope of the star with higher surface hydrogen abundance
+        finalHydrogenMass = hydrogenMass1 + hydrogenMass2 - (m_Star1->Mass() + m_Star2->Mass() - finalMass) * std::max(m_Star1->HydrogenAbundanceSurface(), m_Star2->HydrogenAbundanceSurface());
     }
-    else finalHydrogenMass     = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
+    else finalHydrogenMass = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
        
     m_SemiMajorAxis = std::numeric_limits<float>::infinity();                                   // set separation to infinity to avoid subsequent fake interactions with a massless companion (RLOF, CE, etc.)
     

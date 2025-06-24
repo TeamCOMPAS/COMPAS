@@ -107,6 +107,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     // initialise remaining member variables
 
     // Zero age main sequence parameters
+    m_InitialMainSequenceCoreMass              = DEFAULT_INITIAL_DOUBLE_VALUE;                      // initialised in MS_gt_07 class if BRCEK core mass prescription is used
     m_RZAMS                                    = CalculateRadiusAtZAMS(m_MZAMS);
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
