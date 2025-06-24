@@ -1583,8 +1583,10 @@
 //                                          - TPAGB stars should no longer experience supernovae if SN conditions are not satisfied, rather than defaulting to CCSN (corrects the partial fix in 03.10.02)
 //                                          - Added new parameter (threshold mass, generally expected to be MCH or MECS) to CalculateCoreMassAtSupernova_Static()
 //                                          - Removed McSN from GBParams, instead computed on the fly when needed
+//  03.20.04   IM - June 24, 2025       - Defect repair:
+//                                          - Fixed typo in implementation of CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH
 
-const std::string VERSION_STRING = "03.20.03";
+const std::string VERSION_STRING = "03.20.04";
 
 
 # endif // __changelog_h__
