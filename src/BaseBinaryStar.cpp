@@ -2106,7 +2106,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
     // Determine stability
     bool isUnstable = false;
-    if (donorIsHeHGorHeGB && (caseBBAlwaysUnstable || (caseBBAlwaysStableOntoNSBH && !accretorIsNSorBH))) {                     // determine stability based on case BB
+    if (donorIsHeHGorHeGB && (caseBBAlwaysStable || caseBBAlwaysUnstable || (caseBBAlwaysStableOntoNSBH && !accretorIsNSorBH))) { // determine stability based on case BB
         isUnstable = (caseBBAlwaysUnstable || (caseBBAlwaysStableOntoNSBH && !accretorIsNSorBH));                               // already established that donor is HeHG or HeGB - need to check if new case BB prescriptions are added
     }
     else if (accretorIsWD && (m_Accretor->WhiteDwarfAccretionRegime() == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION)) { 
