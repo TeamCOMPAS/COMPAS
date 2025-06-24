@@ -1586,7 +1586,7 @@
 //  03.20.04   AB - Jun 23, 2025        - Defect repair, enhancement:
 //                                          - Fixes to MS mergers and CHE when BRCEK core mass prescription is used -- MS core mass is now correctly initialised after full mixing in MS
 //                                            mergers and CH stars that spun down
-//  03.20.04   IM - June 24, 2025       - Defect repair:
+//  03.20.05   IM - June 24, 2025       - Defect repair:
 //                                          - Fixed typo in implementation of CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH (issue #1403)
 
 
