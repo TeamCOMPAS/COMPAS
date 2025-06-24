@@ -1886,7 +1886,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
             double fKlencki = p_IsAccretorDegenerate 
                                 ? OPTIONS->MassTransferJlossLinearFractionDegen() 
                                 : OPTIONS->MassTransferJlossLinearFractionNonDegen();
-            double gamma = gammaAcc + (gammaL2 - gammaAcc) * fKlencki;
+            gamma = gammaAcc + (gammaL2 - gammaAcc) * fKlencki;
             } break;
         default:                                                                                                                    // unknown prescription
             // the only way this can happen is if someone added an MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION
