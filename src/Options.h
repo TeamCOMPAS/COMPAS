@@ -908,11 +908,11 @@ public:
 
             // Kick options
             ENUM_OPT<KICK_MAGNITUDE_DISTRIBUTION>               m_KickMagnitudeDistribution;                                    // Which kick magnitude distribution
-            double                                              m_KickMagnitudeDistributionSigmaCCSN_NS;                        // Kick magnitude sigma in km s^-1 for neutron stars (default = "250" )
-            double                                              m_KickMagnitudeDistributionSigmaCCSN_BH;                        // Kick magnitude sigma in km s^-1 for black holes (default = "250" )
+            double                                              m_KickMagnitudeDistributionSigmaCCSN_NS;                        // Kick magnitude sigma in km s^-1 for neutron stars
+            double                                              m_KickMagnitudeDistributionSigmaCCSN_BH;                        // Kick magnitude sigma in km s^-1 for black holes
             double                                              m_KickMagnitudeDistributionMaximum;                             // Maximum kick magnitude to draw. If negative, no maximum
-	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
-	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
+	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1
+	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1
 	        double                                              m_KickScalingFactor;								            // Arbitrary factor for scaling kicks
 
             // Kick direction options
