@@ -6,7 +6,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 **03.20.06 June 25, 2025**
 
 * The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
-* Implented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+* Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
 
 **03.20.03 June 18, 2025**
 
