@@ -3911,7 +3911,7 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
                 double rand   = p_Rand;                                                         // makes it possible to adjust if p_Rand is too low, to avoid getting stuck
                 while( utils::Compare(kickMagnitude, 1000.0) > 0 ) {                            // maximum kick of 1000 km/s, following Disberg & Mandel (2025)
                     kickMagnitude = gsl_cdf_lognormal_Pinv(rand, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
-                    rand          = min(rand + p_Rand + 0.0001, 1.0);
+                    rand          = 0.99 * rand;
                 }
             }
             else
