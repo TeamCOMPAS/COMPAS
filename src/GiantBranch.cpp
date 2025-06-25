@@ -265,7 +265,7 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(AHe)    = CalculateHeRateConstant_Static();
 
     gbParams(B)      = CalculateCoreMass_Luminosity_B_Static(p_Mass);
-    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXi(), m_MassCutoffs);
+    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXiHurley(), m_MassCutoffs);
 
     gbParams(p)      = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
     gbParams(q)      = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
@@ -1299,7 +1299,7 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
 
     ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
     MT_CASE   massTransferCase = MT_CASE::OTHER;
-    double    log10Z           = m_Log10Metallicity - log10(ZSOL_ASPLUND);                                              // log_{10} (Z/Zsol), for convenience
+    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL_ASPLUND;                                               // log_{10} (Z/Zsol), for convenience
     double    M1, M2, M3;
 
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0)                                                             // NS formation regardless of metallicity and MT history

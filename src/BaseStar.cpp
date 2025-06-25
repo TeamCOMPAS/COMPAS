@@ -91,10 +91,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // calculate coefficients, constants etc.
 
-    CalculateRCoefficients(LogMetallicityXi(), m_RCoefficients);
-    CalculateLCoefficients(LogMetallicityXi(), m_LCoefficients);
+    CalculateRCoefficients(LogMetallicityXiHurley(), m_RCoefficients);
+    CalculateLCoefficients(LogMetallicityXiHurley(), m_LCoefficients);
 
-    CalculateMassCutoffs(m_Metallicity, LogMetallicityXi(), m_MassCutoffs);
+    CalculateMassCutoffs(m_Metallicity, LogMetallicityXiHurley(), m_MassCutoffs);
 
     CalculateAnCoefficients(m_AnCoefficients, m_LConstants, m_RConstants, m_GammaConstants);
     CalculateBnCoefficients(m_BnCoefficients);
@@ -506,7 +506,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
 #define GammaConstants(x) p_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::x)]    // for convenience and readability - undefined at end of function
 
     double Z     = m_Metallicity;
-    double xi    = LogMetallicityXi();
+    double xi    = LogMetallicityXiHurley();
     double sigma = LogMetallicitySigma();
 
     // pow() is slow - use multiplication
@@ -606,7 +606,7 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
 
 
     double Z     = m_Metallicity;
-    double xi    = LogMetallicityXi();
+    double xi    = LogMetallicityXiHurley();
     double sigma = LogMetallicitySigma();
     double rho   = LogMetallicityRho();
 
@@ -879,7 +879,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
 double BaseStar::CalculateGBRadiusXExponent() const {
 
     // pow()is slow - use multiplication
-    double xi   = LogMetallicityXi();
+    double xi   = LogMetallicityXiHurley();
     double xi_2 = xi * xi;
     double xi_3 = xi_2 * xi;
     double xi_4 = xi_2 * xi_2;
@@ -1834,7 +1834,7 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
                            (1.339 * log10(m_Mass / 30.0)) -
                            (1.601 * log10(v / 2.0)) +
-                           (0.85  * log10(m_Metallicity / ZSOL_ANDERS)) +
+                           (0.85  * LogMetallicityXiAnders()) +
                            (1.07  * log10(teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
@@ -1850,7 +1850,7 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
                            (1.313 * log10(m_Mass / 30.0)) -
                            (1.226 * log10(v / 2.0)) +
-                           (0.85  * log10(m_Metallicity / ZSOL_ANDERS)) +
+                           (0.85  * LogMetallicityXiAnders()) +
                            (0.933 * log10(teff / 40000.0)) -
                            (10.92 * log10(teff / 40000.0) * log10(teff/40000.0));
 
@@ -1885,7 +1885,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
 
     double teff    = m_Temperature * TSOL;  
     double Gamma   = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;
-    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * log10(m_Metallicity / ZSOL_ANDERS));
+    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * LogMetallicityXiAnders());
     double T2      = ( 61.2 + (2.59 * charrho) ) * 1000.0;                                                      // typically around 25000.0, higher jump first as in Vink python recipe
     double T1      = ( 100.0 + (6.0 * charrho) ) * 1000.0;                                                      // typically around 20000.0, has similar behavior when fixed
 
@@ -1901,7 +1901,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.210 * logL5) -
                            (1.339 * logM30) -
                            (1.601 * log10(V / 2.0)) +
-                           (zExp2001 * log10(m_Metallicity / ZSOL_ANDERS)) +
+                           (zExp2001 * LogMetallicityXiAnders()) +
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
@@ -1914,7 +1914,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.210 * logL5) -
                            (1.339 * logM30) -
                            (1.601 * log10(V / 2.0)) +
-                           (zExp2001  * log10(m_Metallicity / ZSOL_ANDERS)) +
+                           (zExp2001  * LogMetallicityXiAnders()) +
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
@@ -1927,7 +1927,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.194 * logL5) -
                            (1.313 * logM30) -
                            (1.226 * log10(V / 2.0)) +
-                           (zExp  * log10(m_Metallicity / ZSOL_ANDERS)) +
+                           (zExp  * LogMetallicityXiAnders()) +
                            (0.933 * logT40) -
                            (10.92 * logT40 * logT40);
 
@@ -1953,9 +1953,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
  */
 double BaseStar::CalculateMassLossRateOBKrticka2018() const {
     
-    double logZ = log10(m_Metallicity / ZSOL_ASPLUND);
-
-    double logMdot = -5.70 + 0.50 * logZ + (1.61 - 0.12 * logZ) * log10(m_Luminosity / 1.0E6);
+    double logMdot = -5.70 + 0.50 * LogMetallicityXiAsplund() + (1.61 - 0.12 * LogMetallicityXiAsplund()) * log10(m_Luminosity / 1.0E6);
 
     return PPOW(10.0, logMdot);
 }
@@ -2301,7 +2299,7 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
     if (utils::Compare(p_Mu, 1.0) < 0) {
 
         double logL = log10(m_Luminosity);
-        double logZ = log10(m_Metallicity / ZSOL_ANDERS);
+        double logZ = LogMetallicityXiAnders();
 
         // Calculate alpha, L0 and Mdot10
         double alpha     = 0.32 * logZ + 1.4;                                                               // Equation 18 in Sander & Vink 2020
@@ -2369,7 +2367,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
  */
 double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
 
-    double logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * log10(m_Metallicity / ZSOL_ANDERS));    // Vink 2017 Eq. 1.
+    double logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * LogMetallicityXiAnders());    // Vink 2017 Eq. 1.
 
     return PPOW(10.0, logMdot);
 }
