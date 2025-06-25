@@ -3903,9 +3903,10 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             break;
 
         case KICK_MAGNITUDE_DISTRIBUTION::LOGNORMAL: {                                          // LOGNORMAL
-            // Only draw Disberg & Mandel (2025) kicks for CCSN or PPISN (if they receive a kick); use Maxwellians with sigma set in CalculateSNKickMagnitude() for other SN types
+            // Only draw Disberg & Mandel (2025) kicks for CCSN or PPISN (if they receive a kick)
+	    // use Maxwellians with sigma set in CalculateSNKickMagnitude() for other SN types
             SN_EVENT thisSNevent = utils::SNEventType(m_SupernovaDetails.events.current);       // current SN event
-            if(thisSNevent==SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN()))
+            if (thisSNevent == SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN()))
                 kickMagnitude = gsl_cdf_lognormal_Pinv(p_Rand, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
             else
                 kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
