@@ -187,10 +187,11 @@ constexpr double G_km_Msol_s                            = G * 1.0E-9 / KG_TO_MSO
 constexpr double G_SOLAR_YEAR                           = 3.14E7;                                                   // Gravitational constant in Lsol Rsol yr Msol^-2 for calculating photon tiring limit
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
-constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
-constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
-constexpr double YSOL                                   = 0.2485;                                                   // Asplund+ 2009
+constexpr double ZSOL_HURLEY                            = 0.02;                                                     // Solar Metallicity used in scalings
+constexpr double LOG10_ZSOL_HURLEY                      = -1.698970004336019;                                       // log10(ZSOL_HURLEY) - for performance
+constexpr double ZSOL_ANDERS                            = 0.019;                                                    // Solar Metallicity (Anders+ 1989) used in winds
+constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2009) used in initial condition and winds
+constexpr double YSOL_ASPLUND                           = 0.2485;                                                   // Asplund+ 2009
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)

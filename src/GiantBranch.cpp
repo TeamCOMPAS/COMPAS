@@ -1299,7 +1299,7 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
 
     ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
     MT_CASE   massTransferCase = MT_CASE::OTHER;
-    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
+    double    log10Z           = m_Log10Metallicity - log10(ZSOL_ASPLUND);                                              // log_{10} (Z/Zsol), for convenience
     double    M1, M2, M3;
 
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0)                                                             // NS formation regardless of metallicity and MT history
