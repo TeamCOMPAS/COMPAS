@@ -1590,7 +1590,7 @@
 //                                          - Fixed typo in implementation of CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH (issue #1403)
 //  03.20.06   IM - June 25, 2025       - Enhancements:
 //                                          - The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
-//                                          - Implented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+//                                          - Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
 
 const std::string VERSION_STRING = "03.20.06";
 
