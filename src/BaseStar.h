@@ -119,9 +119,9 @@ public:
     bool                IsSNIA() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
     bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
     bool                LBV_PhaseFlag() const                                           { return m_LBVphaseFlag; }
-    double              LogMetallicityRho() const                                       { return LogMetallicityXi() + 1.0; }            // rho in Hurley+ 2000
-    double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                  // sigma in Hurley+ 2000
-    double              LogMetallicityXi() const                                        { return m_Log10Metallicity - LOG10_ZSOL; }     // xi in Hurley+ 2000
+    double              LogMetallicityRho() const                                       { return LogMetallicityXi() + 1.0; }                   // rho in Hurley+ 2000
+    double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                         // sigma in Hurley+ 2000
+    double              LogMetallicityXi() const                                        { return m_Log10Metallicity - LOG10_ZSOL_HURLEY; }     // xi in Hurley+ 2000
     double              Luminosity() const                                              { return m_Luminosity; }
     double              MainSequenceCoreMass() const                                    { return m_MainSequenceCoreMass; }
     double              Mass() const                                                    { return m_Mass; }

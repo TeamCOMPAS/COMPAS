@@ -1326,8 +1326,8 @@ double MainSequence::InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPres
         double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;                 // Don't need to use nearest neighbor for this, beta is always between 0 and 1
         qCritPerMetallicity[ii] = interpolatedQCritForZ;
     }
-    double logZlo = -3;         // log10(0.001)
-    double logZhi = LOG10_ZSOL; // log10(0.02) 
+    double logZlo = -3;                // log10(0.001)
+    double logZhi = LOG10_ZSOL_HURLEY; // log10(0.02)
     
     return qCritPerMetallicity[1] + (m_Log10Metallicity - logZhi)*(qCritPerMetallicity[1] - qCritPerMetallicity[0])/(logZhi - logZlo);
 }
@@ -1354,9 +1354,9 @@ std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> MainSequence::InterpolateShikauc
     double logZ = std::log10(p_Metallicity);
 
     // Coefficients are given for these metallicities
-    double low    = std::log10(0.1 * ZSOL_ASPLUND);
-    double middle = std::log10(1.0 / 3.0 * ZSOL_ASPLUND);
-    double high   = std::log10(ZSOL_ASPLUND);
+    double low    = std::log10(0.1 * ZSOL_HURLEY);
+    double middle = std::log10(1.0 / 3.0 * ZSOL_HURLEY);
+    double high   = std::log10(ZSOL_HURLEY);
 
     // common factors
     double middle_logZ = middle - logZ;

@@ -1586,8 +1586,11 @@
 //  03.20.04   AB - Jun 23, 2025        - Defect repair, enhancement:
 //                                          - Fixes to MS mergers and CHE when BRCEK core mass prescription is used -- MS core mass is now correctly initialised after full mixing in MS
 //                                            mergers and CH stars that spun down
+//  03.20.05   AB - Jun 25, 2025        - Defect repair:
+//                                          - Fix for issue #400; correct Zsol values are now used in stellar wind prescriptions
+//                                          - To avoid ambiguous ZSOL, we now use ZSOL_HURLEY = 0.02, ZSOL_ANDERS = 0.019, and ZSOL_ASPLUND = 0.0142
 
-const std::string VERSION_STRING = "03.20.04";
+const std::string VERSION_STRING = "03.20.05";
 
 
 # endif // __changelog_h__
