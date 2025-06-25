@@ -3902,6 +3902,15 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             kickMagnitude = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
             break;
 
+        case KICK_MAGNITUDE_DISTRIBUTION::LOGNORMAL: {                                          // LOGNORMAL
+            // Only draw Disberg & Mandel (2025) kicks for CCSN or PPISN (if they receive a kick); use Maxwellians with sigma set in CalculateSNKickMagnitude() for other SN types
+            SN_EVENT thisSNevent = utils::SNEventType(m_SupernovaDetails.events.current);       // current SN event
+            if(thisSNevent==SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN()))
+                kickMagnitude = gsl_cdf_lognormal_Pinv(p_Rand, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
+            else
+                kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
+            } break;
+            
         default:                                                                                // unknown prescription
             // the only way this can happen is if someone added a KICK_MAGNITUDE_DISTRIBUTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

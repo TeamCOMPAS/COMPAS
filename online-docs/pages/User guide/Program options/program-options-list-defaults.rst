@@ -586,16 +586,18 @@ Default = 0.0
 
 **--kick-magnitude-distribution** |br|
 Natal kick magnitude distribution. |br|
-Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
+Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL, LOGNORMAL } |br|
 ``ZERO`` assigns kick magnitudes of 0.0. |br|
 ``FIXED`` always sets the magnitude to a fixed value based on supernova type. |br|
 ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively. |br|
 ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
-``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
-(reduced by a factor of sqrt(3) in the latter case). |br|
 Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br| 
 kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
-as well as with the ``MALTSEV2024`` remnant mass prescription. |br|
+as well as with the ``MALTSEV2024`` remnant mass prescription (e.g., if used with other remnant mass prescriptions, 
+inconsistent black hole kicks may be applied rescaled by fallback fractions). |br|
+``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
+(reduced by a factor of sqrt(3) in the latter case). |br|
+``LOGNORMAL`` applies kicks drawn from the Disberg & Mandel 2025 log-normal distribution. |br|
 Default = MULLERMANDEL
 
 **--kick-magnitude-max** |br|
