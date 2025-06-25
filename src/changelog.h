@@ -1586,11 +1586,16 @@
 //  03.20.04   AB - Jun 23, 2025        - Defect repair, enhancement:
 //                                          - Fixes to MS mergers and CHE when BRCEK core mass prescription is used -- MS core mass is now correctly initialised after full mixing in MS
 //                                            mergers and CH stars that spun down
-//  03.20.05   AB - Jun 25, 2025        - Defect repair:
+//  03.20.05   IM - June 24, 2025       - Defect repair:
+//                                          - Fixed typo in implementation of CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH (issue #1403)
+//  03.20.06   IM - June 25, 2025       - Enhancements:
+//                                          - The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
+//                                          - Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+//  03.20.07   AB - Jun 25, 2025        - Defect repair:
 //                                          - Fix for issue #400; correct Zsol values are now used in stellar wind prescriptions
 //                                          - To avoid ambiguous ZSOL, we now use ZSOL_HURLEY = 0.02, ZSOL_ANDERS = 0.019, and ZSOL_ASPLUND = 0.0142
 
-const std::string VERSION_STRING = "03.20.05";
+const std::string VERSION_STRING = "03.20.07";
 
 
 # endif // __changelog_h__

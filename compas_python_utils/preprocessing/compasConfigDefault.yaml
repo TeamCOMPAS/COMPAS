@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Sun May 25 00:33:11 2025 by COMPAS v03.20.00
+##~!!~## File Created Wed Jun 25 11:07:34 2025 by COMPAS v03.20.06
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -175,8 +175,8 @@ numericalChoices:
 #    --fryer-22-fmix: 0.500000                                             # Default: 0.500000                                                                                                                                                                         # parameter describing mixing growth time when using the 'FRYER2022' remnant mass prescription
 #    --fryer-22-mcrit: 5.750000                                            # Default: 5.750000                                                                                                                                                                         # critical mass for BH formation when using the 'FRYER2022' remnant mass prescription
 #    --kick-direction-power: 0.000000                                      # Default: 0.000000
-#    --kick-magnitude-sigma-CCSN-NS: 265.00                                # Default: 265.00                                                                                                                                                                           # [km/s]
-#    --kick-magnitude-sigma-CCSN-BH: 265.00                                # Default: 265.00                                                                                                                                                                           # [km/s]
+#    --kick-magnitude-sigma-CCSN-NS: 217.00                                # Default: 217.00                                                                                                                                                                           # [km/s]
+#    --kick-magnitude-sigma-CCSN-BH: 217.00                                # Default: 217.00                                                                                                                                                                           # [km/s]
 #    --kick-magnitude-max: -1.000000                                       # Default: -1.000000
 #    --kick-magnitude-random: 0.000000                                     # Default: 0.000000                                                                                                                                                                         # (SSE) used to draw the kick magnitude for the star should it undergo a supernova event
 #    --kick-magnitude: 0.000000                                            # Default: 0.000000                                                                                                                                                                         # (SSE) (drawn) kick magnitude for the star should it undergo a supernova event [km/s]
@@ -279,7 +279,7 @@ stringChoices:
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks-mode: 'FALLBACK'                                   # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
 #    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
-#    --kick-magnitude-distribution: 'MULLERMANDEL'                         # Default: 'MULLERMANDEL'                # Options: ['MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
+#    --kick-magnitude-distribution: 'MULLERMANDEL'                         # Default: 'MULLERMANDEL'                # Options: ['LOGNORMAL','MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
 #    --kick-direction-distribution: 'ISOTROPIC'                            # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
 #    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['DISK','SURFACE','ZERO']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
