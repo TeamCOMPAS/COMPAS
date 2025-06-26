@@ -3909,7 +3909,7 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             if (thisSNevent == SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN())) {
                 // maximum kick of DISBERG_MANDEL_MAX_KICK = 1000 km/s, following Disberg & Mandel (2025)
                 // normalise the draw so that the kick is uniformly drawn from the inverse CDF below this maximum
-                double cdfMax = gsl_cdf_lognormal(DISBERG_MANDEL_MAX_KICK, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
+                double cdfMax = gsl_cdf_lognormal_P(DISBERG_MANDEL_MAX_KICK, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
                 kickMagnitude = gsl_cdf_lognormal_Pinv(p_Rand*cdfMax, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
             }
             else
