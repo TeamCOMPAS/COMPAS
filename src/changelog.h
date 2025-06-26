@@ -1591,6 +1591,8 @@
 //  03.20.06   IM - June 25, 2025       - Enhancements:
 //                                          - The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
 //                                          - Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+//  03.20.07   IM - June 25, 2025       - Enhancement:
+//                                          - Added a maximum threshold of 1000 km/s for Disberg & Mandel (2025) LOGNORMAL kicks, matching paper
 
 const std::string VERSION_STRING = "03.20.06";
 
