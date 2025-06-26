@@ -160,7 +160,8 @@ function ComparisonPlots(filename1, name1, filename2, name2)
 end %end of ComparisonPlots
 
 
-%Plot double compact objects; returns DCO counts
+%Plot double compact objects; returns DCO counts,  and counts of CEs leading
+%to DCOs
 function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE, CEBBH1count] = ...
         DCOplot(file, name, fignumber, colour, point)
     global Msunkg G AU
