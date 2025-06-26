@@ -3822,7 +3822,7 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
 };
 // Coefficients used to determine the initial convective core mass of MS star after full mixing (due to a merger or CHE)
 // from Brcek et al. (2025)
-const DBL_VECTOR BRCEK_FMIX_COEFFICIENTS = {0.897487516925644, -0.570499075062176, 56.9817940103868, 0.54483109433479, 1.72842835324164};
+const DBL_VECTOR BRCEK_FMIX_COEFFICIENTS = {0.898171018326982, -0.592244880828559, 55.7885260968562, 0.359078394562545, 1.87717633667786};
 
 
 #endif // __constants_h__
