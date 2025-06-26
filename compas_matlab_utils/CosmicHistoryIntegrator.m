@@ -1,5 +1,5 @@
 function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
-    CosmicHistoryIntegrator(filename, zlistformation, zlistmerger, makeplots)
+    CosmicHistoryIntegrator(filename, zlistformation, zlistdetection, Msimulated, makeplots)
 % Integrator for the binary black hole merger rate over cosmic history
 % COMPAS (Compact Object Mergers: Population Astrophysics and Statistics) 
 % software package
@@ -13,7 +13,7 @@ function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
 %           should be in COMPAS output h5 format
 %   zlistformation: vector of redshifts at which the formation rate is
 %   computed
-%   zlistmerger:  vector of redshifts at which the merger rate is computed
+%   zlistdetection:  vector of redshifts at which the detection rate is computed
 %   Msimulated: total star forming mass represented by the simulation (for
 %   normalisation)
 %   makeplots:  if set to 1, generates a set of useful plots (default = 0)
@@ -54,49 +54,50 @@ c=299792458;		%speed of light, m/s
 Mpc=Mpcm/c;         %Gpc in seconds
 yr=3.15569e7;       %year in seconds
 
-if (nargin<3)
+if (nargin<4)
     error('Not enough input arguments.');
 end;
-if (nargin<4), makeplots=0; end;
+if (nargin<5), makeplots=0; end;
 
 %cosmology calculator
-[zvec,tL]=Cosmology();           
+[tL]=Cosmology(zlistformation);           
 %load COMPAS data
-[M1,M2,Z,Tdelay]=DataRead(filename, max(tL));   
+[M1,M2,Z,Tdelay]=DataRead(filename); 
+Zlist=unique(Z);
 %metallicity-specific SFR
-[Zlist,SFR,SFRfractionZ]=Metallicity(Z,zvec,metallicitychoice);       
+[SFR,Zweight]=Metallicity(Zlist,zlistformation);       
 
 
 %Consider the contribution of every simulated binary to the merger rate 
 %in every redshift bin by considering when it would have to be formed to 
 %merge at that redshift and normalizing by the relevant 
 %metallicity-specific star formation rate
-dz=zvec(2)-zvec(1);
-tLmerge=tL(floor(zlist/(zvec(2)-zvec(1)))+1);
-MergerRateByRedshiftByZ=zeros(length(zlist),length(Zlist));
+dz=zlistformation(2)-zlistformation(1);
+tLmerge=tL(floor(zlistformation/dz)+1);
+MergerRateByRedshiftByZ=zeros(length(zlistformation),length(Zlist));
 for(i=1:length(M1)),
     Zcounter=find(Zlist==Z(i));
     zformindex=find(tL>=Tdelay(i),1);
-    for(k=1:length(zlist)),
+    for(k=1:length(zlistformation)),
         zformindex=find(tL>=(Tdelay(i)+tLmerge(k)),1);
         MergerRateByRedshiftByZ(k,Zcounter)=...
             MergerRateByRedshiftByZ(k,Zcounter)+...
-            SFR(zformindex)*SFRfractionZ(zformindex,Zcounter)/Msimulated;   
+            SFR(zformindex)*Zweight(zformindex,Zcounter)/Msimulated;   
     end;
 end;
 
 if(makeplots==1),   %make a set of default plots
-    MakePlots(M1,M2,Z,Tdelay,zvec,SFR,SFRfractionZ,...
-        zlist,Zlist,MergerRateByRedshiftByZ);
+    MakePlots(M1,M2,Z,Tdelay,zlistformation,Zlist,SFR,Zweight,...
+        MergerRateByRedshiftByZ);
 end;
 
 end %end of CosmicHistoryIntegrator
 
 
 %Load the data stored in COMPAS .h5 output format from a file
-%Select only binary black hole mergers of interest, and return the
+%Select only double compact object mergers of interest, and return the
 %component masses, metallicities, and star formation to merger delay times
-function [M1,M2,Z,Tdelay]=DataRead(file, tHubble)
+function [M1,M2,Z,Tdelay]=DataRead(file)
     if(exist(file, 'file')~=2), 
         error('Input file does not exist');
     end;    
@@ -108,46 +109,29 @@ function [M1,M2,Z,Tdelay]=DataRead(file, tHubble)
     merges=h5read(file,'/BSE_Double_Compact_Objects/Merges_Hubble_Time');
     a=h5read(file,'/BSE_Double_Compact_Objects/SemiMajorAxis@DCO');
     e=h5read(file,'/BSE_Double_Compact_Objects/Eccentricity@DCO');
-    mergingBBH=(type1==14) & (type2==14) & merges;
-    BBH=(type1==14) & (type2==14);
-    mergingBNS=(type1==13) & (type2==13) & merges;
-    BNS=(type1==13) & (type2==13);
-    mergingNSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13))) & merges;
-    NSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13)));
-    mergingDCO=mergingBNS | mergingNSBH | mergingBBH;
-    BNScount=sum(mergingBNS); NSBHcount=sum(mergingNSBH); BBHcount=sum(mergingBBH);
+    Ttotal=(h5read(file,'/BSE_Double_Compact_Objects/Time')+h5read(file,'/BSE_Double_Compact_Objects/Coalescence_Time'))*1e6; %to years
+    %mergingBBH=(type1==14) & (type2==14) & merges;
+    %BBH=(type1==14) & (type2==14);
+    %mergingBNS=(type1==13) & (type2==13) & merges;
+    %BNS=(type1==13) & (type2==13);
+    %mergingNSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13))) & merges;
+    %NSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13)));
+    %mergingDCO=mergingBNS | mergingNSBH | mergingBBH;
+    %BNScount=sum(mergingBNS); NSBHcount=sum(mergingNSBH); BBHcount=sum(mergingBBH);
     chirpmass=mass1.^0.6.*mass2.^0.6./(mass1+mass2).^0.2;
     q=mass2./mass1;
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
     [isCE,CEIndex]=ismember(seedDCO,seedCE);
     optCE=h5read(file,'/BSE_Common_Envelopes/Optimistic_CE');
     RLOFCE=h5read(file,'/BSE_Common_Envelopes/Immediate_RLOF>CE');
-    OKCE=zeros(size(mergingDCO)); OKCE(CEIndex==0)=1; OKCE(CEIndex>0)=(~optCE(CEIndex(CEIndex>0))) & (~RLOFCE(CEIndex(CEIndex>0)));
-    BNSCE=sum(mergingBNS & isCE & OKCE); NSBHCE=sum(mergingNSBH & isCE & OKCE); BBHCE=sum(mergingBBH & isCE & OKCE);
-
-    Z1index=find(strcmp(colnames,'Metallicity1'));
-    M1index=find(strcmp(colnames,'M1'));
-    M2index=find(strcmp(colnames,'M2'));
-    tcindex=find(strcmp(colnames,'tc'));
-    tformindex=find(strcmp(colnames,'tform'));
-    type1index=find(strcmp(colnames,'stellarType1'));
-    type2index=find(strcmp(colnames,'stellarType2'));
-    nonRLOF=data.data(:,find(strcmp(colnames,'RLOFSecondaryAfterCEE')))==0;
-    Pessimistic=data.data(:,find(strcmp(colnames,'optimisticCEFlag')))==0;
-    tc=data.data(:,tcindex);
-    tform=data.data(:,tformindex);
-    Ttotal=(tc+tform)*1e6;  %convert Megayears to years
-    %select only binaries where both members are black holes at the last
-    %step, the total delay time is less than the age of the Universe, there
-    %is no Roche-lobe overflow immediately after the common-envelope phase, 
-    %and the Pessimistic common-envelope conditions are met
-    select=Ttotal<tHubble & nonRLOF & Pessimistic & ...
-        data.data(:,type1index)==14 & data.data(:,type2index)==14;
-
-    M1=data.data(select,M1index);
-    M2=data.data(select,M2index);
-    Z=data.data(select,Z1index);
-    Tdelay=Ttotal(select);
+    OKCE=zeros(size(seedDCO)); OKCE(CEIndex==0)=1; OKCE(CEIndex>0)=(~optCE(CEIndex(CEIndex>0))) & (~RLOFCE(CEIndex(CEIndex>0)));
+    %BNSCE=sum(mergingBNS & isCE & OKCE); NSBHCE=sum(mergingNSBH & isCE & OKCE); BBHCE=sum(mergingBBH & isCE & OKCE);
+    mergingDCO=merges & OKCE;
+    Zsys=h5read(file,'/BSE_System_Parameters/Metallicity@ZAMS(1)');
+    seedsys=h5read(file,'/BSE_System_Parameters/SEED');
+    [blah,sysIndex]=ismember(seedDCO,seedsys);
+    Zdco=Zsys(sysIndex);
+    M1=mass1(mergingDCO); M2=mass2(mergingDCO); Z=Zdco(mergingDCO); Tdelay=Ttotal(mergingDCO);
 end %end of DataRead
 
 %Compute the star formation rate and lookback time (in years) 
@@ -157,7 +141,7 @@ function [tL]=Cosmology(zvec)
     global Mpc
     global yr
     %zmax=10; dz=0.001; zvec=0:dz:zmax;
-    Nz=length(zvec);
+    Nz=length(zvec); dz=zvec(2)-zvec(1);
     
     %Planck cosmology
     OmegaM=0.236+0.046;  %2012arXiv1212.5226H
@@ -176,66 +160,72 @@ function [tL]=Cosmology(zvec)
 end %end of Cosmology
 
 
-%Compute the fraction of star formation that happens in a given metallicity
-%bin as a function of redshift
-function [Zlist,SFR,SFRfractionZ]=Metallicity(zvec,Z)
+%Compute the weight of each star-forming metallicity as a function of redshift
+function [SFR,Zweight]=Metallicity(Zvec, zvec)
     %M_/odot per Mpc^3 per year -- Neijssel+ 2019 preferred model 
     %would be SFR=0.015*(1+zvec).^2.7./(1+((1+zvec)/2.9).^5.6) in Madau & Dickinson, 2014, (15)
     SFR=0.01*(1+zvec).^2.77./(1+((1+zvec)/2.9).^4.7); 
-    Zmean=0.035.*10.^(-0.23*zvec);
-    Zmu=log(Zmean)-0.39^2/2;
-    dlogZ=0.01;
-    logZvec=-12:dlogZ:0;  %natural log
-    dPdlogZ=1/0.39/sqrt(2*pi)*exp(-(logZvec'-Zmu).^2/2/0.39^2);
-    dPdlogZ=dPdlogZ./(sum(dPdlogZ,1)*dlogZ);    %normalise
-    Zrange=log(max(Z))-log(min(Z));   %ugly correction for not including tails
-    PdrawZ=1/Zrange;
-    minlogZindex=find(exp(logZvec)>=min(Z),1, 'first');
-    maxlogZindex=find(exp(logZvec)<=max(Z),1, 'last');
-    dPdlogZ(minlogZindex,:)=dPdlogZ(minlogZindex,:)+sum(dPdlogZ(1:minlogZindex,:),1)*dlogZ/(sum(Z==min(Z))/length(Z))*PdrawZ;
-    dPdlogZ(maxlogZindex,:)=dPdlogZ(maxlogZindex,:)+sum(dPdlogZ(maxlogZindex:end,:),1)*dlogZ/(sum(Z==max(Z))/length(Z))*PdrawZ;
-    dPdlogZ=dPdlogZ./(sum(dPdlogZ,1)*dlogZ);    %normalise
+    if(length(Zvec)>1),
+        Zmean=0.035.*10.^(-0.23*zvec);
+        Zmu=log(Zmean)-0.39^2/2;
+        dlogZ=0.01;
+        logZvec=-12:dlogZ:0;  %natural log
+        dPdlogZ=1/0.39/sqrt(2*pi)*exp(-(logZvec'-Zmu).^2/2/0.39^2);
+        dPdlogZ=dPdlogZ./(sum(dPdlogZ,1)*dlogZ);    %normalise
+        Zrange=log(max(Zvec))-log(min(Zvec));   %ugly correction for not including tails
+        PdrawZ=1/Zrange;
+        minlogZindex=find(exp(logZvec)>=min(Zvec),1, 'first');
+        maxlogZindex=find(exp(logZvec)>=max(Zvec),1, 'last');
+        dPdlogZ(minlogZindex,:)=dPdlogZ(minlogZindex,:)+sum(dPdlogZ(1:minlogZindex,:),1)*dlogZ/(sum(Zvec==min(Zvec))/length(Zvec))*PdrawZ;
+        dPdlogZ(maxlogZindex,:)=dPdlogZ(maxlogZindex,:)+sum(dPdlogZ(maxlogZindex:end,:),1)*dlogZ/(sum(Zvec==max(Zvec))/length(Zvec))*PdrawZ;
+        dPdlogZ(1:minlogZindex,:)=0; dPdlogZ(maxlogZindex:size(dPdlogZ,1),:)=0;
+        dPdlogZ=dPdlogZ./(sum(dPdlogZ,1)*dlogZ);    %normalise
+        for(i=1:length(Zvec))
+            index=find(exp(logZvec)>=Zvec(i), 1, 'first');
+            Zweight(:,i)=dPdlogZ(index,:)*dlogZ;
+        end;
+    else    %relevant for single-metallicity runs -- just give all binaries the same unit weight
+        Zweight(1:length(zvec),1:length(Zvec))=1;
+    end;
 end %end of Metallicity
 
 
 %Make a set of default plots
-function MakePlots(M1,M2,Z,Tdelay,zvec,SFR,SFRfractionZ,...
-    zlist,Zlist,MergerRateByRedshiftByZ)
+function MakePlots(M1,M2,Z,Tdelay,zvec,Zlist,SFR,Zweight,...
+        MergerRateByRedshiftByZ)
     
     figure(1),colormap jet;
-    plot(zlist, MergerRateByRedshiftByZ, 'LineWidth', 2), 
+    plot(zvec, MergerRateByRedshiftByZ*1e9, 'LineWidth', 2), 
     legend(num2str(Zlist)),
     set(gca, 'FontSize', 20); %for labels
     xlabel('z'),
-    ylabel('Pessimistic non-RLOF BBH merger rate, per Gpc^3 per yr')
-    disp(['Total BBH merger rate at z=0: ', ...
+    ylabel('DCO merger rate per Gpc^3 per yr')
+    disp(['Total DCO merger rate at z=0: ', ...
         num2str(sum(MergerRateByRedshiftByZ(:,1))),...
         ' per Gpc^3 per year']);
-
 
     figure(2), colormap jet;
     scatter(M1,M2,20,log(Z)/log(10),'filled');
     set(gca, 'FontSize', 20); %for labels
     H=colorbar; H.Label.String='log_{10} metallicity'; 
-    xlabel('Primary BH mass [M_o]'), ylabel('Secondary BH mass [M_o]');
+    xlabel('Primary mass [M_o]'), ylabel('Secondary mass [M_o]');
     
     figure(3), colormap jet;
-    scatter(M1+M2,log(Tdelay/1e6)/log(10),20,log(Z)/log(10),'filled');
+    scatter(M1+M2,log10(Tdelay/1e6),20,log10(Z),'filled');
     set(gca, 'FontSize', 20); %for labels
     H=colorbar; H.Label.String='log_{10} metallicity'; 
-    xlabel('Total BBH mass [M_o]'), ylabel('log(Tdelay/Myr)');
+    xlabel('Total DCO mass [M_o]'), ylabel('log_{10}(Tdelay/Myr)');
     
     figure(4), colormap jet;
-    plot(zvec, SFR)
+    plot(zvec, SFR*1e9)
     set(gca, 'FontSize', 20); %for labels
     xlabel('z'), ylabel('Star-formation rate, M_o per Gpc^3 per yr');
-
     
     figure(5), colormap jet;
-    plot(zvec, SFRfractionZ)
+    plot(zvec, Zweight)
     set(gca, 'FontSize', 20); %for labels
     legend(num2str(Zlist))
-    xlabel('z'), ylabel('Z-specific SFR fraction');
+    xlabel('z'), ylabel('Z-specific SFR weight');
 
 end %end of MakePlots
 
