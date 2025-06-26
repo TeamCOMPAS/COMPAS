@@ -848,7 +848,7 @@ double MainSequence::CalculateInitialMainSequenceCoreMass(const double p_Mass, c
     // After full mixing not at ZAMS, use the approach from Brcek+ (2025)
     else {
         double h = PPOW(10.0, p_HeliumAbundanceCore * (p_HeliumAbundanceCore + 2.0) / 4.0);
-        fmix     = BRCEK_FMIX_COEFFICIENTS[0] + BRCEK_FMIX_COEFFICIENTS[1] * std::exp(-p_Mass * h / BRCEK_FMIX_COEFFICIENTS[2]) * PPOW(1.0 - BRCEK_FMIX_COEFFICIENTS[4] / (p_Mass * h), BRCEK_FMIX_COEFFICIENTS[3]);
+        fmix     = (BRCEK_FMIX_COEFFICIENTS[0] + BRCEK_FMIX_COEFFICIENTS[1] * std::exp(-p_Mass * h / BRCEK_FMIX_COEFFICIENTS[2])) * PPOW(1.0 - BRCEK_FMIX_COEFFICIENTS[4] / (p_Mass * h), BRCEK_FMIX_COEFFICIENTS[3]);
     }
     return fmix * p_Mass;
 }
