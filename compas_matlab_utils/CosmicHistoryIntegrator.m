@@ -1,12 +1,12 @@
 function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
-    CosmicHistoryIntegrator(filename,zlist,metallicitychoice, makeplots)
+    CosmicHistoryIntegrator(filename, zlistformation, zlistmerger, makeplots)
 % Integrator for the binary black hole merger rate over cosmic history
 % COMPAS (Compact Object Mergers: Population Astrophysics and Statistics) 
 % software package
 %
 % USAGE: 
 % [Zlist, MergerRateByRedshiftByZ]=...
-%    CosmicHistoryIntegrator(filename, zlistformation, zlistmerger, zlistdetection, Msimulated, [,makeplots])
+%    CosmicHistoryIntegrator(filename, zlistformation, zlistmerger, [,makeplots])
 %
 % INPUTS:
 %   filename: name of population synthesis input file 
@@ -14,8 +14,6 @@ function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
 %   zlistformation: vector of redshifts at which the formation rate is
 %   computed
 %   zlistmerger:  vector of redshifts at which the merger rate is computed
-%   zlistdetection: vector of redshifts at which the detection rate is
-%   computed
 %   Msimulated: total star forming mass represented by the simulation (for
 %   normalisation)
 %   makeplots:  if set to 1, generates a set of useful plots (default = 0)
@@ -56,7 +54,7 @@ c=299792458;		%speed of light, m/s
 Mpc=Mpcm/c;         %Gpc in seconds
 yr=3.15569e7;       %year in seconds
 
-if (nargin<2)
+if (nargin<3)
     error('Not enough input arguments.');
 end;
 if (nargin<4), makeplots=0; end;
@@ -95,17 +93,38 @@ end;
 end %end of CosmicHistoryIntegrator
 
 
-%Load the data stored in COMPAS output format from a file
+%Load the data stored in COMPAS .h5 output format from a file
 %Select only binary black hole mergers of interest, and return the
 %component masses, metallicities, and star formation to merger delay times
-function [M1,M2,Z,Tdelay]=DataRead(filename, tHubble)
-    global BH
-    if(exist(filename, 'file')~=2), 
+function [M1,M2,Z,Tdelay]=DataRead(file, tHubble)
+    if(exist(file, 'file')~=2), 
         error('Input file does not exist');
-    end;
-    data = importdata(filename, '\t', 2);
-    
-    colnames=data.textdata(2,:);
+    end;    
+    type1=h5read(file,'/BSE_Double_Compact_Objects/Stellar_Type(1)');
+    type2=h5read(file,'/BSE_Double_Compact_Objects/Stellar_Type(2)');
+    mass1=h5read(file,'/BSE_Double_Compact_Objects/Mass(1)');
+    mass2=h5read(file,'/BSE_Double_Compact_Objects/Mass(2)');
+    seedDCO=h5read(file,'/BSE_Double_Compact_Objects/SEED');
+    merges=h5read(file,'/BSE_Double_Compact_Objects/Merges_Hubble_Time');
+    a=h5read(file,'/BSE_Double_Compact_Objects/SemiMajorAxis@DCO');
+    e=h5read(file,'/BSE_Double_Compact_Objects/Eccentricity@DCO');
+    mergingBBH=(type1==14) & (type2==14) & merges;
+    BBH=(type1==14) & (type2==14);
+    mergingBNS=(type1==13) & (type2==13) & merges;
+    BNS=(type1==13) & (type2==13);
+    mergingNSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13))) & merges;
+    NSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13)));
+    mergingDCO=mergingBNS | mergingNSBH | mergingBBH;
+    BNScount=sum(mergingBNS); NSBHcount=sum(mergingNSBH); BBHcount=sum(mergingBBH);
+    chirpmass=mass1.^0.6.*mass2.^0.6./(mass1+mass2).^0.2;
+    q=mass2./mass1;
+    seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
+    [isCE,CEIndex]=ismember(seedDCO,seedCE);
+    optCE=h5read(file,'/BSE_Common_Envelopes/Optimistic_CE');
+    RLOFCE=h5read(file,'/BSE_Common_Envelopes/Immediate_RLOF>CE');
+    OKCE=zeros(size(mergingDCO)); OKCE(CEIndex==0)=1; OKCE(CEIndex>0)=(~optCE(CEIndex(CEIndex>0))) & (~RLOFCE(CEIndex(CEIndex>0)));
+    BNSCE=sum(mergingBNS & isCE & OKCE); NSBHCE=sum(mergingNSBH & isCE & OKCE); BBHCE=sum(mergingBBH & isCE & OKCE);
+
     Z1index=find(strcmp(colnames,'Metallicity1'));
     M1index=find(strcmp(colnames,'M1'));
     M2index=find(strcmp(colnames,'M2'));
@@ -133,11 +152,11 @@ end %end of DataRead
 
 %Compute the star formation rate and lookback time (in years) 
 %for an array of redshifts
-function [zvec,tL]=Cosmology()
+function [tL]=Cosmology(zvec)
     global Mpcm
     global Mpc
     global yr
-    zmax=10; dz=0.001; zvec=0:dz:zmax;
+    %zmax=10; dz=0.001; zvec=0:dz:zmax;
     Nz=length(zvec);
     
     %Planck cosmology
