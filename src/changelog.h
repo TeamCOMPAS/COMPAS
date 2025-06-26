@@ -1593,8 +1593,12 @@
 //                                          - Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
 //  03.20.07   IM - June 25, 2025       - Enhancement:
 //                                          - Added a maximum threshold of 1000 km/s for Disberg & Mandel (2025) LOGNORMAL kicks, matching paper
+//  03.20.08   AB - Jun 26, 2025        - Defect repair:
+//                                          - Fix for issue #400; correct Zsol values are now used in stellar wind prescriptions
+//                                          - To avoid ambiguous ZSOL, we now use ZSOL_HURLEY = 0.02, ZSOL_ANDERS = 0.019, and ZSOL_ASPLUND = 0.0142
+//                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
 
-const std::string VERSION_STRING = "03.20.06";
+const std::string VERSION_STRING = "03.20.08";
 
 
 # endif // __changelog_h__

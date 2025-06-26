@@ -187,10 +187,13 @@ constexpr double G_km_Msol_s                            = G * 1.0E-9 / KG_TO_MSO
 constexpr double G_SOLAR_YEAR                           = 3.14E7;                                                   // Gravitational constant in Lsol Rsol yr Msol^-2 for calculating photon tiring limit
 
 constexpr double RSOL                                   = 6.957E8;                                                  // Solar Radius (in m)
-constexpr double ZSOL                                   = 0.02;                                                     // Solar Metallicity used in scalings
-constexpr double LOG10_ZSOL                             = -1.698970004336019;                                       // log10(ZSOL) - for performance
-constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2010) used in initial condition
-constexpr double YSOL                                   = 0.2485;                                                   // Asplund+ 2009
+constexpr double ZSOL_HURLEY                            = 0.02;                                                     // Solar Metallicity used in scalings
+constexpr double LOG10_ZSOL_HURLEY                      = -1.698970004336019;                                       // log10(ZSOL_HURLEY) - for performance
+constexpr double ZSOL_ANDERS                            = 0.019;                                                    // Solar Metallicity (Anders+ 1989) used in winds
+constexpr double LOG10_ZSOL_ANDERS                      = -1.721246399047171;                                       // log10(ZSOL_ANDERS) - for performance
+constexpr double ZSOL_ASPLUND                           = 0.0142;                                                   // Solar Metallicity (Asplund+ 2009) used in initial condition and winds
+constexpr double LOG10_ZSOL_ASPLUND                     = -1.847711655616944;                                       // log10(ZSOL_ASPLUND) - for performance
+constexpr double YSOL_ASPLUND                           = 0.2485;                                                   // Asplund+ 2009
 constexpr double TSOL                                   = 5778.0;                                                   // Solar Temperature in kelvin
 constexpr double LSOL                                   = 3.844E33;                                                 // Solar Luminosity in erg/s
 constexpr double LSOLW                                  = 3.844E26;                                                 // Solar luminosity (in W)
@@ -3820,7 +3823,7 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
 };
 // Coefficients used to determine the initial convective core mass of MS star after full mixing (due to a merger or CHE)
 // from Brcek et al. (2025)
-const DBL_VECTOR BRCEK_FMIX_COEFFICIENTS = {0.897487516925644, -0.570499075062176, 56.9817940103868, 0.54483109433479, 1.72842835324164};
+const DBL_VECTOR BRCEK_FMIX_COEFFICIENTS = {0.898171018326982, -0.592244880828559, 55.7885260968562, 0.359078394562545, 1.87717633667786};
 
 
 #endif // __constants_h__

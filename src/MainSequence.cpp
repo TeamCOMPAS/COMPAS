@@ -848,7 +848,7 @@ double MainSequence::CalculateInitialMainSequenceCoreMass(const double p_Mass, c
     // After full mixing not at ZAMS, use the approach from Brcek+ (2025)
     else {
         double h = PPOW(10.0, p_HeliumAbundanceCore * (p_HeliumAbundanceCore + 2.0) / 4.0);
-        fmix     = BRCEK_FMIX_COEFFICIENTS[0] + BRCEK_FMIX_COEFFICIENTS[1] * std::exp(-p_Mass * h / BRCEK_FMIX_COEFFICIENTS[2]) * PPOW(1.0 - BRCEK_FMIX_COEFFICIENTS[4] / (p_Mass * h), BRCEK_FMIX_COEFFICIENTS[3]);
+        fmix     = (BRCEK_FMIX_COEFFICIENTS[0] + BRCEK_FMIX_COEFFICIENTS[1] * std::exp(-p_Mass * h / BRCEK_FMIX_COEFFICIENTS[2])) * PPOW(1.0 - BRCEK_FMIX_COEFFICIENTS[4] / (p_Mass * h), BRCEK_FMIX_COEFFICIENTS[3]);
     }
     return fmix * p_Mass;
 }
@@ -967,7 +967,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
     double tHook = mu * p_TBGB;
 
     // For mass < Mhook, x > mu (i.e. for stars without a hook)
-    double x = std::max(0.95, std::min((0.95 - (0.03 * (LogMetallicityXi() + 0.30103))), 0.99));
+    double x = std::max(0.95, std::min((0.95 - (0.03 * (LogMetallicityXiHurley() + 0.30103))), 0.99));
 
     return std::max(tHook, (x * p_TBGB));
 
@@ -1326,8 +1326,8 @@ double MainSequence::InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPres
         double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;                 // Don't need to use nearest neighbor for this, beta is always between 0 and 1
         qCritPerMetallicity[ii] = interpolatedQCritForZ;
     }
-    double logZlo = -3;         // log10(0.001)
-    double logZhi = LOG10_ZSOL; // log10(0.02) 
+    double logZlo = -3;                // log10(0.001)
+    double logZhi = LOG10_ZSOL_HURLEY; // log10(0.02)
     
     return qCritPerMetallicity[1] + (m_Log10Metallicity - logZhi)*(qCritPerMetallicity[1] - qCritPerMetallicity[0])/(logZhi - logZlo);
 }
@@ -1354,9 +1354,9 @@ std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> MainSequence::InterpolateShikauc
     double logZ = std::log10(p_Metallicity);
 
     // Coefficients are given for these metallicities
-    double low    = std::log10(0.1 * ZSOL_ASPLUND);
-    double middle = std::log10(1.0 / 3.0 * ZSOL_ASPLUND);
-    double high   = std::log10(ZSOL_ASPLUND);
+    double low    = std::log10(0.1 * ZSOL_HURLEY);
+    double middle = std::log10(1.0 / 3.0 * ZSOL_HURLEY);
+    double high   = std::log10(ZSOL_HURLEY);
 
     // common factors
     double middle_logZ = middle - logZ;
