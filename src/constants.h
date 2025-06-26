@@ -397,6 +397,7 @@ constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3;
 // Constants for Disberg & Mandel (2025) SN kick prescription
 constexpr double DISBERG_MANDEL_MU                      = 5.60;
 constexpr double DISBERG_MANDEL_SIGMA                   = 0.68;
+constexpr double DISBERG_MANDEL_MAX_KICK                = 1000.0;
 
 constexpr double HOBBS_CORRECTED_SIGMA                  = 217.0;    // Best fit Maxwellian sigma for 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
 
