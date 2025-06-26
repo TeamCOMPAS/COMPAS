@@ -3909,7 +3909,7 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             if (thisSNevent == SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN())) {
                 kickMagnitude = DISBERG_MANDEL_MAX_KICK + 1.0;
                 double rand   = p_Rand;                                                         // makes it possible to adjust if p_Rand is too high, to avoid getting stuck
-                while( utils::Compare(kickMagnitude, DISBERG_MANDEL_MAX_KICK) > 0 ) {           // maximum kick of 1000 km/s, following Disberg & Mandel (2025)
+                while (utils::Compare(kickMagnitude, DISBERG_MANDEL_MAX_KICK) > 0) {            // maximum kick of 1000 km/s, following Disberg & Mandel (2025)
                     kickMagnitude = gsl_cdf_lognormal_Pinv(rand, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
                     rand          = 0.99 * rand;
                 }
