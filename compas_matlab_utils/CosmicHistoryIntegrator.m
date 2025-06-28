@@ -1,4 +1,4 @@
-function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
+function [Zlist, MergerRateByRedshiftByZ, SFR, Zweight]=...
     CosmicHistoryIntegrator(filename, zlistformation, zlistdetection, Msimulated, makeplots)
 % Integrator for the binary black hole merger rate over cosmic history
 % COMPAS (Compact Object Mergers: Population Astrophysics and Statistics) 
@@ -6,7 +6,7 @@ function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
 %
 % USAGE: 
 % [Zlist, MergerRateByRedshiftByZ]=...
-%    CosmicHistoryIntegrator(filename, zlistformation, zlistmerger, [,makeplots])
+%    CosmicHistoryIntegrator(filename, zlistformation, zlistmerger, [,makeplots, filename2, name1, name2])
 %
 % INPUTS:
 %   filename: name of population synthesis input file 
@@ -25,6 +25,8 @@ function [Zlist, MergerRateByRedshiftByZ, SFRfractionZ]=...
 % year of source time
 %
 % EXAMPLE:
+% CosmicHistoryIntegrator('~/Work/COMPASresults/runs/Zdistalpha1-031803.h5', ...
+%   zlist, zlist, 90e6, 1, '~/Work/COMPASresults/runs/Zdist2stage-031803.h5', 'Default', '2 Stage')
 % zlist=0:0.1:5;
 % filename=['~/Work/COMPASresults/popsynth/runs/',...
 %    '20170628-Coen-Pessimistic/AllMergers.dat'];
@@ -60,12 +62,11 @@ end;
 if (nargin<5), makeplots=0; end;
 
 %cosmology calculator
-[tL]=Cosmology(zlistformation);           
+[tL]=Cosmology(zlistformation); 
 %load COMPAS data
 [M1,M2,Z,Tdelay]=DataRead(filename); 
-Zlist=unique(Z);
 %metallicity-specific SFR
-[SFR,Zweight]=Metallicity(Zlist,zlistformation);       
+[SFR,Zlist,Zweight]=Metallicity(zlistformation,min(Z),max(Z)); 
 
 
 %Consider the contribution of every simulated binary to the merger rate 
@@ -76,7 +77,7 @@ dz=zlistformation(2)-zlistformation(1);
 tLmerge=tL(floor(zlistformation/dz)+1);
 MergerRateByRedshiftByZ=zeros(length(zlistformation),length(Zlist));
 for(i=1:length(M1)),
-    Zcounter=find(Zlist==Z(i));
+    Zcounter=find(Zlist>=Z(i),1);
     zformindex=find(tL>=Tdelay(i),1);
     for(k=1:length(zlistformation)),
         zformindex=find(tL>=(Tdelay(i)+tLmerge(k)),1);
@@ -88,7 +89,7 @@ end;
 
 if(makeplots==1),   %make a set of default plots
     MakePlots(M1,M2,Z,Tdelay,zlistformation,Zlist,SFR,Zweight,...
-        MergerRateByRedshiftByZ);
+        MergerRateByRedshiftByZ, 1);
 end;
 
 end %end of CosmicHistoryIntegrator
@@ -161,21 +162,22 @@ end %end of Cosmology
 
 
 %Compute the weight of each star-forming metallicity as a function of redshift
-function [SFR,Zweight]=Metallicity(Zvec, zvec)
+function [SFR,Zvec,Zweight]=Metallicity(zvec,minZ,maxZ)
     %M_/odot per Mpc^3 per year -- Neijssel+ 2019 preferred model 
     %would be SFR=0.015*(1+zvec).^2.7./(1+((1+zvec)/2.9).^5.6) in Madau & Dickinson, 2014, (15)
     SFR=0.01*(1+zvec).^2.77./(1+((1+zvec)/2.9).^4.7); 
-    if(length(Zvec)>1),
+    if(maxZ>minZ),
         Zmean=0.035.*10.^(-0.23*zvec);
         Zmu=log(Zmean)-0.39^2/2;
-        dlogZ=0.01;
+        dlogZ=0.1;
         logZvec=-12:dlogZ:0;  %natural log
         dPdlogZ=1/0.39/sqrt(2*pi)*exp(-(logZvec'-Zmu).^2/2/0.39^2);
         dPdlogZ=dPdlogZ./(sum(dPdlogZ,1)*dlogZ);    %normalise
-        Zrange=log(max(Zvec))-log(min(Zvec));   %ugly correction for not including tails
+        minlogZindex=find(exp(logZvec)>=minZ,1, 'first');
+        maxlogZindex=find(exp(logZvec)>=maxZ,1, 'first');
+        Zrange=logZvec(maxlogZindex)-logZvec(minlogZindex);   %ugly correction for not including tails
         PdrawZ=1/Zrange;
-        minlogZindex=find(exp(logZvec)>=min(Zvec),1, 'first');
-        maxlogZindex=find(exp(logZvec)>=max(Zvec),1, 'last');
+        Zvec=exp(logZvec(minlogZindex:maxlogZindex));
         dPdlogZ(minlogZindex,:)=dPdlogZ(minlogZindex,:)+sum(dPdlogZ(1:minlogZindex,:),1)*dlogZ/(sum(Zvec==min(Zvec))/length(Zvec))*PdrawZ;
         dPdlogZ(maxlogZindex,:)=dPdlogZ(maxlogZindex,:)+sum(dPdlogZ(maxlogZindex:end,:),1)*dlogZ/(sum(Zvec==max(Zvec))/length(Zvec))*PdrawZ;
         dPdlogZ(1:minlogZindex,:)=0; dPdlogZ(maxlogZindex:size(dPdlogZ,1),:)=0;
@@ -185,44 +187,55 @@ function [SFR,Zweight]=Metallicity(Zvec, zvec)
             Zweight(:,i)=dPdlogZ(index,:)*dlogZ;
         end;
     else    %relevant for single-metallicity runs -- just give all binaries the same unit weight
-        Zweight(1:length(zvec),1:length(Zvec))=1;
+        Zvec=minZ;
+        Zweight=ones(length(zvec),1);
     end;
 end %end of Metallicity
 
 
 %Make a set of default plots
 function MakePlots(M1,M2,Z,Tdelay,zvec,Zlist,SFR,Zweight,...
-        MergerRateByRedshiftByZ)
-    
-    figure(1),colormap jet;
-    plot(zvec, MergerRateByRedshiftByZ*1e9, 'LineWidth', 2), 
-    legend(num2str(Zlist)),
+        MergerRateByRedshiftByZ, fignumber)
+
+    figure(fignumber), clf(fignumber); %,colormap jet;
+    plot(zvec, sum(MergerRateByRedshiftByZ,2)*1e9, 'LineWidth', 3),  hold on;
+    plot(zvec, sum(MergerRateByRedshiftByZ(:,Zlist<=0.001),2)*1e9, 'LineWidth', 1);
+    plot(zvec, sum(MergerRateByRedshiftByZ(:,Zlist>0.001 & Zlist<0.01),2)*1e9, 'LineWidth', 1);
+    plot(zvec, sum(MergerRateByRedshiftByZ(:,Zlist>=0.01),2)*1e9, 'LineWidth', 1); hold off;
+    legend('Total rate', 'From Z<=0.001', 'From 0.001<Z<0.01', 'From Z>=0.01'),
     set(gca, 'FontSize', 20); %for labels
     xlabel('z'),
     ylabel('DCO merger rate per Gpc^3 per yr')
     disp(['Total DCO merger rate at z=0: ', ...
-        num2str(sum(MergerRateByRedshiftByZ(:,1))),...
+        num2str(1e9*sum(MergerRateByRedshiftByZ(1,:))),...
         ' per Gpc^3 per year']);
 
-    figure(2), colormap jet;
-    scatter(M1,M2,20,log(Z)/log(10),'filled');
+    figure(2);
+    colormap jet;
+    scatter(log10(M1),log10(M2),20,log(Z)/log(10),'filled');
     set(gca, 'FontSize', 20); %for labels
     H=colorbar; H.Label.String='log_{10} metallicity'; 
-    xlabel('Primary mass [M_o]'), ylabel('Secondary mass [M_o]');
+    xlabel('log_{10}(M_1/M_o)'), ylabel('log_{10}(M_2/M_o)');
     
-    figure(3), colormap jet;
+    figure(3);
+    colormap jet;
     scatter(M1+M2,log10(Tdelay/1e6),20,log10(Z),'filled');
     set(gca, 'FontSize', 20); %for labels
     H=colorbar; H.Label.String='log_{10} metallicity'; 
     xlabel('Total DCO mass [M_o]'), ylabel('log_{10}(Tdelay/Myr)');
+
     
-    figure(4), colormap jet;
-    plot(zvec, SFR*1e9)
+    figure(fignumber+3), clf(fignumber+3);
+    plot(zvec, SFR*1e9, 'LineWidth', 3); hold on;
+    plot(zvec, SFR'.*sum(Zweight(:,Zlist<=0.001),2)*1e9, 'LineWidth', 1);
+    plot(zvec, SFR'.*sum(Zweight(:,Zlist>0.001&Zlist<0.01),2)*1e9, 'LineWidth', 1);
+    plot(zvec, SFR'.*sum(Zweight(:,Zlist>=0.01),2)*1e9, 'LineWidth', 1); hold off;
+    legend('Total rate', 'From Z<=0.001', 'From 0.001<Z<0.01', 'From Z>=0.01'),
     set(gca, 'FontSize', 20); %for labels
     xlabel('z'), ylabel('Star-formation rate, M_o per Gpc^3 per yr');
     
     figure(5), colormap jet;
-    plot(zvec, Zweight)
+    plot(zvec, Zweight, 'LineWidth', 3)
     set(gca, 'FontSize', 20); %for labels
     legend(num2str(Zlist))
     xlabel('z'), ylabel('Z-specific SFR weight');
