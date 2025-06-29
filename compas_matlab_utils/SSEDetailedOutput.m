@@ -1,16 +1,22 @@
-function SSEDetailedOutput(filename)
+function SSEDetailedOutput(filename, nfiles)
 % Carries out some basic analysis and makes plots for a single SSE run
 %
 % USAGE: 
-% ComparisonPlots(filename1, name1, filename2, name2)
+% SSEDetailedOutput(filename [, nfiles])
 %
 % INPUTS:
 %   filename: name of detailed output file in COMPAS h5 format
+%   nfiles: optional if multiple files are being compared; in that case,
+%   the files are all assumed to start with filename, followed by numbers
+%   0...nfiles-1, followed by .h5
 %
-% example: 
+% examples: 
 %       SSEDetailedOutput('~/Work/COMPAS/src/COMPAS_Output/Detailed_Output/SSE_Detailed_Output_0.h5')
-%
+%       SSEDetailedOutput('~/Work/COMPAS/src/COMPAS_Output/Detailed_Output/SSE_Detailed_Output_', 5)
+%       
 
+
+if(nargin==1)
 
 time=h5read(file,'/Time');
 Z=h5read(file,'/Metallicity@ZAMS');
@@ -28,6 +34,8 @@ convEnvMass=h5read(file,'/Mass_Convective_Env');
 lambda=h5read(file,'/Lambda_Convective');
 binding=h5read(file,'/BE_ConvectiveEnvelope');
 rec=h5read(file,'/Record_Type');
+
+
 
 figure(1), 
 scatter(time(type==1),radius(type==1),20,'filled', 'b'); hold on;
@@ -60,22 +68,6 @@ set(gca,'FontSize',20); xlabel('Radius, Rsun'); ylabel('Binding E conv env, erg'
 %set(gca,'FontSize',20); xlabel('Radius, Rsun'); ylabel('\lambda')
 
 
-
-file='~/Work/COMPAS/src/COMPAS_Output/COMPAS_Output.h5';
-radius=h5read(file,'/BSE_Common_Envelopes/Radius(1)<CE');
-apre=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxis<CE');
-a1=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxisStage1>CE');
-apost=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxis>CE');
-primarydonor=(h5read(file,'/BSE_Common_Envelopes/RLOF(1)')==1);
-figure(3); semilogy(radius(primarydonor), apre(primarydonor), 'b-.', radius(primarydonor), a1(primarydonor), 'b--', radius(primarydonor), apost(primarydonor), 'b-', 'LineWidth', 3); hold on;
-file='~/Work/COMPAS/src/COMPAS_Output_1/COMPAS_Output.h5';
-radius=h5read(file,'/BSE_Common_Envelopes/Radius(1)<CE');
-apre=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxis<CE');
-a1=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxisStage1>CE');
-apost=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxis>CE');
-primarydonor=(h5read(file,'/BSE_Common_Envelopes/RLOF(1)')==1);
-figure(3); semilogy(radius(primarydonor), apre(primarydonor), 'm-.', radius(primarydonor), a1(primarydonor), 'm--', radius(primarydonor), apost(primarydonor), 'm-', 'LineWidth', 3); hold on;
-file='~/Work/COMPAS/src/COMPAS_Output_2/COMPAS_Output.h5';
 radius=h5read(file,'/BSE_Common_Envelopes/Radius(1)<CE');
 apre=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxis<CE');
 a1=h5read(file,'/BSE_Common_Envelopes/SemiMajorAxisStage1>CE');
@@ -84,9 +76,11 @@ primarydonor=(h5read(file,'/BSE_Common_Envelopes/RLOF(1)')==1);
 figure(3); semilogy(radius(primarydonor), apre(primarydonor), 'y-.', radius(primarydonor), a1(primarydonor), 'y--', radius(primarydonor), apost(primarydonor), 'y-', 'LineWidth', 3); hold off;
 set(gca,'FontSize',20); xlabel('Radius, Rsun'); ylabel('Semimajor axis, Rsun'), legend('Pre CE','After Stage1','After Stage 2')
 
+end; % end of if(nargin==1)
 
+if(nargin==2),
 
-for k=0:4,
+for (k=0:nfiles-1),
 file=['~/Work/COMPAS/src/COMPAS_Output_3/Detailed_Output/SSE_Detailed_Output_',int2str(k),'.h5'];    
 time=h5read(file,'/Time');
 Z=h5read(file,'/Metallicity@ZAMS');
@@ -113,3 +107,5 @@ scatter(radius(type==6),log10(binding(type==6)),20,'filled');
 hold off;
 set(gca,'FontSize',20); xlabel('Radius, Rsun'); ylabel('log_{10}(Nanjing binding energy / erg)'), legend('MS','HG','FGB','CHeB','EAGB','TPAGB'), title(['ZAMS Mass in solar masses:', int2str(mass(1))])
 end;
+
+end; %end of if(nargin==2)
