@@ -170,6 +170,9 @@ public:
     SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
     double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
     double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
+    double              SpeedX() const                                                  { return m_ComponentVelocity.xValue(); }
+    double              SpeedY() const                                                  { return m_ComponentVelocity.yValue(); }
+    double              SpeedZ() const                                                  { return m_ComponentVelocity.zValue(); }
     COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
     double              Tau() const                                                     { return m_Tau; }
     double              Temperature() const                                             { return m_Temperature; }

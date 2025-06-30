@@ -372,6 +372,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::RZAMS:                                              value = RZAMS();                                                break;
         case ANY_STAR_PROPERTY::SN_TYPE:                                            value = SN_Type();                                              break;
         case ANY_STAR_PROPERTY::SPEED:                                              value = Speed();												break;
+        case ANY_STAR_PROPERTY::SPEED_X:                                            value = SpeedX();												break;
+        case ANY_STAR_PROPERTY::SPEED_Y:                                            value = SpeedY();												break;
+        case ANY_STAR_PROPERTY::SPEED_Z:                                            value = SpeedZ();												break;
         case ANY_STAR_PROPERTY::STELLAR_TYPE:                                       value = StellarType();                                          break;
         case ANY_STAR_PROPERTY::STELLAR_TYPE_NAME:                                  value = STELLAR_TYPE_LABEL.at(StellarType());                   break;
         case ANY_STAR_PROPERTY::STELLAR_TYPE_PREV:                                  value = StellarTypePrev();                                      break;
