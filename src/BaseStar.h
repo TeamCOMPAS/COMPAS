@@ -170,9 +170,6 @@ public:
     SN_EVENT            SN_Type() const                                                 { return utils::SNEventType(m_SupernovaDetails.events.current); }
     double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
     double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
-    double              SpeedX() const                                                  { return m_ComponentVelocity.xValue(); }
-    double              SpeedY() const                                                  { return m_ComponentVelocity.yValue(); }
-    double              SpeedZ() const                                                  { return m_ComponentVelocity.zValue(); }
     COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
     double              Tau() const                                                     { return m_Tau; }
     double              Temperature() const                                             { return m_Temperature; }
@@ -180,6 +177,9 @@ public:
     double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
     double              TotalMassLossRate() const                                       { return m_TotalMassLossRate; }
     double              TZAMS() const                                                   { return m_TZAMS; }
+    double              VelocityX() const                                               { return m_ComponentVelocity.xValue(); }
+    double              VelocityY() const                                               { return m_ComponentVelocity.yValue(); }
+    double              VelocityZ() const                                               { return m_ComponentVelocity.zValue(); }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
     double              XExponent() const                                               { return m_XExponent; }
     
