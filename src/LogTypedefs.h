@@ -274,6 +274,9 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,        \
     TRUE_ANOMALY,                                    \
     TZAMS,                                           \
+    VELOCITY_X,                                      \
+    VELOCITY_Y,                                      \
+    VELOCITY_Z,                                      \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
     ZETA_SOBERMAN,                                   \
@@ -424,6 +427,9 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,        "TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
     { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
+    { STAR_PROPERTY::VELOCITY_X,                                      "VELOCITY_X" },
+    { STAR_PROPERTY::VELOCITY_Y,                                      "VELOCITY_Y" },
+    { STAR_PROPERTY::VELOCITY_Z,                                      "VELOCITY_Z" },
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
     { STAR_PROPERTY::ZETA_SOBERMAN,                                   "ZETA_SOBERMAN" },
@@ -1407,6 +1413,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Radius_Total@CO",                 "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                24, 15}},
+    { ANY_STAR_PROPERTY::VELOCITY_X,                                        { TYPENAME::DOUBLE,           "VelocityX",                       "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::VELOCITY_Y,                                        { TYPENAME::DOUBLE,           "VelocityY",                       "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::VELOCITY_Z,                                        { TYPENAME::DOUBLE,           "VelocityZ",                       "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,           "Zeta_Hurley_He",                  "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,           "Zeta_Soberman",                   "-",                24, 15}},
