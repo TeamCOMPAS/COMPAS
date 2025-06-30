@@ -1598,7 +1598,7 @@
 //                                          - To avoid ambiguous ZSOL, we now use ZSOL_HURLEY = 0.02, ZSOL_ANDERS = 0.019, and ZSOL_ASPLUND = 0.0142
 //                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
 //  03.20.09  RTW - Jun 30, 2025        - Enhancement:
-//                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::SPEED_X, or Y, Z)
+//                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
 
 const std::string VERSION_STRING = "03.20.09";
 
