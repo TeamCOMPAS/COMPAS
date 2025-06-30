@@ -255,6 +255,9 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     RZAMS,                                           \
     SN_TYPE,                                         \
     SPEED,                                           \
+    SPEED_X,                                         \
+    SPEED_Y,                                         \
+    SPEED_Z,                                         \
     STELLAR_TYPE,                                    \
     STELLAR_TYPE_NAME,                               \
     STELLAR_TYPE_PREV,                               \
@@ -405,6 +408,9 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RZAMS,                                           "RZAMS" },
     { STAR_PROPERTY::SN_TYPE,                                         "SN_TYPE" },
     { STAR_PROPERTY::SPEED,                                           "SPEED" },
+    { STAR_PROPERTY::SPEED_X,                                         "SPEED_X" },
+    { STAR_PROPERTY::SPEED_Y,                                         "SPEED_Y" },
+    { STAR_PROPERTY::SPEED_Z,                                         "SPEED_Z" },
     { STAR_PROPERTY::STELLAR_TYPE,                                    "STELLAR_TYPE" },
     { STAR_PROPERTY::STELLAR_TYPE_NAME,                               "STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::STELLAR_TYPE_PREV,                               "STELLAR_TYPE_PREV" },
@@ -1387,6 +1393,9 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RZAMS,                                             { TYPENAME::DOUBLE,           "Radius@ZAMS",                     "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::SN_TYPE,                                           { TYPENAME::SN_EVENT,         "SN_Type",                         "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::SPEED,                                             { TYPENAME::DOUBLE,           "ComponentSpeed",                  "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::SPEED_X,                                           { TYPENAME::DOUBLE,           "ComponentSpeedX",                 "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::SPEED_Y,                                           { TYPENAME::DOUBLE,           "ComponentSpeedY",                 "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::SPEED_Z,                                           { TYPENAME::DOUBLE,           "ComponentSpeedZ",                 "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::STELLAR_TYPE,                                      { TYPENAME::STELLAR_TYPE,     "Stellar_Type",                    "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE_NAME,                                 { TYPENAME::STRING,           "Stellar_Type",                    "-",                42, 1 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE_PREV,                                 { TYPENAME::STELLAR_TYPE,     "Stellar_Type_Prev",               "-",                 4, 1 }},
