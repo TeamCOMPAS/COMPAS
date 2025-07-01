@@ -1,6 +1,16 @@
-file='~/Work/COMPAS/src/COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5';
+function BSEDetailedOutput(file)
+% Carries out some basic analysis and makes plots for a single BSE run
+%
+% USAGE: 
+% BSEDetailedOutput(file)
+%
+% INPUTS:
+%   file: name of detailed output file in COMPAS h5 format
+%
+% examples: 
+%       BSEDetailedOutput('~/Work/COMPAS/src/COMPAS_Output/Detailed_Output/BSE_Detailed_Output_0.h5')
+%       
 
-tic
 time=h5read(file,'/Time');
 MThistory=h5read(file,'/MT_History');
 Z=h5read(file,'/Metallicity@ZAMS(1)');
@@ -29,8 +39,6 @@ omega2=h5read(file, '/Omega(2)');
 omegab1=h5read(file, '/Omega_Break(1)');
 omegab2=h5read(file, '/Omega_Break(2)');
 MTtimescale=h5read(file, '/MassTransferTimescale');
-inf=h5info(file);
-%inf.Datasets.Name
 
 
 disp('Time (Myr),   Event,  M1 (M_o),   type1,  M2 (M_o),   type2,  a (R_o),    e');
@@ -65,8 +73,7 @@ if((type1(i)==13 || type1(i)==14) && (type2(i)==13 || type2(i)==14) ),
     disp([num2str(time(i)+Tdelay), '     GW merger in ', num2str(Tdelay,'%.0f'), ' Myr      ', num2str(mass1(i)), '      ', num2str(type1(i)),...
         '      ', num2str(mass2(i)), '      ', num2str(type2(i))]);
 end;
-toc
 
-figure(81), plot(time,  mass1, 'LineWidth', 3),  set(gca,'FontSize',20), xlabel('Time, Myr'), ylabel('Total mass 1, M_o')
-%figure(81), scatter(time,  radius1, 30, type1, 'filled'),  set(gca,'FontSize',20), xlabel('Time, Myr'), ylabel('Radius 1, R_o')
-figure(82), plot(time, radius2, 'b', time, RL2, 'r'); set(gca,'FontSize',20), xlabel('Time, Myr'), ylabel('Radius, R_o'), legend('R_2', 'RL_2')
+figure(1), plot(time,  mass1, 'LineWidth', 3),  set(gca,'FontSize',20), xlabel('Time, Myr'), ylabel('Total mass 1, M_o')
+%figure(2), scatter(time,  radius1, 30, type1, 'filled'),  set(gca,'FontSize',20), xlabel('Time, Myr'), ylabel('Radius 1, R_o')
+figure(2), plot(time, radius2, 'b', time, RL2, 'r'); set(gca,'FontSize',20), xlabel('Time, Myr'), ylabel('Radius, R_o'), legend('R_2', 'RL_2')
