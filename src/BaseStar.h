@@ -177,6 +177,9 @@ public:
     double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
     double              TotalMassLossRate() const                                       { return m_TotalMassLossRate; }
     double              TZAMS() const                                                   { return m_TZAMS; }
+    double              VelocityX() const                                               { return m_ComponentVelocity.xValue(); }
+    double              VelocityY() const                                               { return m_ComponentVelocity.yValue(); }
+    double              VelocityZ() const                                               { return m_ComponentVelocity.zValue(); }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
     double              XExponent() const                                               { return m_XExponent; }
     
