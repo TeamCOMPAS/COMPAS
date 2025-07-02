@@ -944,10 +944,10 @@
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 // 02.33.01     RTW - Sep 26, 2022   - Defect repair:
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
-// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+// 02.33.02     IM - Nov 27, 2022    - Defect repair:
 //                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
 //                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
-// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+// 02.34.00     IM - Nov 28, 2022    - Enhancement:
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
 //                                      - Placed Dewi CE prescription on parity with others
@@ -1576,12 +1576,31 @@
 //                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
 //                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
 //                                          - Set merger on unstable RLOF from WD
-//  03.20.02   IM - May 30, 2026        - Defect repair, enhancement:
+//  03.20.02   IM - May 30, 2025        - Defect repair, enhancement:
 //                                          - Included unit conversion in WhiteDwarfs::CalculateEtaPTY()
 //                                          - All critical mass ratios now return the HURLEY_HJELLMING_WEBBINK_QCRIT_WD for white dwarfs and 0 for other remnant donors (only stable mass transfer) as fix for issue #1385
+//  03.20.03   IM - June 18, 2025       - Defect repair, enhancement:
+//                                          - TPAGB stars should no longer experience supernovae if SN conditions are not satisfied, rather than defaulting to CCSN (corrects the partial fix in 03.10.02)
+//                                          - Added new parameter (threshold mass, generally expected to be MCH or MECS) to CalculateCoreMassAtSupernova_Static()
+//                                          - Removed McSN from GBParams, instead computed on the fly when needed
+//  03.20.04   AB - Jun 23, 2025        - Defect repair, enhancement:
+//                                          - Fixes to MS mergers and CHE when BRCEK core mass prescription is used -- MS core mass is now correctly initialised after full mixing in MS
+//                                            mergers and CH stars that spun down
+//  03.20.05   IM - June 24, 2025       - Defect repair:
+//                                          - Fixed typo in implementation of CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH (issue #1403)
+//  03.20.06   IM - June 25, 2025       - Enhancements:
+//                                          - The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
+//                                          - Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+//  03.20.07   IM - June 25, 2025       - Enhancement:
+//                                          - Added a maximum threshold of 1000 km/s for Disberg & Mandel (2025) LOGNORMAL kicks, matching paper
+//  03.20.08   AB - Jun 26, 2025        - Defect repair:
+//                                          - Fix for issue #400; correct Zsol values are now used in stellar wind prescriptions
+//                                          - To avoid ambiguous ZSOL, we now use ZSOL_HURLEY = 0.02, ZSOL_ANDERS = 0.019, and ZSOL_ASPLUND = 0.0142
+//                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
+//  03.20.09  RTW - Jun 30, 2025        - Enhancement:
+//                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
 
-
-const std::string VERSION_STRING = "03.20.02";
+const std::string VERSION_STRING = "03.20.09";
 
 
 # endif // __changelog_h__

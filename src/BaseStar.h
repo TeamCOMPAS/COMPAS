@@ -106,6 +106,7 @@ public:
     double              HydrogenAbundanceSurface() const                                { return m_HydrogenAbundanceSurface; }
     double              InitialHeliumAbundance() const                                  { return m_InitialHeliumAbundance; }
     double              InitialHydrogenAbundance() const                                { return m_InitialHydrogenAbundance; }
+    double              InitialMainSequenceCoreMass() const                             { return m_InitialMainSequenceCoreMass; }
     bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
     bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
@@ -118,9 +119,11 @@ public:
     bool                IsSNIA() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::SNIA) == SN_EVENT::SNIA; }
     bool                IsUSSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::USSN) == SN_EVENT::USSN; }
     bool                LBV_PhaseFlag() const                                           { return m_LBVphaseFlag; }
-    double              LogMetallicityRho() const                                       { return LogMetallicityXi() + 1.0; }            // rho in Hurley+ 2000
-    double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                  // sigma in Hurley+ 2000
-    double              LogMetallicityXi() const                                        { return m_Log10Metallicity - LOG10_ZSOL; }     // xi in Hurley+ 2000
+    double              LogMetallicityRho() const                                       { return LogMetallicityXiHurley() + 1.0; }             // rho in Hurley+ 2000
+    double              LogMetallicitySigma() const                                     { return m_Log10Metallicity; }                         // sigma in Hurley+ 2000
+    double              LogMetallicityXiHurley() const                                  { return m_Log10Metallicity - LOG10_ZSOL_HURLEY; }     // xi in Hurley+ 2000
+    double              LogMetallicityXiAnders() const                                  { return m_Log10Metallicity - LOG10_ZSOL_ANDERS; }     // log10(Z / ZSOL_ANDERS)
+    double              LogMetallicityXiAsplund() const                                 { return m_Log10Metallicity - LOG10_ZSOL_ASPLUND; }    // log10(Z / ZSOL_ASPLUND)
     double              Luminosity() const                                              { return m_Luminosity; }
     double              MainSequenceCoreMass() const                                    { return m_MainSequenceCoreMass; }
     double              Mass() const                                                    { return m_Mass; }
@@ -174,6 +177,9 @@ public:
     double              Timescale(TIMESCALE p_Timescale) const                          { return m_Timescales[static_cast<int>(p_Timescale)]; }
     double              TotalMassLossRate() const                                       { return m_TotalMassLossRate; }
     double              TZAMS() const                                                   { return m_TZAMS; }
+    double              VelocityX() const                                               { return m_ComponentVelocity.xValue(); }
+    double              VelocityY() const                                               { return m_ComponentVelocity.yValue(); }
+    double              VelocityZ() const                                               { return m_ComponentVelocity.zValue(); }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
     double              XExponent() const                                               { return m_XExponent; }
     
@@ -404,6 +410,7 @@ protected:
     // Zero Age Main Sequence
     double                  m_InitialHeliumAbundance;                   // Initial helium abundance (Y)
     double                  m_InitialHydrogenAbundance;                 // Initial hydrogen abundance (X)
+    double                  m_InitialMainSequenceCoreMass;              // Initial main sequence core mass (used in BRCEK core mass prescription)
     double                  m_LZAMS;                                    // ZAMS Luminosity
     double                  m_MZAMS;                                    // ZAMS Mass
     double                  m_OmegaZAMS;                                // ZAMS Angular Frequency

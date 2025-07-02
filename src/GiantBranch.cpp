@@ -265,7 +265,7 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(AHe)    = CalculateHeRateConstant_Static();
 
     gbParams(B)      = CalculateCoreMass_Luminosity_B_Static(p_Mass);
-    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXi(), m_MassCutoffs);
+    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXiHurley(), m_MassCutoffs);
 
     gbParams(p)      = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
     gbParams(q)      = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
@@ -276,9 +276,6 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(McBAGB) = CalculateCoreMassAtBAGB(p_Mass);
     gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
-
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
-
 #undef gbParams
 }
 
@@ -340,8 +337,6 @@ void GiantBranch::CalculateGBParams_Static(const double      p_Mass,
     gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBAGB) = CalculateCoreMassAtBAGB_Static(p_Mass, p_BnCoefficients);
     gbParams(McBGB)  = CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
-
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
@@ -813,16 +808,17 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
 /*
  * Calculate the core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
  *
- * Hurley et al. 2000, eq 75 -- but note we use MECS rather than MCH
+ * Hurley et al. 2000, eq 75 -- but note we may use MECS rather than MCH as the CO core mass threshold
  *
  *
- * double CalculateCoreMassAtSupernova_Static(const double p_McBAGB)
+ * double CalculateCoreMassAtSupernova_Static(const double p_Mthreshold, const double p_McBAGB)
  *
+ * @param   [IN]    p_Mthreshold                Threshold mass, typically either MECS for stars that may explode in ECSNe or MCH otherwise
  * @param   [IN]    p_McBAGB                    Core mass at the Base of the Asymptotic Giant Branch in Msol
  * @return                                      Maximum core mass before supernova on the Asymptotic Giant Branch
  */
-double GiantBranch::CalculateCoreMassAtSupernova_Static(const double p_McBAGB) {
-    return std::max(MECS, (0.773 * p_McBAGB) - 0.35);
+double GiantBranch::CalculateCoreMassAtSupernova_Static(const double p_Mthreshold, const double p_McBAGB) {
+    return std::max(p_Mthreshold, (0.773 * p_McBAGB) - 0.35);
 }
 
 
@@ -1303,7 +1299,7 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
 
     ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
     MT_CASE   massTransferCase = MT_CASE::OTHER;
-    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
+    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL_ASPLUND;                                               // log_{10} (Z/Zsol), for convenience
     double    log10_1          = 0;                                                                                     // useful for the limits later 
     double    log10_1_div_10   = -1;                                                                                    // useful for the limits later             
     double    log10_1_div_50   = -1.69897;                                                                              // useful for the limits later                 

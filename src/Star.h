@@ -97,6 +97,7 @@ public:
     double              HydrogenAbundanceSurface() const                                                            { return m_Star->HydrogenAbundanceSurface(); }
     double              InitialHeliumAbundance() const                                                              { return m_Star->InitialHeliumAbundance(); }
     double              InitialHydrogenAbundance() const                                                            { return m_Star->InitialHydrogenAbundance(); }
+    double              InitialMainSequenceCoreMass() const                                                         { return m_Star->InitialMainSequenceCoreMass(); }
     bool                IsAIC() const                                                                               { return m_Star->IsAIC(); }
     bool                IsCCSN() const                                                                              { return m_Star->IsCCSN(); }
     bool                IsDegenerate() const                                                                        { return m_Star->IsDegenerate(); }
