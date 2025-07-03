@@ -825,6 +825,8 @@ public:
             bool                                                m_HMXRBinaries;                                                 // Flag if we want to store HMXRBs in RLOF output file
             bool                                                m_WDBinariesAsDCO;                                              // Flag if we want to store WD binariess in DCO output file
 
+            bool                                                m_MSPsFromAIC;                                                  // Flag if we allow MSPs to form directly after AICs. 
+
             bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
@@ -1608,6 +1610,8 @@ public:
     double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
+
+    bool                                        MSPsFromAIC() const                                                     { return OPT_VALUE("msps-from-aic", m_MSPsFromAIC, true); }
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }

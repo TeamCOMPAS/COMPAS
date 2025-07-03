@@ -891,6 +891,8 @@ enum class PROGRAM_OPTION: int {
 
     MINIMUM_MASS_SECONDARY,
 
+    MSPS_FROM_AIC,
+
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION,
     MT_ANG_MOM_LOSS_PRESCRIPTION,
     MT_THERMAL_LIMIT_C,
@@ -1117,6 +1119,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                     "METALLICITY_DISTRIBUTION_MIN" },
 
     { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
+
+    { PROGRAM_OPTION::MSPS_FROM_AIC,                                    "MSPS_FROM_AIC" },
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,             "MT_ACCRETION_EFFICIENCY_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
@@ -1697,6 +1701,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Min",                "-",         24, 15}},
 
     { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                                   { TYPENAME::DOUBLE,     "PO_Min_Secondary_Mass",                     "Msol",      24, 15}},
+
+    { PROGRAM_OPTION::MSPS_FROM_AIC,                                            { TYPENAME::BOOL,       "MSPS_From_AIC",                             "Flag",       0,  0}},
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                     { TYPENAME::INT,        "PO_MT_Acc_Efficiency_Prscrptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                             { TYPENAME::INT,        "PO_MT_AngMom_Loss_Prscrptn",                "-",          4, 1 }},

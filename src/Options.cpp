@@ -207,6 +207,8 @@ void Options::OptionValues::Initialise() {
 	m_EvolveUnboundSystems                                          = true;
     m_EmitGravitationalRadiation                                    = false;
 
+    m_MSPsFromAIC                                                   = false;
+
     m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
@@ -591,6 +593,8 @@ void Options::OptionValues::Initialise() {
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
     m_NeutronStarEquationOfState.typeString                         = NS_EOS_LABEL.at(m_NeutronStarEquationOfState.type);
 
+    // Millisecond pulsar born from accretion induced collapse
+    m_MSPsFromAIC                                                   = false;
 
     // Pulsar birth magnetic field distribution
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
@@ -956,9 +960,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
-            "natal-kick-for-PPISN",
-            po::value<bool>(&p_Options->m_NatalKickForPPISN)->default_value(p_Options->m_NatalKickForPPISN)->implicit_value(true),
-            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_NatalKickForPPISN ? "TRUE" : "FALSE") + ")").c_str()
+            "msps-from-aic",
+            po::value<bool>(&p_Options->m_MSPsFromAIC)->default_value(p_Options->m_MSPsFromAIC)->implicit_value(true),
+            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_MSPsFromAIC ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -5007,6 +5011,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN                   : value = MetallicityDistributionMin();                                         break;
 
         case PROGRAM_OPTION::MINIMUM_MASS_SECONDARY                         : value = MinimumMassSecondary();                                               break;
+
+        case PROGRAM_OPTION::MSPS_FROM_AIC                                  : value = MSPsFromAIC();                                                        break;
 
         case PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION           : value = static_cast<int>(MassTransferAccretionEfficiencyPrescription());      break;
         case PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION                   : value = static_cast<int>(MassTransferAngularMomentumLossPrescription());      break;
