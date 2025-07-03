@@ -318,9 +318,9 @@ void Options::OptionValues::Initialise() {
     // Kick options
     m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL;
     m_KickMagnitudeDistribution.typeString                          = KICK_MAGNITUDE_DISTRIBUTION_LABEL.at(m_KickMagnitudeDistribution.type);
-    m_KickMagnitudeDistributionSigmaCCSN_NS                         = 265;
-    m_KickMagnitudeDistributionSigmaCCSN_BH                         = 265;
-    m_KickMagnitudeDistributionMaximum                              = -1.0; 
+    m_KickMagnitudeDistributionSigmaCCSN_NS                         = HOBBS_CORRECTED_SIGMA;      // Best fit Maxwellian sigma for 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
+    m_KickMagnitudeDistributionSigmaCCSN_BH                         = HOBBS_CORRECTED_SIGMA;
+    m_KickMagnitudeDistributionMaximum                              = -1.0;
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
 	m_KickScalingFactor						                        = 1.0;

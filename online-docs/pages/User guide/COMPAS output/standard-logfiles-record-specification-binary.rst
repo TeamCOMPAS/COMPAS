@@ -1829,7 +1829,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - Tau_Sync(1)
   
-  .. flat-table::
+.. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text

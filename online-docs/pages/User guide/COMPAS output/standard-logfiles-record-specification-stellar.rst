@@ -291,22 +291,6 @@ Following is an alphabetical list of stellar properties available for inclusion 
      - Mass CO_Core@\ CO, Mass_CO_Core@CO(1), Mass_CO_Core@CO(2), Mass_CO_Core@CO(SN), Mass_CO_Core@CO(CP)
 
 
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **COMPONENT_SPEED**
-     -
-   * - Data type:
-     - DOUBLE
-   * - COMPAS variable:
-     - BaseStar::m_ComponentVelocity
-   * - Description:
-     - Velocity of single star, equal to binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
-   * - Header String:
-     - ComponentSpeed    
-
 .. flat-table::   
    :widths: 25 75 1 1  
    :header-rows: 0
@@ -1913,6 +1897,24 @@ same header string.`
    * - Header Strings:
      - SN_Type, SN_Type(1), SN_Type(2), SN_Type(SN), SN_Type(CP)
 
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SPEED**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_ComponentVelocity.Magnitude()
+   * - Description:
+     - Magnitude of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
+   * - Header String:
+     - ComponentSpeed    
+
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
@@ -2248,6 +2250,56 @@ or the other is printed in any file, but not both. If both are printed then the 
 .. _stellar-props-U:
 
 .. _stellar-props-V:
+
+:ref:`Back to Top <stellar-props-top>`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **VELOCITY_X**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_ComponentVelocity.xValue()
+   * - Description:
+     - X-component of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
+   * - Header String:
+     - VelocityX 
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **VELOCITY_Y**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_ComponentVelocity.yValue()
+   * - Description:
+     - Y-component of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
+   * - Header String:
+     - VelocityY
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **VELOCITY_Z**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_ComponentVelocity.zValue()
+   * - Description:
+     - Z-component of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
+   * - Header String:
+     - VelocityZ 
 
 .. _stellar-props-W:
 

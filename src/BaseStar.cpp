@@ -91,10 +91,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // calculate coefficients, constants etc.
 
-    CalculateRCoefficients(LogMetallicityXi(), m_RCoefficients);
-    CalculateLCoefficients(LogMetallicityXi(), m_LCoefficients);
+    CalculateRCoefficients(LogMetallicityXiHurley(), m_RCoefficients);
+    CalculateLCoefficients(LogMetallicityXiHurley(), m_LCoefficients);
 
-    CalculateMassCutoffs(m_Metallicity, LogMetallicityXi(), m_MassCutoffs);
+    CalculateMassCutoffs(m_Metallicity, LogMetallicityXiHurley(), m_MassCutoffs);
 
     CalculateAnCoefficients(m_AnCoefficients, m_LConstants, m_RConstants, m_GammaConstants);
     CalculateBnCoefficients(m_BnCoefficients);
@@ -107,6 +107,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     // initialise remaining member variables
 
     // Zero age main sequence parameters
+    m_InitialMainSequenceCoreMass              = DEFAULT_INITIAL_DOUBLE_VALUE;                      // initialised in MS_gt_07 class if BRCEK core mass prescription is used
     m_RZAMS                                    = CalculateRadiusAtZAMS(m_MZAMS);
     m_LZAMS                                    = CalculateLuminosityAtZAMS(m_MZAMS);
     m_TZAMS                                    = CalculateTemperatureOnPhase_Static(m_LZAMS, m_RZAMS);
@@ -393,6 +394,9 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION:           value = SN_TotalRadiusAtCOFormation();                          break;
         case ANY_STAR_PROPERTY::TRUE_ANOMALY:                                       value = SN_TrueAnomaly();                                       break;
         case ANY_STAR_PROPERTY::TZAMS:                                              value = TZAMS() * TSOL;                                         break;
+        case ANY_STAR_PROPERTY::VELOCITY_X:                                         value = VelocityX();											break;
+        case ANY_STAR_PROPERTY::VELOCITY_Y:                                         value = VelocityY();											break;
+        case ANY_STAR_PROPERTY::VELOCITY_Z:                                         value = VelocityZ();											break;
         case ANY_STAR_PROPERTY::ZETA_HURLEY:                                        value = CalculateZetaAdiabaticHurley2002(m_CoreMass);           break;
         case ANY_STAR_PROPERTY::ZETA_HURLEY_HE:                                     value = CalculateZetaAdiabaticHurley2002(m_HeCoreMass);         break;
         case ANY_STAR_PROPERTY::ZETA_SOBERMAN:                                      value = CalculateZetaAdiabaticSPH(m_CoreMass);                  break;
@@ -512,7 +516,7 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
 #define GammaConstants(x) p_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::x)]    // for convenience and readability - undefined at end of function
 
     double Z     = m_Metallicity;
-    double xi    = LogMetallicityXi();
+    double xi    = LogMetallicityXiHurley();
     double sigma = LogMetallicitySigma();
 
     // pow() is slow - use multiplication
@@ -612,7 +616,7 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
 
 
     double Z     = m_Metallicity;
-    double xi    = LogMetallicityXi();
+    double xi    = LogMetallicityXiHurley();
     double sigma = LogMetallicitySigma();
     double rho   = LogMetallicityRho();
 
@@ -859,8 +863,8 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
     massCutoffs(MHook) = 1.0185 + (0.16015 * p_LogMetallicityXi) + (0.0892 * xi_2); // MHook - Hurley et al. 2000, eq 1
     massCutoffs(MHeF)  = 1.995 + (0.25 * p_LogMetallicityXi) + (0.087 * xi_2);      // MHeF - Hurley et al. 2000, eq 2
 
-    double top         = 13.048 * PPOW((p_Metallicity / ZSOL), 0.06);
-    double bottom      = 1.0 + (0.0012 * PPOW((ZSOL / p_Metallicity), 1.27));
+    double top         = 13.048 * PPOW((p_Metallicity / ZSOL_HURLEY), 0.06);
+    double bottom      = 1.0 + (0.0012 * PPOW((ZSOL_HURLEY / p_Metallicity), 1.27));
     massCutoffs(MFGB)  = top / bottom;                                              // MFGB - Hurley et al. 2000, eq 3
 
     massCutoffs(MCHE)  = 100.0;                                                     // MCHE - Mandel/Butler - CHE calculation
@@ -885,7 +889,7 @@ void BaseStar::CalculateMassCutoffs(const double p_Metallicity, const double p_L
 double BaseStar::CalculateGBRadiusXExponent() const {
 
     // pow()is slow - use multiplication
-    double xi   = LogMetallicityXi();
+    double xi   = LogMetallicityXiHurley();
     double xi_2 = xi * xi;
     double xi_3 = xi_2 * xi;
     double xi_4 = xi_2 * xi_2;
@@ -1563,7 +1567,7 @@ double BaseStar::CalculateMassLossRateNieuwenhuijzenDeJager() const {
     
     if (utils::Compare(m_Luminosity, NJ_MINIMUM_LUMINOSITY) > 0) {          // check for minimum luminosity
         double smoothTaper = min(1.0, (m_Luminosity - 4000.0) / 500.0);     // smooth taper between no mass loss and mass loss
-        rate = std::sqrt((m_Metallicity / ZSOL)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
+        rate = std::sqrt((m_Metallicity / ZSOL_HURLEY)) * smoothTaper * 9.6E-15 * PPOW(m_Radius, 0.81) * PPOW(m_Luminosity, 1.24) * PPOW(m_Mass, 0.16);
     } else {
         rate = 0.0;
     }
@@ -1809,7 +1813,7 @@ double BaseStar::CalculateMassLossRateWolfRayetZDependent(const double p_Mu) con
     // TW - Haven't seen StarTrack but I think H&K gives the original equation and V&dK gives the Z dependence
     double rate = 0.0;
     if (utils::Compare(p_Mu, 1.0) < 0) {
-        rate = 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL, 0.86) * (1.0 - p_Mu);
+        rate = 1.0E-13 * PPOW(m_Luminosity, 1.5) * PPOW(m_Metallicity / ZSOL_ANDERS, 0.86) * (1.0 - p_Mu);
     }
     return rate;
 }
@@ -1833,14 +1837,14 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     double teff = m_Temperature * TSOL;  
 
     if (utils::Compare(teff, VINK_MASS_LOSS_MINIMUM_TEMP) >= 0 && utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) <= 0) {
-        double v = 1.3;                                                                                         // v_inf/v_esc
-        v        = v * PPOW(m_Metallicity / ZSOL, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());    // Scale Vinf with metallicity  
+        double v = 1.3;                                                                                                // v_inf/v_esc
+        v        = v * PPOW(m_Metallicity / ZSOL_ANDERS, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());    // Scale Vinf with metallicity
 
         double logMdotOB = -6.688 +
                            (2.210 * log10(m_Luminosity / 1.0E5)) -
                            (1.339 * log10(m_Mass / 30.0)) -
                            (1.601 * log10(v / 2.0)) +
-                           (0.85  * LogMetallicityXi()) +
+                           (0.85  * LogMetallicityXiAnders()) +
                            (1.07  * log10(teff / 20000.0));
 
         rate = PPOW(10.0, logMdotOB);
@@ -1849,14 +1853,14 @@ double BaseStar::CalculateMassLossRateOBVink2001() const {
     else if (utils::Compare(teff, VINK_MASS_LOSS_BISTABILITY_TEMP) > 0) {
         SHOW_WARN_IF(utils::Compare(teff, VINK_MASS_LOSS_MAXIMUM_TEMP) > 0, ERROR::HIGH_TEFF_WINDS);            // show warning if winds being used outside comfort zone
 
-        double v = 2.6;                                                                                         // v_inf/v_esc
-        v        = v * PPOW(m_Metallicity / ZSOL, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());    // Scale Vinf with metallicity  
+        double v = 2.6;                                                                                                // v_inf/v_esc
+        v        = v * PPOW(m_Metallicity / ZSOL_ANDERS, OPTIONS->ScaleTerminalWindVelocityWithMetallicityPower());    // Scale Vinf with metallicity
 
         double logMdotOB = -6.697 +
                            (2.194 * log10(m_Luminosity / 1.0E5)) -
                            (1.313 * log10(m_Mass / 30.0)) -
                            (1.226 * log10(v / 2.0)) +
-                           (0.85  * LogMetallicityXi()) +
+                           (0.85  * LogMetallicityXiAnders()) +
                            (0.933 * log10(teff / 40000.0)) -
                            (10.92 * log10(teff / 40000.0) * log10(teff/40000.0));
 
@@ -1891,7 +1895,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
 
     double teff    = m_Temperature * TSOL;  
     double Gamma   = EDDINGTON_PARAMETER_FACTOR * m_Luminosity / m_Mass;
-    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * LogMetallicityXi()); 
+    double charrho = -14.94 + (3.1857 * Gamma) + (zExp * LogMetallicityXiAnders());
     double T2      = ( 61.2 + (2.59 * charrho) ) * 1000.0;                                                      // typically around 25000.0, higher jump first as in Vink python recipe
     double T1      = ( 100.0 + (6.0 * charrho) ) * 1000.0;                                                      // typically around 20000.0, has similar behavior when fixed
 
@@ -1907,7 +1911,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.210 * logL5) -
                            (1.339 * logM30) -
                            (1.601 * log10(V / 2.0)) +
-                           (zExp2001 * LogMetallicityXi()) +
+                           (zExp2001 * LogMetallicityXiAnders()) +
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
@@ -1920,7 +1924,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.210 * logL5) -
                            (1.339 * logM30) -
                            (1.601 * log10(V / 2.0)) +
-                           (zExp2001  * LogMetallicityXi()) +
+                           (zExp2001  * LogMetallicityXiAnders()) +
                            (1.07  * logT20);
 
         rate = PPOW(10.0, logMdotOB);
@@ -1933,7 +1937,7 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
                            (2.194 * logL5) -
                            (1.313 * logM30) -
                            (1.226 * log10(V / 2.0)) +
-                           (zExp  * LogMetallicityXi()) +
+                           (zExp  * LogMetallicityXiAnders()) +
                            (0.933 * logT40) -
                            (10.92 * logT40 * logT40);
 
@@ -1958,8 +1962,8 @@ double BaseStar::CalculateMassLossRateOBVinkSander2021() const {
  * @return                                      Mass loss rate for hot OB stars in Msol yr^-1
  */
 double BaseStar::CalculateMassLossRateOBKrticka2018() const {
-
-    double logMdot = -5.70 + 0.50 * LogMetallicityXi() + (1.61 - 0.12 * LogMetallicityXi()) * log10(m_Luminosity / 1.0E6);
+    
+    double logMdot = -5.70 + 0.50 * LogMetallicityXiAsplund() + (1.61 - 0.12 * LogMetallicityXiAsplund()) * log10(m_Luminosity / 1.0E6);
 
     return PPOW(10.0, logMdot);
 }
@@ -2305,7 +2309,7 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
     if (utils::Compare(p_Mu, 1.0) < 0) {
 
         double logL = log10(m_Luminosity);
-        double logZ = LogMetallicityXi(); 
+        double logZ = LogMetallicityXiAnders();
 
         // Calculate alpha, L0 and Mdot10
         double alpha     = 0.32 * logZ + 1.4;                                                               // Equation 18 in Sander & Vink 2020
@@ -2373,7 +2377,7 @@ double BaseStar::CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(c
  */
 double BaseStar::CalculateMassLossRateHeliumStarVink2017() const {
 
-    double logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * LogMetallicityXi());    // Vink 2017 Eq. 1.
+    double logMdot = -13.3 + (1.36 * log10(m_Luminosity)) + (0.61 * LogMetallicityXiAnders());    // Vink 2017 Eq. 1.
 
     return PPOW(10.0, logMdot);
 }
@@ -3908,6 +3912,20 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             kickMagnitude = DrawRemnantKickMullerMandel(p_COCoreMass, p_Rand, p_RemnantMass);
             break;
 
+        case KICK_MAGNITUDE_DISTRIBUTION::LOGNORMAL: {                                          // LOGNORMAL
+            // Only draw Disberg & Mandel (2025) kicks for CCSN or PPISN (if they receive a kick)
+            // use Maxwellians with sigma set in CalculateSNKickMagnitude() for other SN types
+            SN_EVENT thisSNevent = utils::SNEventType(m_SupernovaDetails.events.current);       // current SN event
+            if (thisSNevent == SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN())) {
+                // maximum kick of DISBERG_MANDEL_MAX_KICK = 1000 km/s, following Disberg & Mandel (2025)
+                // normalise the draw so that the kick is uniformly drawn from the inverse CDF below this maximum
+                double cdfMax = gsl_cdf_lognormal_P(DISBERG_MANDEL_MAX_KICK, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
+                kickMagnitude = gsl_cdf_lognormal_Pinv(p_Rand*cdfMax, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
+            }
+            else
+                kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);
+            } break;
+            
         default:                                                                                // unknown prescription
             // the only way this can happen is if someone added a KICK_MAGNITUDE_DISTRIBUTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

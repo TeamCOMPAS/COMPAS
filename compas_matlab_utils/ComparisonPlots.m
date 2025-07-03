@@ -28,65 +28,75 @@ function ComparisonPlots(filename1, name1, filename2, name2)
     AU=149597871e3;     %m
     Rsun = 695500000;   %m
 
-    %Plot DCO mass distribution and BNS P-e distribution
-    figure(1); clf(1); figure(2); clf(2);
-    [BNS,NSBH,BBH,BNSCE,NSBHCE,BBHCE]=DCOplot(filename1, name1, 1, 2, 'r', 40);
-    fprintf('\nDCOs:\t\t#Merging DNS\t#Merging NSBH\t#Merging BBH\t%% BNS via CE\t%% NSBH via CE\t%% BBH via CE\n');
-    fprintf('%s:\t%d\t\t%d\t\t%d\t\t%.0f\t\t%.0f\t\t%.0f\n', ...
-        name1, BNS, NSBH, BBH, BNSCE/BNS*100, NSBHCE/NSBH*100, BBHCE/BBH*100);
+    %Plot DCO mass distribution, BNS P-e distribution, chirp mass vs period
+    %at DCO formation, BH mass vs secondary core mass for 2->1 CEs leading
+    %to merging BBH formation
+    figure(1); clf(1); figure(2); clf(2); figure(3); clf(3); figure(4); clf(4); figure(5); clf(5); 
+    [BNS,NSBH,BBH,BNSCE,NSBHCE,BBHCE,CEBBH1]=DCOplot(filename1, name1, 1, 'r', 40);
+    fprintf('\nDCOs:\t\t#Merging DNS\t#Merging NSBH\t#Merging BBH\t%% BNS via CE\t%% NSBH via CE\t%% BBH via CE\t%% BBH via CE with BH primary\n');
+    fprintf('%s:\t%d\t\t%d\t\t%d\t\t%.0f\t\t%.0f\t\t%.0f\t\t%.0f\n', ...
+        name1, BNS, NSBH, BBH, BNSCE/BNS*100, NSBHCE/NSBH*100, BBHCE/BBH*100, CEBBH1/BBH*100);
     if(nargin==4),
-        [BNS,NSBH,BBH,BNSCE,NSBHCE,BBHCE]=DCOplot(filename2, name2, 1, 2, 'b', 20);
-        fprintf('%s:\t%d\t\t%d\t\t%d\t\t%.0f\t\t%.0f\t\t%.0f\n', ...
-            name2, BNS, NSBH, BBH, BNSCE/BNS*100, NSBHCE/NSBH*100, BBHCE/BBH*100);
+        [BNS,NSBH,BBH,BNSCE,NSBHCE,BBHCE,CEBBH1]=DCOplot(filename2, name2, 1, 'b', 20);
+        fprintf('%s:\t%d\t\t%d\t\t%d\t\t%.0f\t\t%.0f\t\t%.0f\t\t%.0f\n', ...
+            name2, BNS, NSBH, BBH, BNSCE/BNS*100, NSBHCE/NSBH*100, BBHCE/BBH*100, CEBBH1/BBH*100);
     end;
-    figure(1), hold off; figure(2), hold off;
-    figure(1), set(gca,'FontSize',20), xlabel('Mass 1 (M$_\odot$)', 'Interpreter', 'latex'), 
-        ylabel('Mass 2 (M$_\odot$)', 'Interpreter', 'latex'), title('Merging DCO masses');  legend;
+    figure(1), hold off; figure(2), hold off; figure(3), hold off; figure(4), hold off;
+    figure(1), set(gca,'FontSize',20), xlabel('$M_1$ (M$_\odot$)', 'Interpreter', 'latex'), 
+        ylabel('$M_2$ (M$_\odot$)', 'Interpreter', 'latex'), title('Merging DCO masses');  legend;
     figure(2), set(gca,'FontSize',20), xlabel('$\log_{10}$ (Orbital period/hr)', 'Interpreter', 'latex');
     ylabel('Eccentricity'), title('DNS at formation'); legend;
-
+    figure(3), set(gca,'FontSize',20), xlabel('Chirp Mass (M$_\odot$)', 'Interpreter', 'latex'), 
+        ylabel('$\log_{10} (P_\mathrm{orb}/\mathrm{d})$', 'Interpreter', 'latex'), title('Merging BBH at formation'); legend;
+    figure(4), set(gca,'FontSize',20); xlabel('$M_1$ (M$_\odot$)', 'Interpreter', 'latex'), 
+        ylabel('$M_{\textrm{core},2}$ (M$_\odot$)', 'Interpreter', 'latex'), title('CE from 2->1 en route to merging BBH'), legend;
+    figure(5), set(gca,'FontSize',20); xlabel('$q \equiv M_2/M_1$', 'Interpreter', 'latex'), 
+        ylabel('CDF'), title('CDF of merging BBH'), legend;        
+    fignumber=6;
 
     %Plot BH HMXBs
-    figure(3); clf(3);
-    HMXBplot(filename1, name1, 3, 'r', 40);
+    figure(fignumber); clf(fignumber);
+    HMXBplot(filename1, name1, fignumber, 'r', 40);
     if(nargin==4),
-        HMXBplot(filename2, name2, 3, 'b', 20);
+        HMXBplot(filename2, name2, fignumber, 'b', 20);
     end;
-    figure(3); hold off;  set(gca,'FontSize',20), legend; title('HMXB masses');
+    figure(fignumber); hold off;  set(gca,'FontSize',20), legend; title('HMXB masses');
     xlabel('BH mass (M$_\odot$)', 'Interpreter', 'latex'), ylabel('Companion mass (M$_\odot$)', 'Interpreter', 'latex');
-
+    fignumber=fignumber+1;
 
     %Plot BeXRBs
-    figure(4); clf(4);
-    BeXRBplot(filename1, name1, 4, 'r', 40);
+    figure(fignumber); clf(fignumber);
+    BeXRBplot(filename1, name1, fignumber, 'r', 40);
     if(nargin==4),
-        BeXRBplot(filename2, name2, 4, 'b', 20);
+        BeXRBplot(filename2, name2, fignumber, 'b', 20);
     end;
-    figure(4); hold off;  set(gca,'FontSize',20), legend;
+    figure(fignumber); hold off;  set(gca,'FontSize',20), legend;
     xlabel('Companion mass (M$_\odot$)', 'Interpreter', 'latex');
     ylabel('Formation time, Myr'), title('BeXRBs just after SN');
+    fignumber=fignumber+1;
 
     %Plot LMXBs/IMXBs
-    figure(5); clf(5);
-    [LMXBcount, NSLMXBcount]=LMXBplot(filename1, name1, 5, 'r', 40);
+    figure(fignumber); clf(fignumber);
+    [LMXBcount, NSLMXBcount]=LMXBplot(filename1, name1, fignumber, 'r', 40);
     fprintf('\nLMXBs:\t\t#LMXB\t\t#NS LMXB\n');
     fprintf('%s:\t%d\t\t%d\n', name1, LMXBcount, NSLMXBcount);
     if(nargin==4),
-        [LMXBcount, NSLMXBcount]=LMXBplot(filename2, name2, 5, 'b', 20);
+        [LMXBcount, NSLMXBcount]=LMXBplot(filename2, name2, fignumber, 'b', 20);
         fprintf('%s:\t%d\t\t%d\n', name2, LMXBcount, NSLMXBcount);
     end;
-    figure(5), hold off; set(gca,'FontSize', 20); legend; title('LMXB on first MT onto CO');
+    figure(fignumber), hold off; set(gca,'FontSize', 20); legend; title('LMXB on first MT onto CO');
     xlabel('Compact object mass (M$_\odot$)', 'Interpreter', 'latex'), ylabel('Companion mass (M$_\odot$)', 'Interpreter', 'latex'); 
+    fignumber=fignumber+1;
 
     %Plot DWDs (just as a sanity check)
-    figure(6); clf(6);
-    DWDplot(filename1, name1, 6, 'r', 40);
+    figure(fignumber); clf(fignumber);
+    DWDplot(filename1, name1, fignumber, 'r', 'm', 10);
     if(nargin==4),
-        DWDplot(filename2, name2, 6, 'b', 20);
+        DWDplot(filename2, name2, fignumber, 'b', 'g', 5);
     end;
-    figure(6); hold off;  set(gca,'FontSize',20); title('Double White Dwarfs'); legend;
-    xlabel('$M*a [M_\odot * R_\odot]$ @ ZAMS', 'Interpreter', 'latex'); 
-    ylabel('$M*a [M_\odot * R_\odot]$ @ end', 'Interpreter', 'latex');
+    figure(fignumber); hold off;  axis([-3 5 -3 5]); set(gca,'FontSize',20); title('Double White Dwarfs'); legend;
+    xlabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ ZAMS', 'Interpreter', 'latex'); 
+    ylabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ end', 'Interpreter', 'latex');
 
 
     [binariescount1, SNcount1, BHcompletecount1, SNbothcount1, SNonecount1, ...
@@ -150,9 +160,10 @@ function ComparisonPlots(filename1, name1, filename2, name2)
 end %end of ComparisonPlots
 
 
-%Plot double compact objects; returns DCO counts
-function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE] = ...
-        DCOplot(file, name, fignumberDCO, fignumberDNSPE, colour, point)
+%Plot double compact objects; returns DCO counts,  and counts of CEs leading
+%to DCOs
+function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE, CEBBH1count] = ...
+        DCOplot(file, name, fignumber, colour, point)
     global Msunkg G AU
     type1=h5read(file,'/BSE_Double_Compact_Objects/Stellar_Type(1)');
     type2=h5read(file,'/BSE_Double_Compact_Objects/Stellar_Type(2)');
@@ -170,36 +181,45 @@ function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE] = ...
     NSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13)));
     mergingDCO=mergingBNS | mergingNSBH | mergingBBH;
     BNScount=sum(mergingBNS); NSBHcount=sum(mergingNSBH); BBHcount=sum(mergingBBH);
-    masschirp=mass1.^0.6.*mass2.^0.6./(mass1+mass2).^0.2;
+    chirpmass=mass1.^0.6.*mass2.^0.6./(mass1+mass2).^0.2;
+    q=mass2./mass1;
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
     [isCE,CEIndex]=ismember(seedDCO,seedCE);
     optCE=h5read(file,'/BSE_Common_Envelopes/Optimistic_CE');
     RLOFCE=h5read(file,'/BSE_Common_Envelopes/Immediate_RLOF>CE');
     OKCE=zeros(size(mergingDCO)); OKCE(CEIndex==0)=1; OKCE(CEIndex>0)=(~optCE(CEIndex(CEIndex>0))) & (~RLOFCE(CEIndex(CEIndex>0)));
     BNSCE=sum(mergingBNS & isCE & OKCE); NSBHCE=sum(mergingNSBH & isCE & OKCE); BBHCE=sum(mergingBBH & isCE & OKCE);
+    type1CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(1)<CE');
+    type2CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(2)<CE');
+    mass1CE = h5read(file,'/BSE_Common_Envelopes/Mass(1)<CE');
+    mass2coreCE = h5read(file,'/BSE_Common_Envelopes/Mass(2)<CE')-h5read(file,'/BSE_Common_Envelopes/Mass_Env(2)');
+    [CEtowardmergingBBH,BBHindex]=ismember(seedCE,seedDCO(mergingBBH));  %pick CEs leading to merging BBHs
+    %fprintf('Validation: %d valid CE episodes en route to merging BBH, including %d unique CEs, which should match %d merging BBHs produced via CE\n', ...
+    %    sum(CEtowardmergingBBH & ~optCE & ~RLOFCE), length(unique(seedCE(CEtowardmergingBBH & ~optCE & ~RLOFCE))), sum(mergingBBH & isCE & OKCE))
+    CEBBH1 = CEtowardmergingBBH & ~optCE & ~RLOFCE & type1CE == 14;  CEBBH1count=sum(CEBBH1);
     %Merging DCO mass distribution
-    figure(fignumberDCO), hold on;
+    figure(fignumber), hold on;
     scatter(mass1(mergingDCO & isCE & OKCE), mass2(mergingDCO & isCE & OKCE), point, ...
         'filled', colour, 'DisplayName', ['CE, ', name]); 
     scatter(mass1(mergingDCO & ~isCE), mass2(mergingDCO & ~isCE), point, colour,  'DisplayName', ['Stable, ', name]);
     %P-e of Galactic DNS at formation
     P=2*pi*(a*AU).^(3/2)./sqrt(G*Msunkg*(mass1+mass2))/3600; %orbital period at DCO, in hours
-    figure(fignumberDNSPE), hold on; 
+    figure(fignumber+1), hold on; 
     scatter(log10(P(BNS & isCE & OKCE)), e(BNS & isCE & OKCE), point, 'filled', colour, ...
          'DisplayName', ['CE, ', name]); hold on;
     scatter(log10(P(BNS & ~isCE)), e(BNS & ~isCE), point, colour,  'DisplayName', ['Stable, ', name]);
-
-    %%%
-    good = mergingBBH & isCE & OKCE;
-    type1CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(1)<CE');
-    type2CE = h5read(file,'/BSE_Common_Envelopes/Stellar_Type(2)<CE');
-    mass1CE = h5read(file,'/BSE_Common_Envelopes/Mass(1)<CE');
-    mass2coreCE = h5read(file,'/BSE_Common_Envelopes/Mass(2)<CE')-h5read(file,'/BSE_Common_Envelopes/Mass_Env(2)');
-    unique(type1CE(CEIndex(good))), sum(good), sum(type1CE(CEIndex(good))==14)
-    figure(7), scatter(mass1CE(CEIndex(good)), mass2coreCE(CEIndex(good)), 20, 'filled'), set(gca,'FontSize',20); xlabel('M_1, Msun'); ylabel('M_{core,2}, Msun');
-    typesCE=[type1CE(CEIndex(good)) type2CE(CEIndex(good))];
-    %good(find(type1CE(CEIndex(good))~=14))
-
+    %Chirp mass vs period at BBH formation
+    figure(fignumber+2), hold on;
+    scatter(chirpmass(mergingDCO & isCE & OKCE), log10(P(mergingDCO & isCE & OKCE)/24), point, ...
+        'filled', colour, 'DisplayName', ['CE, ', name]); 
+    scatter(chirpmass(mergingDCO & ~isCE), log10(P(mergingDCO & ~isCE)/24), point, colour,  'DisplayName', ['Stable, ', name]);
+    %Masses at the time of CE
+    figure(fignumber+3), hold on;
+    scatter(mass1CE(CEBBH1), mass2coreCE(CEBBH1), point, 'filled', colour, 'DisplayName', name);
+    %CSF of q distribution
+    figure(fignumber+4), hold on;
+    p=cdfplot(q(mergingBBH & isCE & OKCE)), p.Color=colour, p.LineStyle='-', p.LineWidth=point/10, p.DisplayName=['CE, ', name];
+    p=cdfplot(q(mergingBBH & ~isCE)), p.Color=colour, p.LineStyle=':', p.LineWidth=point/10, p.DisplayName=['Stable, ', name];
 end %end of DCOplot
 
 %Plot BH HMXBs
@@ -290,7 +310,7 @@ function [LMXBcount, NSLMXBcount] = LMXBplot(file, name, fignumberLMXB, colour, 
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
     timeCE=h5read(file,'/BSE_Common_Envelopes/Time');
     relevantbinary=(star1RLOF>=13 & star1RLOF<=14 & star2RLOF==1 & M2RLOF<=5 & ~RLOFisCE) ...
-        | (star2RLOF>=13 & star2RLOF<=14 & star1RLOF==1 & M1RLOF>=5 & ~RLOFisCE);
+        | (star2RLOF>=13 & star2RLOF<=14 & star1RLOF==1 & M1RLOF<=5 & ~RLOFisCE);
     relevantseedRLOF=cast(seedRLOF, 'int64');  relevantseedRLOF(~relevantbinary)=-1;
     uniqueseeds=unique(seedRLOF(relevantbinary));
     [blah,indexlist]=ismember(cast(uniqueseeds,'int64'), relevantseedRLOF);
@@ -310,7 +330,7 @@ end %end of LMXBplot
 %Plot a*Mtot for white dwarfs
 %Should be constant for non-mass-transferring WDs in the absence of tides
 %and GR (and supernovae, which is why we focus on WDs as a sanity check
-function DWDplot(file, name, fignumberDWD, colour, point)
+function DWDplot(file, name, fignumberDWD, colourNMT, colourMT, point)
     global AU Rsun
     M1ZAMS=h5read(file, '/BSE_System_Parameters/Mass@ZAMS(1)');
     M2ZAMS=h5read(file, '/BSE_System_Parameters/Mass@ZAMS(2)');
@@ -330,9 +350,11 @@ function DWDplot(file, name, fignumberDWD, colour, point)
     SeedRLOF=h5read(file, '/BSE_RLOF/SEED');
     [hadRLOF,RLOFIndex]=ismember(ind,SeedRLOF);
     figure(fignumberDWD), hold on;
-    scatter(MAZAMS(~hadRLOF), MAWD(~hadRLOF), point, 'filled', colour, 'DisplayName', ['DWDs without mass transfer, ', name]);
-    scatter(MAZAMS(hadRLOF), MAWD(hadRLOF), point, colour, 'DisplayName', ['DWDs after mass transfer, ', name]);
+    scatter(log10(MAZAMS(~hadRLOF)), log10(MAWD(~hadRLOF)), point, 'filled', colourNMT, 'DisplayName', ['DWDs without mass transfer, ', name]);
+    scatter(log10(MAZAMS(hadRLOF)), log10(MAWD(hadRLOF)), point, colourMT, 'DisplayName', ['DWDs after mass transfer, ', name]);
 end %end of DWDplot
+
+
 
 %SN varieties -- just count
 function [binariescount, SNcount, BHcompletecount, SNbothcount, SNonecount, ...
