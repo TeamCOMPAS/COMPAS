@@ -398,7 +398,7 @@ Default = FALSE
 
 **--enhance-CHE-lifetimes-luminosities** |br|
 Enhance lifetimes and luminosities of CH stars using a fit to detailed models from Szecsi et al. (2015)
-Default = FALSE
+Default = TRUE
 
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
@@ -513,7 +513,7 @@ Default = Sampled from IMF
 
 **--initial-mass-2** |br|
 Initial mass for the secondary star when evolving in BSE mode (:math:`M_\odot`). |br|
-Default = Sampled from IMF
+Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-distribution`` (see also ``--mass-ratio-max``, ``-mass-ratio-min``, ``--minimum-secondary-mass'')
 
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
@@ -1290,7 +1290,7 @@ Default = DECIN2023 |br|
 **--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
 Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
 Transition from OB to WR mass loss towards the end of the main sequence.
-Default = False
+Default = TRUE
 
 **--scale-terminal-wind-velocity-with-metallicity-power** |br|
 Scale terminal wind velocity with metallicity to this power

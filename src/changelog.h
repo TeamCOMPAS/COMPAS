@@ -1599,8 +1599,13 @@
 //                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
 //  03.20.09  RTW - Jun 30, 2025        - Enhancement:
 //                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
+//  03.21.00   IM - July 6, 2025        - Enhancements:
+//                                          - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
+//                                          - Added options to set beta and gamma prescription for second stage of 2-stage CE (--common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription)
 
-const std::string VERSION_STRING = "03.20.09";
+
+
+const std::string VERSION_STRING = "03.21.00";
 
 
 # endif // __changelog_h__

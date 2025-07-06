@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.21.00 July 6, 2025**
+* - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
+* Added options to set beta and gamma prescription for second stage of 2-stage CE (``--common-envelope-second-stage-beta``, ``--common-envelope-second-stage-gamma-prescription``)
+
 **03.20.06 June 25, 2025**
 
 * The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
