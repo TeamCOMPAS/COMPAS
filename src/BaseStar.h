@@ -302,7 +302,7 @@ public:
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
     
-            double          CalculateZetaEquilibrium()                                                          { return 0.0; }
+    virtual double          CalculateZetaEquilibrium()                                                          { return 0.0; }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 

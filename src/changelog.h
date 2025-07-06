@@ -1599,10 +1599,11 @@
 //                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
 //  03.20.09  RTW - Jun 30, 2025        - Enhancement:
 //                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
-//  03.21.00   IM - July 6, 2025        - Enhancements:
+//  03.21.00   IM - July 6, 2025        - Enhancements, defect repair:
 //                                          - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
 //                                          - Added options to set beta and gamma prescription for second stage of 2-stage CE (--common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription)
-
+//                                          - Fixed a bug in CalculateZetaEquilibrium(), which impacted when mass transfer is declared nuclear (and how conservative it is)
+//                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step 
 
 
 const std::string VERSION_STRING = "03.21.00";
