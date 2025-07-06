@@ -440,8 +440,8 @@ private:
     double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     
-    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
-    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
+    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate, const bool p_IsCommonEnvelope);
+    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate(), false); }
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
 
@@ -451,13 +451,15 @@ private:
                                        const double                 p_DeltaMassDonor,
                                        const double                 p_AccretorMass,
                                        const bool                   p_IsAccretorDegenerate,
-                                       const double                 p_FractionAccreted);
+                                       const double                 p_FractionAccreted,
+                                       const bool                   p_IsCommonEnvelope);
 
     
     double  CalculateMassTransferOrbit(const double                 p_DonorMass,
                                        const double                 p_DeltaMassDonor, 
                                              BinaryConstituentStar& p_Accretor, 
-                                       const double                 p_FractionAccreted) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted); }
+                                       const double                 p_FractionAccreted,
+                                       const bool                   p_IsCommonEnvelope) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted, p_IsCommonEnvelope); }
 
     
     
@@ -616,7 +618,7 @@ private:
             // mass / donated mass is used
             double beta = (utils::Compare(m_FractionAccreted, 0.0) >=0 ) ? m_FractionAccreted : std::min(m_MaximumAccretedMass/p_dM, 1.0);
             
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta, false);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
             
             double radiusAfterMassLoss = m_Donor->CalculateRadiusOnMassChange(-p_dM);

@@ -457,6 +457,8 @@ private:
         "common-envelope-mass-accretion-prescription",
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
+        "common-envelope-second-stage-beta",
+        "common-envelope-second-stage-gamma-prescription",
 
         "eccentricity", "e",
         "eccentricity-distribution",
@@ -1068,8 +1070,10 @@ public:
             double                                              m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor;    // Critical mass ratio for MT from a white dwarf on to a degenerate accretor
 
             // Common Envelope options
-            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter (default = X)
-            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter (default = X)
+            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter
+            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter
+            double                                              m_CommonEnvelopeSecondStageBeta;                                // Mass transfer efficiency for second stage of 2-stage common envelope
+            ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_CommonEnvelopeSecondStageGammaPrescription;                   // Angular momentum loss prescription for second stage of 2-stage common envelope
 	        double                                              m_CommonEnvelopeSlopeKruckow;									// Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
@@ -1410,6 +1414,8 @@ public:
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return OPT_VALUE("common-envelope-mass-accretion-min", m_CommonEnvelopeMassAccretionMin, true); }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return OPT_VALUE("common-envelope-mass-accretion-prescription", m_CommonEnvelopeMassAccretionPrescription.type, true); }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
+    double                                      CommonEnvelopeSecondStageBeta() const                                   { return OPT_VALUE("common-envelope-second-stage-beta", m_CommonEnvelopeSecondStageBeta, true); }
+    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       CommonEnvelopeSecondStageGammaPrescription() const                      { return OPT_VALUE("common-envelope-second-stage-gamma-prescription", m_CommonEnvelopeSecondStageGammaPrescription.type, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
     double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }

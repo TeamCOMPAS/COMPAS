@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Jun 25 11:07:34 2025 by COMPAS v03.20.06
+##~!!~## File Created Sun Jul  6 16:42:54 2025 by COMPAS v03.21.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -27,10 +27,10 @@ booleanChoices:
 #    --check-photon-tiring-limit: False                                    # Default: False
 #    --use-mass-loss: True                                                 # Default: True
 #    --enable-rotationally-enhanced-mass-loss: False                       # Default: False
-#    --enhance-CHE-lifetimes-luminosities: False                           # Default: False
+#    --enhance-CHE-lifetimes-luminosities: True                            # Default: True
 #    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
 #    --natal-kick-for-PPISN: False                                         # Default: False
-#    --scale-CHE-mass-loss-with-surface-helium-abundance: False            # Default: False
+#    --scale-CHE-mass-loss-with-surface-helium-abundance: True             # Default: True
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                                            # record binaries that have stars touching at birth in output files
@@ -166,6 +166,7 @@ numericalChoices:
 #    --common-envelope-mass-accretion-max: 0.100000                        # Default: 0.100000                                                                                                                                                                         # For 'MACLEOD+2014' [Msol]
 #    --common-envelope-mass-accretion-min: 0.040000                        # Default: 0.040000                                                                                                                                                                         # For 'MACLEOD+2014' [Msol]
 #    --common-envelope-recombination-energy-density: 15000000000000.00     # Default: 15000000000000.00
+#    --common-envelope-second-stage-beta: 0.000000                         # Default: 0.000000
 #    --common-envelope-slope-kruckow: -0.833333                            # Default: -0.833333
 #    --maximum-mass-donor-nandez-ivanova: 2.000000                         # Default: 2.000000
 
@@ -272,6 +273,7 @@ stringChoices:
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                                     # Xu & Li 2010
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
+#    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 
     ### TIDES
 #    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2025','PERFECT','NONE']
