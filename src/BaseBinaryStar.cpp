@@ -2058,27 +2058,22 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     
     m_MassTransferTimescale         = MT_TIMESCALE::NONE;                                                                       // initial reset
-    double betaThermal              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on thermal timescale
-    double maximumAccretionRate     = 0.0;                                                                                      // accretion rate if accretion proceeds on thermal timescale
+
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
  
-    std::tie(maximumAccretionRate, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
-                                                                                          m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
-                                                                                          donorIsHeRich);
-    double massDiffDonor = 0.0;
-        
+    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
+                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
+    double massDiffDonor            = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);         // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
+            
     // can the mass transfer happen on a nuclear timescale?
     if (m_Donor->IsOneOf(NON_COMPACT_OBJECTS)) {
-        // technically, we do not know how much mass the accretor should gain until we do the calculation, 
-        // which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
-        double maximumAccretedMass = maximumAccretionRate * m_Dt;
+        // if MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION, then CalculateMassAcceptanceRate() already computed the correct m_FractionAccreted and massDiffDonor (no difference between nuclear and thermal timescale MT)
         if (OPTIONS->MassTransferAccretionEfficiencyPrescription() == MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED) {
-            massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, maximumAccretedMass);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed accretion amount
-            m_FractionAccreted = std::min(maximumAccretedMass, massDiffDonor) / massDiffDonor;
-        }
-        else {
-            m_FractionAccreted = maximumAccretionRate / donorMassLossRateThermal;   // relevant for MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION
-            massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);              // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
+            // technically, we do not know how much mass the accretor should gain until we do the calculation,
+            // which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
+            massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, m_Dt);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, estimating accretion efficiency based on a mass donation rate of massDiffDonor/m_Dt for self-consistency
+            std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(massDiffDonor/m_Dt,
+                                                                                                m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
         }
         
         // check that the star really would have consistently fit into the Roche lobe
@@ -2091,13 +2086,11 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             m_ZetaLobe              = zetaLobe;
         }
     }
-    if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
-        m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, betaThermal);
+    if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later); m_FractionAccreted and massDiffDonor already computed for this case
+        m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
         m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
-        m_FractionAccreted      = betaThermal;
         m_MassTransferTimescale = MT_TIMESCALE::THERMAL;
-        massDiffDonor           = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, betaThermal, 0.0);                    // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
     }
         
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep

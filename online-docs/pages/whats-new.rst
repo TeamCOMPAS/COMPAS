@@ -4,8 +4,9 @@ What's new
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
 **03.21.00 July 6, 2025**
-* - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
+* Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
 * Added options to set beta and gamma prescription for second stage of 2-stage CE (``--common-envelope-second-stage-beta``, ``--common-envelope-second-stage-gamma-prescription``)
+* Fixed a bug in the calculation of zeta_equilibrium, which impacts when mass transfer is declared to proceed on a nuclear timescale (and hence how conservative it is)
 
 **03.20.06 June 25, 2025**
 
