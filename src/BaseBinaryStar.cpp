@@ -2063,8 +2063,9 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
  
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
-    std::cout<<"donor mass"<<m_Donor->Mass()<<"donorMassLossRateThermal"<<donorMassLossRateThermal<<"acc"<<m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius)<<"m_Frac"<<m_FractionAccreted<<std::endl;
     double massDiffDonor            = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);         // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
+    double betaThermal              = m_FractionAccreted;                                                                       // may need these later if the mass transfer proceeds on a thermal timescale, so we store them to avoid recomputing
+    double massDiffDonorThermal     = massDiffDonor;
             
     // can the mass transfer happen on a nuclear timescale?
     if (m_Donor->IsOneOf(NON_COMPACT_OBJECTS)) {
@@ -2072,7 +2073,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         if (OPTIONS->MassTransferAccretionEfficiencyPrescription() == MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED) {
             // technically, we do not know how much mass the accretor should gain until we do the calculation,
             // which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
-            massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, m_Dt);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, estimating accretion efficiency based on a mass donation rate of massDiffDonor/m_Dt for self-consistency
+            massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, m_Dt);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, estimating accretion efficiency based on a mass donation rate of massDiffDonor/m_Dt for self-consistency
             std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(massDiffDonor/m_Dt,
                                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
         }
@@ -2087,12 +2088,13 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             m_ZetaLobe              = zetaLobe;
         }
     }
-    if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later); m_FractionAccreted and massDiffDonor already computed for this case
+    if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
+        m_FractionAccreted      = betaThermal;                                                                                  // m_FractionAccreted and massDiffDonor already computed for the thermal mass transfer case
+        massDiffDonor           = massDiffDonorThermal;
         m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
         m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
         m_MassTransferTimescale = MT_TIMESCALE::THERMAL;
-        std::cout<<"massDiffDonor"<<massDiffDonor<<"m_FractionAccreted"<<m_FractionAccreted<<std::endl;
     }
         
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
