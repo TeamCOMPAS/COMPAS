@@ -2063,6 +2063,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
  
     std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
                                                                                         m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
+    std::cout<<"donor mass"<<m_Donor->Mass()<<"donorMassLossRateThermal"<<donorMassLossRateThermal<<"acc"<<m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius)<<"m_Frac"<<m_FractionAccreted<<std::endl;
     double massDiffDonor            = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);         // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
             
     // can the mass transfer happen on a nuclear timescale?
@@ -2091,6 +2092,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
         m_MassTransferTimescale = MT_TIMESCALE::THERMAL;
+        std::cout<<"massDiffDonor"<<massDiffDonor<<"m_FractionAccreted"<<m_FractionAccreted<<std::endl;
     }
         
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
