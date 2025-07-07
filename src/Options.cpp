@@ -596,6 +596,22 @@ void Options::OptionValues::Initialise() {
     // Millisecond pulsar born from accretion induced collapse
     m_MSPsFromAIC                                                   = false;
 
+    // Millisecond pulsar birth magnetic field distribution
+    m_MSPBirthMagneticFieldDistribution.type                        = MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
+    m_MSPBirthMagneticFieldDistribution.typeString                  = MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_MSPBirthMagneticFieldDistribution.type);
+    m_MSPBirthMagneticFieldDistributionMin                          = 8.5;
+    m_MSPBirthMagneticFieldDistributionMax                          = 9.0;
+    m_MSPBirthMagneticFieldDistributionMean                         = 8.5;
+    m_MSPBirthMagneticFieldDistributionSigma                        = 0.5;
+
+    // Millisecond pulsar birth spin period distribution string
+    m_MSPBirthSpinPeriodDistribution.type                           = MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL;
+    m_MSPBirthSpinPeriodDistribution.typeString                     = MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_MSPBirthSpinPeriodDistribution.type);
+    m_MSPBirthSpinPeriodDistributionMin                             = 1.0;
+    m_MSPBirthSpinPeriodDistributionMax                             = 5.0;
+    m_MSPBirthSpinPeriodDistributionMean                            = 3.0;
+    m_MSPBirthSpinPeriodDistributionSigma                           = 1.0;
+
     // Pulsar birth magnetic field distribution
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
@@ -1541,6 +1557,46 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Minimum mass of secondary to generate, in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
         )
         (
+            "msp-birth-magnetic-field-distribution-max",                
+            po::value<double>(&p_Options->m_MSPBirthMagneticFieldDistributionMax)->default_value(p_Options->m_MSPBirthMagneticFieldDistributionMax),                                        
+            ("Maximum MSP birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_MSPBirthMagneticFieldDistributionMax) + ")").c_str()
+        )
+        (
+            "msp-birth-magnetic-field-distribution-min",                
+            po::value<double>(&p_Options->m_MSPBirthMagneticFieldDistributionMin)->default_value(p_Options->m_MSPBirthMagneticFieldDistributionMin),                                        
+            ("Minimum msp birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_MSPBirthMagneticFieldDistributionMin) + ")").c_str()
+        )
+        (
+            "msp-birth-magnetic-field-distribution-mean",                
+            po::value<double>(&p_Options->m_MSPBirthMagneticFieldDistributionMean)->default_value(p_Options->m_MSPBirthMagneticFieldDistributionMean),                                        
+            ("Mean of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_MSPBirthMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "msp-birth-magnetic-field-distribution-sigma",                
+            po::value<double>(&p_Options->m_MSPBirthMagneticFieldDistributionSigma)->default_value(p_Options->m_MSPBirthMagneticFieldDistributionSigma),                                        
+            ("Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_MSPBirthMagneticFieldDistributionSigma) + ")").c_str()
+        )
+        (
+            "msp-birth-spin-period-distribution-max",                   
+            po::value<double>(&p_Options->m_MSPBirthSpinPeriodDistributionMax)->default_value(p_Options->m_MSPBirthSpinPeriodDistributionMax),                                              
+            ("Maximum MSP birth spin period, in ms (default = " + std::to_string(p_Options->m_MSPBirthSpinPeriodDistributionMax) + ")").c_str()
+        )
+        (
+            "msp-birth-spin-period-distribution-min",                   
+            po::value<double>(&p_Options->m_MSPBirthSpinPeriodDistributionMin)->default_value(p_Options->m_MSPBirthSpinPeriodDistributionMin),                                              
+            ("Minimum MSP birth spin period, in ms (default = " + std::to_string(p_Options->m_MSPBirthSpinPeriodDistributionMin) + ")").c_str()
+        )
+        (
+            "msp-birth-spin-period-distribution-mean",                   
+            po::value<double>(&p_Options->m_MSPBirthSpinPeriodDistributionMean)->default_value(p_Options->m_MSPBirthSpinPeriodDistributionMean),                                              
+            ("Mean of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_MSPBirthSpinPeriodDistributionMax) + ")").c_str()
+        )
+        (
+            "msp-birth-spin-period-distribution-sigma",                   
+            po::value<double>(&p_Options->m_MSPBirthSpinPeriodDistributionSigma)->default_value(p_Options->m_MSPBirthSpinPeriodDistributionSigma),                                              
+            ("Standard deviation of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionSigma) + ")").c_str()
+        )
+        (
             "muller-mandel-kick-multiplier-BH",                                        
             po::value<double>(&p_Options->m_MullerMandelKickBH)->default_value(p_Options->m_MullerMandelKickBH),                                                                                  
             ("Scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickBH) + ")").c_str()
@@ -1623,7 +1679,8 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
             ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
-        )(
+        )
+        (
             "pulsar-birth-magnetic-field-distribution-mean",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMean)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMean),                                        
             ("Mean of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMean) + ")").c_str()
@@ -1994,11 +2051,20 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Metallicity distribution (" + AllowedOptionValuesFormatted("metallicity-distribution") + ", default = '" + p_Options->m_MetallicityDistribution.typeString + "')").c_str()
         )
         (
+            "msp-birth-magnetic-field-distribution",                    
+            po::value<std::string>(&p_Options->m_MSPBirthMagneticFieldDistribution.typeString)->default_value(p_Options->m_MSPBirthMagneticFieldDistribution.typeString),                                  
+            ("MSP Birth Magnetic Field distribution (" + AllowedOptionValuesFormatted("msp-birth-magnetic-field-distribution") + ", default = '" + p_Options->m_MSPBirthMagneticFieldDistribution.typeString + "')").c_str()
+        )
+        (
+            "msp-birth-spin-period-distribution",                       
+            po::value<std::string>(&p_Options->m_MSPBirthSpinPeriodDistribution.typeString)->default_value(p_Options->m_MSPBirthSpinPeriodDistribution.typeString),                                        
+            ("MSP Birth Spin Period distribution (" + AllowedOptionValuesFormatted("msp-birth-spin-period-distribution") + ", default = '" + p_Options->m_MSPBirthSpinPeriodDistribution.typeString + "')").c_str()
+        )
+        (
             "mode",                                                 
             po::value<std::string>(&p_Options->m_EvolutionMode.typeString)->default_value(p_Options->m_EvolutionMode.typeString),                                                                              
             ("Evolution mode (" + AllowedOptionValuesFormatted("mode") + ", default = '" + p_Options->m_EvolutionMode.typeString + "')").c_str()
         )
-
         (
             "neutrino-mass-loss-BH-formation",                             
             po::value<std::string>(&p_Options->m_NeutrinoMassLossAssumptionBH.typeString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBH.typeString),                                                  
@@ -2464,6 +2530,16 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Mode");
         }
 
+        if (!DEFAULTED("msp-birth-magnetic-field-distribution")) {                                                               // MSP birth magnetic field distribution
+            std::tie(found, m_MSPBirthMagneticFieldDistribution.type) = utils::GetMapKey(m_MSPBirthMagneticFieldDistribution.typeString, MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_MSPBirthMagneticFieldDistribution.type);
+            COMPLAIN_IF(!found, "Unknown MSP Birth Magnetic Field Distribution");
+        }
+
+        if (!DEFAULTED("msp-birth-spin-period-distribution")) {                                                                  // MSP birth spin period distribution
+            std::tie(found, m_MSPBirthSpinPeriodDistribution.type) = utils::GetMapKey(m_MSPBirthSpinPeriodDistribution.typeString, MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL, m_MSPBirthSpinPeriodDistribution.type);
+            COMPLAIN_IF(!found, "Unknown MSP Birth Spin Period Distribution");
+        }
+
         if (!DEFAULTED("neutrino-mass-loss-BH-formation")) {                                                                        // neutrino mass loss assumption
             std::tie(found, m_NeutrinoMassLossAssumptionBH.type) = utils::GetMapKey(m_NeutrinoMassLossAssumptionBH.typeString, NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL, m_NeutrinoMassLossAssumptionBH.type);
             COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
@@ -2644,9 +2720,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMax <= m_PulsarBirthMagneticFieldDistributionMin, "Pulsar birth magnetic field max (--pulsar-birth-magnetic-field-distribution-max) <= min (--pulsar-birth-magnetic-field-distribution-max)");
         COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= m_PulsarLog10MinimumMagneticField, "Pulsar birth magnetic field min (--pulsar-birth-magnetic-field-distribution-min) <= lower limit (--pulsar-minimum-magnetic-field)");
+        COMPLAIN_IF(m_MSPBirthMagneticFieldDistributionMax <= m_MSPBirthMagneticFieldDistributionMin, "MSP birth magnetic field max (--msp-birth-magnetic-field-distribution-max) <= min (--msp-birth-magnetic-field-distribution-max)");
+        COMPLAIN_IF(m_MSPBirthMagneticFieldDistributionMin <= m_PulsarLog10MinimumMagneticField, "MSP birth magnetic field min (--msp-birth-magnetic-field-distribution-min) <= lower limit (--pulsar-minimum-magnetic-field)");
         
         COMPLAIN_IF(m_PulsarBirthSpinPeriodDistributionMax <= m_PulsarBirthSpinPeriodDistributionMin, "Pulsar birth spin period max (--pulsar-birth-spin-period-distribution-max) <= min (--pulsar-birth-spin-period-distribution-max)");
-        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= 0.0, "Pulsar birth magnetic field min (--pulsar-birth-spin-period-distribution-min) <= 0");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= 0.0, "Pulsar birth spin period min (--pulsar-birth-spin-period-distribution-min) <= 0");
+        COMPLAIN_IF(m_MSPBirthSpinPeriodDistributionMax <= m_MSPBirthSpinPeriodDistributionMin, "MSP birth spin period max (--msp-birth-spin-period-distribution-max) <= min (--msp-birth-spin-period-distribution-max)");
+        COMPLAIN_IF(m_MSPBirthMagneticFieldDistributionMin <= 0.0, "MSP birth spin period min (--msp-birth-spin-period-distribution-min) <= 0");
 
         COMPLAIN_IF(m_RadialChangeFraction <= 0.0, "Radial change fraction per timestep (--radial-change-fraction) <= 0");
         
@@ -2829,6 +2909,8 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("mass-transfer-thermal-limit-accretor-multiplier")   : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);               break;
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                     break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                               break;
+        case _("msp-birth-magnetic-field-distribution")             : POPULATE_RET(MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);        break;
+        case _("msp-birth-spin-period-distribution")                : POPULATE_RET(MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);              break;
         case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                           break;
         case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                       break;
@@ -5014,6 +5096,14 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MSPS_FROM_AIC                                  : value = MSPsFromAIC();                                                        break;
 
+        case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION                : value = static_cast<int>(MSPBirthMagneticFieldDistribution());                break;
+        case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX            : value = MSPBirthMagneticFieldDistributionMax();                               break;
+        case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MIN            : value = MSPBirthMagneticFieldDistributionMin();                               break;
+
+        case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION             : value = static_cast<int>(MSPBirthSpinPeriodDistribution());                   break;
+        case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX         : value = MSPBirthSpinPeriodDistributionMax();                                  break;
+        case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN         : value = MSPBirthSpinPeriodDistributionMin();                                  break;
+
         case PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION           : value = static_cast<int>(MassTransferAccretionEfficiencyPrescription());      break;
         case PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION                   : value = static_cast<int>(MassTransferAngularMomentumLossPrescription());      break;
         case PROGRAM_OPTION::MT_THERMAL_LIMIT_C                             : value = MassTransferCParameter();                                             break;
@@ -5068,10 +5158,14 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION             : value = static_cast<int>(PulsarBirthMagneticFieldDistribution());             break;
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MAX         : value = PulsarBirthMagneticFieldDistributionMax();                            break;
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MIN         : value = PulsarBirthMagneticFieldDistributionMin();                            break;
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_MEAN        : value = PulsarBirthMagneticFieldDistributionMean();                           break;
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DISTRIBUTION_SIGMA       : value = PulsarBirthMagneticFieldDistributionSigma();                          break;
 
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION          : value = static_cast<int>(PulsarBirthSpinPeriodDistribution());                break;
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX      : value = PulsarBirthSpinPeriodDistributionMax();                               break;
         case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN      : value = PulsarBirthSpinPeriodDistributionMin();                               break;
+        case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_MEAN     : value = PulsarBirthSpinPeriodDistributionMean();                              break;
+        case PROGRAM_OPTION::PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_SIGMA    : value = PulsarBirthSpinPeriodDistributionSigma();                             break;
 
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL    : value = static_cast<int>(PulsarMagneticFieldDecayAccretionModel());           break;
         case PROGRAM_OPTION::PULSAR_MINIMUM_MAGNETIC_FIELD                  : value = PulsarLog10MinimumMagneticField();                                    break;

@@ -167,6 +167,8 @@ enum class ERROR: int {
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                             // unknown LBV mass loss prescription
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription
+    UNKNOWN_MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                  // unknown MSP birth magnetic field distribution
+    UNKNOWN_MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION,                     // unknown MSP birth spin period distribution
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
     UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,                  // unknown mass transfer angular momentum loss prescription
     UNKNOWN_MT_CASE,                                                // unknown mass transfer case

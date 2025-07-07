@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Jun 25 11:07:34 2025 by COMPAS v03.20.06
+##~!!~## File Created Mon Jul  7 21:49:01 2025 by COMPAS v03.21.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -29,12 +29,12 @@ booleanChoices:
 #    --enable-rotationally-enhanced-mass-loss: False                       # Default: False
 #    --enhance-CHE-lifetimes-luminosities: False                           # Default: False
 #    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
-#    --natal-kick-for-PPISN: False                                         # Default: False
 #    --scale-CHE-mass-loss-with-surface-helium-abundance: False            # Default: False
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                                            # record binaries that have stars touching at birth in output files
 #    --include-WD-binaries-as-DCO: False                                   # Default: False                                                                                                                                                                            # record WD binaries in the BSE DCO file
+#    --MSPs-from-AIC: False                                                # Default: False                                                                                                                                                                            # Allow MSPs to directly form after accretion induced collapse
 
     ### MASS TRANSFER
 #    --angular-momentum-conservation-during-circularisation: False         # Default: False
@@ -153,6 +153,7 @@ numericalChoices:
 #    --mass-transfer-jloss-macleod-linear-fraction-degen: 0.500000         # Default: 0.500000
 #    --mass-transfer-jloss-macleod-linear-fraction-non-degen: 0.500000     # Default: 0.500000
 #    --mass-transfer-thermal-limit-C: 10.000000                            # Default: 10.000000
+#    --neutron-star-accretion-efficiency-parameter: 1.000000               # Default: 1.000000
 #    --zeta-adiabatic-arbitrary: 10000.00                                  # Default: 10000.00
 #    --zeta-main-sequence: 2.000000                                        # Default: 2.000000
 #    --zeta-radiative-envelope-giant: 6.500000                             # Default: 6.500000
@@ -212,6 +213,14 @@ numericalChoices:
 #    --rocket-kick-phi-2: 0.000000                                         # Default: 0.000000                                                                                                                                                                         # (BSE) angle between 'x' and 'y', both in the orbital plane of the rocket kick , for the secondary star [radians]
 
     ### PULSAR PARAMETERS
+#    --msp-birth-magnetic-field-distribution-min: 8.500000                 # Default: 8.500000                                                                                                                                                                         # [log10(B/G)]
+#    --msp-birth-magnetic-field-distribution-max: 9.000000                 # Default: 9.000000                                                                                                                                                                         # [log10(B/G)]
+#    --msp-birth-magnetic-field-distribution-mean: 8.500000                # Default: 8.500000                                                                                                                                                                         # [log10(B/G)]
+#    --msp-birth-magnetic-field-distribution-sigma: 0.500000               # Default: 0.500000                                                                                                                                                                         # [log10(B/G)]
+#    --msp-birth-spin-period-distribution-min: 1.000000                    # Default: 1.000000                                                                                                                                                                         # [ms]
+#    --msp-birth-spin-period-distribution-max: 5.000000                    # Default: 5.000000                                                                                                                                                                         # [ms]
+#    --msp-birth-spin-period-distribution-mean: 3.000000                   # Default: 3.000000                                                                                                                                                                         # [ms]
+#    --msp-birth-spin-period-distribution-sigma: 1.000000                  # Default: 1.000000                                                                                                                                                                         # [ms]
 #    --pulsar-birth-magnetic-field-distribution-min: 11.000000             # Default: 11.000000                                                                                                                                                                        # [log10(B/G)]
 #    --pulsar-birth-magnetic-field-distribution-max: 13.000000             # Default: 13.000000                                                                                                                                                                        # [log10(B/G)]
 #    --pulsar-birth-magnetic-field-distribution-mean: 12.650000            # Default: 12.650000                                                                                                                                                                        # [log10(B/G)]
@@ -222,6 +231,7 @@ numericalChoices:
 #    --pulsar-birth-spin-period-distribution-sigma: 25.000000              # Default: 25.000000                                                                                                                                                                        # [ms]
 #    --pulsar-magnetic-field-decay-timescale: 1000.00                      # Default: 1000.00                                                                                                                                                                          # [Myr]
 #    --pulsar-magnetic-field-decay-massscale: 0.025000                     # Default: 0.025000                                                                                                                                                                         # [Msol]
+#    --pulsar-magnetic-field-decay-timescale-power: 0.000000               # Default: 0.000000
 #    --pulsar-minimum-magnetic-field: 8.000000                             # Default: 8.000000                                                                                                                                                                         # [log10(B/G)]
 
 
@@ -284,8 +294,11 @@ stringChoices:
 #    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['DISK','SURFACE','ZERO']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
+#    --msp-birth-magnetic-field-distribution: 'LOGNORMAL'                  # Default: 'LOGNORMAL'                   # Options: ['LOGNORMAL','UNIFORM','FLATINLOG']
+#    --msp-birth-spin-period-distribution: 'NORMAL'                        # Default: 'NORMAL'                      # Options: ['LOGNORMAL','NORMAL','UNIFORM']
 #    --pulsar-birth-magnetic-field-distribution: 'LOGNORMAL'               # Default: 'LOGNORMAL'                   # Options: ['LOGNORMAL','UNIFORM','FLATINLOG']
-#    --pulsar-birth-spin-period-distribution: 'NORMAL'                     # Default: 'NORMAL'                      # Options: ['NORMAL','UNIFORM']
+#    --pulsar-birth-spin-period-distribution: 'NORMAL'                     # Default: 'NORMAL'                      # Options: ['LOGNORMAL','NORMAL','UNIFORM']
+#    --pulsar-magnetic-field-decay-accretion-model: 'EXPONENTIAL'          # Default: 'EXPONENTIAL'                 # Options: ['SHIBAZAKI','EXPONENTIAL','NONE']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['MALTSEV2024','SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
     ### LOGFILES AND OUTPUTS 

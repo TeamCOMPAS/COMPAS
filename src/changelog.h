@@ -1600,12 +1600,7 @@
 //  03.20.09  RTW - Jun 30, 2025        - Enhancement:
 //                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
 //
-//  03.21.00   SS, YS      - May 29, 2025  - Enhancement:
-//                                         - Added more flexible function, CalculateMagneticFieldDecayAccretion_Static, for dealing with magnetic field decay due to accretion
-//                                         - Added Shibazaki et al. 1989 model of magnetic field decay due to accretion
-//                                         - Added new option --neutron-star-accretion-efficiency-parameter
-//                                         - Added new option --msps-from-aic
 
-const std::string VERSION_STRING = "03.21.00";
+const std::string VERSION_STRING = "03.20.09";
 
 # endif // __changelog_h__

@@ -509,6 +509,18 @@ private:
         "maximum-mass-donor-nandez-ivanova",
         "minimum-secondary-mass",
 
+        "msps-from-aic",
+        "msp-birth-magnetic-field-distribution",
+        "msp-birth-magnetic-field-distribution-max",
+        "msp-birth-magnetic-field-distribution-min",
+        "msp-birth-magnetic-field-distribution-mean",
+        "msp-birth-magnetic-field-distribution-sigma",
+        "msp-birth-spin-period-distribution",
+        "msp-birth-spin-period-distribution-max",
+        "msp-birth-spin-period-distribution-min",
+        "msp-birth-spin-period-distribution-mean",
+        "msp-birth-spin-period-distribution-sigma",
+
         "neutron-star-accretion-in-ce",
 
         "orbital-period",
@@ -637,6 +649,8 @@ private:
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor-multiplier",
         "metallicity-distribution",
+        "msp-birth-magnetic-field-distribution",
+        "msp-birth-spin-period-distribution",
         "mode",
 
         "natal-kick-for-PPISN",
@@ -1126,6 +1140,20 @@ public:
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
+            // MSP birth magnetic field distribution string
+            ENUM_OPT<MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>     m_MSPBirthMagneticFieldDistribution;                            // Birth magnetic field distribution for MSPs born from AICs
+            double                                              m_MSPBirthMagneticFieldDistributionMin;                         // Minimum birth magnetic field (log10 B/G)
+            double                                              m_MSPBirthMagneticFieldDistributionMax;                         // Maximum birth magnetic field (log10 B/G)
+            double                                              m_MSPBirthMagneticFieldDistributionMean;                        // Mean of normal or lognormal distribution for birth magnetic field (log10 B/G)
+            double                                              m_MSPBirthMagneticFieldDistributionSigma;                       // Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G)
+
+            // MSP birth spin period distribution string
+            ENUM_OPT<MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION>        m_MSPBirthSpinPeriodDistribution;                               // Birth spin period distribution for MSPs born from AICs
+            double                                              m_MSPBirthSpinPeriodDistributionMin;                            // Minimum birth spin period (ms)
+            double                                              m_MSPBirthSpinPeriodDistributionMax;                            // Maximum birth spin period (ms)
+            double                                              m_MSPBirthSpinPeriodDistributionMean;                           // Mean of normal or lognormal distribution for birth spin period (ms)
+            double                                              m_MSPBirthSpinPeriodDistributionSigma;                          // Standard deviation of normal or lognormal distribution for birth spin period (ms)
+
             // Neutron star accretion 
             ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NeutronStarAccretionInCE;                                     // NS accretion in common envelope
             double                                              m_NeutronStarAccretionEfficiencyParameter;                      // Efficiency of accretion onto NS during stable MT
@@ -1612,7 +1640,19 @@ public:
     double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
 
     bool                                        MSPsFromAIC() const                                                     { return OPT_VALUE("msps-from-aic", m_MSPsFromAIC, true); }
+    
+    MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION       MSPBirthMagneticFieldDistribution() const                               { return OPT_VALUE("msp-birth-magnetic-field-distribution", m_MSPBirthMagneticFieldDistribution.type, true); }
+    double                                      MSPBirthMagneticFieldDistributionMax() const                            { return OPT_VALUE("msp-birth-magnetic-field-distribution-max", m_MSPBirthMagneticFieldDistributionMax, true); }
+    double                                      MSPBirthMagneticFieldDistributionMin() const                            { return OPT_VALUE("msp-birth-magnetic-field-distribution-min", m_MSPBirthMagneticFieldDistributionMin, true); }
+    double                                      MSPBirthMagneticFieldDistributionMean() const                           { return OPT_VALUE("msp-birth-magnetic-field-distribution-mean", m_MSPBirthMagneticFieldDistributionMean, true); }
+    double                                      MSPBirthMagneticFieldDistributionSigma() const                          { return OPT_VALUE("msp-birth-magnetic-field-distribution-sigma", m_MSPBirthMagneticFieldDistributionSigma, true); }
 
+    MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION          MSPBirthSpinPeriodDistribution() const                                  { return OPT_VALUE("msp-birth-spin-period-distribution", m_MSPBirthSpinPeriodDistribution.type, true); }
+    double                                      MSPBirthSpinPeriodDistributionMax() const                               { return OPT_VALUE("msp-birth-spin-period-distribution-max", m_MSPBirthSpinPeriodDistributionMax, true); }
+    double                                      MSPBirthSpinPeriodDistributionMin() const                               { return OPT_VALUE("msp-birth-spin-period-distribution-min", m_MSPBirthSpinPeriodDistributionMin, true); }
+    double                                      MSPBirthSpinPeriodDistributionMean() const                              { return OPT_VALUE("msp-birth-spin-period-distribution-mean", m_MSPBirthSpinPeriodDistributionMean, true); }
+    double                                      MSPBirthSpinPeriodDistributionSigma() const                             { return OPT_VALUE("msp-birth-spin-period-distribution-sigma", m_MSPBirthSpinPeriodDistributionSigma, true); }
+    
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
     double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }

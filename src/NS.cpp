@@ -146,16 +146,52 @@ DBL_DBL_DBL NS::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
 double NS::CalculateBirthSpinPeriod() {
 
 	double pSpin;
+
     if ((OPTIONS->MSPsFromAIC())&(ExperiencedAIC())){
+        switch (OPTIONS->MSPBirthSpinPeriodDistribution()) {                                                     // which distribution?
 
-        double mean  = 10.0;
-        double sigma = 5.0;
+            case MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM: {                                                  // UNIFORM distribution between minimum and maximum value as in Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (default Pmin = and Pmax = )
+                                                                                                                    // and also Kiel et al 2008 https://arxiv.org/abs/0805.0059 (default Pmin = 10 ms and Pmax 100 ms, section 3.4)
+                double maximum = OPTIONS->MSPBirthSpinPeriodDistributionMax();
+                double minimum = OPTIONS->MSPBirthSpinPeriodDistributionMin();
 
-        // this should terminate naturally, but just in case we add a guard
-        std::size_t iterations = 0;
-        do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) <= 0);
-        if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS); 
+                pSpin = minimum + (RAND->Random() * (maximum - minimum));
+                } break;
 
+            case MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL: {                                                   // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+
+                double mean  = OPTIONS->MSPBirthSpinPeriodDistributionMean();
+                double sigma = OPTIONS->MSPBirthSpinPeriodDistributionSigma();
+
+                // this should terminate naturally, but just in case we add a guard
+                std::size_t iterations = 0;
+                do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) <= 0);
+                if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);
+
+                } break;
+
+            case MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION::LOGNORMAL: {                                                   // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+
+                double mean  = log10(OPTIONS->MSPBirthSpinPeriodDistributionMean());
+                double sigma = log10(OPTIONS->MSPBirthSpinPeriodDistributionSigma());
+                double log10pSpin;
+                // this should terminate naturally, but just in case we add a guard
+                std::size_t iterations = 0;
+                do { log10pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(log10pSpin, 0.0) <= 0);
+                if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);
+                pSpin = PPOW(log10pSpin, 10.0); 
+                } break;
+
+            default:                                                                                                // unknown prescription
+                // the only way this can happen is if someone added a PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION
+                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+                // We are here because the user chose a prescription this code doesn't account for, and that should
+                // be flagged as an error and result in termination of the evolution of the star or binary.
+                // The correct fix for this is to add code for the missing prescription or, if the missing
+                // prescription is superfluous, remove it from the option.
+
+                THROW_ERROR(ERROR::UNKNOWN_MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION);                                  // throw error
+        }
     }
     else {
         switch (OPTIONS->PulsarBirthSpinPeriodDistribution()) {                                                     // which distribution?
@@ -178,6 +214,18 @@ double NS::CalculateBirthSpinPeriod() {
                 do { pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(pSpin, 0.0) <= 0);
                 if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);
 
+                } break;
+
+            case PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::LOGNORMAL: {                                                   // NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+
+                double mean  = log10(OPTIONS->PulsarBirthSpinPeriodDistributionMean());
+                double sigma = log10(OPTIONS->PulsarBirthSpinPeriodDistributionSigma());
+                double log10pSpin;
+                // this should terminate naturally, but just in case we add a guard
+                std::size_t iterations = 0;
+                do { log10pSpin = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_SPIN_ITERATIONS && utils::Compare(log10pSpin, 0.0) <= 0);
+                if (iterations >= PULSAR_SPIN_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS);
+                pSpin = PPOW(log10pSpin, 10.0); 
                 } break;
 
             default:                                                                                                // unknown prescription
@@ -209,10 +257,48 @@ double NS::CalculateBirthMagneticField() {
 	double log10B;
     if ((OPTIONS->MSPsFromAIC())&(ExperiencedAIC())){
 
-        double maximum = PPOW(10.0, 8.0);
-        double minimum = PPOW(10.0, 9.0);
+        switch (OPTIONS->MSPBirthMagneticFieldDistribution()) {                                                  // which distribution?
 
-        log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
+            case MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
+
+                double maximum = OPTIONS->MSPBirthMagneticFieldDistributionMax();
+                double minimum = OPTIONS->MSPBirthMagneticFieldDistributionMin();
+                
+                log10B = minimum + (RAND->Random() * (maximum - minimum));
+
+                } break;
+
+            case MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                               // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
+                
+                double maximum = PPOW(10.0, OPTIONS->MSPBirthMagneticFieldDistributionMax());
+                double minimum = PPOW(10.0, OPTIONS->MSPBirthMagneticFieldDistributionMin());
+
+                log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
+                } break;
+
+            case MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+
+                double mean  = OPTIONS->MSPBirthMagneticFieldDistributionMean();
+                double sigma = OPTIONS->MSPBirthMagneticFieldDistributionSigma();
+
+                log10B = RAND->RandomGaussian(sigma) + mean;
+
+                // add a guard to make sure magnetic field is always larger than the value set by --msp-minimum-magnetic-field
+                std::size_t iterations = 0;
+                do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
+                if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
+                } break;
+
+            default:                                                                                                // unknown prescription
+                // the only way this can happen is if someone added a MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
+                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+                // We are here because the user chose a prescription this code doesn't account for, and that should
+                // be flagged as an error and result in termination of the evolution of the star or binary.
+                // The correct fix for this is to add code for the missing prescription or, if the missing
+                // prescription is superfluous, remove it from the option.
+
+                THROW_ERROR(ERROR::UNKNOWN_MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
+        }
 
     }
     else {
