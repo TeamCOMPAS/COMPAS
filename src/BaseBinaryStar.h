@@ -618,9 +618,11 @@ private:
             // for nuclear timescale accretion efficiency, for which the total accretion mass over the
             // duration of the timestep is known), then must estimate it on the fly for consistency
             double beta = m_FractionAccreted;
-            if(utils::Compare(beta, 0.0) < 0)
+            if (utils::Compare(beta, 0.0) < 0) {
                 std::tie(std::ignore, beta) = m_Accretor->CalculateMassAcceptanceRate(p_dM / m_Dt,
-                                                    m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), m_Donor->IsOneOf(He_RICH_TYPES));
+                                              m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), 
+                                              m_Donor->IsOneOf(He_RICH_TYPES));
+            }
             
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta, false);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
