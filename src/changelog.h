@@ -1603,7 +1603,8 @@
 //                                          - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
 //                                          - Added options to set beta and gamma prescription for second stage of 2-stage CE (--common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription)
 //                                          - Fixed a bug in CalculateZetaEquilibrium(), which impacted when mass transfer is declared nuclear (and how conservative it is)
-//                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step 
+//                                          - Added missing virtual declaration to ShouldEnvelopeBeExpelledByPulsations
+//                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step
 
 
 const std::string VERSION_STRING = "03.21.00";

@@ -337,7 +337,7 @@ public:
        
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
-            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
+    virtual bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
 
     virtual void            SpinDownIsolatedPulsar(const double p_Stepsize)                                     { }                                                                 // Default is NO-OP
 
