@@ -1601,8 +1601,8 @@
 //                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
 //  03.21.00   JR - Jun 30, 2025        - Enhancement:
 //                                          - Changed mass loss prescription MERRITT2024 to MERRIT2025; deprecated MERRIT2024
-//                                          - Added datestrings to vectors supporting deprecatioin in Options.h to allow timely removal
-//                                          - Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen (for now, gsl & hdf5 are installed vesrions, boost is vesrion compiled with COMPAS)
+//                                          - Added datestrings to vectors supporting deprecation in Options.h to allow timely removal
+//                                          - Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen (for now, gsl & hdf5 are installed versions, boost is version compiled with COMPAS)
 
 
 // Version string format is MM.mm.rr, where
