@@ -192,6 +192,9 @@ private:
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that
     //       option is shown the first time in a COMPAS run (a deprecation notice for a deprecated option
     //       is only shown once per COMPAS run).
+    //     - datestring indicating the date the option string was deprecated.  Deprecated option strings
+    //       should be manually removed from the "deprecatedOptionStrings" vector 12 months (too long?)
+    //       after the deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
     // 
     //
     // "deprecatedOptionValues" vector
@@ -216,23 +219,27 @@ private:
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
     //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
     //       is only shown once per COMPAS run).
+    //     - datestring indicating the date the option string was deprecated.  Deprecated option values should
+    //       be manually removed from the "deprecatedOptionValues" vector 12 months (too long?) after the
+    //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
-    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "retain-core-mass-during-caseA-mass-transfer", "", false }
+    std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
+        { "retain-core-mass-during-caseA-mass-transfer", "", false, "20250116" }
     };
 
-    std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",          "GE20",      "GE",        false },
-        { "critical-mass-ratio-prescription",          "GE20_IC",   "GE_IC",     false },
-        { "pulsational-pair-instability-prescription", "COMPAS",    "WOOSLEY",   false },
-	    { "pulsar-birth-spin-period-distribution",     "ZERO",      "NOSPIN",    false },
-        { "tides-prescription",                        "KAPIL2024", "KAPIL2025", false }
+    std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
+        { "critical-mass-ratio-prescription",          "GE20",        "GE",          false, "20241118" },
+        { "critical-mass-ratio-prescription",          "GE20_IC",     "GE_IC",       false, "20241118" },
+        { "pulsational-pair-instability-prescription", "COMPAS",      "WOOSLEY",     false, "20250208" },
+	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
+        { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
+        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
-    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionProperties = {
-        { "black_hole_kicks", "black_hole_kicks_mode",      false },
-        { "lbv_prescription", "LBV-mass-loss-prescription", false }
+    std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionProperties = {
+        { "black_hole_kicks", "black_hole_kicks_mode",      false, "20241030" },
+        { "lbv_prescription", "LBV_mass_loss_prescription", false, "20241030" }
     };
 
 
