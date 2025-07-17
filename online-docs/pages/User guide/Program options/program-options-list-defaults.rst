@@ -826,12 +826,12 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
+Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2025 } |br|
 ``ZERO``          : No wind mass loss |br|
 ``HURLEY``        : Mass loss according to Hurley (2000) |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
-``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
-Default = MERRITT2024 |br|
+``MERRITT2025``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
+Default = MERRITT2025 |br|
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|

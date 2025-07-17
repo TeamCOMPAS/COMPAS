@@ -73,7 +73,7 @@ protected:
 
     // Mass loss rate
     double          CalculateMassLossRateBelczynski2010();
-    double          CalculateMassLossRateMerritt2024();
+    double          CalculateMassLossRateMerritt2025();
     double          CalculateMassLossRateWeightOB(const double p_HeliumAbundanceSurface);
     
     // Radius
