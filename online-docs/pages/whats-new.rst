@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.20=1.00 July 17, 2025**
+
+* Deprecated mass loss prescription MERRITT2024 in favour of MERRITT2025
+* Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen
+
 **03.20.06 June 25, 2025**
 
 * The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian

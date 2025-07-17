@@ -1599,8 +1599,22 @@
 //                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
 //  03.20.09  RTW - Jun 30, 2025        - Enhancement:
 //                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
+//  03.21.00   JR - Jun 30, 2025        - Enhancement:
+//                                          - Changed mass loss prescription MERRITT2024 to MERRIT2025; deprecated MERRIT2024
+//                                          - Added datestrings to vectors supporting deprecation in Options.h to allow timely removal
+//                                          - Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen (for now, gsl & hdf5 are installed versions, boost is version compiled with COMPAS)
 
-const std::string VERSION_STRING = "03.20.09";
+
+// Version string format is MM.mm.rr, where
+//
+// MM is the MAJOR release number: this should be incremented whenever major new functionality is introduced
+// mm is the MINOR release number: this should be incremented whenever minor new functionality (e.g. small enhancemet) is introduced
+// rr is the fix RELEASE number:   this should be incremented whenever a defect repair is made
+//
+// if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
+// if mm is incremented, set rr to 00, even if defect repairs were also made
+
+const std::string VERSION_STRING = "03.21.00";
 
 
 # endif // __changelog_h__
