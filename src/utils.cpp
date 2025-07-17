@@ -1469,7 +1469,7 @@ namespace utils {
 
         // Construct the splash string
         std::string splashString = "\nCOMPAS v" + 
-                                   VERSION_STRING + 
+                                   VERSION_STRING + " (gsl v" + GetGSLVersion() + ", boost v" + GetBOOSTVersion() + ", HDF5 v" + GetHDF5Version() + ")" +
                                    "\nCompact Object Mergers: Population Astrophysics and Statistics"
                                    "\nby Team COMPAS (http://compas.science/index.html)"
                                    "\nA binary star simulator\n"
@@ -1819,5 +1819,52 @@ namespace utils {
                 std::cerr << "    " << stackTrace[entry] << "\n";                                                   // show stacktrace entry
             }
         }
+    }
+
+
+    /*
+     * Returns gsl version string
+     *
+     * 
+     * std::string GetGSLVersion()
+     * 
+     * @return                                    String containing GSL version in format MM.mm.rr
+     *                                            Will be "Not available" if not able to retrieve the actual value
+     */
+    std::string GetGSLVersion() {
+
+        std::string versionStr = "Not available";                                                           // default return value
+
+        char buffer[128];                                                                                   // command return buffer
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen("gsl-config --version", "r"), pclose);          // open pipe for command
+        if (pipe) {                                                                                         // ok?
+            versionStr = "";                                                                                // yes
+            while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) versionStr += buffer;              // copy buffer
+            if (!versionStr.empty() && versionStr[versionStr.length() - 1] == '\n') versionStr.pop_back();  // remove trailing newline if necessary
+        }
+
+        return versionStr;
+    }
+
+
+    /*
+     * Returns HDF5 library version string
+     *
+     * 
+     * std::string GetHDF5Version()
+     * 
+     * @return                                    String containing HDF5 library version in format MM.mm.rr
+     *                                            Will be "Not available" if not able to retrieve the actual value
+     */
+    std::string GetHDF5Version() {
+
+        std::string versionStr = "Not available";                                                                       // default return value
+
+        unsigned majorNum, minorNum, releaseNum;
+        herr_t status = H5get_libversion(&majorNum, &minorNum, &releaseNum);                                            // retrieve HDF5 library version
+        if (status >= 0)                                                                                                // ok?
+            versionStr = std::to_string(majorNum) + "." + std::to_string(minorNum) + "." + std::to_string(releaseNum);  // yes - set version string
+
+        return versionStr;
     }
 }

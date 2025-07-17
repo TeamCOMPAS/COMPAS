@@ -608,7 +608,7 @@ protected:
             double              CalculateMassLossRateVMSSabhahit2023();
             double              CalculateMassLossRateVMSVink2011() const;
     virtual double              CalculateMassLossRateBelczynski2010();
-    virtual double              CalculateMassLossRateMerritt2024();
+    virtual double              CalculateMassLossRateMerritt2025();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;

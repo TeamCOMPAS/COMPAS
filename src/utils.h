@@ -1,7 +1,11 @@
 #ifndef __utils_h__
 #define __utils_h__
 
+#include <memory>
+
+#include <boost/version.hpp>
 #include <boost/filesystem.hpp>
+#include "hdf5.h"
 
 #include "constants.h"
 #include "typedefs.h"
@@ -82,6 +86,10 @@ namespace utils {
             if (Equals(it.second, p_Value)) return std::make_tuple(true, it.first);
         return std::make_tuple(false, p_Default);
     }
+
+    inline std::string                  GetBOOSTVersion() { return std::to_string(BOOST_VERSION / 100000) + "." + std::to_string(BOOST_VERSION / 100 % 1000) + "." + std::to_string(BOOST_VERSION % 100); }
+    std::string                         GetGSLVersion();
+    std::string                         GetHDF5Version();
 
     double                              intPow(const double p_Base, const int p_Exponent);
 

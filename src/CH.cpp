@@ -374,11 +374,11 @@ double CH::CalculateMassLossRateBelczynski2010() {
  *
  * Modifications for CH stars
  * 
- * double CalculateMassLossRateMerritt2024()
+ * double CalculateMassLossRateMerritt2025()
  * 
  * @return                                      Mass loss rate in Msol per year
  */
-double CH::CalculateMassLossRateMerritt2024() {
+double CH::CalculateMassLossRateMerritt2025() {
     
     // Define variables
     double Mdot   = 0.0;
@@ -396,7 +396,7 @@ double CH::CalculateMassLossRateMerritt2024() {
         // cloning it, so that we can ask it what its mass loss rate would be if it were
         // a HeMS star
         HeMS *clone = HeMS::Clone((HeMS&)static_cast<const CH&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);  // Do not initialise so that we can use same mass, luminosity, radius etc
-        MdotWR      = clone->CalculateMassLossRateMerritt2024();                                                // Calculate WR mass loss rate              
+        MdotWR      = clone->CalculateMassLossRateMerritt2025();                                                // Calculate WR mass loss rate              
         delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone  
 
         // Calculate weight for combining these into total mass-loss rate
