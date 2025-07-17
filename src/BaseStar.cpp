@@ -2469,11 +2469,11 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
  * or are added to other wind mass loss if LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD is used.
  * 
  *
- * double CalculateMassLossRateMerritt2024()
+ * double CalculateMassLossRateMerritt2025()
  * 
  * @return                  Mass loss rate in Msol per year
  */
-double BaseStar::CalculateMassLossRateMerritt2024() {
+double BaseStar::CalculateMassLossRateMerritt2025() {
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
 
@@ -2550,8 +2550,8 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = CalculateMassLossRateBelczynski2010();
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::MERRITT2024:
-                mDot = CalculateMassLossRateMerritt2024();
+            case MASS_LOSS_PRESCRIPTION::MERRITT2025:
+                mDot = CalculateMassLossRateMerritt2025();
                 break;
 
             default:                                                                                                // unknown prescription

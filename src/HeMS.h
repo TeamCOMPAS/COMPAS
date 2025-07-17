@@ -47,7 +47,7 @@ public:
     static double   CalculateLuminosityAtPhaseEnd_Static(const double p_Mass);
 
            double   CalculateMassLossRateBelczynski2010();
-           double   CalculateMassLossRateMerritt2024();
+           double   CalculateMassLossRateMerritt2025();
 
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
