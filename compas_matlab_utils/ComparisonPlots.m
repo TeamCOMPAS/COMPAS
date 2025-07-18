@@ -258,8 +258,9 @@ function HMXBplot(file, name, fignumberHMXB, colour, point)
     roche2Switch=h5read(file,'/BSE_Switch_Log/RocheLobe(2)');
     radius1Switch=h5read(file,'/BSE_Switch_Log/Radius(1)');
     radius2Switch=h5read(file,'/BSE_Switch_Log/Radius(2)');
-    relevantBinaryFrom1 = whichSwitch==1 & fromSwitch==1 & toSwitch==2 & star2Switch==14 & radius1Switch>0.8*roche1Switch & M1Switch>15;
-    relevantBinaryFrom2 = whichSwitch==2 & fromSwitch==1 & toSwitch==2 & star1Switch==14 & radius2Switch>0.8*roche2Switch & M2Switch>15;
+    isMergerSwitch=h5read(file,'/BSE_Switch_Log/Is_Merger');
+    relevantBinaryFrom1 = whichSwitch==1 & fromSwitch==1 & toSwitch==2 & star2Switch==14 & radius1Switch>0.8*roche1Switch & M1Switch>15 & ~isMergerSwitch;
+    relevantBinaryFrom2 = whichSwitch==2 & fromSwitch==1 & toSwitch==2 & star1Switch==14 & radius2Switch>0.8*roche2Switch & M2Switch>15 & ~isMergerSwitch;
     MBH=[MBH; M2Switch(relevantBinaryFrom1); M1Switch(relevantBinaryFrom2)];
     MO=[MO; M1Switch(relevantBinaryFrom2); M2Switch(relevantBinaryFrom1)];
     figure(fignumberHMXB), scatter(MBH, MO, point, 'filled', colour, 'DisplayName', name); hold on;
@@ -342,7 +343,8 @@ function DWDplot(file, name, fignumberDWD, colourNMT, colourMT, point)
     M2Switch=h5read(file, '/BSE_Switch_Log/Mass(2)');
     aSwitch=h5read(file, '/BSE_Switch_Log/SemiMajorAxis');
     SeedSwitch=h5read(file, '/BSE_Switch_Log/SEED');
-    WDIndex=find(Type1>=10 & Type1<=12 & Type2>=10 & Type2<=12);
+    isMergerSwitch=h5read(file,'/BSE_Switch_Log/Is_Merger');
+    WDIndex=find(Type1>=10 & Type1<=12 & Type2>=10 & Type2<=12 & ~isMergerSwitch);
     ind=unique(SeedSwitch(WDIndex));
     [~,ZAMSIndex]=ismember(ind,SeedZAMS);
     MAZAMS=(M1ZAMS(ZAMSIndex)+M2ZAMS(ZAMSIndex)).*aZAMS(ZAMSIndex);

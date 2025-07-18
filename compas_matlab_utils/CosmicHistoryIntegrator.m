@@ -1,11 +1,13 @@
-function [Zlist, MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta,  Mtlist, etalist, SFR, Rdetections, DetectableMergerRate, zlistdetection, x]=...
+function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, ...
+    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, Rdetections, DetectableMergerRate]=...
     CosmicHistoryIntegrator(filename, zlistformation, zmaxdetection, Msimulated, makeplots)
 % Integrator for the binary black hole merger rate over cosmic history
 % COMPAS (Compact Object Mergers: Population Astrophysics and Statistics) 
 % software package
 %
 % USAGE: 
-% [Zlist, MergerRateByRedshiftByZ, SFR, Zweight, Rdetections, DetectableMergerRate, Mtzlist, etalist, zlistdetection]=...
+% [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, ...
+%    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, Rdetections, DetectableMergerRate]]=...
 %    CosmicHistoryIntegrator(filename, zlistformation, zmaxdetection, Msimulated [,makeplots])
 %
 % INPUTS:
@@ -19,32 +21,44 @@ function [Zlist, MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta,  Mtlist
 %   makeplots:  if set to 1, generates a set of useful plots (default = 0)
 %
 % OUTPUTS: 
-%   Zlist is a vector of metallicities, taken from the COMPAS run input file
-%   MergerRateByRedshiftByZ is a matrix of size length(zformationlist) X length(Zlist) 
-% which contains a merger rate of merging compact objects in the given redshift 
-% and metallicity bin, in units of mergers per Mpc^3 of comoving volume per
-% year of source time
-%   MergerRateByRedshiftByMtByEta is a matrix of size llength(zformationlist) 
-% X length(Mtlist) X length(etalist) which contains a merger rate of merging compact objects 
-% in the given redshift, total mass and eta bin, in units of mergers per Mpc^3 
-% of comoving volume per year of source time
-%   Mtlist is a list of total mass bins
-%   etalist is a list of symmetric mass ratio bins
 %   SFR is a vector of size length(zlistformation) containing the star formation rate 
 % (solar masses per Mpc^3 of comoving volume per year of source time)
+%   Zlist is a vector of metallicities, taken from the COMPAS run input file
+%   Mtlist is a list of total mass bins
+%   etalist is a list of symmetric mass ratio bins
+%   FormationRateByRedshiftByZ is a matrix of size length(zformationlist) X length(Zlist) 
+% which contains a formation rate of merging double compact objects in the given redshift 
+% and metallicity bin, in units of formed DCOs per Mpc^3 of comoving volume per
+% year of source time
+%   FormationRateByRedshiftByMtByEta is a matrix of size length(zformationlist) 
+% X length(Mtlist) X length(etalist) which contains a formation rate of merging double compact objects 
+% in the given redshift, total mass and eta bin, in units of formed DCOs per Mpc^3 
+% of comoving volume per year of source time
+%   MergerRateByRedshiftByZ is a matrix of size length(zformationlist) X length(Zlist) 
+% which contains a merger rate of double compact objects in the given redshift 
+% and metallicity bin, in units of mergers per Mpc^3 of comoving volume per
+% year of source time
+%   MergerRateByRedshiftByMtByEta is a matrix of size length(zformationlist) 
+% X length(Mtlist) X length(etalist) which contains a merger rate of double compact objects 
+% in the given redshift, total mass and eta bin, in units of mergers per Mpc^3 
+% of comoving volume per year of source time
+%   zlistdetection is a vector of redshifts at which detection rates are
+% computed (a subset of zlistformation going up to zmaxdetection)
 %   Rdetection is a matrix of size length(zlistdetection) X length(Mtlist) X
 % length(etalist) containing the detection rate per year of observer time
 % from a given redshift bin and total mass and symmetric mass ratio pixel
 %   DetectableMergerRate is a matrix of the same size as Rdetection but 
 % containing the intrinsic rate of detectable mergers per Mpc^3 of comoving
 % volume per year of source time
-%   zlistdetection is a vector of redshifts at which detection rates are
-% computed (a subset of zlistformation going up to zmaxdetection)
+
 %
 % EXAMPLE:
 % zlist=0:0.01:10;
-% [Zlist, MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta,  Mtlist, etalist, SFR, Rdetections, DetectableMergerRate, zlistdetection,] = ...
+% [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, ...
+%    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, Rdetections, DetectableMergerRate]=...
 % CosmicHistoryIntegrator('~/Work/COMPASresults/runs/Zdistalpha1-031803.h5', zlist, 1.5, 90e6, 1);
+% figure(10), semilogy(zlist, sum(MergerRateByRedshiftByZ,2)*1e9,'LineWidth',3), set(gca,'FontSize',20),
+% xlabel('Redshift z'), ylabel('Formation rate of merging DCO per Gpc^3 per yr')
 % 
 
 
@@ -76,6 +90,8 @@ if (nargin<5), makeplots=0; end;
 dz=zlistformation(2)-zlistformation(1);
 etalist=0.01:0.01:0.25;
 Mtlist=1:1:ceil(max(M1+M2));
+FormationRateByRedshiftByZ=zeros(length(zlistformation),length(Zlist));
+FormationRateByRedshiftByMtByEta=zeros(length(zlistformation),length(Mtlist),length(etalist));
 MergerRateByRedshiftByZ=zeros(length(zlistformation),length(Zlist));
 MergerRateByRedshiftByMtByEta=zeros(length(zlistformation),length(Mtlist),length(etalist));
 x=zeros(size(M1));
@@ -83,12 +99,14 @@ for(i=1:length(M1)),
     Zcounter=find(Zlist>=Z(i),1);
     eta=M1(i)*M2(i)/(M1(i)+M2(i))^2;
     etaindex=ceil(eta*100);
+    Mtindex=ceil(M1(i)+M2(i));
+    FormationRateByRedshiftByZ(:,Zcounter)=transpose(SFR).*Zweight(:,Zcounter)/Msimulated;
+    FormationRateByRedshiftByMtByEta(:,Mtindex,etaindex)=transpose(SFR).*Zweight(:,Zcounter)/Msimulated;
     tLform=tL+Tdelay(i);    %lookback time of when binary would have to form in order to merge at lookback time tL
     firsttooearlyindex=find((tLform)>max(tL),1);
     if(isempty(firsttooearlyindex)), firsttooearlyindex=length(tL)+1; end;
     zForm=interp1(tL,zlistformation,tLform(1:firsttooearlyindex-1));
     zFormindex=ceil((zForm-zlistformation(1))./dz)+1;
-    Mtindex=ceil(M1(i)+M2(i));
     if(~isempty(zFormindex))
         x(i)=SFR(zFormindex(1))*Zweight(zFormindex(1),Zcounter)/Msimulated;
         MergerRateByRedshiftByZ(1:firsttooearlyindex-1,Zcounter)=...
@@ -98,17 +116,6 @@ for(i=1:length(M1)),
             MergerRateByRedshiftByMtByEta(1:firsttooearlyindex-1,Mtindex,etaindex) + ...
             transpose(SFR(zFormindex)).*Zweight(zFormindex,Zcounter)/Msimulated;
     end;
-    %for(k=1:length(zlistformation)),    %merger redshift index
-    %    if((Tdelay(i)+tL(k)) > max(tL)), continue; end;    %binary can't merge this early
-    %    zformindex=find(tL>=(Tdelay(i)+tL(k)),1);
-    %    Mtzindex=ceil((M1(i)+M2(i))*(1+zlistformation(k)));
-    %    MergerRateByRedshiftByZ(k,Zcounter)=...
-    %        MergerRateByRedshiftByZ(k,Zcounter)+...
-    %        SFR(zformindex)*Zweight(zformindex,Zcounter)/Msimulated; 
-    %    MergerRateByRedshiftByMtzByEta(k,Mtzindex,etaindex) =...
-    %        MergerRateByRedshiftByMtzByEta(k,Mtzindex,etaindex) + ...
-    %        SFR(zformindex)*Zweight(zformindex,Zcounter)/Msimulated;
-    %end;
 end;
 
 zlistdetection=zlistformation(1:find(zlistformation<=zmaxdetection,1,"last"));

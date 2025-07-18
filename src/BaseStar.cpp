@@ -3824,21 +3824,22 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) const {
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
                                              const double p_Rand,
                                              const double p_RemnantMass) const {					
-	double remnantKick = -1.0;
+	double remnantKick;
 	double muKick      = 0.0;
-    double rand        = p_Rand;    // makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    double sigmaKick   = 0.0;
 
 	if (utils::Compare(p_RemnantMass, OPTIONS->MaximumNeutronStarMass()) <  0) {
 		muKick = max(OPTIONS->MullerMandelKickMultiplierNS() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
+        sigmaKick = OPTIONS->MullerMandelSigmaKickNS();
 	}
 	else {
 		muKick = max(OPTIONS->MullerMandelKickMultiplierBH() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
+        sigmaKick = OPTIONS->MullerMandelSigmaKickBH();
 	}
 
-	while (remnantKick < 0.0) {
-		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, OPTIONS->MullerMandelSigmaKick()));
-		rand        = min(rand + p_Rand + 0.0001, 1.0);
-	}
+    double quantile0 = gsl_cdf_gaussian_P(0.0, sigmaKick);  //quantile of 0 in the Gaussian CDF; the goal is to draw from the cut-off Gaussian since the kick must exceed 0
+    double rand = quantile0 + p_Rand * (1.0 - quantile0);
+    remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, sigmaKick));
 
 	return remnantKick;
 }
