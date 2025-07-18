@@ -464,6 +464,8 @@ private:
         "common-envelope-mass-accretion-prescription",
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
+        "common-envelope-second-stage-beta",
+        "common-envelope-second-stage-gamma-prescription",
 
         "eccentricity", "e",
         "eccentricity-distribution",
@@ -942,7 +944,8 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
-            double                                              m_MullerMandelSigmaKick;                                        // Scatter for kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickBH;                                      // Scatter for BH kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickNS;                                      // Scatter for NS kicks per Mandel and Mueller, 2020
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
@@ -1075,8 +1078,10 @@ public:
             double                                              m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor;    // Critical mass ratio for MT from a white dwarf on to a degenerate accretor
 
             // Common Envelope options
-            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter (default = X)
-            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter (default = X)
+            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter
+            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter
+            double                                              m_CommonEnvelopeSecondStageBeta;                                // Mass transfer efficiency for second stage of 2-stage common envelope
+            ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_CommonEnvelopeSecondStageGammaPrescription;                   // Angular momentum loss prescription for second stage of 2-stage common envelope
 	        double                                              m_CommonEnvelopeSlopeKruckow;									// Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
@@ -1417,6 +1422,8 @@ public:
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return OPT_VALUE("common-envelope-mass-accretion-min", m_CommonEnvelopeMassAccretionMin, true); }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return OPT_VALUE("common-envelope-mass-accretion-prescription", m_CommonEnvelopeMassAccretionPrescription.type, true); }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
+    double                                      CommonEnvelopeSecondStageBeta() const                                   { return OPT_VALUE("common-envelope-second-stage-beta", m_CommonEnvelopeSecondStageBeta, true); }
+    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       CommonEnvelopeSecondStageGammaPrescription() const                      { return OPT_VALUE("common-envelope-second-stage-gamma-prescription", m_CommonEnvelopeSecondStageGammaPrescription.type, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
     double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }
@@ -1613,7 +1620,8 @@ public:
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
-    double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
+    double                                      MullerMandelSigmaKickBH() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-BH", m_MullerMandelSigmaKickBH, true); }
+    double                                      MullerMandelSigmaKickNS() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-NS", m_MullerMandelSigmaKickNS, true); }
 
     bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
