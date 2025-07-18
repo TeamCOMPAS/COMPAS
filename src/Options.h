@@ -944,7 +944,8 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
-            double                                              m_MullerMandelSigmaKick;                                        // Scatter for kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickBH;                                      // Scatter for BH kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickNS;                                      // Scatter for NS kicks per Mandel and Mueller, 2020
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
@@ -1619,7 +1620,8 @@ public:
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
-    double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
+    double                                      MullerMandelSigmaKickBH() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-BH", m_MullerMandelSigmaKickBH, true); }
+    double                                      MullerMandelSigmaKickNS() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-NS", m_MullerMandelSigmaKickNS, true); }
 
     bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
