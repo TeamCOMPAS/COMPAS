@@ -923,7 +923,8 @@ enum class PROGRAM_OPTION: int {
 
     MULLER_MANDEL_KICK_MULTIPLIER_BH,
     MULLER_MANDEL_KICK_MULTIPLIER_NS,
-    MULLER_MANDEL_SIGMA_KICK,
+    MULLER_MANDEL_SIGMA_KICK_BH,
+    MULLER_MANDEL_SIGMA_KICK_NS,
 
     NEUTRINO_MASS_LOSS_ASSUMPTION_BH,
     NEUTRINO_MASS_LOSS_VALUE_BH,
@@ -1149,7 +1150,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                 "MULLER_MANDEL_KICK_MULTIPLIER_BH" },
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                 "MULLER_MANDEL_KICK_MULTIPLIER_NS" },
-    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                         "MULLER_MANDEL_SIGMA_KICK" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                      "MULLER_MANDEL_SIGMA_KICK_BH" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                      "MULLER_MANDEL_SIGMA_KICK_NS" },
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                 "NEUTRINO_MASS_LOSS_ASSUMPTION_BH" },
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                      "NEUTRINO_MASS_LOSS_VALUE_BH" },
@@ -1729,7 +1731,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_BH",                  "-",         24, 15}},
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_NS",                  "-",         24, 15}},
-    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                                 { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick",                          "-",         24, 15}},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_BH",                          "-",         24, 15}},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_NS",                          "-",         24, 15}},
     
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "PO_Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "PO_Neutrino_Mass_Loss_Value",               "-",         24, 15}},
