@@ -3837,7 +3837,7 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
         sigmaKick = OPTIONS->MullerMandelSigmaKickBH();
 	}
 
-    double quantile0 = gsl_cdf_gaussian_P(0.0, sigmaKick);  //quantile of 0 in the Gaussian CDF; the goal is to draw from the cut-off Gaussian since the kick must exceed 0
+    double quantile0 = gsl_cdf_gaussian_P(-1.0, sigmaKick);  //quantile of -1 in the Gaussian CDF; the goal is to draw from the cut-off Gaussian since the kick must exceed 0
     double rand = quantile0 + p_Rand * (1.0 - quantile0);
     remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, sigmaKick));
 
