@@ -1610,7 +1610,9 @@
 //                                          - Added missing virtual declaration to ShouldEnvelopeBeExpelledByPulsations
 //                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step
 //                                          - Fixed random draws of SN kicks to avoid artificial pile-up at boundaries of distribution
-//					    - Split --muller-mandel-sigma-kick into --muller-mandel-sigma-kick-NS and --muller-mandel-sigma-kick-BH
+//					                        - Split --muller-mandel-sigma-kick into --muller-mandel-sigma-kick-NS and --muller-mandel-sigma-kick-BH
+//  03.22.01  IM - July 20, 2025        - Defect repair
+//                                          - Fixed random kick draw for MULLERMANDEL prescription
 
 // Version string format is MM.mm.rr, where
 //
@@ -1621,7 +1623,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.22.00";
+const std::string VERSION_STRING = "03.22.01";
 
 
 # endif // __changelog_h__
