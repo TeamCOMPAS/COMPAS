@@ -3,14 +3,26 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-<<<<<<< HEAD
-**03.21.00 May 29, 2025**
+**03.23.00 July 31, 2025**
 
 * Updates relevant to formation of millisecond pulsars:
   - Added more flexible function, CalculateMagneticFieldDecayAccretion_Static, for dealing with magnetic field decay due to accretion
   - Added Shibazaki et al. 1989 model of magnetic field decay due to accretion
   - Added new option ``--neutron-star-accretion-efficiency-parameter``
-=======
+  - Added birth distributions for the pulsar properties of MSPs born in AIC (``msp-birth-magnetic-field-distribution`` and ``msp-birth-spin-period-distribution``)
+
+**03.22.00 July 18, 2025**
+
+* Changed default values of ``--enhance-CHE-lifetimes-luminosities`` and ``--scale-CHE-mass-loss-with-surface-helium-abundance`` to true
+* Added options to set beta and gamma prescription for second stage of 2-stage CE (``--common-envelope-second-stage-beta``, ``--common-envelope-second-stage-gamma-prescription``)
+* Fixed a bug in the calculation of zeta_equilibrium, which impacts when mass transfer is declared to proceed on a nuclear timescale (and hence how conservative it is)
+* Fixed the calculation of Mandel & Muller kicks; split ``--muller-mandel-sigma-kick`` into ``--muller-mandel-sigma-kick-NS`` and ``--muller-mandel-sigma-kick-BH``
+
+**03.21.00 July 17, 2025**
+
+* Deprecated mass loss prescription MERRITT2024 in favour of MERRITT2025
+* Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen
+
 **03.20.06 June 25, 2025**
 
 * The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian

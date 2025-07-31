@@ -398,7 +398,7 @@ Default = FALSE
 
 **--enhance-CHE-lifetimes-luminosities** |br|
 Enhance lifetimes and luminosities of CH stars using a fit to detailed models from Szecsi et al. (2015)
-Default = FALSE
+Default = TRUE
 
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
@@ -513,7 +513,7 @@ Default = Sampled from IMF
 
 **--initial-mass-2** |br|
 Initial mass for the secondary star when evolving in BSE mode (:math:`M_\odot`). |br|
-Default = Sampled from IMF
+Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-distribution`` (see also ``--mass-ratio-max``, ``-mass-ratio-min``, ``--minimum-secondary-mass'')
 
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
@@ -826,12 +826,12 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
+Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2025 } |br|
 ``ZERO``          : No wind mass loss |br|
 ``HURLEY``        : Mass loss according to Hurley (2000) |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
-``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
-Default = MERRITT2024 |br|
+``MERRITT2025``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
+Default = MERRITT2025 |br|
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -967,8 +967,12 @@ Default = 200.0
 Scaling prefactor for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
 Default = 520.0
 
-**--muller-mandel-sigma-kick** |br|
-Scatter width for NS and BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
+**--muller-mandel-sigma-kick-BH** |br|
+Scatter width for BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
+Default = 0.3
+
+**--muller-mandel-sigma-kick-NS** |br|
+Scatter width for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
 Default = 0.3
 
 .. _options-props-N:
@@ -1290,7 +1294,7 @@ Default = DECIN2023 |br|
 **--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
 Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
 Transition from OB to WR mass loss towards the end of the main sequence.
-Default = False
+Default = TRUE
 
 **--scale-terminal-wind-velocity-with-metallicity-power** |br|
 Scale terminal wind velocity with metallicity to this power
@@ -1564,9 +1568,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
---muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick
-
---kick-direction, --kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
+--muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --kick-direction, 
+--kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
 :ref:`Back to Top <options-props-top>`
 

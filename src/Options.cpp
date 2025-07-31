@@ -337,7 +337,8 @@ void Options::OptionValues::Initialise() {
 
     m_MullerMandelKickBH                                            = MULLERMANDEL_KICKBH;
     m_MullerMandelKickNS                                            = MULLERMANDEL_KICKNS;
-    m_MullerMandelSigmaKick                                         = MULLERMANDEL_SIGMAKICK;
+    m_MullerMandelSigmaKickNS                                       = MULLERMANDEL_SIGMAKICKNS;
+    m_MullerMandelSigmaKickBH                                       = MULLERMANDEL_SIGMAKICKBH;
 
     // Kick magnitude random number (used to draw kick magnitude if necessary)
     m_KickMagnitudeRandom                                           = 0.0;                                                  // actual value set later
@@ -371,8 +372,8 @@ void Options::OptionValues::Initialise() {
     // Chemically Homogeneous Evolution Mode
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
-    m_EnhanceCHELifetimesLuminosities                               = false;                                                // default is don't enhance, as in Riley et al.
-    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = false;                                                // default is don't scale the mass loss, as in Riley et al.
+    m_EnhanceCHELifetimesLuminosities                               = true;                                                // default is to enhance
+    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = true;                                                // default is to scale the mass loss
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
@@ -426,7 +427,7 @@ void Options::OptionValues::Initialise() {
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
     m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
-    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::MERRITT2024;
+    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::MERRITT2025;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
     m_LBVMassLossPrescription.type                                  = LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD;
@@ -532,6 +533,9 @@ void Options::OptionValues::Initialise() {
     m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = true;
     m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = true;
     m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
+    m_CommonEnvelopeSecondStageBeta                                 = 0.0;
+    m_CommonEnvelopeSecondStageGammaPrescription.type               = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
+    m_CommonEnvelopeSecondStageGammaPrescription.typeString         = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_CommonEnvelopeSecondStageGammaPrescription.type);
     m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
     m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope               = false;
@@ -1199,6 +1203,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(p_Options->m_CommonEnvelopeSlopeKruckow) + ")").c_str()
         )
         (
+            "common-envelope-second-stage-beta",
+            po::value<double>(&p_Options->m_CommonEnvelopeSecondStageBeta)->default_value(p_Options->m_CommonEnvelopeSecondStageBeta),
+            ("Beta for second stage of 2-stage Common Envelope (default = " + std::to_string(p_Options->m_CommonEnvelopeSecondStageBeta) + ")").c_str()
+        )
+        (
             "convective-envelope-mass-threshold",
             po::value<double>(&p_Options->m_ConvectiveEnvelopeMassThreshold)->default_value(p_Options->m_ConvectiveEnvelopeMassThreshold),
             ("Fractional threshold of envelope mass that above which the envelopes of giants are labeled convective. Only used for --envelope-state-prescription = CONVECTIVE_MASS_THRESHOLD, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeMassThreshold) + ")").c_str()
@@ -1607,9 +1616,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickNS) + ")").c_str()
         )
         (
-            "muller-mandel-sigma-kick",                                        
-            po::value<double>(&p_Options->m_MullerMandelSigmaKick)->default_value(p_Options->m_MullerMandelSigmaKick),                                                                                  
-            ("Kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKick) + ")").c_str()
+            "muller-mandel-sigma-kick-NS",
+            po::value<double>(&p_Options->m_MullerMandelSigmaKickNS)->default_value(p_Options->m_MullerMandelSigmaKickNS),
+            ("NS kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKickNS) + ")").c_str()
+        )
+        (
+            "muller-mandel-sigma-kick-BH",
+            po::value<double>(&p_Options->m_MullerMandelSigmaKickBH)->default_value(p_Options->m_MullerMandelSigmaKickBH),
+            ("BH kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKickBH) + ")").c_str()
         )
 
         (
@@ -1887,6 +1901,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-mass-accretion-prescription",                 
             po::value<std::string>(&p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString),                            
             ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (" + AllowedOptionValuesFormatted("common-envelope-mass-accretion-prescription") + ", default = '" + p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString + "')").c_str()
+        )
+        (
+            "common-envelope-second-stage-gamma-prescription",
+            po::value<std::string>(&p_Options->m_CommonEnvelopeSecondStageGammaPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeSecondStageGammaPrescription.typeString),
+            ("Second stage of 2-stage CE gamma prescription (" + AllowedOptionValuesFormatted("common-envelope-second-stage-gamma-prescription") + ", default = '" + p_Options->m_CommonEnvelopeSecondStageGammaPrescription.typeString + "')").c_str()
         )
         (
             "create-YAML-file",                           
@@ -2426,6 +2445,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_CommonEnvelopeMassAccretionPrescription.type) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescription.typeString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription.type);
             COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
         }
+        
+        if (!DEFAULTED("common-envelope-second-stage-gamma-prescription")) { // second stagge of CE angular momentum loss prescription
+            std::tie(found, m_CommonEnvelopeSecondStageGammaPrescription.type) = utils::GetMapKey(m_CommonEnvelopeSecondStageGammaPrescription.typeString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, m_CommonEnvelopeSecondStageGammaPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription for 2-stage CE");
+        }
 
         if (!DEFAULTED("critical-mass-ratio-prescription")) {                                                                       // critical mass ratio prescription
             std::tie(found, m_QCritPrescription.type) = utils::GetMapKey(m_QCritPrescription.typeString, QCRIT_PRESCRIPTION_LABEL, m_QCritPrescription.type);
@@ -2633,7 +2657,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
-
+        COMPLAIN_IF(m_CommonEnvelopeSecondStageBeta < 0.0 || m_CommonEnvelopeSecondStageBeta > 0.0, "Mass transfer efficiency for second stage of 2-stage CE (--common-envelope-second-stage-beta) not in [0,1]");
+        
         COMPLAIN_IF(m_CoolWindMassLossMultiplier < 0.0, "Wind mass loss multiplier for cool stars (--cool-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
@@ -2890,6 +2915,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                                 break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                       break;
         case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                    break;
+        case _("common-envelope-second-stage-gamma-prescription")   : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);        break;
         case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                           break;
         case _("envelope-state-prescription")                       : POPULATE_RET(ENVELOPE_STATE_PRESCRIPTION_LABEL);                  break;
         case _("eccentricity-distribution")                         : POPULATE_RET(ECCENTRICITY_DISTRIBUTION_LABEL);                    break;
@@ -5011,6 +5037,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN             : value = CommonEnvelopeMassAccretionMin();                                     break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION    : value = static_cast<int>(CommonEnvelopeMassAccretionPrescription());          break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_BETA              : value = CommonEnvelopeSecondStageBeta();                                      break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION : value = static_cast<int>(CommonEnvelopeSecondStageGammaPrescription());      break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
 
         case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_MASS_THRESHOLD             : value = ConvectiveEnvelopeMassThreshold();                                    break;
@@ -5134,7 +5162,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH               : value = MullerMandelKickMultiplierBH();                                       break;
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS               : value = MullerMandelKickMultiplierNS();                                       break;
-        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK                       : value = MullerMandelSigmaKick();                                              break;
+        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH                    : value = MullerMandelSigmaKickBH();                                              break;
+        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS                    : value = MullerMandelSigmaKickNS();                                              break;
 
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH               : value = static_cast<int>(NeutrinoMassLossAssumptionBH());                     break;
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH                    : value = NeutrinoMassLossValueBH();                                            break;

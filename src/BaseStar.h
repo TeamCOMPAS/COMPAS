@@ -305,7 +305,7 @@ public:
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
     
-            double          CalculateZetaEquilibrium()                                                          { return 0.0; }
+    virtual double          CalculateZetaEquilibrium()                                                          { return 0.0; }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
 
@@ -340,7 +340,7 @@ public:
        
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
     
-            bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
+    virtual bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
 
     virtual void            SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS)                                     { }                                                                 // Default is NO-OP
 
@@ -611,7 +611,7 @@ protected:
             double              CalculateMassLossRateVMSSabhahit2023();
             double              CalculateMassLossRateVMSVink2011() const;
     virtual double              CalculateMassLossRateBelczynski2010();
-    virtual double              CalculateMassLossRateMerritt2024();
+    virtual double              CalculateMassLossRateMerritt2025();
             double              CalculateMassLossRateWolfRayetZDependent(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayet(const double p_Mu) const;
             double              CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu) const;

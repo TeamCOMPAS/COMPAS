@@ -1599,8 +1599,31 @@
 //                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
 //  03.20.09  RTW - Jun 30, 2025        - Enhancement:
 //                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
-//
+//  03.21.00   JR - Jul 17, 2025        - Enhancement:
+//                                          - Changed mass loss prescription MERRITT2024 to MERRIT2025; deprecated MERRIT2024
+//                                          - Added datestrings to vectors supporting deprecation in Options.h to allow timely removal
+//                                          - Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen (for now, gsl & hdf5 are installed versions, boost is version compiled with COMPAS)
+//  03.22.00   IM - July 17, 2025        - Enhancements, defect repair:
+//                                          - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
+//                                          - Added options to set beta and gamma prescription for second stage of 2-stage CE (--common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription)
+//                                          - Fixed a bug in CalculateZetaEquilibrium(), which impacted when mass transfer is declared nuclear (and how conservative it is)
+//                                          - Added missing virtual declaration to ShouldEnvelopeBeExpelledByPulsations
+//                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step
+//                                          - Fixed random draws of SN kicks to avoid artificial pile-up at boundaries of distribution
+//					                        - Split --muller-mandel-sigma-kick into --muller-mandel-sigma-kick-NS and --muller-mandel-sigma-kick-BH
+//  03.22.01  IM - July 20, 2025        - Defect repair
+//                                          - Fixed random kick draw for MULLERMANDEL prescription
 
-const std::string VERSION_STRING = "03.20.09";
+
+// Version string format is MM.mm.rr, where
+//
+// MM is the MAJOR release number: this should be incremented whenever major new functionality is introduced
+// mm is the MINOR release number: this should be incremented whenever minor new functionality (e.g. small enhancemet) is introduced
+// rr is the fix RELEASE number:   this should be incremented whenever a defect repair is made
+//
+// if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
+// if mm is incremented, set rr to 00, even if defect repairs were also made
+
+const std::string VERSION_STRING = "03.22.01";
 
 # endif // __changelog_h__

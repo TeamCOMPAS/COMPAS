@@ -192,6 +192,9 @@ private:
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that
     //       option is shown the first time in a COMPAS run (a deprecation notice for a deprecated option
     //       is only shown once per COMPAS run).
+    //     - datestring indicating the date the option string was deprecated.  Deprecated option strings
+    //       should be manually removed from the "deprecatedOptionStrings" vector 12 months (too long?)
+    //       after the deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
     // 
     //
     // "deprecatedOptionValues" vector
@@ -216,23 +219,27 @@ private:
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
     //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
     //       is only shown once per COMPAS run).
+    //     - datestring indicating the date the option string was deprecated.  Deprecated option values should
+    //       be manually removed from the "deprecatedOptionValues" vector 12 months (too long?) after the
+    //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
-    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "retain-core-mass-during-caseA-mass-transfer", "", false }
+    std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
+        { "retain-core-mass-during-caseA-mass-transfer", "", false, "20250116" }
     };
 
-    std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",          "GE20",      "GE",        false },
-        { "critical-mass-ratio-prescription",          "GE20_IC",   "GE_IC",     false },
-        { "pulsational-pair-instability-prescription", "COMPAS",    "WOOSLEY",   false },
-	    { "pulsar-birth-spin-period-distribution",     "ZERO",      "NOSPIN",    false },
-        { "tides-prescription",                        "KAPIL2024", "KAPIL2025", false }
+    std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
+        { "critical-mass-ratio-prescription",          "GE20",        "GE",          false, "20241118" },
+        { "critical-mass-ratio-prescription",          "GE20_IC",     "GE_IC",       false, "20241118" },
+        { "pulsational-pair-instability-prescription", "COMPAS",      "WOOSLEY",     false, "20250208" },
+	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
+        { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
+        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
-    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionProperties = {
-        { "black_hole_kicks", "black_hole_kicks_mode",      false },
-        { "lbv_prescription", "LBV-mass-loss-prescription", false }
+    std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionProperties = {
+        { "black_hole_kicks", "black_hole_kicks_mode",      false, "20241030" },
+        { "lbv_prescription", "LBV_mass_loss_prescription", false, "20241030" }
     };
 
 
@@ -457,6 +464,8 @@ private:
         "common-envelope-mass-accretion-prescription",
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
+        "common-envelope-second-stage-beta",
+        "common-envelope-second-stage-gamma-prescription",
 
         "eccentricity", "e",
         "eccentricity-distribution",
@@ -952,7 +961,8 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
-            double                                              m_MullerMandelSigmaKick;                                        // Scatter for kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickBH;                                      // Scatter for BH kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickNS;                                      // Scatter for NS kicks per Mandel and Mueller, 2020
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
@@ -1085,8 +1095,10 @@ public:
             double                                              m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor;    // Critical mass ratio for MT from a white dwarf on to a degenerate accretor
 
             // Common Envelope options
-            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter (default = X)
-            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter (default = X)
+            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter
+            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter
+            double                                              m_CommonEnvelopeSecondStageBeta;                                // Mass transfer efficiency for second stage of 2-stage common envelope
+            ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_CommonEnvelopeSecondStageGammaPrescription;                   // Angular momentum loss prescription for second stage of 2-stage common envelope
 	        double                                              m_CommonEnvelopeSlopeKruckow;									// Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
@@ -1445,6 +1457,8 @@ public:
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return OPT_VALUE("common-envelope-mass-accretion-min", m_CommonEnvelopeMassAccretionMin, true); }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return OPT_VALUE("common-envelope-mass-accretion-prescription", m_CommonEnvelopeMassAccretionPrescription.type, true); }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
+    double                                      CommonEnvelopeSecondStageBeta() const                                   { return OPT_VALUE("common-envelope-second-stage-beta", m_CommonEnvelopeSecondStageBeta, true); }
+    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       CommonEnvelopeSecondStageGammaPrescription() const                      { return OPT_VALUE("common-envelope-second-stage-gamma-prescription", m_CommonEnvelopeSecondStageGammaPrescription.type, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
     double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }
@@ -1655,7 +1669,8 @@ public:
     
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
-    double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
+    double                                      MullerMandelSigmaKickBH() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-BH", m_MullerMandelSigmaKickBH, true); }
+    double                                      MullerMandelSigmaKickNS() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-NS", m_MullerMandelSigmaKickNS, true); }
 
     bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }

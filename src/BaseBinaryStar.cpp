@@ -1643,21 +1643,21 @@ void BaseBinaryStar::ResolveCommonEnvelopeEvent() {
             // note that in the case where both stars are in RLOF (m_RLOFDetails.simultaneousRLOF), star 1 is arbitrarily first to transfer its radiative intershell
             if (m_Star1->IsRLOF()) {
                 if (utils::Compare(endOfFirstStageMass1 - m_Mass1Final, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), endOfFirstStageMass2, m_Star2->IsDegenerate(), 0.0);
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), endOfFirstStageMass2, m_Star2->IsDegenerate(), OPTIONS->CommonEnvelopeSecondStageBeta(), true);
                 }
 
                 if (utils::Compare(endOfFirstStageMass2 - m_Mass2Final, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -(endOfFirstStageMass2 - m_Mass2Final), m_Mass1Final, m_Star1->IsDegenerate(), 0.0);
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -(endOfFirstStageMass2 - m_Mass2Final), m_Mass1Final, m_Star1->IsDegenerate(), OPTIONS->CommonEnvelopeSecondStageBeta(), true);
                 }
             }
                    
             else if (m_Star2->IsRLOF()) {
                 if (utils::Compare(endOfFirstStageMass2 - m_Mass2Final, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -(endOfFirstStageMass2 - m_Mass2Final), endOfFirstStageMass1, m_Star1->IsDegenerate(), 0.0);
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass2, -(endOfFirstStageMass2 - m_Mass2Final), endOfFirstStageMass1, m_Star1->IsDegenerate(), OPTIONS->CommonEnvelopeSecondStageBeta(), true);
                 }
 
                 if (utils::Compare(endOfFirstStageMass1 - m_Mass1Final, 0.0) > 0) {
-                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), m_Mass2Final, m_Star2->IsDegenerate(), 0.0);
+                    m_SemiMajorAxis = CalculateMassTransferOrbit(endOfFirstStageMass1, -(endOfFirstStageMass1 - m_Mass1Final), m_Mass2Final, m_Star2->IsDegenerate(), OPTIONS->CommonEnvelopeSecondStageBeta(), true);
                 }
             }
         } break;
@@ -1824,18 +1824,22 @@ double BaseBinaryStar::CalculateRocheLobeRadius_Static(const double p_MassPrimar
  * Calculation is based on user-specified Angular Momentum Loss prescription
  *
  *
- * double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate)
+ * double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate, const bool p_IsCommonEnvelope)
  *
  * @param   [IN]    p_DonorMass                 The mass of the donor (Msol)
  * @param   [IN]    p_AccretorMass              The mass of the accretor (Msol)
  * @param   [IN]    p_IsAccretorDegenerate      True if the accretor is a degenerate star, false otherwise (need to know up front to keep this function static)
+ * @param   [IN]    p_IsCommonEnvelope          True if this function is being called while in the (second stage of a 2-stage) CE
  * @return                                      The fraction of specific angular momentum with which the non-accreted mass leaves the system
  */
-double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate) {
+double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate, const bool p_IsCommonEnvelope) {
 
 	double gamma;
+    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION gammaPrescription = OPTIONS->MassTransferAngularMomentumLossPrescription();
+    if(p_IsCommonEnvelope)
+        gammaPrescription = OPTIONS->CommonEnvelopeSecondStageGammaPrescription();
 
-	switch (OPTIONS->MassTransferAngularMomentumLossPrescription()) {                                                               // which prescription?
+	switch (gammaPrescription) {                                                                                                    // which prescription?
 
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;             // vicinity of the donor 
 
@@ -1847,7 +1851,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
             double sumMasses = p_DonorMass + p_AccretorMass;
             gamma            = (M_SQRT2 * sumMasses * sumMasses) / (p_DonorMass * p_AccretorMass);
             } break;
-
+            
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR : {                                                              // linear interpolation on separation between accretor and L2 point
             // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
             double q        = p_AccretorMass / p_DonorMass;
@@ -1885,20 +1889,23 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
  *                                    const double                 p_DeltaMassDonor, 
  *                                    const double                 p_AccretorMass,
                                       const bool                   p_IsAccretorDegenerate,
- *                                    const double                 p_FractionAccreted)
+ *                                    const double                 p_FractionAccreted
+ *                                    const bool                   p_IsCommonEnvelope)
  *
  * @param   [IN]    p_DonorMass                 Donor mass
  * @param   [IN]    p_DeltaMassDonor            Change in donor mass
  * @param   [IN]    p_AccretorMass              Accretor mass
  * @param   [IN]    p_IsAccretorDegenerate      Flag for degenerate accretors
  * @param   [IN]    p_FractionAccreted          Mass fraction lost from donor accreted by accretor
+ * @param   [IN]    p_IsCommonEnvelope          True if this function is being called while in the (second stage of a 2-stage) CE
  * @return                                      Semi-major axis
  */
 double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p_DonorMass,
                                                   const double                 p_DeltaMassDonor,
                                                   const double                 p_AccretorMass,
                                                   const bool                   p_IsAccretorDegenerate,
-                                                  const double                 p_FractionAccreted) {
+                                                  const double                 p_FractionAccreted,
+                                                  const bool                   p_IsCommonEnvelope) {
 
     double semiMajorAxis = m_SemiMajorAxis;
     
@@ -1910,8 +1917,8 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
 
         // Use boost adaptive ODE solver for speed and accuracy
         struct ode {
-            double p_MassDonor0, p_MassAccretor0, p_FractionAccreted, p_IsAccretorDegenerate;
-            ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate) {}
+            double p_MassDonor0, p_MassAccretor0, p_FractionAccreted, p_IsAccretorDegenerate, p_IsCommonEnvelope;
+            ode(double massDonor0, double massAccretor0, double fractionAccreted, bool isAccretorDegenerate, bool isCommonEnvelope) : p_MassDonor0(massDonor0), p_MassAccretor0(massAccretor0), p_FractionAccreted(fractionAccreted), p_IsAccretorDegenerate(isAccretorDegenerate), p_IsCommonEnvelope(isCommonEnvelope) {}
 
             // x is the current state of the ODE (x[0] = semi-major axis a)
             // dxdm is the change of state wrt mass (dxdm[0] = dadm)
@@ -1919,12 +1926,12 @@ double BaseBinaryStar::CalculateMassTransferOrbit(const double                 p
             void operator()(state_type const& x, state_type& dxdm, double p_MassChange ) const {
                 double massD = p_MassDonor0 + p_MassChange;
                 double massA = p_MassAccretor0 - p_MassChange * p_FractionAccreted;
-                double jLoss = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate);
+                double jLoss = CalculateGammaAngularMomentumLoss_Static(massD, massA, p_IsAccretorDegenerate, p_IsCommonEnvelope);
                 dxdm[0]      = (-2.0 / massD) * (1.0 - (p_FractionAccreted * (massD / massA)) - ((1.0 - p_FractionAccreted) * (jLoss + 0.5) * (massD / (massA + massD)))) * x[0];
             }
         };
 
-        integrate_adaptive(controlled_stepper, ode{ p_DonorMass, p_AccretorMass, p_FractionAccreted, p_IsAccretorDegenerate }, x, 0.0, p_DeltaMassDonor, p_DeltaMassDonor / 1000.0);
+        integrate_adaptive(controlled_stepper, ode{ p_DonorMass, p_AccretorMass, p_FractionAccreted, p_IsAccretorDegenerate, p_IsCommonEnvelope }, x, 0.0, p_DeltaMassDonor, p_DeltaMassDonor / 1000.0);
         semiMajorAxis = x[0];
     }
     
@@ -2051,55 +2058,30 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     }
     
     m_MassTransferTimescale         = MT_TIMESCALE::NONE;                                                                       // initial reset
-    double betaThermal              = 0.0;                                                                                      // fraction of mass accreted if accretion proceeds on thermal timescale
-    double maximumAccretionRate     = 0.0;                                                                                      // accretion rate if accretion proceeds on thermal timescale
+
     double donorMassLossRateThermal = m_Donor->CalculateThermalMassLossRate();
  
-    std::tie(maximumAccretionRate, betaThermal) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
-                                                                                          m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
-                                                                                          donorIsHeRich);
-    double massDiffDonor = 0.0;
-    
-    std::cout << "CalculateMassTransfer" << std::endl;
-    std::cout << "Time = " << m_Time << std::endl;
-    std::cout << "Donor mass = " << m_Donor->Mass() << std::endl;
-    std::cout << "Accretor mass = " << m_Accretor->Mass() << std::endl;
-    std::cout << "maximumAccretionRate, betaThermal = " <<  maximumAccretionRate << " " << betaThermal << std::endl;
-
+    std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(donorMassLossRateThermal,
+                                                                                        m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
+    double massDiffDonor            = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);         // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
+    double betaThermal              = m_FractionAccreted;                                                                       // may need these later if the mass transfer proceeds on a thermal timescale, so we store them to avoid recomputing
+    double massDiffDonorThermal     = massDiffDonor;
+            
     // can the mass transfer happen on a nuclear timescale?
     if (m_Donor->IsOneOf(NON_COMPACT_OBJECTS)) {
-        // technically, we do not know how much mass the accretor should gain until we do the calculation, 
-        // which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
-        double maximumAccretedMass = maximumAccretionRate * m_Dt;
-
-        std::cout << "maximumAccretionRate = " << maximumAccretionRate << std::endl;
-        std::cout << "m_Dt = " << m_Dt << std::endl;
-        std::cout << "maximumAccretedMass = " << maximumAccretedMass << std::endl;
-
+        // if MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION, then CalculateMassAcceptanceRate() already computed the correct m_FractionAccreted and massDiffDonor (no difference between nuclear and thermal timescale MT)
         if (OPTIONS->MassTransferAccretionEfficiencyPrescription() == MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED) {
-            massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, maximumAccretedMass);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed accretion amount
-            m_FractionAccreted = std::min(maximumAccretedMass, massDiffDonor) / massDiffDonor;
+            // technically, we do not know how much mass the accretor should gain until we do the calculation,
+            // which impacts the RL size, so we will check whether a nuclear timescale MT was feasible later
+            massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, m_Dt);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, estimating accretion efficiency based on a mass donation rate of massDiffDonor/m_Dt for self-consistency
+            std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(massDiffDonor/m_Dt,
+                                                                                                m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
 
-            std::cout << "NON_COMPACT_OBJECT donor, THERMALLY LIMITED" << std::endl;
-            std::cout << "massDiffDonor = " << massDiffDonor << std::endl;
-            std::cout << "maximumAccretedMass = " << maximumAccretedMass << std::endl;
-            std::cout << "std::min(maximumAccretedMass, massDiffDonor) = " << std::min(maximumAccretedMass, massDiffDonor) << std::endl;
-            std::cout << "m_FractionAccreted = " << m_FractionAccreted << std::endl;
-            
-            // The above statement can result in m_FractionAccreted = 1 for sub-Eddington accretion.
-            // There are two options here. We can either multiply m_FractionAccreted by the NeutronStarAccretionEfficiencyParameter
-            // or we can set m_FractionAccreted to be the minimum of NeutronStarAccretionEfficiencyParameter and m_FractionAccreted 
+            // Allow for inefficient mass transfer even for sub-Eddington accretion. 
             // Jeff suggests that we could put this into a ::CalculateFractionAccreted function
             if (m_Accretor->StellarType() == STELLAR_TYPE::NEUTRON_STAR){
                 m_FractionAccreted *= OPTIONS->NeutronStarAccretionEfficiencyParameter(); 
             } 
-            // m_FractionAccreted = std::min(m_FractionAccreted, OPTIONS->NeutronStarAccretionEfficiencyParameter());
-            std::cout << "m_FractionAccreted = " << m_FractionAccreted << std::endl;
-        }
-        else {
-            std::cout << "NON_COMPACT_OBJECT donor, else" << std::endl;
-            m_FractionAccreted = maximumAccretionRate / donorMassLossRateThermal;   // relevant for MT_ACCRETION_EFFICIENCY_PRESCRIPTION::FIXED_FRACTION
-            massDiffDonor      = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, m_FractionAccreted, 0.0);              // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, fixed beta
         }
         
         // check that the star really would have consistently fit into the Roche lobe
@@ -2113,12 +2095,12 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         }
     }
     if (m_MassTransferTimescale != MT_TIMESCALE::NUCLEAR) {                                                                     // thermal timescale mass transfer (we will check for dynamically unstable / CE mass transfer later)
-        m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, betaThermal);
+        m_FractionAccreted      = betaThermal;                                                                                  // m_FractionAccreted and massDiffDonor already computed for the thermal mass transfer case
+        massDiffDonor           = massDiffDonorThermal;
+        m_ZetaLobe              = CalculateZetaRocheLobe(jLoss, m_FractionAccreted);
         m_ZetaStar              = m_Donor->CalculateZetaAdiabatic();
         m_MassLossRateInRLOF    = donorMassLossRateThermal;
-        m_FractionAccreted      = betaThermal;
         m_MassTransferTimescale = MT_TIMESCALE::THERMAL;
-        massDiffDonor           = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, betaThermal, 0.0);                    // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe
     }
         
     double aInitial = m_SemiMajorAxis;                                                                                          // semi-major axis in default units, AU, current timestep
@@ -2198,7 +2180,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             m_Donor->SetMassTransferDiffAndResolveWDShellChange(massDiffDonor);                                                 // set new mass of donor
             m_Accretor->SetMassTransferDiffAndResolveWDShellChange(massGainAccretor);                                           // set new mass of accretor
 
-            aFinal              = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted);  // calculate new orbit
+            aFinal              = CalculateMassTransferOrbit(m_Donor->Mass(), massDiffDonor, *m_Accretor, m_FractionAccreted, false);  // calculate new orbit
             m_aMassTransferDiff = aFinal - aInitial;                                                                            // set change in orbit (semi-major axis)
                                                                                                                     
             STELLAR_TYPE stellarTypeDonor = m_Donor->StellarType();                                                             // donor stellar type before resolving envelope loss

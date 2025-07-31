@@ -74,7 +74,7 @@ protected:
 
     double          CalculateMassLossRateHurley()                                                               { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }
     double          CalculateMassLossRateBelczynski2010()                                                       { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }
-    double          CalculateMassLossRateMerritt2024()                                                          { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }                                                         // 
+    double          CalculateMassLossRateMerritt2025()                                                          { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }                                                         // 
 
     double          CalculatePerturbationMuOnPhase() const                                                      { return m_Mu; }                                                        // NO-OP
 
