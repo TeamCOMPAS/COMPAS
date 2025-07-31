@@ -8,8 +8,9 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 * Updates relevant to formation of millisecond pulsars:
   - Added more flexible function, CalculateMagneticFieldDecayAccretion_Static, for dealing with magnetic field decay due to accretion
   - Added Shibazaki et al. 1989 model of magnetic field decay due to accretion
-  - Added new option ``--neutron-star-accretion-efficiency-parameter``
+  - Added new option ``--neutron-star-accretion-efficiency-parameter`` to allow for inefficient sub-Eddington accretion on to neutron stars
   - Added birth distributions for the pulsar properties of MSPs born in AIC (``msp-birth-magnetic-field-distribution`` and ``msp-birth-spin-period-distribution``)
+  - Added new option ``--pulsar-magnetic-field-decay-timescale-power`` and correspondingly changed how the magnetic field decay timescale is calculated in ``NS::CalculateMagneticFieldDecayTimescale``
 
 **03.22.00 July 18, 2025**
 
