@@ -889,13 +889,12 @@ public:
             double                                              m_ScaleTerminalWindVelocityWithMetallicityPower;                // Power with which to scale terminal wind velocity with metallicity (v_inf ~ Z^x)
 
             // Wind accretion
-            double                                              m_RSGTerminalWindVelocityFactor;                                // Ratio between the terminal velocity and the escape velocity
-
-            bool                                                m_UseWRLOF;                                                     // Whether WRLOF overflow is used in the case of wind accretion (default = true)
+            double                                              m_RGTerminalWindVelocityFactor;                                 // Ratio between the terminal velocity and the escape velocity
 
             ENUM_OPT<WIND_ACCRETION_PRESCRIPTION>               m_WindAccretionPrescription;                                    // Which wind accretion prescription is used
-            double                                              m_WindAccretionFactor;                                      // Efficiency of wind accretion according to Bondi, 1944
+            double                                              m_WindAccretionFactor;                                          // Efficiency of wind accretion according to Bondi, 1944
             double                                              m_WindVelocityBeta;                                             // Free parameter of the beta velocity law
+            ENUM_OPT<WIND_VELOCITY_PRESCRIPTION>                m_WindVelocityPrescription;                                     // Which wind velocity prescription is used
 
             // Eccentricity
             double                                              m_Eccentricity;                                                 // Eccentricity
@@ -1686,7 +1685,7 @@ public:
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
 
-    double                                      RSGTerminalWindVelocityFactor() const                                   { return OPT_VALUE("RSG-terminal-wind-velocity-factor", m_RSGTerminalWindVelocityFactor, true);}
+    double                                      RGTerminalWindVelocityFactor() const                                    { return OPT_VALUE("RG-terminal-wind-velocity-factor", m_RGTerminalWindVelocityFactor, true);}
 
     bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, false); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
@@ -1721,12 +1720,12 @@ public:
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
-    bool                                        UseWRLOF() const                                                        { return OPT_VALUE("use-wrlof", m_UseWRLOF, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     WIND_ACCRETION_PRESCRIPTION                 WindAccretionPrescription() const                                       { return OPT_VALUE("wind-accretion-prescription", m_WindAccretionPrescription.type, true);}
     double                                      WindAccretionFactor() const                                             { return OPT_VALUE("wind-accretion-factor", m_WindAccretionFactor, true);}
     double                                      WindVelocityBeta() const                                                { return OPT_VALUE("wind-velocity-beta", m_WindVelocityBeta, true);}
+    WIND_VELOCITY_PRESCRIPTION                  WindVelocityPrescription() const                                        { return OPT_VALUE("wind-velocity-prescription", m_WindVelocityPrescription.type, true);}
     bool                                        WRLOFPrinting() const                                                   { return m_CmdLine.optionValues.m_WrlofPrinting; }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
     WR_MASS_LOSS_PRESCRIPTION                   WRMassLossPrescription() const                                          { return OPT_VALUE("WR-mass-loss-prescription", m_WRMassLossPrescription.type, true); }

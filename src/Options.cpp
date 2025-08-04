@@ -442,15 +442,16 @@ void Options::OptionValues::Initialise() {
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
     // Wind accretion
-    m_UseWRLOF                                                      = true;
 
     m_WindAccretionPrescription.type                                = WIND_ACCRETION_PRESCRIPTION::NONE;
     m_WindAccretionPrescription.typeString                          = WIND_ACCRETION_PRESCRIPTION_LABEL.at(m_WindAccretionPrescription.type);
     m_WindAccretionFactor                                           = 0.75;
 
     m_WindVelocityBeta                                              = 3.0;
+    m_WindVelocityPrescription.type                                 = WIND_VELOCITY_PRESCRIPTION::YUNGELSON1995;
+    m_WindVelocityPrescription.typeString                           = WIND_VELOCITY_PRESCRIPTION_LABEL.at(m_WindVelocityPrescription.type);
 
-    m_RSGTerminalWindVelocityFactor                                 = 0.5;
+    m_RGTerminalWindVelocityFactor                                 = 0.5;
 
     // Core mass prescription
     m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
@@ -992,11 +993,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "use-mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "use-wrlof",
-            po::value<bool>(&p_Options->m_UseWRLOF)->default_value(p_Options->m_UseWRLOF)->implicit_value(true),                                                                    
-            ("Enable mass transfer (default = " + std::string(p_Options->m_UseWRLOF ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "wrlof-printing",                                                
@@ -1686,10 +1682,10 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Initial rotational frequency for the secondary star for BSE (Hz) (default = " + std::to_string(p_Options->m_RotationalFrequency2) + ")").c_str()
         )        
         (
-            "factor-wind-terminal-wind-velocity",
+            "RG-terminal-wind-velocity-factor",
 
-            po::value<double>(&p_Options->m_RSGTerminalWindVelocityFactor)->default_value(p_Options->m_RSGTerminalWindVelocityFactor),
-            ("The ratio of the terminal velocity differs and the escape velocity. (default = " + std::to_string(p_Options->m_RSGTerminalWindVelocityFactor) + ")").c_str()
+            po::value<double>(&p_Options->m_RGTerminalWindVelocityFactor)->default_value(p_Options->m_RGTerminalWindVelocityFactor),
+            ("The ratio of the terminal velocity differs and the escape velocity. (default = " + std::to_string(p_Options->m_RGTerminalWindVelocityFactor) + ")").c_str()
         )
         (
             "scale-terminal-wind-velocity-with-metallicity-power",                                         
@@ -1725,7 +1721,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "wind-accretion-factor",
             po::value<double>(&p_Options->m_WindAccretionFactor)->default_value(p_Options->m_WindAccretionFactor),
-            ("Multiplicitive constant for wind accretion (default = " + std::to_string(p_Options->m_WindAccretionFactor) + ")").c_str()
+            ("Multiplicitive constant for wind accretion. Value between 0.5 and 1. Only used for --wind-accretion-prescription != NONE. (default = " + std::to_string(p_Options->m_WindAccretionFactor) + ")").c_str()
         )
         (
             "wind-velocity-beta",
@@ -2066,6 +2062,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "wind-accretion-prescription",
             po::value<std::string>(&p_Options->m_WindAccretionPrescription.typeString)->default_value(p_Options->m_WindAccretionPrescription.typeString),
             ("Wind accretion prescription (" + AllowedOptionValuesFormatted("wind-accretion-prescription") + ", default = '" + p_Options->m_WindAccretionPrescription.typeString + "')").c_str()
+        )
+        (
+            "wind-velocity-prescription",
+            po::value<std::string>(&p_Options->m_WindVelocityPrescription.typeString)->default_value(p_Options->m_WindVelocityPrescription.typeString),
+            ("Wind velocity prescription for cool giants. Only used for --wind-accretion-prescription != NONE. (" + AllowedOptionValuesFormatted("wind-velocity-prescription") + ", default = '" + p_Options->m_WindVelocityPrescription.typeString + "')").c_str()
         )
         (
             "WR-mass-loss-prescription",
@@ -2502,6 +2503,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Wind Accretion Prescription");
         }
 
+        if (!DEFAULTED("wind-velocity-prescription")) {                                                                            // wind accretion prescription
+            std::tie(found, m_WindVelocityPrescription.type) = utils::GetMapKey(m_WindVelocityPrescription.typeString, WIND_VELOCITY_PRESCRIPTION_LABEL, m_WindVelocityPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Wind Velocity Prescription");
+        }
+
         if (!DEFAULTED("WR-mass-loss-prescription")) {                                                                              // WR mass loss prescription
             std::tie(found, m_WRMassLossPrescription.type) = utils::GetMapKey(m_WRMassLossPrescription.typeString, WR_MASS_LOSS_PRESCRIPTION_LABEL, m_WRMassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown WR Mass Loss Prescription");
@@ -2619,7 +2625,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(m_TimestepMultipliers[idx] > MAXIMUM_TIMESTEP_MULTIPLIER, "Phase-dependent timestep multiplier (--timestep-multipliers) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ") for stellar type index " + std::to_string(idx));
         }
 
-        COMPLAIN_IF(m_WindAccretionFactor < 0.5 || m_WindAccretionFactor > 1, "Wind accretion factor (--wind-accretion-factor) must be >= 0.5 and <= 1");
+        COMPLAIN_IF(m_WindAccretionFactor < 0, "Wind accretion factor (--wind-accretion-factor) >= 0");
         COMPLAIN_IF(m_WindVelocityBeta < 0.0, "Steepness beta velocity law (--wind-velocity-beta) must be >= 0");
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
@@ -2792,6 +2798,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                       break;
         case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("wind-accretion-prescription")                       : POPULATE_RET(WIND_ACCRETION_PRESCRIPTION_LABEL);              break;
+        case _("wind-velocity-prescription")                        : POPULATE_RET(WIND_VELOCITY_PRESCRIPTION_LABEL);               break;
         case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         default: break;
     }

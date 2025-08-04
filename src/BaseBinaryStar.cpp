@@ -2035,18 +2035,18 @@ void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
 * @param    [IN]    p_DonorMass                mass of the donor star (Msun)
 * @param    [IN]    p_DonorRadius              radius of the donor star (Rsun)
 * @param    [IN]    p_distance                 distance from the donor star (AU)
-* @return                                      calculated wind velocity (AU / yr)
+* @return                                      calculated wind velocity (v_esc)
 * 
 */
 double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const double p_DonorRadius, const double p_distance) {
 
     // double escapeVelocity = std::sqrt(2 * G_AU_Msol_yr * p_DonorMass / (p_DonorRadius * RSOL_TO_AU)); // AU / yr
 
-    double windVelocity;
+    double windVelocity = 1;
 
-	switch (OPTIONS->WindAccretionPrescription()) {                                                                             // which prescription?
+	switch (OPTIONS->WindVelocityPrescription()) {                                                                             // which prescription?
 
-        case WIND_ACCRETION_PRESCRIPTION::YUNGELSON1995: { // Wind velocity according to Yungleson (1995)
+        case WIND_VELOCITY_PRESCRIPTION::YUNGELSON1995: { // Wind velocity according to Yungleson (1995)
 
             double ratioSeparationToRadius = p_distance * AU_TO_RSOL / p_DonorRadius;
             double ratioSeparationToRadiusSquared = ratioSeparationToRadius * ratioSeparationToRadius;
@@ -2057,7 +2057,7 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
 	    break; }
 
-        case WIND_ACCRETION_PRESCRIPTION::VOGEL1991: { // Wind velocity according to Vogel (1991)
+        case WIND_VELOCITY_PRESCRIPTION::VOGEL1991: { // Wind velocity according to Vogel (1991)
 
             double ratioSeparationToRadius = (p_distance * AU_TO_RSOL) / p_DonorRadius; // Distance in ( rStar )
 
@@ -2075,27 +2075,15 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
 
         break; }
 
-        case WIND_ACCRETION_PRESCRIPTION::BETA_LAW: {
+        case WIND_VELOCITY_PRESCRIPTION::BETA_LAW: {
 
             windVelocity = PPOW((1 - p_DonorRadius / (p_distance  * AU_TO_RSOL) ), OPTIONS->WindVelocityBeta());
 
         break; }
 
-        case WIND_ACCRETION_PRESCRIPTION::HIRAI2021: { // Wind velocity with Finite disc correction according to Hirai & Mandel (2021)
-
-            double alpha_force_multiplier = 0.5;        // I think it would be best to make this an OPTION
-
-            windVelocity = 2.5 * (alpha_force_multiplier / (1 - alpha_force_multiplier) ) * PPOW((1 - p_DonorRadius / (p_distance * AU_TO_RSOL)),0.7);
-
-	   break; }
-
-        // This function should not be called if the OPTION WIND_ACCRETION_PRESCRIPTION is not YUNGELSON1995 or HIRAI2021. Does this need an THROW_ERROR?
-
-	    default: { windVelocity = 0; break;}
-
 	}
 
-    return windVelocity; // AU / yr
+    return windVelocity; // [v_esc]
 
 }
 
@@ -2110,10 +2098,6 @@ double BaseBinaryStar::CalculateWindVelocity(const double p_DonorMass, const dou
  * 
  */
 void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, double p_mass2, double p_SemiMajorAxis) {
-
-    // Bondi and Hoyle formula for now
-    // Make sure we are in the regime where we can assume Bondi and Hoyle
-    // Bondi radius: 2MG/v_dot^2
 
     // if WindAccretionPrescription is NONE, there is no wind accretion
     if (OPTIONS->WindAccretionPrescription() == WIND_ACCRETION_PRESCRIPTION::NONE || p_SemiMajorAxis < 0) {
@@ -2137,6 +2121,7 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
                 massWD = p_mass1;
                 massRG = p_mass2;
             } 
+
             else {
                 StarWD = m_Star2;
                 StarRG = m_Star1;
@@ -2145,196 +2130,81 @@ void BaseBinaryStar::CalculateWindAccretionRate(double p_Dt, double p_mass1, dou
             }
 
             // If the system is touching or does not have a cool giant, we do not consider wind accretion
-            if ((p_SemiMajorAxis * AU_TO_RSOL < StarRG->Radius()) || (utils::Compare(StarRG->Temperature() * TSOL, VINK_MASS_LOSS_MINIMUM_TEMP) < 0)) {
+            if ((p_SemiMajorAxis * AU_TO_RSOL < StarRG->Radius()) || (utils::Compare(StarRG->Temperature() * TSOL, VINK_MASS_LOSS_MINIMUM_TEMP) > 0) || (utils::Compare(StarRG->MZAMS(), MASSIVE_THRESHOLD) >= 0)) {
 
-            StarRG->SetWindAccretionRate(0.0);
-            StarWD->SetWindAccretionRate(0.0);
+                StarRG->SetWindAccretionRate(0.0);
+                StarWD->SetWindAccretionRate(0.0);
 
             }
 
             else {
 
-            StarRG->SetWindAccretionRate(0.0);
+                StarRG->SetWindAccretionRate(0.0);
 
-            double windRateRG = StarRG->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
-            double escapeVelocityRG = std::sqrt(2 * G_AU_Msol_yr * massRG / (StarRG->Radius() * RSOL_TO_AU)); // AU / yr
-            
-            double terminalVelocityRG = OPTIONS->RSGTerminalWindVelocityFactor() * escapeVelocityRG; // Terminal wind velocity
-
-            double alpha_wRG = CalculateWindVelocity(massRG, StarRG->Radius(), p_SemiMajorAxis); // Wind of donor at the SemiMajorAxis, in units of v_terminal
-            double windVelocityAtSemiMajorAxisRG = alpha_wRG * terminalVelocityRG; // Wind of donor at the SemiMajorAxis, in units of AU / yr
-
-            double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( massWD + massRG ) / p_SemiMajorAxis); // orbital velocity ( AU / yr )^2
-            double aSquared = p_SemiMajorAxis * p_SemiMajorAxis; // AU^2
-
-            double rocheLobeRG = CalculateRocheLobeRadius_Static(massRG, massWD) * p_SemiMajorAxis; // AU
-            double dustFormationRadius = 0.5 * StarRG->Radius() * PPOW(1500 / (StarRG->Temperature() * TSOL), -2.5); // Rsun
-            double relativeDustRocheLobe = dustFormationRadius / ( rocheLobeRG * AU_TO_RSOL); //unitless
-
-
-            double maxAccretionEfficiencyBHL;
-
-            // If the separation is larger than the dust formation radius, the wind assumed to be at terminal velocity
-            if (dustFormationRadius < p_SemiMajorAxis) {
-
-                maxAccretionEfficiencyBHL = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(terminalVelocityRG * terminalVelocityRG + orbitalVelocitySquared, -3/2) / (aSquared * terminalVelocityRG); // Efficiency with which StarWD accretes wind 
-
-            }
-
-            // If the separation is smaller than the dust formation radius, the wind velocity is calculated according to the used wind model. This is not well known and does not form a continious function with the step to terminal velocity at the dust formation radius, but it is our way to minimize the uncertainty on the wind velocity model of cool giants.
-            else {
-
-                maxAccretionEfficiencyBHL = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityAtSemiMajorAxisRG * windVelocityAtSemiMajorAxisRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityAtSemiMajorAxisRG); // Efficiency with which StarWD accretes wind 
-
-            }
-            double accretionEfficiencyBHL = std::max(0.0, std::min(0.1, maxAccretionEfficiencyBHL)); // fix acc eff to between 0 and 0.1
-
-            double accretionEfficiencyWD;
-
-            // WRLOF 
-            if (OPTIONS->UseWRLOF()) {
-
-                double q_squared = (massWD/massRG) * (massWD/massRG); // unitless
+                double windRateRG = StarRG->MassLossDiff() / (p_Dt * MYR_TO_YEAR);                                                      // Mass loss StarRG ( mSol / yr )
+                double escapeVelocityRG = std::sqrt(2 * G_AU_Msol_yr * massRG / (StarRG->Radius() * RSOL_TO_AU));                       // ( AU / yr )
                 
-                double accretionEfficiencyWRLOF = std::max(0.0, std::min(25/9 * q_squared * (-0.284 * relativeDustRocheLobe*relativeDustRocheLobe + 0.918 * relativeDustRocheLobe - 0.234), 0.5)); // unitless
+                double terminalVelocityRG = OPTIONS->RGTerminalWindVelocityFactor() * escapeVelocityRG;                                 // Terminal wind velocity ( AU / yr )
 
-                // The accretion efficiency is taken to be the maximum value of the BHL and the WRLOF accretion regime
+                double alpha_wRG = CalculateWindVelocity(massRG, StarRG->Radius(), p_SemiMajorAxis);                                    // Wind of donor at the SemiMajorAxis, in units of ( v_terminal )
+                double windVelocityAtSemiMajorAxisRG = alpha_wRG * terminalVelocityRG;                                                  // Wind of donor at the SemiMajorAxis, in units of ( AU / yr )
 
-                accretionEfficiencyWD = std::max(accretionEfficiencyBHL, accretionEfficiencyWRLOF); // unitless
+                double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( massWD + massRG ) / p_SemiMajorAxis);
+                double aSquared = p_SemiMajorAxis * p_SemiMajorAxis;                                                                    // ( AU^2 )
 
-            }
+                double rocheLobeRG = CalculateRocheLobeRadius_Static(massRG, massWD) * p_SemiMajorAxis;                                 // ( AU )
 
-            else {
-                accretionEfficiencyWD = accretionEfficiencyBHL;
-            }
+                double carbonGrainCondTemp = 1500;                                                                                      // [Höfner+ 2007] ( K )
 
+                double dustFormationRadius = 0.5 * StarRG->Radius() * PPOW(carbonGrainCondTemp / (StarRG->Temperature() * TSOL), -2.5); // Dust formation radius [Höfner+ 2007] ( Rsun )
+                double relativeDustRocheLobe = dustFormationRadius / ( rocheLobeRG * AU_TO_RSOL);                                       // unitless ratio between the dust formation radius and the Roche lobe radius
 
+                double maxAccretionEfficiencyBHL;
+                double accretionEfficiencyWD;
 
-            double windAccretionRateWD = -accretionEfficiencyWD * windRateRG; // Accretion onto StarWD ( mSol / yr )
-            StarWD->SetWindAccretionRate(windAccretionRateWD); // ( mSol / yr )
+                // Is wind Roche lobe overflow used?
+                if (OPTIONS->WindAccretionPrescription() == WIND_ACCRETION_PRESCRIPTION::ABATE2013) { 
 
+                    // If the separation is larger than the dust formation radius, the wind assumed to be at terminal velocity
+                    if (dustFormationRadius < p_SemiMajorAxis) {
 
+                        maxAccretionEfficiencyBHL = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(terminalVelocityRG * terminalVelocityRG + orbitalVelocitySquared, -3/2) / (aSquared * terminalVelocityRG); // Efficiency with which StarWD accretes wind [Bondi+ 1944] (fraction of windloss rate giant)
 
+                    }
 
+                    // If the separation is smaller than the dust formation radius, the wind velocity is calculated according to the used wind model. This is not well known and does not form a continious function with the step to terminal velocity at the dust formation radius, but it is our way to minimize the uncertainty on the wind velocity model of cool giants.
+                    else {
 
+                        maxAccretionEfficiencyBHL = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityAtSemiMajorAxisRG * windVelocityAtSemiMajorAxisRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityAtSemiMajorAxisRG); // Efficiency with which StarWD accretes wind [Bondi+ 1944] (fraction of windloss rate giant)
 
-            // Old version (though in it, parts were also commented out)
+                    }
 
-            // double windRateRG = StarRG->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
-            // double escapeVelocityRG = std::sqrt(2 * G_AU_Msol_yr * massRG / (StarRG->Radius() * RSOL_TO_AU)); // AU / yr
-            // // double alpha_wRG = CalculateWindVelocity(massRG, StarRG->Radius(), p_SemiMajorAxis); // Wind of donor
-            // // double windVelocityRG = alpha_wRG * escapeVelocityRG / 2;
+                    double accretionEfficiencyBHL = std::max(0.0, std::min(0.1, maxAccretionEfficiencyBHL)); // fix accretion efficiency between 0 and 0.1
 
-            // double windVelocityRG = escapeVelocityRG * OPTIONS->RSGTerminalWindVelocityFactor(); // Terminal wind velocity
+                    double q_squared = (massWD/massRG) * (massWD/massRG); // ( unitless )
+                    
+                    double accretionEfficiencyWRLOF = std::max(0.0, std::min(WRLOF_ABATE_FACTOR * q_squared * (WRLOF_ABATE_2 * relativeDustRocheLobe*relativeDustRocheLobe + WRLOF_ABATE_1 * relativeDustRocheLobe + WRLOF_ABATE_0), WRLOF_ABATE_UPPER)); // Accretion efficiency according of wind Roche lobe overflow [Abate+ 2013] ( unitless )
 
-            // double orbitalVelocitySquared = abs(G_AU_Msol_yr * ( massWD + massRG ) / p_SemiMajorAxis); // orbital velocity ( AU / yr )^2
-            // double aSquared = p_SemiMajorAxis * p_SemiMajorAxis; // AU^2
+                    // The accretion efficiency is taken to be the maximum value of the BHL and the WRLOF accretion regime
+                    accretionEfficiencyWD = std::max(accretionEfficiencyBHL, accretionEfficiencyWRLOF); // ( unitless )
 
-            // // Get accretion efficiency, first determine if in Bondi-Hoyle regime or not...
+                }
 
-            // // This comes from Vathachira+2025, who are a bit sloppy with their units.
-            // // It looks like they want anything which is a distance to be in units of Rsun, so that they can call the calculation unitless...
-            // double rocheLobeRG = CalculateRocheLobeRadius_Static(massRG, massWD) * p_SemiMajorAxis; // AU
-            // // double xi = std::sqrt(500*massRG); // Unitless
-            // // double omega = 1; // Unitless
-            // //double rocheLobeLimitRG = (xi *(xi + std::sqrt(xi*xi + 2*omega*StarRG->Radius())) + omega*StarRG->Radius()) *RSOL_TO_AU; // converted to AU
+                // If wind Roche lobe overlow is not used, only use Bondi+ 1944 accretion
+                else {
 
-            // double dustFormationRadius = 0.5 * StarRG->Radius() * PPOW(1500 / (StarRG->Temperature() * TSOL), -2.5); // Rsun
-            // double relativeDustRocheLobe = dustFormationRadius / ( rocheLobeRG * AU_TO_RSOL); //unitless
+                    maxAccretionEfficiencyBHL = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityAtSemiMajorAxisRG * windVelocityAtSemiMajorAxisRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityAtSemiMajorAxisRG); // Efficiency with which StarWD accretes wind 
 
-            
-            // double accretionEfficiencyWD;
-            // // If the actual roche lobe is larger than the limit, then the wind hits escape velocity and you are in Bondi-Hoyle regime
+                    accretionEfficiencyWD = std::max(0.0, std::min(0.1, maxAccretionEfficiencyBHL)); // fix acc eff to between 0 and 0.1
+                    
+                }
 
-            // // double rocheLobeEscapeVelocity = std::sqrt(2 * G_AU_Msol_yr * massRG / rocheLobeRG); // AU / yr
-
-            // // double windVelocityAtRocheLobe = CalculateWindVelocity(massRG, StarRG->Radius(), rocheLobeRG); // AU / yr
-
-            // //bool useBondiHoyleAccretion = rocheLobeRG > rocheLobeLimitRG; // Check this!!!
-            
-            // // bool useBondiHoyleAccretion = utils::Compare(windVelocityAtRocheLobe, rocheLobeEscapeVelocity) > 0;
-            
-            // double maxAccretionEfficiencyBHL = OPTIONS->WindAccretionFactor() * PPOW(G_AU_Msol_yr * massWD, 2) * PPOW(windVelocityRG * windVelocityRG + orbitalVelocitySquared, -3/2) / (aSquared * windVelocityRG); // Efficiency with which star 1 accretes wind 
-
-            // double accretionEfficiencyBHL = std::max(0.0, std::min(1.0, maxAccretionEfficiencyBHL)); // fix acc eff to between 0 and 1
-            // double accretionEfficiencyWRLOF = 0.0;
-
-            // bool useWRLOF = relativeDustRocheLobe > 0.6;
-
-            // if (useWRLOF) {
-
-            //     double q_squared = (massWD/massRG) * (massWD/massRG); // unitless
-
-            //     accretionEfficiencyWRLOF = std::max(0.0, std::min(25/9 * q_squared * (-0.284 * relativeDustRocheLobe*relativeDustRocheLobe + 0.918 * relativeDustRocheLobe - 0.234), 0.5)); // unitless
-
-            // }
-
-            // accretionEfficiencyWD = std::max(accretionEfficiencyBHL, accretionEfficiencyWRLOF);
-
-            // // if (accretionEfficiencyWD == accretionEfficiencyWDforWRLOF) { std::cout << " " << accretionEfficiencyWDforWRLOF/accretionEfficiencyWDforBHL << " "; }
-
-            // double windAccretionRateWD = -accretionEfficiencyWD * windRateRG; // Accretion onto Star 1 ( mSol / yr )
-            // StarWD->SetWindAccretionRate(windAccretionRateWD); // ( mSol / yr )
-                                                                  
-
+                double windAccretionRateWD = -accretionEfficiencyWD * windRateRG; // Accretion onto StarWD ( mSol / yr )
+                StarWD->SetWindAccretionRate(windAccretionRateWD); // ( mSol / yr )
+        
+            }    
         }
-            // Below replace 1 for WD and 2 for RG
-            //double windRateWD = m_WDstar->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
-            //double windRate1 = m_Star1->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 1 ( mSol / yr )
-            //double windRate2 = m_Star2->MassLossDiff() / (p_Dt * MYR_TO_YEAR); // Mass loss rate star 2 ( mSol / yr )
-            //double escapeVelocityWD = std::sqrt(2 * G_AU_Msol_yr * p_WDmass / (m_WDstar->Radius() * RSOL_TO_AU)); // AU / yr
-            //double escapeVelocity1 = std::sqrt(2 * G_AU_Msol_yr * p_mass1 / (m_Star1->Radius() * RSOL_TO_AU)); // AU / yr
-            //double escapeVelocity2 = std::sqrt(2 * G_AU_Msol_yr * p_mass2 / (m_Star2->Radius() * RSOL_TO_AU)); // AU / yr
-            //double alpha_wWD = CalculateWindVelocity(p_WDmass, m_StarWD->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor
-            //double alpha_w1 = CalculateWindVelocity(p_mass1, m_Star1->Radius(), p_SemiMajorAxis); // Wind for Star1 as donor
-            //double alpha_w2 = CalculateWindVelocity(p_mass2, m_Star2->Radius(), p_SemiMajorAxis); // Wind for Star2 as donor
-            //double windVelocityWD = alpha_wWD * escapeVelocityWD / 2;
-            //double windVelocity1 = alpha_w1 * escapeVelocity1 / 2;
-            //double windVelocity2 = alpha_w2 * escapeVelocity2 / 2;
-            //double rocheLobeWD = CalculateRocheLobeRadius_Static(massWD, massRG); // AU 
-            //double rocheLobe1 = CalculateRocheLobeRadius_Static(mass1, mass2); // AU 
-            //double rocheLobe2 = CalculateRocheLobeRadius_Static(mass2, mass1); // AU
-                                                                               
-            //double xiWD = std::sqrt(500*p_massWD); // Unitless
-            //double xi1 = std::sqrt(500*p_mass1); // Unitless
-            //double xi2 = std::sqrt(500*p_mass2); // Unitless
-
-            //double omegaWD = 1; // Unitless
-            //double omega1 = 1; // Unitless
-            //double omega2 = 1; // Unitless
-
-            //double rocheLobeLimitWD = (xiWD *(xiWD + std::sqrt(xiWD*xiWD + 2*omegaWD*m_StarWD->Radius())) + omegaWD*m_StarWD->Radius()) *RSOL_TO_AU; // converted to AU
-            //double windAccretionRate1 = - accretionEfficiency1 * windRate2; // Accretion onto Star 1 ( mSol / yr )
-            //double windAccretionRate2 = - accretionEfficiency2 * windRate1; // Accretion onto Star 2 ( mSol / yr )
-            
-
-            // The check below is to make sure the acc. star is not larger than the RL, but not really necessary for WD accretors...
-            
-            //if (radiusBondi2 > m_Star2->Radius()) { 
-            //double radiusBondi1 = 2 * G_AU_Msol_yr * p_mass1 / (windVelocity2 * windVelocity2 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
-            //double radiusBondi2 = 2 * G_AU_Msol_yr * p_mass2 / (windVelocity1 * windVelocity1 + orbitalVelocitySquared) * AU_TO_RSOL; // Bondi radius ( rSol )
-            //if (m_Star1->StellarType() == STELLAR_TYPE::HELIUM_WHITE_DWARF ||
-            //    m_Star1->StellarType() == STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF ||
-            //    m_Star1->StellarType() == STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF) {        // if the Radius of the star is smaller than the Bondi radius, it can accrete mass through wind accretion
-            //if (radiusBondi1 > m_Star1->Radius()) { m_Star1->SetWindAccretionRate(windAccretionRate1);} // ( mSol / yr )
-            //else { m_Star1->SetWindAccretionRate(0.0);}
-            //}
-            //else {m_Star1->SetWindAccretionRate(0.0);}
-            //
-            //if (m_Star2->StellarType() == STELLAR_TYPE::HELIUM_WHITE_DWARF ||
-            //    m_Star2->StellarType() == STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF ||
-            //    m_Star2->StellarType() == STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF) {        
-            //if (radiusBondi2 > m_Star2->Radius()) { m_Star2->SetWindAccretionRate(windAccretionRate2);} // ( mSol / yr )
-            //else { m_Star2->SetWindAccretionRate(0.0);}
-            //}
-            //else {m_Star2->SetWindAccretionRate(0.0);}
-
-
-        }
-
     }
-
-
 }
 
 /*

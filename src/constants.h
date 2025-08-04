@@ -418,6 +418,14 @@ constexpr double MALTSEV2024_M3CZ01                     = 12.3;
 constexpr double MALTSEV2024_M3BZ01                     = 13.7;
 constexpr double MALTSEV2024_M3AZ01                     = 13.7;
 
+// Constants for Abate+ 2013 wind Roche lobe overflow prescription
+
+constexpr double WRLOF_ABATE_FACTOR                 =   25/9;
+constexpr double WRLOF_ABATE_0                      = -0.234;
+constexpr double WRLOF_ABATE_1                      =  0.918;
+constexpr double WRLOF_ABATE_2                      = -0.284;
+constexpr double WRLOF_ABATE_UPPER                  =    0.5;
+
 // Constants for WD evolution 
 
 constexpr double COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION  = -5.688246139;                                             // Minimum log mass accretion rate for off center ignition in a CO WD. From Wang+ 2017. Log( 2.05 x 10^-6). 
