@@ -23,7 +23,7 @@ RUN mkdir obj bin logs
 ENV COMPAS_ROOT_DIR /app/COMPAS
 
 # Compile COMPAS
-RUN cd src && make -f Makefile.docker -j $(nproc)
+RUN cd src && make DOCKER_BUILD=1 -j $(nproc)
 
 # Run COMPAS
 # CMD [ "python", "src/pythonSubmitDefault.py" ] 
