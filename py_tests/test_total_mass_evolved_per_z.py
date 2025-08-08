@@ -5,8 +5,8 @@ from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import \
     generate_mock_population
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")  # Use non-interactive backend
+
+from py_tests.conftest import test_archive_dir, fake_compas_output
 
 import matplotlib.pyplot as plt
 import h5py as h5
@@ -15,7 +15,7 @@ import pytest
 
 MAKE_PLOTS = True
 
-M1_MIN = 5
+M1_MIN = 10
 M1_MAX = 150
 M2_MIN = 0.1
 
@@ -64,12 +64,11 @@ def test_analytical_function():
 
 
 def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output, tmpdir, test_archive_dir):
-    fake_compas_output = '/Users/lvanson/CompasOutput/v02.35.02/FiducialN1e6/MainRun/COMPAS_Output.h5'
     np.random.seed(42)
     m1_max = M1_MAX
     m1_min = M1_MIN
     m2_min = M2_MIN
-    fbin = 1
+    fbin = None
 
     analytical = analytical_star_forming_mass_per_binary_using_kroupa_imf(m1_min, m1_max, m2_min, fbin)
     numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
@@ -79,8 +78,6 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
 
     assert np.isclose(numerical, analytical, rtol=1)
     if MAKE_PLOTS:
-        tmpdir = '/Users/lvanson/Documents/Projects/Proj_Melanie/output'
-        test_archive_dir = '/Users/lvanson/Documents/Projects/Proj_Melanie/output'
         fig = plot_star_forming_mass_per_binary_comparison(tmpdir, analytical, m1_min, m1_max, m2_min, fbin)
         fig.savefig(f"{test_archive_dir}/analytical_vs_numerical.png")
 
@@ -112,6 +109,7 @@ def plot_star_forming_mass_per_binary_comparison(
     plt.xscale("log")
     plt.ylabel("Star forming mass per binary [M$_{\odot}$]")
     plt.xlabel("Number of samples")
+    plt.ylim(bottom=10)
     plt.xlim(min(n_samps), max(n_samps))
     plt.legend()
     plt.savefig(f"{tmpdir}/analytical_vs_numerical.png")
