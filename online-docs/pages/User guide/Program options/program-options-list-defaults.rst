@@ -718,7 +718,7 @@ Default = ’SSE_Detailed_Output’ for SSE mode; ’BSE_Detailed_Output’ for 
 
 **--logfile-detailed-output-record-types** |br|
 Enabled record types for the BSE/SSE Detailed Output logfile. |br|
-Default = -1 (all record types) |br|
+Default = 25 (record types 1, 4, and 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)) |br|
 
 **--logfile-double-compact-objects** |br|
 Filename for the Double Compact Objects logfile (BSE mode). |br|
@@ -737,8 +737,8 @@ Filename for the Pulsar Evolution logfile (BSE mode). |br|
 Default = ’BSE_Pulsar_Evolution’
 
 **--logfile-pulsar-evolution-record-types** |br|
-Enabled record types for the Pulsar Evolution logfile (BSE mode). |br|
-Default = -1 (all record types) |br|
+Enabled record types for the BSE/SSE Pulsar Evolution logfile. |br|
+Default = 4 (record types 3 ((Pulsar) TIMESTEP_COMPLETED)) |br|
 
 **--logfile-rlof-parameters** |br|
 Filename for the RLOF Printing logfile (BSE mode). |br|
