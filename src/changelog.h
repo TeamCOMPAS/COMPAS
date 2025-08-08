@@ -1630,7 +1630,7 @@
 //                                             - Whatsnew page updated
 //                                          - Changes for issue 1414:
 //                                             - Changed [SSE/BSE]_PULSAR_RECORDTYPE::DEFAULT to [SSE/BSE]_PULSAR_RECORDTYPE::PRE_SN
-//                                                  - don't want DEFAULT anymore, but wanted to preserve numbering.  Neither PRE_SN nor POST_SN are currently used (POST_SN was), so we could renamd them one day.
+//                                                  - don't want DEFAULT anymore, but wanted to preserve numbering.  Neither PRE_SN nor POST_SN are currently used (POST_SN was), so we could rename them one day.
 //                                             - Removed default parameter from BaseStar::PrintPulsarEvolutionParameters() and BaseBinaryStar::PrintPulsarEvolutionParameters()
 //                                             - Changed default record types for:
 //                                                  - SSE and BSE detailed output files to include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
