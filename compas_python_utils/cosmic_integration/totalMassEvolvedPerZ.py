@@ -144,17 +144,17 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
     """
     Calculate the total mass evolved per metallicity as a function of redshift in a COMPAS simulation.
     """
-
     # calculate the fraction of mass in the COMPAS simulation vs. the real population without sample cuts
     fraction = get_COMPAS_fraction(m1_low=Mlower, m1_upp=Mupper, m2_low=m2_low, f_bin=binaryFraction,
                                    mass_ratio_pdf_function=mass_ratio_pdf_function,
                                    m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
     multiplicationFactor = 1 / fraction
 
+    # LvS: This is slow and buggy! (esp if you sample metallicities smoothly)
     # get the mass evolved for each metallicity bin and convert to a total mass using the fraction
     MassEvolvedPerZ = retrieveMassEvolvedPerZ(path)
 
-    totalMassEvolvedPerMetallicity = MassEvolvedPerZ / fraction
+    totalMassEvolvedPerMetallicity = MassEvolvedPerZ / fraction 
 
     return multiplicationFactor, totalMassEvolvedPerMetallicity
 
@@ -166,7 +166,12 @@ def star_forming_mass_per_binary(
     """
     Calculate the total mass of stars formed per binary star formed within the COMPAS simulation.
     """
-    multiplicationFactor, _ = totalMassEvolvedPerZ(**locals())
+    fraction = get_COMPAS_fraction(m1_low=Mlower,m1_upp=Mupper,m2_low=m2_low,
+                                   f_bin=binaryFraction,mass_ratio_pdf_function=mass_ratio_pdf_function,
+                                   m1=m1, m2=m2, m3=m3, m4=m4,
+                                   a12=a12, a23=a23, a34=a34)
+
+    multiplicationFactor = 1 / fraction
 
     # get the total mass in COMPAS and number of binaries
     with h5.File(path, 'r') as f:
