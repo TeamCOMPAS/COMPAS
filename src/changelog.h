@@ -1620,8 +1620,8 @@
 //                                                  . "--initial-mass-min"       in favour of "--initial-mass-function-min"
 //                                                  . "--initial-mass-max"       in favour of "--initial-mass-function-max"
 //                                                  . "--initial-mass-power"     in favour of "--initial-mass-function-power"
-//                                             - Default value for "--initial-mass-min" remains at 5.0 Msol
-//                                             - Default value for "--initial-mass-max" remains at 150.0 Msol
+//                                             - Default value for "--initial-mass-function-min" remains at 5.0 Msol
+//                                             - Default value for "--initial-mass-function-max" remains at 150.0 Msol
 //                                             - Default value for "--initial-mass-function-power" remains at 0.0
 //                                             - Default value for "--minimum-sampled-secondary-mass" remains at 0.1 Msol
 //                                             - User supplied value for "--minimum-sampled-secondary-mass" checked against values of constants MINIMUM_INITIAL_MASS and MINIMUM_INITIAL_MASS
