@@ -51,7 +51,6 @@ def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
         return 0.0
 
 
-
 def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_function=lambda q: 1,
                         m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
     """Calculate the fraction of mass in a COMPAS population relative to the total Universal population. This
@@ -78,10 +77,10 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
         The fraction of mass in a COMPAS population relative to the total Universal population
     """ 
     # Step 0: define mass bins and corresponding binary fractions
-    # Values chosen to approximately follow Figure 1 from Offner et al. (2023)
-    binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
-    binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
     def get_binary_fraction(mass):
+    # Values chosen to approximately follow Figure 1 from Offner et al. (2023)
+        binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
+        binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
         for i in range(len(binary_bin_edges) - 1):
             if binary_bin_edges[i] <= mass < binary_bin_edges[i + 1]:
                 return binaryFractions[i]
@@ -91,7 +90,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
     def full_integral(mass, m1, m2, m3, m4, a12, a23, a34, f_bin):
         primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
         
-        if f_bin == -1:
+        if f_bin == None:
             f_bin = get_binary_fraction(mass)
 
         # find the expected companion mass given the mass ratio pdf function
@@ -108,7 +107,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_funct
         # define the primary mass in the same way
         primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
 
-        if f_bin == -1:
+        if f_bin == None:
             f_bin = get_binary_fraction(mass)
 
         # find the fraction that are below the m2 mass cut
@@ -150,7 +149,7 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
                                    m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
     multiplicationFactor = 1 / fraction
 
-    # LvS: This is slow and buggy! (esp if you sample metallicities smoothly)
+    # Warning: This is slow and error prone! esp if you sample metallicities smoothly
     # get the mass evolved for each metallicity bin and convert to a total mass using the fraction
     MassEvolvedPerZ = retrieveMassEvolvedPerZ(path)
 
@@ -171,8 +170,6 @@ def star_forming_mass_per_binary(
                                    m1=m1, m2=m2, m3=m3, m4=m4,
                                    a12=a12, a23=a23, a34=a34)
 
-    multiplicationFactor = 1 / fraction
-
     # get the total mass in COMPAS and number of binaries
     with h5.File(path, 'r') as f:
         allSystems = f['BSE_System_Parameters']
@@ -181,7 +178,7 @@ def star_forming_mass_per_binary(
         n_binaries = len(m1s)
         total_star_forming_mass_in_COMPAS = sum(m1s) + sum(m2s)
 
-    total_star_forming_mass = total_star_forming_mass_in_COMPAS * multiplicationFactor
+    total_star_forming_mass = total_star_forming_mass_in_COMPAS / fraction
     return total_star_forming_mass / n_binaries
 
 
@@ -247,7 +244,6 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     
     # normalize IMF over the complete mass range:
     alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
-    # print('alpha', alpha)
 
     # we want to compute M_stellar_sys_in_universe / N_binaries_in_COMPAS
     #  = N_binaries_in_universe/N_binaries_in_COMPAS * N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
@@ -256,6 +252,7 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     # fint =  N_binaries_in_COMPAS/N_binaries_in_universe: fraction of binaries that COMPAS simulates
     fint = -alpha / 1.3 * (m1_max ** (-1.3) - m1_min ** (-1.3)) + alpha * m2_min / 2.3 * (m1_max ** (-2.3) - m1_min ** (-2.3))
 
+    print('Analytical fint', fint, ' = N_binaries_in_COMPAS/N_binaries_in_universe')
     # Next for N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
     # N_stellar_sys_in_universe/N_binaries_in_universe = the binary fraction 
     # fbin edges and values are chosen to approximately follow Figure 1 from Offner et al. (2023)
