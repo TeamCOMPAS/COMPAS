@@ -564,7 +564,7 @@ private:
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
     }
     
-    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType = BSE_PULSAR_RECORD_TYPE::DEFAULT) const {
+    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType) const {
         return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
     }
     
