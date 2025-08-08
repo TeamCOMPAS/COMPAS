@@ -513,26 +513,26 @@ Default = Sampled from IMF
 
 **--initial-mass-2** |br|
 Initial mass for the secondary star when evolving in BSE mode (:math:`M_\odot`). |br|
-Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-distribution`` (see also ``--mass-ratio-max``, ``-mass-ratio-min``, ``--minimum-secondary-mass'')
+Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-distribution`` (see also ``--mass-ratio-max``, ``-mass-ratio-min``, ``--minimum-sampled-secondary-mass``)
 
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
 ``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001 |br|
-``POWERLAW`` samples from a single power law with slope ``--initial-mass-power`` |br|
-``UNIFORM`` samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
+``POWERLAW`` is a single power law with slope ``--initial-mass-function-power`` |br|
+``UNIFORM`` is a uniform distribution between ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
 Default = KROUPA
 
-**--initial-mass-max** |br|
-Maximum mass to generate using given IMF (:math:`M_\odot`). |br|
+**--initial-mass-function-max** |br|
+The maximum mass (in Msol) to sample from the initial mass function (IMF), (only used when sampling initial mass) (:math:`M_\odot`). |br|
 Default = 150.0
 
-**--initial-mass-min** |br|
-Minimum mass to generate using given IMF (:math:`M_\odot`). |br|
+**--initial-mass-function-min** |br|
+The minimum mass (in Msol) to sample from the initial mass function (IMF), (only used when sampling initial mass) (:math:`M_\odot`). |br|
 Default = 5.0
 
-**--initial-mass-power** |br|
-Single power law power to generate primary mass using ``POWERLAW`` IMF. |br|
+**--initial-mass-function-power** |br|
+The power to use when using the ``POWERLAW`` IMF. |br|
 Default = 0.0
 
 .. _options-props-J:
@@ -950,9 +950,9 @@ Default = 0.03
 Minimum metallicity to generate. |br|
 Default = 0.0001
 
-**--minimum-secondary-mass** |br|
-Minimum mass of secondary to generate (:math:`M_\odot`). |br|
-Defaults to 0.1 if ``--initial-mass-2`` is specified, otherwise value of ``--initial-mass-min``.
+**--minimum-sampled-secondary-mass** |br|
+Minimum mass value that can be sampled from the IMF when sampling the mass of the secondary star (:math:`M_\odot`). |br|
+Default = 0.1
 
 **--mode** |br|
 The mode of evolution. |br|
@@ -1495,9 +1495,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Initial conditions**
 
---initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-min, --initial-mass-max, --initial-mass-power
+--initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-function-min, --initial-mass-function-max, --initial-mass-power
 
---mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-secondary-mass
+--mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-sampled-secondary-mass
 
 --eccentricity-distribution, --eccentricity, --eccentricity-min, --eccentricity-max
 
