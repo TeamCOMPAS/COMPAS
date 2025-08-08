@@ -1626,7 +1626,7 @@
 //                                             - Default value for "--minimum-sampled-secondary-mass" remains at 0.1 Msol
 //                                             - User supplied value for "--minimum-sampled-secondary-mass" checked against values of constants MINIMUM_INITIAL_MASS and MINIMUM_INITIAL_MASS
 //                                             - Secondary mass, whether input by user, sampled, or calculated from M1 & q, checked against constant MINIMUM-INITIAL-MASS
-//                                             - Online docs "program-options-list-defaults" and "standard-logfiles-record-specification-optios" pages updated
+//                                             - Online docs "program-options-list-defaults" and "standard-logfiles-record-specification-options" pages updated
 //                                             - Whatsnew page updated
 //                                          - Changes for issue 1414:
 //                                             - Changed [SSE/BSE]_PULSAR_RECORDTYPE::DEFAULT to [SSE/BSE]_PULSAR_RECORDTYPE::PRE_SN
