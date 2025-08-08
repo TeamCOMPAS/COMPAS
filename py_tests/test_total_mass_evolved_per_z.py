@@ -5,12 +5,15 @@ from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import \
     generate_mock_population
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")  # Use non-interactive backend
+
 import matplotlib.pyplot as plt
 import h5py as h5
 
 import pytest
 
-MAKE_PLOTS = False
+MAKE_PLOTS = True
 
 M1_MIN = 5
 M1_MAX = 150
@@ -61,20 +64,23 @@ def test_analytical_function():
 
 
 def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output, tmpdir, test_archive_dir):
+    fake_compas_output = '/Users/lvanson/CompasOutput/v02.35.02/FiducialN1e6/MainRun/COMPAS_Output.h5'
     np.random.seed(42)
     m1_max = M1_MAX
     m1_min = M1_MIN
     m2_min = M2_MIN
     fbin = 1
 
-    numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
     analytical = analytical_star_forming_mass_per_binary_using_kroupa_imf(m1_min, m1_max, m2_min, fbin)
-
+    numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
+    
     assert numerical > 0
     assert analytical > 0
 
     assert np.isclose(numerical, analytical, rtol=1)
     if MAKE_PLOTS:
+        tmpdir = '/Users/lvanson/Documents/Projects/Proj_Melanie/output'
+        test_archive_dir = '/Users/lvanson/Documents/Projects/Proj_Melanie/output'
         fig = plot_star_forming_mass_per_binary_comparison(tmpdir, analytical, m1_min, m1_max, m2_min, fbin)
         fig.savefig(f"{test_archive_dir}/analytical_vs_numerical.png")
 
@@ -90,11 +96,11 @@ def plot_star_forming_mass_per_binary_comparison(
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
             fname = f"{tmpdir}/test_{i}.h5"
-            generate_mock_population(tmpdir, n_systems=int(n))
+            generate_mock_bbh_population_file(fname, n_systems=int(n))
             vals[i] = (star_forming_mass_per_binary(fname, m1_min, m1_max, m2_min, fbin))
         numerical_vals.append(vals)
 
-    # plot the upper and lower bounds of the numerical values
+    # plot the upper and lower bounds of the numerical   values
     numerical_vals = np.array(numerical_vals)
     lower = np.percentile(numerical_vals, 5, axis=0)
     upper = np.percentile(numerical_vals, 95, axis=0)
@@ -108,6 +114,7 @@ def plot_star_forming_mass_per_binary_comparison(
     plt.xlabel("Number of samples")
     plt.xlim(min(n_samps), max(n_samps))
     plt.legend()
+    plt.savefig(f"{tmpdir}/analytical_vs_numerical.png")
     return plt.gcf()
 
 
