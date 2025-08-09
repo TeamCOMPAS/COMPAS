@@ -832,6 +832,20 @@ Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2025 } |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
 ``MERRITT2025``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
 Default = MERRITT2025 |br|
+|br|
+Note that setting this option to ``ZERO`` can have unexpected consequences, e.g., TPAGB stars that are prevented from losing
+mass cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is
+not recommended for production. It is better to use specific wind prescription controls, such as: |br|
+|br|
+``--cool-wind-mass-loss-multiplier`` |br|
+``--overall-wind-mass-loss-multiplier`` |br|
+``--wolf-rayet-multiplier`` |br|
+``--luminous-blue-variable-multiplier`` |br|
+``--LBV-mass-loss-prescription`` |br|
+``--OB-mass-loss-prescription`` |br|
+``--RSG-mass-loss-prescription`` |br|
+``--VMS-mass-loss-prescription`` |br|
+``--WR-mass-loss-prescription`` |br|
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -1398,19 +1412,6 @@ This option is primarily intended for debugging/testing of convergence issues ra
 .. _options-props-U:
 
 :ref:`Back to Top <options-props-top>`
-
-**--use-mass-loss** |br|
-Enable mass loss through winds. |br|
-Default = TRUE
-Note that setting this option to FALSE can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
-cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is not recommended
-for production. It is better to use specific wind prescription controls, such as: |br|
-``--cool-wind-mass-loss-multiplier`` |br|
-``--LBV-mass-loss-prescription`` |br|
-``--luminous-blue-variable-multiplier`` |br|
-``--mass-loss-prescription`` |br|
-``--overall-wind-mass-loss-multiplier`` |br|
-``--wolf-rayet-multiplier`` |br|
 
 **--use-mass-transfer** |br|
 Enable mass transfer. |br|
