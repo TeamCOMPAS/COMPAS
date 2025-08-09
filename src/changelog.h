@@ -1645,7 +1645,7 @@
 //                                                 with any valid prescription (that is not ``zero``), and disabled with ``--mass-loss-prescription zero`` instead of 
 //                                                 ``use-mass-loss false``.
 //                                          - Added compiler flag "-Wno-vla-cxx-extension" to "CXXFLAGS" in Makefile to suppress compiler extension warning
-//                                          - Fixed online docs for ommisssions in v03.22.02:
+//                                          - Fixed online docs for omissions in v03.22.02:
 //                                               - fixed description for "--initial-mass-function" in "program-options-list-defaults.rst", and
 //                                               - changed "--initial-mass-power" to "--initial-mass-function-power" in "program-options-list-defaults.rst"
 //
