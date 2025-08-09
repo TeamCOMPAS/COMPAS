@@ -1987,8 +1987,8 @@ void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
             m_Star2->HaltWinds();
     }
     else {
-        if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
-
+        if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {                                                  // mass loss enabled?
+                                                                                                                                // yes
             double mWinds1 = m_Star1->CalculateMassLossValues(p_Dt, true);                                                      // calculate new values assuming mass loss applied
             double mWinds2 = m_Star2->CalculateMassLossValues(p_Dt, true);                                                      // calculate new values assuming mass loss applied
 

@@ -40,7 +40,7 @@ ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-CXXFLAGS := -std=c++17 -g -fnon-call-exceptions -Wall -Woverloaded-virtual $(OPTFLAGS)
+CXXFLAGS := -std=c++17 -g -fnon-call-exceptions -Wall -Woverloaded-virtual -Wno-vla-cxx-extension $(OPTFLAGS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 
 LIBS := -lm -lz -ldl -lpthread

@@ -518,7 +518,7 @@ Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-d
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
-``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001 |br|
+``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, bounded by ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
 ``POWERLAW`` is a single power law with slope ``--initial-mass-function-power`` |br|
 ``UNIFORM`` is a uniform distribution between ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
 Default = KROUPA
@@ -1495,7 +1495,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Initial conditions**
 
---initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-function-min, --initial-mass-function-max, --initial-mass-power
+--initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-function-min, --initial-mass-function-max, --initial-mass-function-power
 
 --mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-sampled-secondary-mass
 
