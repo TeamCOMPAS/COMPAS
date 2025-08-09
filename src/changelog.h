@@ -1635,6 +1635,19 @@
 //                                             - Changed default record types for:
 //                                                  - SSE and BSE detailed output files to include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
 //                                                  - SSE and BSE pulsar evolution files to include only record type 3 ((pulsar) TIMESTEP_COMPLETED)
+//                                          - Fixed random kick draw for MULLERMANDEL prescription
+//  03.23.00  JR - August 09, 2025      - Enhancement:
+//                                          - Deprecated option
+//                                               - "--use-mass-loss" in favour of "--mass-loss-prescription"
+//
+//                                                 Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss
+//                                                 prescription to be used with ``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription``
+//                                                 with any valid prescription (that is not ``zero``), and disabled with ``--mass-loss-prescription zero`` instead of 
+//                                                 ``use-mass-loss false``.
+//                                          - Added compiler flag "-Wno-vla-cxx-extension" to "CXXFLAGS" in Makefile to suppress compiler extension warning
+//                                          - Fixed online docs for ommisssions in v03.22.02:
+//                                               - fixed description for "--initial-mass-function" in "program-options-list-defaults.rst", and
+//                                               - changed "--initial-mass-power" to "--initial-mass-function-power" in "program-options-list-defaults.rst"
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1646,7 +1659,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.22.02";
+const std::string VERSION_STRING = "03.23.00";
 
 
 # endif // __changelog_h__
