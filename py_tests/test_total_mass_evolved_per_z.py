@@ -15,9 +15,10 @@ import pytest
 
 MAKE_PLOTS = True
 
-M1_MIN = 10
+M1_MIN = 5
 M1_MAX = 150
 M2_MIN = 0.1
+F_BIN = 0.5 #None
 
 
 def test_imf(test_archive_dir):
@@ -68,7 +69,7 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
     m1_max = M1_MAX
     m1_min = M1_MIN
     m2_min = M2_MIN
-    fbin = None
+    fbin = F_BIN
 
     analytical = analytical_star_forming_mass_per_binary_using_kroupa_imf(m1_min, m1_max, m2_min, fbin)
     numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
@@ -79,7 +80,7 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
     assert np.isclose(numerical, analytical, rtol=1)
     if MAKE_PLOTS:
         fig = plot_star_forming_mass_per_binary_comparison(tmpdir, analytical, m1_min, m1_max, m2_min, fbin)
-        fig.savefig(f"{test_archive_dir}/analytical_vs_numerical.png")
+        fig.savefig(f"{test_archive_dir}/analytical_vs_numerical_const.png")
 
 
 def plot_star_forming_mass_per_binary_comparison(
@@ -112,7 +113,6 @@ def plot_star_forming_mass_per_binary_comparison(
     plt.ylim(bottom=10)
     plt.xlim(min(n_samps), max(n_samps))
     plt.legend()
-    plt.savefig(f"{tmpdir}/analytical_vs_numerical.png")
     return plt.gcf()
 
 
