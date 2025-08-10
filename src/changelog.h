@@ -1635,7 +1635,6 @@
 //                                             - Changed default record types for:
 //                                                  - SSE and BSE detailed output files to include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
 //                                                  - SSE and BSE pulsar evolution files to include only record type 3 ((pulsar) TIMESTEP_COMPLETED)
-//                                          - Fixed random kick draw for MULLERMANDEL prescription
 //  03.23.00  JR - August 09, 2025      - Enhancement:
 //                                          - Deprecated option
 //                                               - "--use-mass-loss" in favour of "--mass-loss-prescription"
