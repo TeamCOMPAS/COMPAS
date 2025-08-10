@@ -91,7 +91,6 @@ namespace yaml {
             "",
             "    ### STELLAR PROPERTIES",
             "    --check-photon-tiring-limit",
-            "    --use-mass-loss",
             "    --enable-rotationally-enhanced-mass-loss",
             "    --enhance-CHE-lifetimes-luminosities",
             "    --expel-convective-envelope-above-luminosity-threshold",

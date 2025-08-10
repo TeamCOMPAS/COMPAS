@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Fri Aug  8 15:57:19 2025 by COMPAS v03.22.02
+##~!!~## File Created Sun Aug 10 13:16:13 2025 by COMPAS v03.23.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -25,7 +25,6 @@ booleanChoices:
 
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
-#    --use-mass-loss: True                                                 # Default: True
 #    --enable-rotationally-enhanced-mass-loss: False                       # Default: False
 #    --enhance-CHE-lifetimes-luminosities: True                            # Default: True
 #    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
