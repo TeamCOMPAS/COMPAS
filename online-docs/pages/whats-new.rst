@@ -3,6 +3,16 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.23.00 August 09, 2025**
+
+* The following option is now deprecated, and will be removed in 1 year:
+
+  * ``--use-mass-loss`` in favour of ``--mass-loss-prescription``
+
+Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss prescription to be used with
+``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription`` with any valid prescription (that is not ``zero``), and
+disabled with ``--mass-loss-prescription zero`` instead of ``use-mass-loss false``.
+
 **03.22.02 August 08, 2025**
 
 * The following options are now deprecated, and will be removed in 1 year:

@@ -418,7 +418,6 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
-    m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
     
     m_EnableRotationallyEnhancedMassLoss                            = false;
@@ -1018,11 +1017,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
             po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(true),                                                                      
             ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "use-mass-loss",                                               
-            po::value<bool>(&p_Options->m_UseMassLoss)->default_value(p_Options->m_UseMassLoss)->implicit_value(true),                                                                            
-            ("Enable mass loss (default = " + std::string(p_Options->m_UseMassLoss ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "use-mass-transfer",                                                
