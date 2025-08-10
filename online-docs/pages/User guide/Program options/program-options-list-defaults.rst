@@ -518,7 +518,7 @@ Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-d
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
-``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001 |br|
+``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, bounded by ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
 ``POWERLAW`` is a single power law with slope ``--initial-mass-function-power`` |br|
 ``UNIFORM`` is a uniform distribution between ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
 Default = KROUPA
@@ -832,6 +832,20 @@ Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2025 } |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
 ``MERRITT2025``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
 Default = MERRITT2025 |br|
+|br|
+Note that setting this option to ``ZERO`` can have unexpected consequences, e.g., TPAGB stars that are prevented from losing
+mass cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is
+not recommended for production. It is better to use specific wind prescription controls, such as: |br|
+|br|
+``--cool-wind-mass-loss-multiplier`` |br|
+``--overall-wind-mass-loss-multiplier`` |br|
+``--wolf-rayet-multiplier`` |br|
+``--luminous-blue-variable-multiplier`` |br|
+``--LBV-mass-loss-prescription`` |br|
+``--OB-mass-loss-prescription`` |br|
+``--RSG-mass-loss-prescription`` |br|
+``--VMS-mass-loss-prescription`` |br|
+``--WR-mass-loss-prescription`` |br|
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -1399,19 +1413,6 @@ This option is primarily intended for debugging/testing of convergence issues ra
 
 :ref:`Back to Top <options-props-top>`
 
-**--use-mass-loss** |br|
-Enable mass loss through winds. |br|
-Default = TRUE
-Note that setting this option to FALSE can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
-cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is not recommended
-for production. It is better to use specific wind prescription controls, such as: |br|
-``--cool-wind-mass-loss-multiplier`` |br|
-``--LBV-mass-loss-prescription`` |br|
-``--luminous-blue-variable-multiplier`` |br|
-``--mass-loss-prescription`` |br|
-``--overall-wind-mass-loss-multiplier`` |br|
-``--wolf-rayet-multiplier`` |br|
-
 **--use-mass-transfer** |br|
 Enable mass transfer. |br|
 Default = TRUE
@@ -1495,7 +1496,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Initial conditions**
 
---initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-function-min, --initial-mass-function-max, --initial-mass-power
+--initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-function-min, --initial-mass-function-max, --initial-mass-function-power
 
 --mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-sampled-secondary-mass
 
@@ -1514,7 +1515,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Stellar evolution and winds**
 
---use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
+--check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
 --luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
