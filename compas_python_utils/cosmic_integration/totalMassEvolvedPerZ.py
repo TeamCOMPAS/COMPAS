@@ -51,75 +51,71 @@ def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
         return 0.0
 
 
-def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None, mass_ratio_pdf_function=lambda q: 1,
-                        m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
-    """Calculate the fraction of mass in a COMPAS population relative to the total Universal population. This
-    can be used to normalise the rates of objects from COMPAS simulations.
+
+def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
+                        mass_ratio_pdf_function=lambda q: 1,
+                        m1=0.01, m2=0.08, m3=0.5, m4=200.0,
+                        a12=0.3, a23=1.3, a34=2.3):
+    """
+    Calculate the fraction of mass in a COMPAS population relative to the total Universal population.
+    Can be used to normalise the rates of objects from COMPAS simulations.
 
     Parameters
     ----------
-    m1_low : `float`
-        Lower limit on the sampled primary mass
-    m1_upp : `float`
-        Upper limit on the sampled primary mass
-    m2_low : `float`
-        Lower limit on the sampled secondary mass
-    f_bin : `float`
-        Binary fraction, if set to None, you will use a mass-dependent binary fraction
-    mass_ratio_pdf_function : `function`, optional
-        Function to calculate the mass ratio PDF, by default a uniform mass ratio distribution
-    mi, aij : `float`
-        Settings for the IMF choice, see `IMF` for details, by default follows Kroupa (2001)
-
-    Returns
-    -------
-    fraction
-        The fraction of mass in a COMPAS population relative to the total Universal population
-    """ 
-    # Step 0: define mass bins and corresponding binary fractions
+    m1_low, m1_upp : float
+        Primary mass cuts in COMPAS simulation
+    m2_low : float
+        Secondary mass cutoff
+    f_bin : float or None
+        Binary fraction. If None, use a stepwise mass-dependent binary fraction.
+    mass_ratio_pdf_function : function
+        PDF of mass ratio q
+    mi, aij : float
+        IMF breakpoints and slopes
+    """
+    binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
+    
     def get_binary_fraction(mass):
-    # Values chosen to approximately follow Figure 1 from Offner et al. (2023)
-        binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
         binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
         for i in range(len(binary_bin_edges) - 1):
             if binary_bin_edges[i] <= mass < binary_bin_edges[i + 1]:
                 return binaryFractions[i]
-        return 0  # Default value if mass is out of range
+        return 0  # catch-all
 
-    # first, for normalisation purposes, we can find the integral with no COMPAS cuts
-    def full_integral(mass, m1, m2, m3, m4, a12, a23, a34, f_bin):
-        primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
-        
-        if f_bin == None:
-            f_bin = get_binary_fraction(mass)
+    def IMF_mass(mass):
+        return IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
 
-        # find the expected companion mass given the mass ratio pdf function
-        expected_secondary_mass = quad(lambda q: q * mass_ratio_pdf_function(q), 0, 1)[0] * primary_mass
-        
-        single_stars = (1 - f_bin) * primary_mass
-        binary_stars = f_bin * (primary_mass + expected_secondary_mass)
-        return single_stars + binary_stars
-    
-    full_mass = quad(full_integral, m1, m4, args=(m1, m2, m3, m4, a12, a23, a34, f_bin))[0]
-    
-    # now we do a similar integral but for the COMPAS regime
-    def compas_integral(mass, m2_low, f_bin, m1, m2, m3, m4, a12, a23, a34):
-        # define the primary mass in the same way
-        primary_mass = IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
+    def integrand_full(mass, f_bin):
+        local_f_bin = get_binary_fraction(mass) if f_bin is None else f_bin
+        expected_q = quad(lambda q: q * mass_ratio_pdf_function(q), 0, 1)[0]
+        return (1 - local_f_bin + local_f_bin * (1 + expected_q)) * IMF_mass(mass)
 
-        if f_bin == None:
-            f_bin = get_binary_fraction(mass)
+    def integrand_compas(mass, f_bin):
+        local_f_bin = get_binary_fraction(mass) if f_bin is None else f_bin
+        q_min = m2_low / mass
+        if q_min >= 1:
+            return 0  # No valid secondaries
+        f_q = quad(mass_ratio_pdf_function, q_min, 1)[0]
+        expected_q = quad(lambda q: q * mass_ratio_pdf_function(q), q_min, 1)[0]
+        return local_f_bin * f_q * (1 + expected_q) * IMF_mass(mass)
 
-        # find the fraction that are below the m2 mass cut
-        f_below_m2low = quad(mass_ratio_pdf_function, 0, m2_low / mass)[0]
-        
-        # expectation value of the secondary mass given the m2 cut and mass ratio pdf function
-        expected_secondary_mass = quad(lambda q: q * mass_ratio_pdf_function(q), m2_low / mass, 1)[0] * primary_mass
-        
-        # return total mass of binary stars that have m2 above the cut
-        return f_bin * (1 - f_below_m2low) * (primary_mass + expected_secondary_mass)
-    
-    compas_mass = quad(compas_integral, m1_low, m1_upp, args=(m2_low, f_bin, m1, m2, m3, m4, a12, a23, a34))[0]
+    # split integral at binary fraction steps if f_bin is None (i.e. variable and like a step function)
+    def split_integral(func, a, b, f_bin):
+        total = 0
+        for edge_start, edge_end in zip(binary_bin_edges[:-1], binary_bin_edges[1:]):
+            left = max(a, edge_start)
+            right = min(b, edge_end)
+            if left < right:
+                result, _ = quad(func, left, right, args=(f_bin,))
+                total += result
+        return total
+
+    if f_bin is None:
+        full_mass = split_integral(integrand_full, m1, m4, f_bin)
+        compas_mass = split_integral(integrand_compas, m1_low, m1_upp, f_bin)
+    else:
+        full_mass = quad(integrand_full, m1, m4, args=(f_bin,))[0]
+        compas_mass = quad(integrand_compas, m1_low, m1_upp, args=(f_bin,))[0]
 
     return compas_mass / full_mass
 
