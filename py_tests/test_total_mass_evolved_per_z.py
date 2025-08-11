@@ -13,12 +13,8 @@ import h5py as h5
 
 import pytest
 
-MAKE_PLOTS = True
-
-M1_MIN = 5
-M1_MAX = 150
-M2_MIN = 0.1
-F_BIN = 0.5 #None
+# Testvalues defined in py_tests/test_values.py
+from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
 
 
 def test_imf(test_archive_dir):
@@ -80,21 +76,27 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
     assert np.isclose(numerical, analytical, rtol=1)
     if MAKE_PLOTS:
         fig = plot_star_forming_mass_per_binary_comparison(tmpdir, analytical, m1_min, m1_max, m2_min, fbin)
-        fig.savefig(f"{test_archive_dir}/analytical_vs_numerical_const.png")
+        fig.savefig(f"{test_archive_dir}/analytical_vs_numerical_var.png")
 
 
 def plot_star_forming_mass_per_binary_comparison(
         tmpdir, analytical, m1_min, m1_max, m2_min, fbin,
         nreps=5, nsamps=5
 ):
-    plt.axhline(analytical, color='tab:blue', label="analytical", ls='--')
+    # Analytical values
+    plt.axhline(analytical, color='tab:blue', label=f"analytical fbin = {fbin}", ls='--')
+
+    # Compute numerical values
     n_samps = np.geomspace(1e3, 5e4, nsamps)
     numerical_vals = []
     for _ in range(nreps):
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
             fname = f"{tmpdir}/test_{i}.h5"
-            generate_mock_bbh_population_file(fname, n_systems=int(n))
+
+            generate_mock_bbh_population_file(filename=fname, n_systems=int(n),
+                                              m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
+            # generate_mock_bbh_population_file(fname, n_systems=int(n))
             vals[i] = (star_forming_mass_per_binary(fname, m1_min, m1_max, m2_min, fbin))
         numerical_vals.append(vals)
 
@@ -108,7 +110,7 @@ def plot_star_forming_mass_per_binary_comparison(
     )
     plt.plot(n_samps, np.median(numerical_vals, axis=0), color='tab:orange', label="numerical")
     plt.xscale("log")
-    plt.ylabel("Star forming mass per binary [M$_{\odot}$]")
+    plt.ylabel(r"Star forming mass per binary [M$_{\odot}$]")
     plt.xlabel("Number of samples")
     plt.ylim(bottom=10)
     plt.xlim(min(n_samps), max(n_samps))
