@@ -800,7 +800,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPostMT→lum1
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→luminosity1
    * - Description:
      - Luminosity (\ :math:`L_\odot`) of the primary immediately after RLOF.
    * - Header String:
@@ -816,7 +816,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPostMT→lum2
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→luminosity2
    * - Description:
      - Luminosity (\ :math:`L_\odot`) of the secondary immediately after RLOF.
    * - Header String:
@@ -896,7 +896,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPostMT→teff1
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→temperature1
    * - Description:
      - Effective temperature (\ :math:`K`) of the primary immediately after RLOF.
    * - Header String:
@@ -912,7 +912,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPostMT→teff2
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→temperature2
    * - Description:
      - Effective temperature (\ :math:`K`) of the secondary immediately after RLOF.
    * - Header String:
@@ -1100,7 +1100,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPreMT→lum1
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→luminosity1
    * - Description:
      - Luminosity (\ :math:`L_\odot`) of the primary at the onset of RLOF.
    * - Header String:
@@ -1116,7 +1116,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPreMT→lum2
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→luminosity2
    * - Description:
      - Luminosity (\ :math:`L_\odot`) of the secondary at the onset of RLOF.
    * - Header String:
@@ -1197,7 +1197,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPreMT→teff1
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→temperature1
    * - Description:
      - Effective temperature (\ :math:`K`) of the primary at the onset of RLOF.
    * - Header String:
@@ -1213,7 +1213,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - BaseBinaryStar::m_RLOFDetails.propsPreMT→teff2
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→temperature2
    * - Description:
      - Effective temperature (\ :math:`K`) of the secondary at the onset of RLOF.
    * - Header String:
