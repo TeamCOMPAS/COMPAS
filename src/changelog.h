@@ -1650,6 +1650,8 @@
 //  03.23.01  IM - August 18, 2025      - Enhancement, defect repair:
 //                                          - In the MALTSEV SN prescription, treat wind-stripped stars as if they experienced case B mass transfer
 //                                          - Limit the output of CalculateEtaPTY() [Helium accretion efficiency onto WDs from Piersanti+ 2014, A3] to be in [0,1]
+//  03.23.02 RTW - August 18, 2025      - Enhancement:
+//                                          - Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR)
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1661,7 +1663,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.23.01";
+const std::string VERSION_STRING = "03.23.02";
 
 
 # endif // __changelog_h__
