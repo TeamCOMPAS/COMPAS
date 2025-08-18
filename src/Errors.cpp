@@ -1,4 +1,5 @@
-/* * Class Errors
+/*
+ * Class Errors
  *
  * Provides global error handling functionality.
  *
