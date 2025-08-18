@@ -1965,7 +1965,7 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         
         case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
 
-            //fallbackfraction determined interally
+            //fallbackfraction determined internally
             m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
             break;
             
