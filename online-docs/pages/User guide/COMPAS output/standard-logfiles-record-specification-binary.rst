@@ -795,6 +795,38 @@ Binary Properties
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **RLOF_POST_MT_STAR1_LUM**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→lum1
+   * - Description:
+     - Luminosity (\ :math:`L_\odot`) of the primary immediately after RLOF.
+   * - Header String:
+     - Lum(1)>MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_POST_MT_STAR2_LUM**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→lum2
+   * - Description:
+     - Luminosity (\ :math:`L_\odot`) of the secondary immediately after RLOF.
+   * - Header String:
+     - Lum(2)>MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **RLOF_POST_MT_STAR1_MASS**
      -
    * - Data type:
@@ -853,6 +885,38 @@ Binary Properties
      - Radius (\ :math:`R_\odot`) of the secondary immediately after RLOF.
    * - Header String:
      - Radius(2)>MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_POST_MT_STAR1_TEFF**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→teff1
+   * - Description:
+     - Effective temperature (\ :math:`K`) of the primary immediately after RLOF.
+   * - Header String:
+     - Teff(1)>MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_POST_MT_STAR2_TEFF**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPostMT→teff2
+   * - Description:
+     - Effective temperature (\ :math:`K`) of the secondary immediately after RLOF.
+   * - Header String:
+     - Teff(2)>MT
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1031,6 +1095,39 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **RLOF_PRE_MT_STAR1_LUM**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→lum1
+   * - Description:
+     - Luminosity (\ :math:`L_\odot`) of the primary at the onset of RLOF.
+   * - Header String:
+     - Lum(1)<MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_PRE_MT_STAR2_LUM**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→lum2
+   * - Description:
+     - Luminosity (\ :math:`L_\odot`) of the secondary at the onset of RLOF.
+   * - Header String:
+     - Lum(2)<MT
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **RLOF_PRE_MT_STAR1_MASS**
      -
    * - Data type:
@@ -1089,6 +1186,38 @@ but not both. If both are printed then the file will contain two columns with th
      - Radius (\ :math:`R_\odot`) of the secondary at the onset of RLOF.
    * - Header String:
      - Radius(2)<MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_PRE_MT_STAR1_TEFF**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→teff1
+   * - Description:
+     - Effective temperature (\ :math:`K`) of the primary at the onset of RLOF.
+   * - Header String:
+     - Teff(1)<MT
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **RLOF_PRE_MT_STAR2_TEFF**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_RLOFDetails.propsPreMT→teff2
+   * - Description:
+     - Effective temperature (\ :math:`K`) of the secondary at the onset of RLOF.
+   * - Header String:
+     - Teff(2)<MT
 
 .. flat-table::
    :widths: 25 75 1 1
