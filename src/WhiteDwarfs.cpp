@@ -119,7 +119,7 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
     }
 
     // Returned eta should be between 0 and 1
-    return std::min( std::max(etaPTY, 0.0), 1.0);
+    return std::min(std::max(etaPTY, 0.0), 1.0);
 }
 
 
