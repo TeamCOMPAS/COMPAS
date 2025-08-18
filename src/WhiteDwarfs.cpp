@@ -118,7 +118,8 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
         etaPTY = -WD_PIERSANTI_M102_G0 + WD_PIERSANTI_M102_G1 * massRate - WD_PIERSANTI_M102_G2 * massRate_2 + WD_PIERSANTI_M102_G3 * massRate_3;
     }
 
-    return etaPTY;
+    // Returned eta should be between 0 and 1
+    return std::min(std::max(etaPTY, 0.0), 1.0);
 }
 
 
