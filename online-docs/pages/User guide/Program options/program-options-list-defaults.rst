@@ -818,6 +818,20 @@ Options: {ZERO, MANDEL, BRCEK} |br|
 ``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
 Default = MANDEL
 
+**--maltsev-fallback** |br|
+Fixed fallback fraction when using MALTSEV2024 remnant mass prescription (must be between 0 and 1). |br|
+A value of 0.0 means that fallback BHs get no fallback, only the mass of the proto-NS remnant (and will get flagged as NSs). |br|
+A value of 1.0 means that fallback BHs get total fallback, taking the mass of the progenitor up to and including the He core (but not the H envelope). |br|
+Default = 0.5
+
+**--maltsev-mode** |br|
+Which variant of the MALTSEV remnant mass prescription. Variants pertain to the treatment of extrapolation at low metallicities, and are described in detail in Willcox+ 2025. |br|
+Options: {OPTIMISTIC, BALANCED, PESSIMISTIC} |br|
+``OPTIMISTIC``  : Compactness-peak BHs formed from the lowest CO-mass progenitors for a given metallicity.                               |br|
+``PESSIMISTIC`` : Compactness-peak BHs only formed from the highest CO-mass progenitors for a given metallicity.                         |br|
+``BALANCED``    : Compactness-peak BHs formed CO-mass progenitors with masses between the two previous extremes for a given metallicity. |br|
+Default = BALANCED
+
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
 Recommended value is 0.005. |br|
