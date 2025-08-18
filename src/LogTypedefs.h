@@ -825,6 +825,8 @@ enum class PROGRAM_OPTION: int {
     COMMON_ENVELOPE_MASS_ACCRETION_MIN,
     COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,
     COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,
+    COMMON_ENVELOPE_SECOND_STAGE_BETA,
+    COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION,
     COMMON_ENVELOPE_SLOPE_KRUCKOW,
 
     CONVECTIVE_ENVELOPE_MASS_THRESHOLD,
@@ -856,7 +858,7 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION,
     INITIAL_MASS_FUNCTION_MAX,
     INITIAL_MASS_FUNCTION_MIN,
-    INITIAL_MASS_FUNCTIONPOWER,
+    INITIAL_MASS_FUNCTION_POWER,
 
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
@@ -909,7 +911,7 @@ enum class PROGRAM_OPTION: int {
     METALLICITY_DISTRIBUTION_MAX,
     METALLICITY_DISTRIBUTION_MIN,
 
-    MINIMUM_MASS_SECONDARY,
+    MINIMUM_SAMPLED_SECONDARY_MASS,
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION,
     MT_ANG_MOM_LOSS_PRESCRIPTION,
@@ -941,7 +943,8 @@ enum class PROGRAM_OPTION: int {
 
     MULLER_MANDEL_KICK_MULTIPLIER_BH,
     MULLER_MANDEL_KICK_MULTIPLIER_NS,
-    MULLER_MANDEL_SIGMA_KICK,
+    MULLER_MANDEL_SIGMA_KICK_BH,
+    MULLER_MANDEL_SIGMA_KICK_NS,
 
     NEUTRINO_MASS_LOSS_ASSUMPTION_BH,
     NEUTRINO_MASS_LOSS_VALUE_BH,
@@ -1057,6 +1060,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,               "COMMON_ENVELOPE_MASS_ACCRETION_MIN" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,      "COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,     "COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_BETA,                "COMMON_ENVELOPE_SECOND_STAGE_BETA" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION,  "COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                    "COMMON_ENVELOPE_SLOPE_KRUCKOW" },
 
     { PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER,                   "COOL_WIND_MASS_LOSS_MULTIPLIER" },
@@ -1085,7 +1090,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                            "INITIAL_MASS_FUNCTION" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                      "INITIAL_MASS_FUNCTION_POWER" },
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1136,7 +1141,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                     "METALLICITY_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                     "METALLICITY_DISTRIBUTION_MIN" },
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                   "MINIMUM_SAMPLED_SECONDARY_MASS" },
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,             "MT_ACCRETION_EFFICIENCY_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
@@ -1168,7 +1173,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                 "MULLER_MANDEL_KICK_MULTIPLIER_BH" },
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                 "MULLER_MANDEL_KICK_MULTIPLIER_NS" },
-    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                         "MULLER_MANDEL_SIGMA_KICK" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                      "MULLER_MANDEL_SIGMA_KICK_BH" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                      "MULLER_MANDEL_SIGMA_KICK_NS" },
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                 "NEUTRINO_MASS_LOSS_ASSUMPTION_BH" },
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                      "NEUTRINO_MASS_LOSS_VALUE_BH" },
@@ -1643,6 +1649,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,                       { TYPENAME::DOUBLE,     "PO_CE_Mass_Accr_Min",                       "Msol",      24, 15}},
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,              { TYPENAME::INT,        "PO_CE_Mass_Accr_Prscrptn",                  "-",          4, 1 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,             { TYPENAME::DOUBLE,     "PO_CE_Recomb_Enrgy_Dnsty",                  "erg g^-1",  24, 15}},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_BETA,                        { TYPENAME::DOUBLE,     "PO_CE_Second_Stage_Beta",                   "-",         24, 15}},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION,          { TYPENAME::INT,        "PO_CE_Second_Stage_Gamma_Prescription",     "-",         24, 15}},
     { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                            { TYPENAME::DOUBLE,     "PO_CE_Slope_Kruckow",                       "-",         24, 15}},
 
     { PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER,                           { TYPENAME::DOUBLE,     "PO_Cool_WindMassLoss_Multipl",              "-",         24, 15}},
@@ -1671,7 +1679,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                    { TYPENAME::INT,        "PO_Initial_Mass_Function",                  "-",          4, 1 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Max",                  "Msol",      24, 15}},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Min",                  "Msol",      24, 15}},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                               { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                              { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,        "PO_Kick_Direction_Dstrbtn",                 "-",          4, 1 }},
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,     "PO_Kick_Direction_Power",                   "-",         24, 15}},
@@ -1723,7 +1731,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Max",                "-",         24, 15}},
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Min",                "-",         24, 15}},
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                                   { TYPENAME::DOUBLE,     "PO_Min_Secondary_Mass",                     "Msol",      24, 15}},
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                           { TYPENAME::DOUBLE,     "PO_Min_Sampled_Secondary_Mass",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                     { TYPENAME::INT,        "PO_MT_Acc_Efficiency_Prscrptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                             { TYPENAME::INT,        "PO_MT_AngMom_Loss_Prscrptn",                "-",          4, 1 }},
@@ -1756,7 +1764,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_BH",                  "-",         24, 15}},
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_NS",                  "-",         24, 15}},
-    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                                 { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick",                          "-",         24, 15}},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_BH",                          "-",         24, 15}},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_NS",                          "-",         24, 15}},
     
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "PO_Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "PO_Neutrino_Mass_Loss_Value",               "-",         24, 15}},
@@ -1872,7 +1881,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class BSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default BSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     POST_BINARY_TIMESTEP                                                                                            // 3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
@@ -1909,7 +1918,7 @@ enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                             
 };
 
 enum class SSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // SSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default SSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     TIMESTEP_COMPLETED                                                                                              // 3 - record was logged immediately following the completion of the timestep (after all changes to the star)
 };
@@ -2326,6 +2335,7 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     PROGRAM_OPTION::LBV_FACTOR,
     PROGRAM_OPTION::WR_FACTOR,
     PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,
+    PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,
     STAR_1_PROPERTY::METALLICITY,
     STAR_2_PROPERTY::METALLICITY,
     BINARY_PROPERTY::UNBOUND,

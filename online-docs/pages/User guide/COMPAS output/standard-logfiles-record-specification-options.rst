@@ -608,7 +608,7 @@ DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will s
    * - COMPAS variable:
      - Options::m_InitialMassFunctionMax
    * - Description:
-     - Value of program option ``--initial-mass-max``
+     - Value of program option ``--initial-mass-function-max``
    * - Header String:
      - PO_Initial_Mass_Func_Max
 
@@ -624,7 +624,7 @@ DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will s
    * - COMPAS variable:
      - Options::m_InitialMassFunctionMin
    * - Description:
-     - Value of program option ``--initial-mass-min``
+     - Value of program option ``--initial-mass-function-min``
    * - Header String:
      - PO_Initial_Mass_Func_Min
 
@@ -1293,14 +1293,14 @@ DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will s
    :header-rows: 0
    :class: aligned-text
 
-   * - :cspan:`2` **MINIMUM_MASS_SECONDARY**
+   * - :cspan:`2` **MINIMUM_SAMPLED_SECONDARY_MASS**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - Options::m_MinimumMassSecondary
+     - Options::m_MinimumSampledSecondaryMass
    * - Description:
-     - Value of program option ``--minimum-secondary-mass``
+     - Value of program option ``--minimum-sampled-secondary-mass``
    * - Header String:
      - PO_Min_Secondary_Mass
 

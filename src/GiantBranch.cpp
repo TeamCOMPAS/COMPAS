@@ -1351,6 +1351,9 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
             massTransferCase                        = newStar->DetermineMassTransferTypeAsDonor();                          // get MT type as donor
             delete newStar; newStar                 = nullptr;                                                              // return the memory allocated for the new star
         }
+        
+        // If self-stripped, re-classify as Case B
+        if (massTransferCase == MT_CASE::NONE && HydrogenAbundanceSurface() == 0.0) massTransferCase = MT_CASE::B;			// if a star was stripped by winds, treat it as if it experienced Case B mass transfer
 
         // apply the appropriate remnant mass prescription for the chosen MT case
         switch (massTransferCase) {                                                                                         // which MT_CASE?

@@ -259,8 +259,6 @@ constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.001;                
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.1;                                                      // Maximum allowable radial change - 10% (of radius) expressed as a fraction
 constexpr double MAXIMUM_WIND_MASS_LOSS_RATE            = 0.1;                                                      // Maximum wind mass loss rates (in solar masses per year) to avoid convergence issues
 
-constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
-
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 constexpr double LAMBDA_NANJING_POPI_Z                  = 0.02;                                                     // Population I metallicity in Xu & Li (2010)
 constexpr double LAMBDA_NANJING_POPII_Z                 = 0.001;                                                    // Population II metallicity in Xu & Li (2010)
@@ -322,9 +320,9 @@ const std::string DEFAULT_HDF5_FILE_NAME                = "COMPAS_Output";      
 const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";                                        // Name for detailed output directory within output container
 const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
 
-constexpr int    HDF5_DEFAULT_CHUNK_SIZE                = 100000;                                                   // default HDF5 chunk size (number of dataset entries)
-constexpr int    HDF5_DEFAULT_IO_BUFFER_SIZE            = 1;                                                        // number of HDF5 chunks to buffer for IO (per open dataset)
-constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                                                     // minimum HDF5 chunk size (number of dataset entries)
+constexpr int    HDF5_DEFAULT_CHUNK_SIZE                = 100000;                                                   // Default HDF5 chunk size (number of dataset entries)
+constexpr int    HDF5_DEFAULT_IO_BUFFER_SIZE            = 1;                                                        // Number of HDF5 chunks to buffer for IO (per open dataset)
+constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                                                     // Minimum HDF5 chunk size (number of dataset entries)
 
 // option constraints
 // Use these constant to specify constraints that should be applied to program option values
@@ -392,7 +390,8 @@ constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
 constexpr double MULLERMANDEL_KICKNS                    = 520.0;                                                    // As calibrated by Kapil+ 2023
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
-constexpr double MULLERMANDEL_SIGMAKICK                 = 0.3;
+constexpr double MULLERMANDEL_SIGMAKICKBH               = 0.3;
+constexpr double MULLERMANDEL_SIGMAKICKNS               = 0.3;
 
 // Constants for Disberg & Mandel (2025) SN kick prescription
 constexpr double DISBERG_MANDEL_MU                      = 5.60;

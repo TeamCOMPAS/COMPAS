@@ -2469,11 +2469,11 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
  * or are added to other wind mass loss if LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD is used.
  * 
  *
- * double CalculateMassLossRateMerritt2024()
+ * double CalculateMassLossRateMerritt2025()
  * 
  * @return                  Mass loss rate in Msol per year
  */
-double BaseStar::CalculateMassLossRateMerritt2024() {
+double BaseStar::CalculateMassLossRateMerritt2025() {
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::NONE;
 
@@ -2526,7 +2526,7 @@ double BaseStar::CalculateMassLossRate() {
 
     double mDot = 0.0;                                                                                          // default return value
 
-    if (OPTIONS->UseMassLoss()) {                                                                               // mass loss enabled?
+    if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {                                      // mass loss enabled?
                                                                                                                 // yes
         double LBVRate;
         double otherWindsRate;
@@ -2550,8 +2550,8 @@ double BaseStar::CalculateMassLossRate() {
                 mDot = CalculateMassLossRateBelczynski2010();
                 break;
 
-            case MASS_LOSS_PRESCRIPTION::MERRITT2024:
-                mDot = CalculateMassLossRateMerritt2024();
+            case MASS_LOSS_PRESCRIPTION::MERRITT2025:
+                mDot = CalculateMassLossRateMerritt2025();
                 break;
 
             default:                                                                                                // unknown prescription
@@ -2565,7 +2565,7 @@ double BaseStar::CalculateMassLossRate() {
                 THROW_ERROR(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION);                                                 // throw error
         }
 
-        mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
+        mDot *= OPTIONS->OverallWindMassLossMultiplier();                                                           // apply overall wind mass loss multiplier
     }
     
     mDot = min(mDot, MAXIMUM_WIND_MASS_LOSS_RATE);                                                                  // cap winds at a maximum mass loss rate (typically 0.1 solar masses per year) to avoid convergence issues
@@ -2598,8 +2598,8 @@ double BaseStar::CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot) {
 
     double mass = m_Mass;
 
-    if (OPTIONS->UseMassLoss()) {                                               // only if using mass loss (program option)
-
+    if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {      // mass loss enabled?
+                                                                                // yes
         double mDot     = CalculateMassLossRate();                              // calculate mass loss rate
         double massLoss = max(0.0, mDot * p_Dt * 1.0E6);                        // calculate mass loss; mass loss rate given in Msol per year, times are in Myr so need to multiply by 10^6
         if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
@@ -2634,8 +2634,8 @@ double BaseStar::CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot) {
  */
 void BaseStar::ResolveMassLoss(double p_Dt) {
 
-    if (OPTIONS->UseMassLoss()) {
-
+    if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {                          // mass loss enabled?
+                                                                                                    // yes
         double mass = CalculateMassLossValues(p_Dt, true);                                          // calculate new values assuming mass loss applied
 
         double angularMomentumChange = (2.0 / 3.0) * (mass - m_Mass) * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * Omega();
@@ -3824,21 +3824,22 @@ double BaseStar::DrawRemnantKickMuller(const double p_COCoreMass) const {
 double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass, 
                                              const double p_Rand,
                                              const double p_RemnantMass) const {					
-	double remnantKick = -1.0;
+	double remnantKick;
 	double muKick      = 0.0;
-    double rand        = p_Rand;    // makes it possible to adjust if p_Rand is too low, to avoid getting stuck
+    double sigmaKick   = 0.0;
 
 	if (utils::Compare(p_RemnantMass, OPTIONS->MaximumNeutronStarMass()) <  0) {
 		muKick = max(OPTIONS->MullerMandelKickMultiplierNS() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
+        sigmaKick = OPTIONS->MullerMandelSigmaKickNS();
 	}
 	else {
 		muKick = max(OPTIONS->MullerMandelKickMultiplierBH() * (p_COCoreMass - p_RemnantMass) / p_RemnantMass, 0.0);
+        sigmaKick = OPTIONS->MullerMandelSigmaKickBH();
 	}
 
-	while (remnantKick < 0.0) {
-		remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, OPTIONS->MullerMandelSigmaKick()));
-		rand        = min(rand + p_Rand + 0.0001, 1.0);
-	}
+    double quantile0 = gsl_cdf_gaussian_P(-1.0, sigmaKick);  //quantile of -1 in the Gaussian CDF; the goal is to draw from the cut-off Gaussian since the kick must exceed 0
+    double rand = quantile0 + p_Rand * (1.0 - quantile0);
+    remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, sigmaKick));
 
 	return remnantKick;
 }

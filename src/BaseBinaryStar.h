@@ -440,8 +440,8 @@ private:
     double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     
-    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
-    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
+    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate, const bool p_IsCommonEnvelope);
+    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate(), false); }
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
 
@@ -451,13 +451,15 @@ private:
                                        const double                 p_DeltaMassDonor,
                                        const double                 p_AccretorMass,
                                        const bool                   p_IsAccretorDegenerate,
-                                       const double                 p_FractionAccreted);
+                                       const double                 p_FractionAccreted,
+                                       const bool                   p_IsCommonEnvelope);
 
     
     double  CalculateMassTransferOrbit(const double                 p_DonorMass,
                                        const double                 p_DeltaMassDonor, 
                                              BinaryConstituentStar& p_Accretor, 
-                                       const double                 p_FractionAccreted) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted); }
+                                       const double                 p_FractionAccreted,
+                                       const bool                   p_IsCommonEnvelope) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted, p_IsCommonEnvelope); }
 
     
     
@@ -562,7 +564,7 @@ private:
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
     }
     
-    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType = BSE_PULSAR_RECORD_TYPE::DEFAULT) const {
+    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType) const {
         return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
     }
     
@@ -575,13 +577,13 @@ private:
      *
      *
      * Constructor: initialise the class
-     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass, ERROR *p_Error)
+     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_Dt, ERROR *p_Error)
      *
      * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
      * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
      * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
-     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (for thermal timescale accretion)
-     * @param   [IN]    p_MaximumAccretedMass       The total amount of mass that can be accreted (for nuclear timescale accretion, p_FractionAccreted should be negative for this to be used)
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (if known in advance, otherwise zero)
+     * @param   [IN]    p_Dt                        Time step duration (relevant for nuclear timescale mass transfer)
      * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
      * 
      * Function: calculate radius difference after mass loss
@@ -592,13 +594,13 @@ private:
      */    
     template <class T>
     struct RadiusEqualsRocheLobeFunctor {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass, ERROR *p_Error) {
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_Dt, ERROR *p_Error) {
             m_Binary           = p_Binary;
             m_Donor            = p_Donor;
             m_Accretor         = p_Accretor;
             m_Error            = p_Error;
             m_FractionAccreted = p_FractionAccreted;
-            m_MaximumAccretedMass = p_MaximumAccretedMass;
+            m_Dt               = p_Dt;
         }
         T operator()(double const& p_dM) {
 
@@ -609,14 +611,20 @@ private:
 
             double donorMass     = m_Donor->Mass();
             double accretorMass  = m_Accretor->Mass();
+            // use stale value of accretor RL radius -- this is only relevant for nuclear timescale MT, when the change in accretor RL radius should be small
+            double accretorRLradius = CalculateRocheLobeRadius_Static(accretorMass, donorMass) * AU_TO_RSOL * m_Binary->SemiMajorAxis() * (1.0 - m_Binary->Eccentricity());
             
             // beta is the actual accretion efficiency; if p_FractionAccreted is negative (placeholder
             // for nuclear timescale accretion efficiency, for which the total accretion mass over the
-            // duration of the timestep is known), then the ratio of the maximum allowed accreted
-            // mass / donated mass is used
-            double beta = (utils::Compare(m_FractionAccreted, 0.0) >=0 ) ? m_FractionAccreted : std::min(m_MaximumAccretedMass/p_dM, 1.0);
+            // duration of the timestep is known), then must estimate it on the fly for consistency
+            double beta = m_FractionAccreted;
+            if (utils::Compare(beta, 0.0) < 0) {
+                std::tie(std::ignore, beta) = m_Accretor->CalculateMassAcceptanceRate(p_dM / m_Dt,
+                                              m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), 
+                                              m_Donor->IsOneOf(He_RICH_TYPES));
+            }
             
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta, false);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
             
             double radiusAfterMassLoss = m_Donor->CalculateRadiusOnMassChange(-p_dM);
@@ -629,7 +637,7 @@ private:
         BinaryConstituentStar *m_Accretor;
         ERROR                 *m_Error;
         double                 m_FractionAccreted;
-        double                 m_MaximumAccretedMass;
+        double                 m_Dt;
     };
 
 

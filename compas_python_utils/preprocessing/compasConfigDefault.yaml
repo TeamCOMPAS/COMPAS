@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Wed Jun 25 11:07:34 2025 by COMPAS v03.20.06
+##~!!~## File Created Sun Aug 10 13:16:13 2025 by COMPAS v03.23.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -25,12 +25,11 @@ booleanChoices:
 
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
-#    --use-mass-loss: True                                                 # Default: True
 #    --enable-rotationally-enhanced-mass-loss: False                       # Default: False
-#    --enhance-CHE-lifetimes-luminosities: False                           # Default: False
+#    --enhance-CHE-lifetimes-luminosities: True                            # Default: True
 #    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
 #    --natal-kick-for-PPISN: False                                         # Default: False
-#    --scale-CHE-mass-loss-with-surface-helium-abundance: False            # Default: False
+#    --scale-CHE-mass-loss-with-surface-helium-abundance: True             # Default: True
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                                            # record binaries that have stars touching at birth in output files
@@ -71,9 +70,9 @@ numericalChoices:
     ### LOGISTICS
 #    --debug-level: 0                                                      # Default: 0
 #    --logfile-common-envelopes-record-types: -1                           # Default: -1
-#    --logfile-detailed-output-record-types: -1                            # Default: -1
+#    --logfile-detailed-output-record-types: 25                            # Default: 25
 #    --logfile-double-compact-objects-record-types: -1                     # Default: -1
-#    --logfile-pulsar-evolution-record-types: -1                           # Default: -1
+#    --logfile-pulsar-evolution-record-types: 4                            # Default: 4
 #    --logfile-rlof-parameters-record-types: -1                            # Default: -1
 #    --logfile-supernovae-record-types: -1                                 # Default: -1
 #    --logfile-system-snapshot-log-record-types: -1                        # Default: -1
@@ -96,9 +95,9 @@ numericalChoices:
     ### STELLAR PROPERTIES
 #    --cool-wind-mass-loss-multiplier: 1.000000                            # Default: 1.000000
 #    --initial-mass: 5.000000                                              # Default: 5.000000                                                                                                                                                                         # initial mass for SSE
-#    --initial-mass-min: 5.000000                                          # Default: 5.000000                                                                                                                                                                         # use 5.0 for DCOs [Msol]
-#    --initial-mass-max: 150.00                                            # Default: 150.00                                                                                                                                                                           # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
-#    --initial-mass-power: 0.000000                                        # Default: 0.000000
+#    --initial-mass-function-min: 5.000000                                 # Default: 5.000000                                                                                                                                                                         # use 5.0 for DCOs [Msol]
+#    --initial-mass-function-max: 150.00                                   # Default: 150.00                                                                                                                                                                           # stellar tracks extrapolated above 50 Msol (Hurley+2000) [Msol]
+#    --initial-mass-function-power: 0.000000                               # Default: 0.000000
 #    --luminosity-to-mass-threshold: 4.200000                              # Default: 4.200000
 #    --metallicity: 0.014200                                               # Default: 0.014200                                                                                                                                                                         # metallicity for both SSE and BSE - Solar metallicity Asplund+2010
 #    --metallicity-min: 0.000100                                           # Default: 0.000100
@@ -121,7 +120,7 @@ numericalChoices:
 #    --mass-ratio: 1.000000                                                # Default: 1.000000
 #    --mass-ratio-min: 0.010000                                            # Default: 0.010000
 #    --mass-ratio-max: 1.000000                                            # Default: 1.000000
-#    --minimum-secondary-mass: 0.100000                                    # Default: 0.100000                                                                                                                                                                         # Brown dwarf limit [Msol]
+#    --minimum-sampled-secondary-mass: 0.100000                            # Default: 0.100000                                                                                                                                                                         # Brown dwarf limit [Msol]
 #    --orbital-period: 0.100000                                            # Default: 0.100000                                                                                                                                                                         # orbital period for BSE
 #    --orbital-period-min: 1.100000                                        # Default: 1.100000                                                                                                                                                                         # [days]
 #    --orbital-period-max: 1000.00                                         # Default: 1000.00                                                                                                                                                                          # [days]
@@ -166,6 +165,7 @@ numericalChoices:
 #    --common-envelope-mass-accretion-max: 0.100000                        # Default: 0.100000                                                                                                                                                                         # For 'MACLEOD+2014' [Msol]
 #    --common-envelope-mass-accretion-min: 0.040000                        # Default: 0.040000                                                                                                                                                                         # For 'MACLEOD+2014' [Msol]
 #    --common-envelope-recombination-energy-density: 15000000000000.00     # Default: 15000000000000.00
+#    --common-envelope-second-stage-beta: 0.000000                         # Default: 0.000000
 #    --common-envelope-slope-kruckow: -0.833333                            # Default: -0.833333
 #    --maximum-mass-donor-nandez-ivanova: 2.000000                         # Default: 2.000000
 
@@ -197,7 +197,8 @@ numericalChoices:
 #    --mcbur1: 1.600000                                                    # Default: 1.600000
 #    --muller-mandel-kick-multiplier-BH: 200.00                            # Default: 200.00                                                                                                                                                                           # scaling prefactor for BH kicks when using the 'MULLERMANDEL' kick magnitude distribution
 #    --muller-mandel-kick-multiplier-NS: 520.00                            # Default: 520.00                                                                                                                                                                           # scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution
-#    --muller-mandel-sigma-kick: 0.300000                                  # Default: 0.300000                                                                                                                                                                         # kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
+#    --muller-mandel-sigma-kick-BH: 0.300000                               # Default: 0.300000                                                                                                                                                                         # BH kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
+#    --muller-mandel-sigma-kick-NS: 0.300000                               # Default: 0.300000                                                                                                                                                                         # NS kick scatter when using the 'MULLERMANDEL' kick magnitude distribution
 #    --neutrino-mass-loss-BH-formation-value: 0.100000                     # Default: 0.100000
 #    --pisn-lower-limit: 60.000000                                         # Default: 60.000000                                                                                                                                                                        # Minimum core mass for PISN [Msol]
 #    --pisn-upper-limit: 135.00                                            # Default: 135.00                                                                                                                                                                           # Maximum core mass for PISN [Msol]
@@ -243,7 +244,7 @@ stringChoices:
 #    --initial-mass-function: 'KROUPA'                                     # Default: 'KROUPA'                      # Options: ['KROUPA','UNIFORM','POWERLAW','SALPETER']
 #    --LBV-mass-loss-prescription: 'HURLEY_ADD'                            # Default: 'HURLEY_ADD'                  # Options: ['BELCZYNSKI','HURLEY','HURLEY_ADD','ZERO']
 #    --main-sequence-core-mass-prescription: 'MANDEL'                      # Default: 'MANDEL'                      # Options: ['BRCEK','MANDEL','ZERO']
-#    --mass-loss-prescription: 'MERRITT2024'                               # Default: 'MERRITT2024'                 # Options: ['MERRITT2024','BELCZYNSKI2010','HURLEY','ZERO']
+#    --mass-loss-prescription: 'MERRITT2025'                               # Default: 'MERRITT2025'                 # Options: ['MERRITT2025','BELCZYNSKI2010','HURLEY','ZERO']
 #    --OB-mass-loss-prescription: 'VINK2021'                               # Default: 'VINK2021'                    # Options: ['KRTICKA2018','BJORKLUND2022','VINK2021','VINK2001','ZERO']
 #    --RSG-mass-loss-prescription: 'DECIN2023'                             # Default: 'DECIN2023'                   # Options: ['NJ90','KEE2021','YANG2023','DECIN2023','BEASOR2020','VINKSABHAHIT2023','ZERO']
 #    --VMS-mass-loss-prescription: 'SABHAHIT2023'                          # Default: 'SABHAHIT2023'                # Options: ['SABHAHIT2023','BESTENLEHNER2020','VINK2011','ZERO']
@@ -272,6 +273,7 @@ stringChoices:
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                                     # Xu & Li 2010
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
+#    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 
     ### TIDES
 #    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2025','PERFECT','NONE']

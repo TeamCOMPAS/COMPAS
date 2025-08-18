@@ -73,6 +73,8 @@ protected:
 
     double          CalculateTauAtPhaseEnd() const                                                  { return m_Tau; }                                                                               // NO-OP
     double          CalculateTauOnPhase() const;
+    
+    double          CalculateZetaEquilibrium()                                                      { return 0.0; }                                                     // At lowest order, giants with a convective envelope have radii that are insensitive to mass loss (but see Hurley+ 2002, Eq. 56 and Hurley+ 2000, Eq. 47)
 
     double          ChooseTimestep(const double p_Time) const;
 
