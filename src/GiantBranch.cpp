@@ -1329,15 +1329,8 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
                 log10Z_bounded = std::min(std::max(log10Z, log10_1_div_10), log10_1);
                 break;
             default:                                                                                                        
-                // TODO: rewrite this
-                // the only way this can happen is if someone added an MT_CASE
-                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-                // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
-                // account for, and that should be flagged as an error and result in termination of the evolution
-                // of the star or binary.
-                // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
-                // incorrect/superfluous, remove it from the possible MT_CASE values.
-
+                // Unrecognized MALTSEV_MODE. Only possible if a new one is added but an
+                // extra flag is not created here. 
                 THROW_ERROR(ERROR::UNKNOWN_MALTSEV_MODE);                                                                   // throw error
         }
 
@@ -1973,7 +1966,6 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
 
             //fallbackfraction determined interally
-            //m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed; MULLERMANDEL kick prescription should be used
             m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
             break;
             
