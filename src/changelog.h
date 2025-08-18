@@ -1647,6 +1647,9 @@
 //                                          - Fixed online docs for omissions in v03.22.02:
 //                                               - fixed description for "--initial-mass-function" in "program-options-list-defaults.rst", and
 //                                               - changed "--initial-mass-power" to "--initial-mass-function-power" in "program-options-list-defaults.rst"
+//  03.23.01  IM - August 18, 2025      - Enhancement, defect repair:
+//                                          - In the MALTSEV SN prescription, treat wind-stripped stars as if they experienced case B mass transfer
+//                                          - Limit the output of CalculateEtaPTY() [Helium accretion efficiency onto WDs from Piersanti+ 2014, A3] to be in [0,1]
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1658,7 +1661,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.23.00";
+const std::string VERSION_STRING = "03.23.01";
 
 
 # endif // __changelog_h__

@@ -1320,6 +1320,8 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
         delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
     }
 
+    if(massTransferCase == MT_CASE::NONE && HydrogenAbundanceSurface() == 0.0)                                          // if a star was stripped by winds, treat it as if it experienced Case B mass transfer
+        massTransferCase = MT_CASE::B;
     // apply the appropriate remnant mass prescription for the chosen MT case
     switch (massTransferCase) {                                                                                         // which MT_CASE?
 
