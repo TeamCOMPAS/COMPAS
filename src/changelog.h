@@ -1664,7 +1664,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.23.01";
+const std::string VERSION_STRING = "03.23.02";
 
 
 # endif // __changelog_h__
