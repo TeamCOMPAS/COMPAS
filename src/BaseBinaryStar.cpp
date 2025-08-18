@@ -572,10 +572,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS:                              value = RLOFDetails().propsPostMT->mass2;                                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS:                            value = RLOFDetails().propsPostMT->radius1;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS:                            value = RLOFDetails().propsPostMT->radius2;                                 break;
-        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF:                              value = RLOFDetails().propsPostMT->teff1;                                   break;
-        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF:                              value = RLOFDetails().propsPostMT->teff2;                                   break;
-        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM:                               value = RLOFDetails().propsPostMT->lum1;                                    break;
-        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM:                               value = RLOFDetails().propsPostMT->lum2;                                    break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF:                              value = RLOFDetails().propsPostMT->temperature1;                            break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF:                              value = RLOFDetails().propsPostMT->temperature2;                            break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM:                               value = RLOFDetails().propsPostMT->luminosity1;                             break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM:                               value = RLOFDetails().propsPostMT->luminosity2;                             break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF:                              value = RLOFDetails().propsPostMT->isRLOF1;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF:                              value = RLOFDetails().propsPostMT->isRLOF2;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE:                      value = RLOFDetails().propsPostMT->stellarType1;                            break;
@@ -590,10 +590,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS:                               value = RLOFDetails().propsPreMT->mass2;                                    break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS:                             value = RLOFDetails().propsPreMT->radius1;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS:                             value = RLOFDetails().propsPreMT->radius2;                                  break;
-        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF:                               value = RLOFDetails().propsPreMT->teff1;                                    break;
-        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF:                               value = RLOFDetails().propsPreMT->teff2;                                    break;
-        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM:                                value = RLOFDetails().propsPreMT->lum1;                                     break;
-        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM:                                value = RLOFDetails().propsPreMT->lum2;                                     break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF:                               value = RLOFDetails().propsPreMT->temperature1;                             break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF:                               value = RLOFDetails().propsPreMT->temperature2;                             break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM:                                value = RLOFDetails().propsPreMT->luminosity1;                              break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM:                                value = RLOFDetails().propsPreMT->luminosity2;                              break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF:                               value = RLOFDetails().propsPreMT->isRLOF1;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF:                               value = RLOFDetails().propsPreMT->isRLOF2;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE:                       value = RLOFDetails().propsPreMT->stellarType1;                             break;
@@ -914,10 +914,10 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
     rlofPropertiesToReset->massLossRateFromDonor       = m_MassLossRateInRLOF;
     rlofPropertiesToReset->accretionEfficiency         = m_FractionAccreted;
     rlofPropertiesToReset->massTransferTimescale       = m_MassTransferTimescale;
-    rlofPropertiesToReset->teff1                       = m_Star1->Temperature();
-    rlofPropertiesToReset->teff2                       = m_Star2->Temperature();
-    rlofPropertiesToReset->lum1                        = m_Star1->Luminosity();
-    rlofPropertiesToReset->lum2                        = m_Star2->Luminosity();
+    rlofPropertiesToReset->temperature1                = m_Star1->Temperature();
+    rlofPropertiesToReset->temperature2                = m_Star2->Temperature();
+    rlofPropertiesToReset->luminosity1                 = m_Star1->Luminosity();
+    rlofPropertiesToReset->luminosity2                 = m_Star2->Luminosity();
 }
 
 

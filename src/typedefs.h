@@ -1210,10 +1210,10 @@ typedef struct RLOFProperties {
     double       radius1;
     double       radius2;
 
-    double       teff1;
-    double       teff2;
-    double       lum1;
-    double       lum2;
+    double       temperature1;
+    double       temperature2;
+    double       luminosity1;
+    double       luminosity2;
 
     double       starToRocheLobeRadiusRatio1;                                    
     double       starToRocheLobeRadiusRatio2;
