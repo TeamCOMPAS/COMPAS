@@ -878,7 +878,7 @@ Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, KLENCKI_LINEAR, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -891,14 +891,14 @@ Specific angular momentum with which the non-accreted system leaves the system. 
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
 
-**--mass-transfer-jloss-macleod-linear-fraction-degen** |br|
+**--mass-transfer-jloss-linear-fraction-degen** |br|
 Specific angular momentum interpolation fraction for degenerate accretors, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
-Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = KLENCKI_LINEAR`` or ``MACLEOD_LINEAR``, ignored otherwise. |br|
 Default = 0.5
 
-**--mass-transfer-jloss-macleod-linear-fraction-non-degen** |br|
+**--mass-transfer-jloss-linear-fraction-non-degen** |br|
 Specific angular momentum interpolation fraction for non-degenerate accretors, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
-Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = KLENCKI_LINEAR`` or ``MACLEOD_LINEAR``, ignored otherwise. |br|
 Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
@@ -1536,7 +1536,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor, 
 --critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
 --critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
---mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction-degen, --mass-transfer-jloss-macleod-linear-fraction-non-degen, 
+--mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-linear-fraction-degen, --mass-transfer-jloss-linear-fraction-non-degen, 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
