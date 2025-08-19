@@ -224,7 +224,12 @@ private:
     //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
     std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
-        { "retain-core-mass-during-caseA-mass-transfer", "", false, "20250116" }
+        { "retain-core-mass-during-caseA-mass-transfer", "",                               false, "20250116" },
+        { "minimum-secondary-mass",                      "minimum-sampled-secondary-mass", false, "20250808" },
+        { "initial-mass-max",                            "initial-mass-function-max",      false, "20250808" },
+        { "initial-mass-min",                            "initial-mass-function-min",      false, "20250808" },
+        { "initial-mass-power",                          "initial-mass-function-power",    false, "20250808" },
+        { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" }
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -233,7 +238,15 @@ private:
         { "pulsational-pair-instability-prescription", "COMPAS",      "WOOSLEY",     false, "20250208" },
 	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
         { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
-        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" }
+        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" },
+        { "use-mass-loss",                             "TRUE",        "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "ON",          "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "YES",         "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "1",           "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "FALSE",       "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "OFF",         "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "NO",          "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "0",           "ZERO",        true,  "20250809" }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
@@ -516,7 +529,7 @@ private:
         "mass-transfer-thermal-limit-accretor-multiplier",
         "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
-        "minimum-secondary-mass",
+        "minimum-sampled-secondary-mass",
 
         "neutron-star-accretion-in-ce",
 
@@ -889,7 +902,7 @@ public:
             double                                              m_MassRatioDistributionMin;                                     // Minimum initial mass ratio when using a distribution
             double                                              m_MassRatioDistributionMax;                                     // Maximum initial mass ratio when using a distribution
 
-            double                                              m_MinimumMassSecondary;                                         // Minimum mass of secondary to draw (in Msol)
+            double                                              m_MinimumSampledSecondaryMass;                                  // Minimum mass of secondary to draw when sampling (in Msol)
 
             // Semi major axis
             double                                              m_SemiMajorAxis;                                                // Semi-major axis
@@ -999,7 +1012,6 @@ public:
             std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
-            bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
             bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
 
             // Can also have options for modifying strength of winds etc here
@@ -1477,9 +1489,9 @@ public:
     double                                      InitialMass2() const                                                    { return OPT_VALUE("initial-mass-2", m_InitialMass2, true); }
 
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return OPT_VALUE("initial-mass-function", m_InitialMassFunction.type, true); }
-    double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-max", m_InitialMassFunctionMax, true); }
-    double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
-    double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
+    double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-function-max", m_InitialMassFunctionMax, true); }
+    double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-function-min", m_InitialMassFunctionMin, true); }
+    double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-function-power", m_InitialMassFunctionPower, true); }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction-distribution", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
@@ -1616,7 +1628,7 @@ public:
     double                                      MetallicityDistributionMax() const                                      { return OPT_VALUE("metallicity-distribution-max", m_MetallicityDistributionMax, true); }
     double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
-    double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
+    double                                      MinimumSampledSecondaryMass() const                                     { return OPT_VALUE("minimum-sampled-secondary-mass", m_MinimumSampledSecondaryMass, true); }
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
@@ -1744,7 +1756,6 @@ public:
     DBL_VECTOR                                  TimestepMultipliers() const                                             { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers, true); }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
-    bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss, true); }
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }

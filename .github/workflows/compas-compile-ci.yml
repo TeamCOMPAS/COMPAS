@@ -1,6 +1,7 @@
 name: COMPAS compile test
-'on':
-  workflow_dispatch: null
+
+on:
+  workflow_dispatch:
   pull_request:
     branches:
       - dev
@@ -12,7 +13,7 @@ name: COMPAS compile test
   push:
     branches:
       - dev
-      -
+
 # Ensures only the latest workflow run for the same branch is active, canceling any in-progress runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,13 +26,8 @@ jobs:
       ARTIFACT_PATH: py_tests/test_artifacts
 
     name: Build COMPAS
-    runs-on: '${{ matrix.os}}'
-    container: '${{matrix.container}}'
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-22.04
+    runs-on: ubuntu-22.04
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,7 +38,6 @@ jobs:
       # - name: Install TeXLive
       #   uses: teatimeguest/setup-texlive-action@v3.3.4
       - name: Install dependencies on ubuntu
-        if: 'startsWith(matrix.os, ''ubuntu-2'')'
         run: |
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
@@ -83,8 +78,8 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ env.ARTIFACT_NAME }}'
-          path: '${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}'
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}
           if-no-files-found: error
       - name: Test Summary
         run: |

@@ -1611,9 +1611,47 @@
 //                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step
 //                                          - Fixed random draws of SN kicks to avoid artificial pile-up at boundaries of distribution
 //					                        - Split --muller-mandel-sigma-kick into --muller-mandel-sigma-kick-NS and --muller-mandel-sigma-kick-BH
-//  03.22.01  IM - July 20, 2025        - Defect repair
+//  03.22.01  IM - July 20, 2025        - Defect repair:
 //                                          - Fixed random kick draw for MULLERMANDEL prescription
-
+//  03.22.02  JR - August 08, 2025      - Defect repair/enhancement (~cleanups for consistency):
+//                                          - Changes for issue 1413:
+//                                             - Deprecated options
+//                                                  . "--minimum-mass-secondary" in favour of "--minimum-sampled-secondary-mass"
+//                                                  . "--initial-mass-min"       in favour of "--initial-mass-function-min"
+//                                                  . "--initial-mass-max"       in favour of "--initial-mass-function-max"
+//                                                  . "--initial-mass-power"     in favour of "--initial-mass-function-power"
+//                                             - Default value for "--initial-mass-function-min" remains at 5.0 Msol
+//                                             - Default value for "--initial-mass-function-max" remains at 150.0 Msol
+//                                             - Default value for "--initial-mass-function-power" remains at 0.0
+//                                             - Default value for "--minimum-sampled-secondary-mass" remains at 0.1 Msol
+//                                             - User supplied value for "--minimum-sampled-secondary-mass" checked against values of constants MINIMUM_INITIAL_MASS and MINIMUM_INITIAL_MASS
+//                                             - Secondary mass, whether input by user, sampled, or calculated from M1 & q, checked against constant MINIMUM-INITIAL-MASS
+//                                             - Online docs "program-options-list-defaults" and "standard-logfiles-record-specification-options" pages updated
+//                                             - Whatsnew page updated
+//                                          - Changes for issue 1414:
+//                                             - Changed [SSE/BSE]_PULSAR_RECORDTYPE::DEFAULT to [SSE/BSE]_PULSAR_RECORDTYPE::PRE_SN
+//                                                  - don't want DEFAULT anymore, but wanted to preserve numbering.  Neither PRE_SN nor POST_SN are currently used (POST_SN was), so we could rename them one day.
+//                                             - Removed default parameter from BaseStar::PrintPulsarEvolutionParameters() and BaseBinaryStar::PrintPulsarEvolutionParameters()
+//                                             - Changed default record types for:
+//                                                  - SSE and BSE detailed output files to include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
+//                                                  - SSE and BSE pulsar evolution files to include only record type 3 ((pulsar) TIMESTEP_COMPLETED)
+//  03.23.00  JR - August 09, 2025      - Enhancement:
+//                                          - Deprecated option
+//                                               - "--use-mass-loss" in favour of "--mass-loss-prescription"
+//
+//                                                 Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss
+//                                                 prescription to be used with ``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription``
+//                                                 with any valid prescription (that is not ``zero``), and disabled with ``--mass-loss-prescription zero`` instead of 
+//                                                 ``use-mass-loss false``.
+//                                          - Added compiler flag "-Wno-vla-cxx-extension" to "CXXFLAGS" in Makefile to suppress compiler extension warning
+//                                          - Fixed online docs for omissions in v03.22.02:
+//                                               - fixed description for "--initial-mass-function" in "program-options-list-defaults.rst", and
+//                                               - changed "--initial-mass-power" to "--initial-mass-function-power" in "program-options-list-defaults.rst"
+//  03.23.01  IM - August 18, 2025      - Enhancement, defect repair:
+//                                          - In the MALTSEV SN prescription, treat wind-stripped stars as if they experienced case B mass transfer
+//                                          - Limit the output of CalculateEtaPTY() [Helium accretion efficiency onto WDs from Piersanti+ 2014, A3] to be in [0,1]
+//
+//
 // Version string format is MM.mm.rr, where
 //
 // MM is the MAJOR release number: this should be incremented whenever major new functionality is introduced
@@ -1623,7 +1661,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.22.01";
+const std::string VERSION_STRING = "03.23.01";
 
 
 # endif // __changelog_h__

@@ -28,10 +28,8 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
     // check that the constituent stars are not touching
     // also check m2 > m2min
 
-    bool done                            = false;
-    bool merger                          = false;
-    bool rlof                            = false;
-    bool secondarySmallerThanMinimumMass = false;
+    bool done = false;
+    bool rlof = false;
 
     // determine if any if the initial conditions are sampled
     // we consider eccentricity distribution = ECCENTRICITY_DISTRIBUTION::ZERO to be not sampled!
@@ -203,16 +201,15 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
         m_Star1->SetCompanion(m_Star2);
         m_Star2->SetCompanion(m_Star1);
 
-        merger                          = (m_SemiMajorAxis * AU_TO_RSOL) < (m_Star1->Radius() + m_Star2->Radius());
-        secondarySmallerThanMinimumMass = utils::Compare(mass2, OPTIONS->MinimumMassSecondary()) < 0;
-
         // check whether our initial conditions are good
         // if they are - evolve the binary
         // if they are not ok:
         //    - if we sampled at least one of them, sample again
         //    - if all were user supplied, set error - Evolve() will show the error and return without evolving
 
-        bool ok = !((!OPTIONS->AllowRLOFAtBirth() && rlof) || (!OPTIONS->AllowTouchingAtBirth() && merger) || secondarySmallerThanMinimumMass);
+        bool ok = !((!OPTIONS->AllowRLOFAtBirth() && rlof) ||                                                                           // rolf?
+                    (!OPTIONS->AllowTouchingAtBirth() && (m_SemiMajorAxis * AU_TO_RSOL) < (m_Star1->Radius() + m_Star2->Radius())) ||   // merger?
+                    (utils::Compare(mass2, MINIMUM_INITIAL_MASS) < 0));                                                                 // M2 < minimum?
 
         done = ok;
         if (!sampled && !ok) {
@@ -1836,8 +1833,7 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
 
 	double gamma;
     MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION gammaPrescription = OPTIONS->MassTransferAngularMomentumLossPrescription();
-    if(p_IsCommonEnvelope)
-        gammaPrescription = OPTIONS->CommonEnvelopeSecondStageGammaPrescription();
+    if (p_IsCommonEnvelope) gammaPrescription = OPTIONS->CommonEnvelopeSecondStageGammaPrescription();
 
 	switch (gammaPrescription) {                                                                                                    // which prescription?
 
@@ -1991,8 +1987,8 @@ void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
             m_Star2->HaltWinds();
     }
     else {
-        if (OPTIONS->UseMassLoss()) {                                                                                           // mass loss enabled?
-
+        if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {                                                  // mass loss enabled?
+                                                                                                                                // yes
             double mWinds1 = m_Star1->CalculateMassLossValues(p_Dt, true);                                                      // calculate new values assuming mass loss applied
             double mWinds2 = m_Star2->CalculateMassLossValues(p_Dt, true);                                                      // calculate new values assuming mass loss applied
 

@@ -18,58 +18,237 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
+          # Extract workflow run info
           PREVIOUS_JOB_ID=$(jq -r '.id' <<< "$WORKFLOW_RUN_EVENT_OBJ")
           echo "PREVIOUS_JOB_ID=$PREVIOUS_JOB_ID" >> "$GITHUB_ENV"
           
-          SUITE_ID=$(jq -r '.check_suite_id' <<< "$WORKFLOW_RUN_EVENT_OBJ")
-          echo "SUITE_ID=$SUITE_ID" >> "$GITHUB_ENV"
-          
-          ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" \
-            --jq ".artifacts[] | select(.workflow_run.id==$PREVIOUS_JOB_ID and .expired==false and .name=='detailedEvolutionPlot.png') | .id" | head -n1)
-          echo "ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
-          
-          PR_NUMBER=$(gh api "/repos/$OWNER/$REPO/commits/${{ github.event.workflow_run.head_sha }}/pulls" --jq '.[0].number')
-          echo "PR_NUMBER=${PR_NUMBER:-null}" >> "$GITHUB_ENV"
-          
-          HEAD_SHA=${{ github.event.workflow_run.head_sha }}
+          HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
           echo "HEAD_SHA=$HEAD_SHA" >> "$GITHUB_ENV"
+          
+          # Get PR number from the workflow run
+          echo "Looking for PR associated with commit $HEAD_SHA..."
+          PR_NUMBER=$(gh api "/repos/$OWNER/$REPO/commits/$HEAD_SHA/pulls" \
+            --jq '.[0].number // empty' 2>/dev/null || echo "")
+          
+          if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
+            echo "Found PR #$PR_NUMBER"
+            echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
+            
+            # Look for the specific artifact
+            ARTIFACT_NAME="detailedEvolutionPlot.png"
+            echo "Searching for artifact: $ARTIFACT_NAME from workflow run $PREVIOUS_JOB_ID..."
+            
+            # Retry loop with better error handling
+            ARTIFACT_ID=""
+            for i in {1..8}; do
+              echo "Attempt $i/8: Looking for artifact..."
+              
+              # Use more robust jq filter
+              ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" \
+                --jq --arg workflow_id "$PREVIOUS_JOB_ID" --arg name "$ARTIFACT_NAME" \
+                '.artifacts[] | select(.workflow_run.id == ($workflow_id | tonumber) and .expired == false and .name == $name) | .id' \
+                2>/dev/null | head -n1 || echo "")
+              
+              if [[ -n "$ARTIFACT_ID" ]]; then 
+                echo "Found artifact with ID: $ARTIFACT_ID"
+                break
+              fi
+              
+              echo "Artifact not available yet, waiting 12s before retry..."
+              sleep 12
+            done
+            
+            if [[ -z "$ARTIFACT_ID" ]]; then
+              echo "Warning: Could not find artifact '$ARTIFACT_NAME' after 8 attempts"
+              echo "This might be expected if the artifact generation failed or is still processing."
+            fi
+            
+            echo "ARTIFACT_ID=${ARTIFACT_ID:-}" >> "$GITHUB_ENV"
+          else
+            echo "No PR found for this workflow run (this is normal for direct pushes to main/dev)"
+            echo "PR_NUMBER=" >> "$GITHUB_ENV"
+            echo "ARTIFACT_ID=" >> "$GITHUB_ENV"
+          fi
 
       - name: Download artifact
-        if: env.PR_NUMBER != 'null' && env.ARTIFACT_ID != ''
+        if: env.PR_NUMBER != '' && env.ARTIFACT_ID != ''
         run: |
-          gh api /repos/${{ github.repository }}/actions/artifacts/${{ env.ARTIFACT_ID }}/zip -H "Accept: application/vnd.github.v3+json" --output artifact.zip
-          unzip artifact.zip
-          rm artifact.zip
+          echo "Downloading artifact ${{ env.ARTIFACT_ID }}..."
+          
+          # Download with better error handling
+          if gh api "/repos/${{ github.repository }}/actions/artifacts/${{ env.ARTIFACT_ID }}/zip" --output artifact.zip; then
+            echo "Successfully downloaded artifact.zip"
+            
+            # Extract and verify
+            if unzip -q artifact.zip; then
+              rm artifact.zip
+              
+              if [[ -f "detailedEvolutionPlot.png" ]]; then
+                echo "Found detailedEvolutionPlot.png"
+                echo "File size: $(du -h detailedEvolutionPlot.png | cut -f1)"
+                # Verify it's actually a PNG file
+                if file detailedEvolutionPlot.png | grep -q "PNG image"; then
+                  echo "Verified as valid PNG image"
+                else
+                  echo "Warning: File may not be a valid PNG"
+                fi
+              else
+                echo "Error: detailedEvolutionPlot.png not found in extracted files"
+                echo "Available files:"
+                ls -la
+                exit 1
+              fi
+            else
+              echo "Error: Failed to extract artifact.zip"
+              exit 1
+            fi
+          else
+            echo "Error: Failed to download artifact"
+            exit 1
+          fi
 
-      - name: Update Comment
-        if: env.PR_NUMBER != 'null' && env.ARTIFACT_ID != ''
+      - name: Create success comment with artifact
+        if: env.PR_NUMBER != '' && env.ARTIFACT_ID != ''
         env:
           JOB_PATH: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}"
-          ARTIFACT_URL: "${{ github.server_url }}/${{ github.repository }}/suites/${{ env.SUITE_ID }}/artifacts/${{ env.ARTIFACT_ID }}"
-        uses: actions/github-script@v6
+          ARTIFACT_DL: "${{ github.server_url }}/${{ github.repository }}/suites/${{ github.event.workflow_run.check_suite_id }}/artifacts/${{ env.ARTIFACT_ID }}"
+        uses: actions/github-script@v7
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const fs = require('fs');
-            const imageData = fs.readFileSync('detailedEvolutionPlot.png', {encoding: 'base64'});
-            github.rest.issues.createComment({
-              issue_number: process.env.PR_NUMBER,
+            
+            try {
+              // Read and validate the image
+              if (!fs.existsSync('detailedEvolutionPlot.png')) {
+                throw new Error('detailedEvolutionPlot.png file not found');
+              }
+              
+              const stats = fs.statSync('detailedEvolutionPlot.png');
+              console.log(`Image file size: ${(stats.size / 1024).toFixed(1)} KB`);
+              
+              if (stats.size === 0) {
+                throw new Error('detailedEvolutionPlot.png is empty');
+              }
+              
+              // GitHub has a ~65KB limit for image embeds, warn if approaching
+              if (stats.size > 50000) {
+                console.log('Warning: Image is quite large, may not display properly in GitHub');
+              }
+              
+              const imageData = fs.readFileSync('detailedEvolutionPlot.png', {encoding: 'base64'});
+              const shortSha = process.env.HEAD_SHA.substring(0, 7);
+              
+              const commentBody = \`![badge]
+
+            ## Build Successful!
+
+            Your COMPAS compilation and test suite completed successfully!
+
+            | Item | Value |
+            |------|-------|
+            | **Commit** | [\\\`\${shortSha}\\\`](https://github.com/\${context.repo.owner}/\${context.repo.repo}/commit/\${process.env.HEAD_SHA}) |
+            | **Logs** | [View workflow logs](\${process.env.JOB_PATH}) |
+            | **Artifact** | [Download evolution plot](\${process.env.ARTIFACT_DL}) |
+
+            ### Detailed Evolution Plot
+
+            <details>
+            <summary>Click to view/hide evolution plot</summary>
+
+            ![Detailed Evolution Plot](data:image/png;base64,\${imageData})
+
+            </details>
+
+            ---
+            <sub>Generated by COMPAS CI • [View workflow run](\${process.env.JOB_PATH})</sub>
+
+            [badge]: https://img.shields.io/badge/Build_Success-28a745?style=for-the-badge&logo=github-actions&logoColor=white\`;
+
+              await github.rest.issues.createComment({
+                issue_number: parseInt(process.env.PR_NUMBER),
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+              
+              console.log(`Successfully commented on PR #${process.env.PR_NUMBER} with artifact`);
+              
+            } catch (error) {
+              console.error('Error creating comment with artifact:', error);
+              
+              // Fallback: create comment without image
+              const fallbackBody = \`![badge]
+
+            ## Build Successful!
+
+            Your COMPAS compilation completed successfully, but there was an issue displaying the evolution plot.
+
+            | Item | Value |
+            |------|-------|
+            | **Commit** | [\\\`\${process.env.HEAD_SHA.substring(0, 7)}\\\`](https://github.com/\${context.repo.owner}/\${context.repo.repo}/commit/\${process.env.HEAD_SHA}) |
+            | **Logs** | [View workflow logs](\${process.env.JOB_PATH}) |
+            | **Artifact** | [Download evolution plot](\${process.env.ARTIFACT_DL}) |
+
+            **Note:** Evolution plot could not be embedded (\${error.message})
+
+            ---
+            <sub>Generated by COMPAS CI • [View workflow run](\${process.env.JOB_PATH})</sub>
+
+            [badge]: https://img.shields.io/badge/Build_Success-28a745?style=for-the-badge&logo=github-actions&logoColor=white\`;
+
+              await github.rest.issues.createComment({
+                issue_number: parseInt(process.env.PR_NUMBER),
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: fallbackBody
+              });
+              
+              console.log(`Created fallback comment on PR #${process.env.PR_NUMBER}`);
+            }
+
+      - name: Create success comment without artifact
+        if: env.PR_NUMBER != '' && env.ARTIFACT_ID == ''
+        env:
+          JOB_PATH: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const shortSha = process.env.HEAD_SHA.substring(0, 7);
+            
+            const commentBody = \`![badge]
+
+            ## Build Successful!
+
+            Your COMPAS compilation and test suite completed successfully!
+
+            | Item | Value |
+            |------|-------|
+            | **Commit** | [\\\`\${shortSha}\\\`](https://github.com/\${context.repo.owner}/\${context.repo.repo}/commit/\${process.env.HEAD_SHA}) |
+            | **Logs** | [View workflow logs](\${process.env.JOB_PATH}) |
+
+            **Note:** The detailed evolution plot artifact was not found or is not yet available. This might be expected if the plot generation step was skipped or failed.
+
+            ---
+            <sub>Generated by COMPAS CI • [View workflow run](\${process.env.JOB_PATH})</sub>
+
+            [badge]: https://img.shields.io/badge/Build_Success-28a745?style=for-the-badge&logo=github-actions&logoColor=white\`;
+
+            await github.rest.issues.createComment({
+              issue_number: parseInt(process.env.PR_NUMBER),
               owner: context.repo.owner,
-              repo: context.repo.name,
-              body: `
-                ![badge]
-                
-                Build Successful! You can find a link to the downloadable artifact below.
-                
-                | Name     | Link                    |
-                | -------- | ----------------------- |
-                | Commit   | ${process.env.HEAD_SHA} |
-                | Logs     | ${process.env.JOB_PATH} |
-                | Download | ${process.env.ARTIFACT_URL} |
-                
-                ### Detailed Evolution Plot
-                ![Detailed Evolution Plot](data:image/png;base64,${imageData})
-                
-                [badge]: https://img.shields.io/badge/Build_Success!-0d1117?style=for-the-badge&labelColor=3fb950&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZmZmZmZmIj48cGF0aCBkPSJNMjEuMDMgNS43MmEuNzUuNzUgMCAwIDEgMCAxLjA2bC0xMS41IDExLjVhLjc0Ny43NDcgMCAwIDEtMS4wNzItLjAxMmwtNS41LTUuNzVhLjc1Ljc1IDAgMSAxIDEuMDg0LTEuMDM2bDQuOTcgNS4xOTVMMTkuOTcgNS43MmEuNzUuNzUgMCAwIDEgMS4wNiAwWiI+PC9wYXRoPjwvc3ZnPg==
-              `
-            })
+              repo: context.repo.repo,
+              body: commentBody
+            });
+            
+            console.log(`Successfully commented on PR #${process.env.PR_NUMBER} (no artifact)`);
+
+      - name: Debug info for non-PR runs
+        if: env.PR_NUMBER == ''
+        run: |
+          echo "This workflow run was not associated with a pull request"
+          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
+          echo "Event: ${{ github.event.workflow_run.event }}"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "This is normal for direct pushes to main/dev branches"
