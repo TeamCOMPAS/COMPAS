@@ -1953,19 +1953,18 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
 
             m_Mass                              = CalculateRemnantMassBySchneider2020(m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;		// fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
 
             m_Mass                              = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;		// fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
             break;
         
         case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
 
-            //fallback fraction determined internally
-            m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
+            m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);																		// fallback fraction determined internally
             break;
             
     
