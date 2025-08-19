@@ -825,7 +825,7 @@ A value of 1.0 means that fallback BHs get total fallback, taking the mass of th
 Default = 0.5
 
 **--maltsev-mode** |br|
-Which variant of the MALTSEV remnant mass prescription. Variants pertain to the treatment of extrapolation at low metallicities, and are described in detail in Willcox+ 2025. |br|
+Choice of which variant for the MALTSEV remnant mass prescription. Variants pertain to the treatment of extrapolation at low metallicities, and are described in detail in Willcox+ 2025. |br|
 Options: {OPTIMISTIC, BALANCED, PESSIMISTIC} |br|
 ``OPTIMISTIC``  : Compactness-peak BHs formed from the lowest CO-mass progenitors for a given metallicity.                               |br|
 ``PESSIMISTIC`` : Compactness-peak BHs only formed from the highest CO-mass progenitors for a given metallicity.                         |br|
