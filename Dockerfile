@@ -1,6 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 WORKDIR /app/COMPAS
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     g++ \
@@ -9,11 +12,11 @@ RUN apt-get update && apt-get install -y \
     libgsl-dev \
     python3 \
     python3-pip \
-    zip
+    zip \
+    && rm -rf /var/lib/apt/lists/*
 
-# RUN pip install numpy awscli
-RUN pip3 install numpy
-RUN pip3 install pyyaml
+# Install Python packages
+RUN pip3 install numpy pyyaml
 
 # Copy only the source required to compile COMPAS
 COPY src/ src/
@@ -26,4 +29,4 @@ ENV COMPAS_ROOT_DIR /app/COMPAS
 RUN cd src && make -f Makefile.docker -j $(nproc)
 
 # Run COMPAS
-# CMD [ "python", "src/pythonSubmitDefault.py" ] 
+# CMD [ "python", "src/pythonSubmitDefault.py" ]
