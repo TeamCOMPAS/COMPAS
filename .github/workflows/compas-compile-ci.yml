@@ -26,15 +26,7 @@ jobs:
       ARTIFACT_PATH: py_tests/test_artifacts
 
     name: Build COMPAS
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-22.04
-        container:
-          - ubuntu:22.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
