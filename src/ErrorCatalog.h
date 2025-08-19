@@ -166,6 +166,7 @@ enum class ERROR: int {
     UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                            // unknown kick magnitude distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                             // unknown LBV mass loss prescription
+    UNKNOWN_MALTSEV_MODE,                                           // unknown maltsev mode 
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
     UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,                  // unknown mass transfer angular momentum loss prescription
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription
@@ -342,6 +343,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick magnitude distribution" }},
     { ERROR::UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown LBV mass loss prescription" }},
     { ERROR::UNKNOWN_LOGFILE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown log file" }},
+    { ERROR::UNKNOWN_MALTSEV_MODE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown Maltsev remnant mass mode" }},
     { ERROR::UNKNOWN_MT_CASE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer case" }},
     { ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,          { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer accretion efficiency prescription" }},
     { ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,         { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer angular momentum loss prescription" }},
