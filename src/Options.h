@@ -514,6 +514,7 @@ private:
         "logfile-rlof-parameters",
         "logfile-rlof-parameters-record-types",
 
+        "maltsev-fallback",
         "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
@@ -651,6 +652,7 @@ private:
         "logfile-type",
 
         "main-sequence-core-mass-prescription",
+        "maltsev-mode",
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
@@ -895,6 +897,10 @@ public:
             double                                              m_InitialMassFunctionMin;                                       // Minimum mass to generate in Msol
             double                                              m_InitialMassFunctionMax;                                       // Maximum mass to generate in Msol
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
+
+            // Maltsev remnant mass model
+            double                                              m_MaltsevFallback;                                              // fallback fraction for Maltsev fallback black holes
+            ENUM_OPT<MALTSEV_MODE>                              m_MaltsevMode;                                                  // Maltsev remnant mass mode (which variant of the prescription)
 
             // Mass ratio
             double                                              m_MassRatio;                                                    // Mass ratio for BSE
@@ -1580,6 +1586,9 @@ public:
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
+
+    double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
+    MALTSEV_MODE                                MaltsevMode() const                                                     { return OPT_VALUE("maltsev-mode", m_MaltsevMode.type, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     

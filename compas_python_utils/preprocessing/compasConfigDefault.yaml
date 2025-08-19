@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Sun Aug 10 13:16:13 2025 by COMPAS v03.23.00
+##~!!~## File Created Mon Aug 18 13:37:46 2025 by COMPAS v03.23.02
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -283,6 +283,8 @@ stringChoices:
 #    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
 #    --kick-magnitude-distribution: 'MULLERMANDEL'                         # Default: 'MULLERMANDEL'                # Options: ['LOGNORMAL','MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
 #    --kick-direction-distribution: 'ISOTROPIC'                            # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
+#    --maltsev-fallback: 0.500000                                          # Default: 0.500000
+#    --maltsev-mode: 'BALANCED'                                            # Default: 'BALANCED'                    # Options: ['PESSIMISTIC','BALANCED','OPTIMISTIC']
 #    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['DISK','SURFACE','ZERO']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
