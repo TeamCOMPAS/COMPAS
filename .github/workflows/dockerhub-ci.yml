@@ -5,6 +5,11 @@ on:
     branches: [ dev ]
   workflow_dispatch: null
 
+# Add permissions for the built-in GITHUB_TOKEN
+permissions:
+  contents: read
+  packages: write
+
 # Ensures only the latest workflow run for the same branch is active, canceling any in-progress runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,7 +33,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}  # Changed from GHCR_TOKEN
 
       - name: Get release version
         run: echo "COMPAS_VERSION=$(sed -n '/const std::string VERSION_STRING/,/^$/p' ./src/changelog.h | sed 's/.*"\(.*\)"[^"]*$/\1/')" >> $GITHUB_ENV
