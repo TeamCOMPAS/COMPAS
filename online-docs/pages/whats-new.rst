@@ -3,6 +3,30 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.23.00 August 09, 2025**
+
+* The following option is now deprecated, and will be removed in 1 year:
+
+  * ``--use-mass-loss`` in favour of ``--mass-loss-prescription``
+
+Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss prescription to be used with
+``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription`` with any valid prescription (that is not ``zero``), and
+disabled with ``--mass-loss-prescription zero`` instead of ``use-mass-loss false``.
+
+**03.22.02 August 08, 2025**
+
+* The following options are now deprecated, and will be removed in 1 year:
+
+  * ``--initial-mass-min`` in favour of ``--initial-mass-function-min``
+  * ``--initial-mass-max`` in favour of ``--initial-mass-function-max``
+  * ``--initial-mass-power`` in favour of ``--initial-mass-function-power``
+  * ``--minimum-mass-secondary`` in favour of ``--minimum-sampled-secondary-mass``
+
+* The user supplied value for ``--minimum-sampled-secondary-mass`` now checked against the COMPAS values for minimum initial mass (0.00007 :math:`M_\odot`) and maximum initial mass (150.0 :math:`M_\odot`)
+* The secondary mass (for BSE), whether input by user, sampled, or calculated from the primary mass and mass ratio, now checked against the COMPAS value for minimum initial mass (0.00007 :math:`M_\odot`)
+* The default record types written to the SSE and BSE detailed output files now include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
+* The default record types written to the SSE and BSE pulsar evolution files now includes only record type 3 ((Pulsar) TIMESTEP_COMPLETED)
+
 **03.22.00 July 18, 2025**
 
 * Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true

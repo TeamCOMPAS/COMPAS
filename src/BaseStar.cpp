@@ -2526,7 +2526,7 @@ double BaseStar::CalculateMassLossRate() {
 
     double mDot = 0.0;                                                                                          // default return value
 
-    if (OPTIONS->UseMassLoss()) {                                                                               // mass loss enabled?
+    if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {                                      // mass loss enabled?
                                                                                                                 // yes
         double LBVRate;
         double otherWindsRate;
@@ -2565,7 +2565,7 @@ double BaseStar::CalculateMassLossRate() {
                 THROW_ERROR(ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION);                                                 // throw error
         }
 
-        mDot = mDot * OPTIONS->OverallWindMassLossMultiplier();                                                     // apply overall wind mass loss multiplier
+        mDot *= OPTIONS->OverallWindMassLossMultiplier();                                                           // apply overall wind mass loss multiplier
     }
     
     mDot = min(mDot, MAXIMUM_WIND_MASS_LOSS_RATE);                                                                  // cap winds at a maximum mass loss rate (typically 0.1 solar masses per year) to avoid convergence issues
@@ -2598,8 +2598,8 @@ double BaseStar::CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot) {
 
     double mass = m_Mass;
 
-    if (OPTIONS->UseMassLoss()) {                                               // only if using mass loss (program option)
-
+    if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {      // mass loss enabled?
+                                                                                // yes
         double mDot     = CalculateMassLossRate();                              // calculate mass loss rate
         double massLoss = max(0.0, mDot * p_Dt * 1.0E6);                        // calculate mass loss; mass loss rate given in Msol per year, times are in Myr so need to multiply by 10^6
         if (p_UpdateMDot) m_Mdot = mDot;                                        // update class member variable if necessary
@@ -2634,8 +2634,8 @@ double BaseStar::CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot) {
  */
 void BaseStar::ResolveMassLoss(double p_Dt) {
 
-    if (OPTIONS->UseMassLoss()) {
-
+    if (OPTIONS->MassLossPrescription() != MASS_LOSS_PRESCRIPTION::ZERO) {                          // mass loss enabled?
+                                                                                                    // yes
         double mass = CalculateMassLossValues(p_Dt, true);                                          // calculate new values assuming mass loss applied
 
         double angularMomentumChange = (2.0 / 3.0) * (mass - m_Mass) * m_Radius * RSOL_TO_AU * m_Radius * RSOL_TO_AU * Omega();

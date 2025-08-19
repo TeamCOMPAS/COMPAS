@@ -842,7 +842,7 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION,
     INITIAL_MASS_FUNCTION_MAX,
     INITIAL_MASS_FUNCTION_MIN,
-    INITIAL_MASS_FUNCTIONPOWER,
+    INITIAL_MASS_FUNCTION_POWER,
 
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
@@ -891,7 +891,7 @@ enum class PROGRAM_OPTION: int {
     METALLICITY_DISTRIBUTION_MAX,
     METALLICITY_DISTRIBUTION_MIN,
 
-    MINIMUM_MASS_SECONDARY,
+    MINIMUM_SAMPLED_SECONDARY_MASS,
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION,
     MT_ANG_MOM_LOSS_PRESCRIPTION,
@@ -1070,7 +1070,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                            "INITIAL_MASS_FUNCTION" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                      "INITIAL_MASS_FUNCTION_POWER" },
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1118,7 +1118,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                     "METALLICITY_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                     "METALLICITY_DISTRIBUTION_MIN" },
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                   "MINIMUM_SAMPLED_SECONDARY_MASS" },
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,             "MT_ACCRETION_EFFICIENCY_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
@@ -1648,7 +1648,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                    { TYPENAME::INT,        "PO_Initial_Mass_Function",                  "-",          4, 1 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Max",                  "Msol",      24, 15}},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Min",                  "Msol",      24, 15}},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                               { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                              { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,        "PO_Kick_Direction_Dstrbtn",                 "-",          4, 1 }},
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,     "PO_Kick_Direction_Power",                   "-",         24, 15}},
@@ -1698,7 +1698,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Max",                "-",         24, 15}},
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Min",                "-",         24, 15}},
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                                   { TYPENAME::DOUBLE,     "PO_Min_Secondary_Mass",                     "Msol",      24, 15}},
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                           { TYPENAME::DOUBLE,     "PO_Min_Sampled_Secondary_Mass",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                     { TYPENAME::INT,        "PO_MT_Acc_Efficiency_Prscrptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                             { TYPENAME::INT,        "PO_MT_AngMom_Loss_Prscrptn",                "-",          4, 1 }},
@@ -1848,7 +1848,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class BSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default BSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     POST_BINARY_TIMESTEP                                                                                            // 3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
@@ -1885,7 +1885,7 @@ enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                             
 };
 
 enum class SSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // SSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default SSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     TIMESTEP_COMPLETED                                                                                              // 3 - record was logged immediately following the completion of the timestep (after all changes to the star)
 };
