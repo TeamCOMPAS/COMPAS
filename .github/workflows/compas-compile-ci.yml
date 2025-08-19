@@ -38,7 +38,6 @@ jobs:
       # - name: Install TeXLive
       #   uses: teatimeguest/setup-texlive-action@v3.3.4
       - name: Install dependencies on ubuntu
-        if: startsWith(matrix.os, 'ubuntu-2')
         run: |
           cd misc/cicd-scripts
           chmod 755 linux-dependencies
