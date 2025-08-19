@@ -229,7 +229,7 @@ private:
         { "initial-mass-max",                            "initial-mass-function-max",      false, "20250808" },
         { "initial-mass-min",                            "initial-mass-function-min",      false, "20250808" },
         { "initial-mass-power",                          "initial-mass-function-power",    false, "20250808" },
-        { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" }
+        { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" },
         { "mass-transfer-jloss-macleod-linear-fraction-degen",       "mass-transfer-jloss-linear-fraction-degen",     false, "20250819" }, 
         { "mass-transfer-jloss-macleod-linear-fraction-non-degen",   "mass-transfer-jloss-linear-fraction-non-degen", false, "20250819" },   
     };
