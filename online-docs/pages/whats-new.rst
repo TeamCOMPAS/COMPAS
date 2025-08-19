@@ -3,7 +3,7 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.24.00 August 19, 2025**
+**03.25.00 August 19, 2025**
 
 * Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR).
 
@@ -14,6 +14,12 @@ with both requiring an interpolation fraction f set by the user. Therefore, the 
     * ``--mass-transfer-jloss-macleod-linear-fraction-non-degen`` in favor of ``--mass-transfer-jloss-linear-fraction-non-degen`` 
 
 and the replacement options apply for both MACLEOD_LINEAR and KLENCKI_LINEAR.
+
+**03.24.00 August 19, 2025**
+
+* Updated Maltsev remnant mass prescription to include the 3 variants described in Willcox+ 2025 (bimodality paper). 
+* New related options `--maltsev-fallback` which takes a float between 0 and 1 to specify the fallback fraction, and
+  `--maltsev-mode` with choices `'OPTIMISTIC','PESSIMISTIC','BALANCED'` for the extrapolation prescription (see Willcox+ 2025b)
 
 **03.23.00 August 09, 2025**
 
