@@ -230,6 +230,8 @@ private:
         { "initial-mass-min",                            "initial-mass-function-min",      false, "20250808" },
         { "initial-mass-power",                          "initial-mass-function-power",    false, "20250808" },
         { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" }
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",       "mass-transfer-jloss-linear-fraction-degen",     false, "20250819" }, 
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen",   "mass-transfer-jloss-linear-fraction-non-degen", false, "20250819" },   
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -521,8 +523,8 @@ private:
         "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
-        "mass-transfer-jloss-macleod-linear-fraction-degen",
-        "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+        "mass-transfer-jloss-linear-fraction-degen",
+        "mass-transfer-jloss-linear-fraction-non-degen",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
