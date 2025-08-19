@@ -1297,13 +1297,13 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
  */
 double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass, const double p_HeCoreMass) {
 
-    ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
-    MT_CASE   massTransferCase = MT_CASE::OTHER;
-    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL_ASPLUND;                                               // log_{10} (Z/Zsol), for convenience
-    double    log10_1          = 0;                                                                                     // useful for the limits later 
-    double    log10_1_div_10   = -1;                                                                                    // useful for the limits later             
-    double    log10_1_div_50   = -1.69897;                                                                              // useful for the limits later                 
-    double    M1, M2, M3;
+    ST_VECTOR mtHist                  = MassTransferDonorHistory();                                                     // mass transfer history vector
+    MT_CASE   massTransferCase        = MT_CASE::OTHER;
+    double    log10Z                  = m_Log10Metallicity - LOG10_ZSOL_ASPLUND;                                        // log_{10} (Z/Zsol), for convenience
+    constexpr double log10_1          = 0;                                                                              // useful for the limits later 
+    constexpr double log10_1_div_10   = -1;                                                                             // useful for the limits later             
+    constexpr double log10_1_div_50   = -1.69897;                                                                       // useful for the limits later                 
+    double    M1, M2, M3;                                                                                               // Z-dependent boundary values for SN outcomes (see Maltsev+ 2025)
     double    remnantMass;
 
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
