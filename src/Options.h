@@ -229,7 +229,9 @@ private:
         { "initial-mass-max",                            "initial-mass-function-max",      false, "20250808" },
         { "initial-mass-min",                            "initial-mass-function-min",      false, "20250808" },
         { "initial-mass-power",                          "initial-mass-function-power",    false, "20250808" },
-        { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" }
+        { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" },
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",       "mass-transfer-jloss-linear-fraction-degen",     false, "20250819" }, 
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen",   "mass-transfer-jloss-linear-fraction-non-degen", false, "20250819" },   
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -522,8 +524,8 @@ private:
         "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
-        "mass-transfer-jloss-macleod-linear-fraction-degen",
-        "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+        "mass-transfer-jloss-linear-fraction-degen",
+        "mass-transfer-jloss-linear-fraction-non-degen",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
@@ -1062,8 +1064,8 @@ public:
 	        ENUM_OPT<MT_THERMALLY_LIMITED_VARIATION>            m_MassTransferThermallyLimitedVariation;                        // Choose how to deal with mass transfer if it is set as thermally limited.
 
             double                                              m_MassTransferJloss;                                            // Specific angular momentum of the material leaving the system (not accreted)
-            double                                              m_MassTransferJlossMacLeodLinearFractionDegen;                  // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position 
-            double                                              m_MassTransferJlossMacLeodLinearFractionNonDegen;               // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position 
+            double                                              m_MassTransferJlossLinearFractionDegen;                         // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
+            double                                              m_MassTransferJlossLinearFractionNonDegen;                      // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
             ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_MassTransferAngularMomentumLossPrescription;                  // Which mass transfer angular momentum loss prescription
 
             // Mass transfer rejuvenation prescription
@@ -1622,8 +1624,8 @@ public:
 
     double                                      MassTransferFractionAccreted() const                                    { return OPT_VALUE("mass-transfer-fa", m_MassTransferFractionAccreted, true); }
     double                                      MassTransferJloss() const                                               { return OPT_VALUE("mass-transfer-jloss", m_MassTransferJloss, true); }
-    double                                      MassTransferJlossMacLeodLinearFractionDegen() const                     { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-degen", m_MassTransferJlossMacLeodLinearFractionDegen, true); }
-    double                                      MassTransferJlossMacLeodLinearFractionNonDegen() const                  { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-non-degen", m_MassTransferJlossMacLeodLinearFractionNonDegen, true); }
+    double                                      MassTransferJlossLinearFractionDegen() const                            { return OPT_VALUE("mass-transfer-jloss-linear-fraction-degen", m_MassTransferJlossLinearFractionDegen, true); }
+    double                                      MassTransferJlossLinearFractionNonDegen() const                         { return OPT_VALUE("mass-transfer-jloss-linear-fraction-non-degen", m_MassTransferJlossLinearFractionNonDegen, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor-multiplier", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
