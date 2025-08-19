@@ -829,7 +829,7 @@ Which variant of the MALTSEV remnant mass prescription. Variants pertain to the 
 Options: {OPTIMISTIC, BALANCED, PESSIMISTIC} |br|
 ``OPTIMISTIC``  : Compactness-peak BHs formed from the lowest CO-mass progenitors for a given metallicity.                               |br|
 ``PESSIMISTIC`` : Compactness-peak BHs only formed from the highest CO-mass progenitors for a given metallicity.                         |br|
-``BALANCED``    : Compactness-peak BHs formed CO-mass progenitors with masses between the two previous extremes for a given metallicity. |br|
+``BALANCED``    : Compactness-peak BHs formed from CO-mass progenitors with masses between the two previous extremes for a given metallicity. |br|
 Default = BALANCED
 
 **--mass-change-fraction** |br|
