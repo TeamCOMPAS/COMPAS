@@ -27,46 +27,68 @@ jobs:
 
     name: Build COMPAS
     runs-on: ubuntu-22.04
+    container:
+      image: teamcompas/compas:latest
+      options: --user root
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-          cache: pip
-          cache-dependency-path: setup.py
-      # - name: Install TeXLive
-      #   uses: teatimeguest/setup-texlive-action@v3.3.4
-      - name: Install dependencies on ubuntu
+
+      - name: Verify container environment
         run: |
-          cd misc/cicd-scripts
-          chmod 755 linux-dependencies
-          ./linux-dependencies
-      - name: Build Compas
+          echo "Verifying COMPAS container dependencies..."
+          g++ --version
+          python3 --version
+          echo "Boost libraries:"
+          find /usr -name "*boost*" -type d 2>/dev/null | head -3 || echo "Boost may be in different location"
+          echo "LaTeX:"
+          pdflatex --version | head -2
+          echo "Container verification complete"
+
+      - name: Build COMPAS from source
         run: |
-          cd src && make -j $(nproc) -f Makefile
+          cd src
+          # Clean any existing builds to ensure fresh compilation
+          make clean 2>/dev/null || echo "No existing build to clean"
+          # Build with all available cores
+          make -j $(nproc) -f Makefile
+          # Verify the build worked
           ./COMPAS -v
-      - name: Install python utils
+          echo "COMPAS build successful!"
+
+      - name: Setup Python environment
         run: |
-          pip install --upgrade pip
+          # Update pip
+          python3 -m pip install --upgrade pip
+          # Install the package in development mode
           pip install -e .[dev]
+
       - name: Run example COMPAS job
         run: |
           export COMPAS_EXECUTABLE_PATH=${GITHUB_WORKSPACE}/src/COMPAS
           cd ${GITHUB_WORKSPACE}/py_tests/test_data/
           chmod 755 run.sh
+          echo "Contents of run.sh:"
           cat run.sh
+          echo "Running COMPAS example..."
           ./run.sh
-      - name: Run pytests
+
+      - name: Run pytest suite
         run: |
           cd ${GITHUB_WORKSPACE}
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          echo "Available Jupyter kernels:"
           jupyter-kernelspec list
+          echo "Running non-web tests..."
           pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
+          echo "Running web tests..."
           pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
+          echo "Test artifacts:"
           ls py_tests/test_artifacts
+          echo "Generating coverage reports..."
           coverage html
           coverage-badge -o coverage_badge.svg -f
+
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
@@ -74,6 +96,7 @@ jobs:
           path: |
             htmlcov/
             coverage_badge.svg
+
       - name: Archive COMPAS detailed-evolution plot
         id: upload
         uses: actions/upload-artifact@v4
@@ -81,10 +104,12 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}
           if-no-files-found: error
+
       - name: Test Summary
         run: |
           echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Compas Build: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- COMPAS Build: Success" >> $GITHUB_STEP_SUMMARY
           echo "- Python Utils Installation: Success" >> $GITHUB_STEP_SUMMARY
           echo "- Example COMPAS Job: Success" >> $GITHUB_STEP_SUMMARY
           echo "- Pytest Execution: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Using container: teamcompas/compas:latest" >> $GITHUB_STEP_SUMMARY
