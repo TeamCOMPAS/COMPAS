@@ -1657,6 +1657,8 @@
 //                                          - Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR)
 //  03.25.01  JR - August 20, 2025      - Defect repairs:
 //                                          - Corrected calculations for Hurley A(n) and B(n) coefficients (see Hurley et al. 2000, appendix)
+//                                          - Changed utils::GetGSLVersion() to avoid compiler warning "warning: ignoring attributes on template argument ‘int (*)(FILE*)’ [-Wignored-attributes]"
+//                                          - Reverted Makefile line "SOURCES := $(wildcard *.cpp)" to listing actual source files
 //
 // Version string format is MM.mm.rr, where
 //
