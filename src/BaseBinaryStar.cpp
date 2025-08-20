@@ -572,6 +572,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS:                              value = RLOFDetails().propsPostMT->mass2;                                   break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS:                            value = RLOFDetails().propsPostMT->radius1;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS:                            value = RLOFDetails().propsPostMT->radius2;                                 break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF:                              value = RLOFDetails().propsPostMT->temperature1;                            break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF:                              value = RLOFDetails().propsPostMT->temperature2;                            break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM:                               value = RLOFDetails().propsPostMT->luminosity1;                             break;
+        case BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM:                               value = RLOFDetails().propsPostMT->luminosity2;                             break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF:                              value = RLOFDetails().propsPostMT->isRLOF1;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF:                              value = RLOFDetails().propsPostMT->isRLOF2;                                 break;
         case BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE:                      value = RLOFDetails().propsPostMT->stellarType1;                            break;
@@ -586,6 +590,10 @@ COMPAS_VARIABLE BaseBinaryStar::BinaryPropertyValue(const T_ANY_PROPERTY p_Prope
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS:                               value = RLOFDetails().propsPreMT->mass2;                                    break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS:                             value = RLOFDetails().propsPreMT->radius1;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS:                             value = RLOFDetails().propsPreMT->radius2;                                  break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF:                               value = RLOFDetails().propsPreMT->temperature1;                             break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF:                               value = RLOFDetails().propsPreMT->temperature2;                             break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM:                                value = RLOFDetails().propsPreMT->luminosity1;                              break;
+        case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM:                                value = RLOFDetails().propsPreMT->luminosity2;                              break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF:                               value = RLOFDetails().propsPreMT->isRLOF1;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF:                               value = RLOFDetails().propsPreMT->isRLOF2;                                  break;
         case BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE:                       value = RLOFDetails().propsPreMT->stellarType1;                             break;
@@ -906,6 +914,10 @@ void BaseBinaryStar::StashRLOFProperties(const MT_TIMING p_Which) {
     rlofPropertiesToReset->massLossRateFromDonor       = m_MassLossRateInRLOF;
     rlofPropertiesToReset->accretionEfficiency         = m_FractionAccreted;
     rlofPropertiesToReset->massTransferTimescale       = m_MassTransferTimescale;
+    rlofPropertiesToReset->temperature1                = m_Star1->Temperature();
+    rlofPropertiesToReset->temperature2                = m_Star2->Temperature();
+    rlofPropertiesToReset->luminosity1                 = m_Star1->Luminosity();
+    rlofPropertiesToReset->luminosity2                 = m_Star2->Luminosity();
 }
 
 
@@ -1849,18 +1861,32 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
             } break;
             
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR : {                                                              // linear interpolation on separation between accretor and L2 point
-            // interpolate in separation between a_acc and a_L2, both normalized to units of separation a
+            // Interpolate linearly in separation between a_acc and a_L2, both normalized to units of separation a
             double q        = p_AccretorMass / p_DonorMass;
             double qPlus1   = 1.0 + q;
             double aL2      = std::sqrt(M_SQRT2);                                                                                   // roughly, coincides with CIRCUMBINARY_RING def above
             double aAcc     = 1.0 / qPlus1;
             double fMacleod = p_IsAccretorDegenerate 
-                                ? OPTIONS->MassTransferJlossMacLeodLinearFractionDegen() 
-                                : OPTIONS->MassTransferJlossMacLeodLinearFractionNonDegen();
+                                ? OPTIONS->MassTransferJlossLinearFractionDegen() 
+                                : OPTIONS->MassTransferJlossLinearFractionNonDegen();
             double aGamma   = aAcc + (aL2 - aAcc) * fMacleod;
             gamma           = aGamma * aGamma * qPlus1 * qPlus1 / q;
             } break;
 
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::KLENCKI_LINEAR : {                                                              // linear interpolation on separation between accretor and L2 point
+            // Interpolate linearly in specific AM loss parameter gamma
+            double q        = p_AccretorMass / p_DonorMass;
+            double qPlus1   = 1.0 + q;
+            double qPlus1SquaredByQ = qPlus1 * qPlus1 / q;
+            double aL2      = std::sqrt(M_SQRT2);                                                                                   // roughly, coincides with CIRCUMBINARY_RING def above
+            double aAcc     = 1.0 / qPlus1;
+            double gammaL2  = aL2 * aL2 * qPlus1SquaredByQ;
+            double gammaAcc = aAcc * aAcc * qPlus1SquaredByQ;
+            double fKlencki = p_IsAccretorDegenerate 
+                                ? OPTIONS->MassTransferJlossLinearFractionDegen() 
+                                : OPTIONS->MassTransferJlossLinearFractionNonDegen();
+            gamma = gammaAcc + (gammaL2 - gammaAcc) * fKlencki;
+            } break;
         default:                                                                                                                    // unknown prescription
             // the only way this can happen is if someone added an MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

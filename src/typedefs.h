@@ -650,12 +650,13 @@ const COMPASUnorderedMap<MT_ACCRETION_EFFICIENCY_PRESCRIPTION, std::string> MT_A
 };
 
 // mass transfer angular momentum loss prescriptions
-enum class MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION: int { JEANS, ISOTROPIC_RE_EMISSION, CIRCUMBINARY_RING, MACLEOD_LINEAR, ARBITRARY };
+enum class MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION: int { JEANS, ISOTROPIC_RE_EMISSION, CIRCUMBINARY_RING, MACLEOD_LINEAR, KLENCKI_LINEAR, ARBITRARY };
 const COMPASUnorderedMap<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION, std::string> MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL = {
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS,                 "JEANS" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION, "ISOTROPIC" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::CIRCUMBINARY_RING,     "CIRCUMBINARY" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MACLEOD_LINEAR,        "MACLEOD_LINEAR" },
+    { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::KLENCKI_LINEAR,        "KLENCKI_LINEAR" },
     { MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY,             "ARBITRARY" }
 };
 
@@ -814,6 +815,14 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020,    "SCHNEIDER2020" },
     { REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT, "SCHNEIDER2020ALT" },
     { REMNANT_MASS_PRESCRIPTION::MALTSEV2024,      "MALTSEV2024" }
+};
+
+// maltsev remnant mass prescription variant
+enum class MALTSEV_MODE: int { OPTIMISTIC, BALANCED, PESSIMISTIC };
+const COMPASUnorderedMap<MALTSEV_MODE, std::string> MALTSEV_MODE_LABEL = {
+    { MALTSEV_MODE::OPTIMISTIC,  "OPTIMISTIC" },
+    { MALTSEV_MODE::BALANCED,    "BALANCED"   },
+    { MALTSEV_MODE::PESSIMISTIC, "PESSIMISTIC"},
 };
 
 // response of star to spin-up beyond the Keplerian frequency
@@ -1201,6 +1210,11 @@ typedef struct RLOFProperties {
 
     double       radius1;
     double       radius2;
+
+    double       temperature1;
+    double       temperature2;
+    double       luminosity1;
+    double       luminosity2;
 
     double       starToRocheLobeRadiusRatio1;                                    
     double       starToRocheLobeRadiusRatio2;

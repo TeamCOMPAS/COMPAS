@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Sun Aug 10 13:16:13 2025 by COMPAS v03.23.00
+##~!!~## File Created Tue Aug 19 15:39:23 2025 by COMPAS v03.25.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -149,8 +149,8 @@ numericalChoices:
 #    --critical-mass-ratio-white-dwarf-non-degenerate-accretor: 0.000000   # Default: 0.000000
 #    --mass-transfer-fa: 0.500000                                          # Default: 0.500000                                                                                                                                                                         # Only if using mass-transfer-accretion-efficiency-prescription = 'FIXED'
 #    --mass-transfer-jloss: 1.000000                                       # Default: 1.000000                                                                                                                                                                         # Only if using mass-transfer-angular-momentum-loss-prescription = 'FIXED'
-#    --mass-transfer-jloss-macleod-linear-fraction-degen: 0.500000         # Default: 0.500000
-#    --mass-transfer-jloss-macleod-linear-fraction-non-degen: 0.500000     # Default: 0.500000
+#    --mass-transfer-jloss-linear-fraction-degen: 0.500000                 # Default: 0.500000
+#    --mass-transfer-jloss-linear-fraction-non-degen: 0.500000             # Default: 0.500000
 #    --mass-transfer-thermal-limit-C: 10.000000                            # Default: 10.000000
 #    --zeta-adiabatic-arbitrary: 10000.00                                  # Default: 10000.00
 #    --zeta-main-sequence: 2.000000                                        # Default: 2.000000
@@ -263,7 +263,7 @@ stringChoices:
 #    --case-BB-stability-prescription: 'ALWAYS_STABLE'                     # Default: 'ALWAYS_STABLE'               # Options: ['ALWAYS_UNSTABLE','TREAT_AS_OTHER_MT','ALWAYS_STABLE_ONTO_NSBH','ALWAYS_STABLE']
 #    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE','GE_IC','CLAEYS','NONE']
 #    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['ARBITRARY','HURLEY','SOBERMAN']
-#    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
+#    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 #    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
 #    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','HURLEY']
 #    --mass-transfer-thermal-limit-accretor-multiplier: 'CFACTOR'          # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
@@ -273,7 +273,7 @@ stringChoices:
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                                     # Xu & Li 2010
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
-#    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
+#    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 
     ### TIDES
 #    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2025','PERFECT','NONE']
@@ -283,6 +283,8 @@ stringChoices:
 #    --fryer-supernova-engine: 'DELAYED'                                   # Default: 'DELAYED'                     # Options: ['DELAYED','RAPID']
 #    --kick-magnitude-distribution: 'MULLERMANDEL'                         # Default: 'MULLERMANDEL'                # Options: ['LOGNORMAL','MULLERMANDEL','MULLER2016MAXWELLIAN','MULLER2016','BRAYELDRIDGE','MAXWELLIAN','FLAT','FIXED','ZERO']
 #    --kick-direction-distribution: 'ISOTROPIC'                            # Default: 'ISOTROPIC'                   # Options: ['POLES','WEDGE','POWERLAW','PERPENDICULAR','INPLANE','ISOTROPIC']
+#    --maltsev-fallback: 0.500000                                          # Default: 0.500000
+#    --maltsev-mode: 'BALANCED'                                            # Default: 'BALANCED'                    # Options: ['PESSIMISTIC','BALANCED','OPTIMISTIC']
 #    --neutron-star-accretion-in-ce: 'ZERO'                                # Default: 'ZERO'                        # Options: ['DISK','SURFACE','ZERO']
 #    --neutron-star-equation-of-state: 'SSE'                               # Default: 'SSE'                         # Options: ['ARP3','SSE']
 #    --neutrino-mass-loss-BH-formation: 'FIXED_MASS'                       # Default: 'FIXED_MASS'                  # Options: ['FIXED_MASS','FIXED_FRACTION']
