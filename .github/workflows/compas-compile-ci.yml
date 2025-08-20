@@ -27,64 +27,62 @@ jobs:
 
     name: Build COMPAS
     runs-on: ubuntu-22.04
+    # Use Docker Hub for now (GHCR is private)
+    container: teamcompas/compas:latest
+    # TODO: Switch to GHCR when package is made public
+    # container: ghcr.io/teamcompas/compas:latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Build and test COMPAS entirely in container
+      - name: Build COMPAS from source
         run: |
-          echo "Running complete COMPAS build and test suite in container..."
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
-            teamcompas/compas:latest \
-            sh -c "
-              set -e  # Exit on any error
-              
-              echo '=== Building COMPAS ==='
-              cd src
-              make clean 2>/dev/null || echo 'No existing build to clean'
-              make -j \$(nproc) -f Makefile
-              ./COMPAS -v
-              echo 'COMPAS build successful!'
-              
-              echo '=== Installing Python dependencies ==='
-              cd /workspace
-              python3 -m pip install --upgrade pip
-              pip install -e .[dev]
-              echo 'Python dependencies installed!'
-              
-              echo '=== Running example COMPAS job ==='
-              export COMPAS_EXECUTABLE_PATH=/workspace/src/COMPAS
-              cd /workspace/py_tests/test_data/
-              chmod 755 run.sh
-              echo 'Contents of run.sh:'
-              cat run.sh
-              echo 'Running COMPAS example...'
-              ./run.sh
-              echo 'Example job completed!'
-              
-              echo '=== Running pytest suite ==='
-              cd /workspace
-              export COMPAS_ROOT_DIR=/workspace
-              echo 'Available Jupyter kernels:'
-              jupyter-kernelspec list || echo 'Jupyter not available, continuing...'
-              
-              echo 'Running non-web tests...'
-              pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
-              
-              echo 'Running web tests...'
-              pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
-              
-              echo 'Test artifacts:'
-              ls py_tests/test_artifacts || echo 'No test artifacts directory'
-              
-              echo 'Generating coverage reports...'
-              coverage html
-              coverage-badge -o coverage_badge.svg -f
-              
-              echo 'All tests completed successfully!'
-            "
+          echo "Building COMPAS from source..."
+          cd src
+          make clean 2>/dev/null || echo 'No existing build to clean'
+          make -j $(nproc) -f Makefile
+          ./COMPAS -v
+          echo "COMPAS build completed successfully!"
+
+      - name: Install Python dependencies
+        run: |
+          echo "Installing Python dependencies..."
+          python3 -m pip install --upgrade pip
+          pip install -e .[dev]
+          echo "Python dependencies installed!"
+
+      - name: Run example COMPAS job
+        run: |
+          echo "Running example COMPAS job..."
+          export COMPAS_EXECUTABLE_PATH=${GITHUB_WORKSPACE}/src/COMPAS
+          cd ${GITHUB_WORKSPACE}/py_tests/test_data/
+          chmod 755 run.sh
+          echo "Contents of run.sh:"
+          cat run.sh
+          ./run.sh
+          echo "Example job completed!"
+
+      - name: Run pytest suite
+        run: |
+          echo "Running pytest suite..."
+          cd ${GITHUB_WORKSPACE}
+          export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
+          
+          if command -v jupyter-kernelspec &> /dev/null; then
+            echo "Available Jupyter kernels:"
+            jupyter-kernelspec list
+          fi
+          
+          pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
+          pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
+          
+          echo "Test artifacts:"
+          ls py_tests/test_artifacts/ 2>/dev/null || echo "No test artifacts found"
+          
+          coverage html
+          coverage-badge -o coverage_badge.svg -f
+          echo "All tests completed successfully!"
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
@@ -104,9 +102,10 @@ jobs:
 
       - name: Test Summary
         run: |
-          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- COMPAS Build: Success (Docker container)" >> $GITHUB_STEP_SUMMARY
-          echo "- Python Utils Installation: Success (Docker container)" >> $GITHUB_STEP_SUMMARY
-          echo "- Example COMPAS Job: Success (Docker container)" >> $GITHUB_STEP_SUMMARY
-          echo "- Pytest Execution: Success (Docker container)" >> $GITHUB_STEP_SUMMARY
-          echo "- Container used: teamcompas/compas:latest" >> $GITHUB_STEP_SUMMARY
+          echo "### COMPAS CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "- COMPAS Build: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Python Dependencies: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Example COMPAS Job: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Pytest Suite: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Container: teamcompas/compas:latest (Docker Hub)" >> $GITHUB_STEP_SUMMARY
+          echo "- Ready to switch to: ghcr.io/teamcompas/compas:latest" >> $GITHUB_STEP_SUMMARY
