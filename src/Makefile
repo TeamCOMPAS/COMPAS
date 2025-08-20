@@ -19,7 +19,56 @@ endif
 
 # Common variables for both builds
 EXE := $(BDIR)/COMPAS
-SOURCES := $(wildcard *.cpp)
+
+SOURCES :=						\
+	profiling.cpp               \
+	utils.cpp                   \
+	yaml.cpp                   	\
+	vector3d.cpp                \
+								\
+	Rand.cpp                    \
+	Options.cpp                 \
+	Log.cpp                     \
+	Errors.cpp                  \
+								\
+	BaseStar.cpp                \
+								\
+	Star.cpp                    \
+								\
+	MainSequence.cpp            \
+	MS_lte_07.cpp               \
+	MS_gt_07.cpp                \
+								\
+	CH.cpp                      \
+								\
+	GiantBranch.cpp             \
+	HG.cpp                      \
+	FGB.cpp                     \
+	CHeB.cpp                    \
+	EAGB.cpp                    \
+	TPAGB.cpp                   \
+								\
+	HeMS.cpp                    \
+	HeHG.cpp                    \
+	HeGB.cpp					\
+								\
+	Remnants.cpp				\
+								\
+	WhiteDwarfs.cpp				\
+	HeWD.cpp					\
+	COWD.cpp                    \
+	ONeWD.cpp                   \
+								\
+	NS.cpp                      \
+	BH.cpp                      \
+	MR.cpp                      \
+								\
+	BinaryConstituentStar.cpp   \
+	BaseBinaryStar.cpp          \
+	BinaryStar.cpp              \
+								\
+	main.cpp
+
 OBJS := $(patsubst %.cpp,$(ODIR)/%.o,$(SOURCES))
 
 # GSL, Boost, and HDF5 directories
