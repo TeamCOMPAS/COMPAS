@@ -1,11 +1,3 @@
-
-# use GNU C++ compiler by default
-#
-# can be overridden with CPP parameter
-#
-# e.g. make CPP=clang will use clang instead of g++
-# (note uppercase 'CPP' and no whitespace around '=')
-
 CPP := g++
 
 # Build configuration: DOCKER_BUILD=1 for Docker, otherwise local
@@ -58,10 +50,10 @@ BOOSTLIBS := -lboost_filesystem -lboost_program_options -lboost_system
 HDF5LIBS := -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
 LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS) $(LFLAGS_SPECIFIC)
 
-.PHONY: all static fast staticfast clean
+.PHONY: all static fast staticfast clean link
 
 # Main targets
-all: $(EXE)
+all: $(EXE) link
 
 static: $(EXE)_STATIC
 
@@ -77,6 +69,10 @@ $(EXE)_STATIC: $(OBJS)
 	@mkdir -p $(BDIR)
 	$(CPP) $(OBJS) $(LFLAGS) -static -o $@
 
+# Create a symbolic link for backward compatibility
+link: $(EXE)
+	@ln -sf $(EXE) COMPAS
+
 # Pattern rule to compile source files into object files
 $(ODIR)/%.o: %.cpp
 	@mkdir -p $(ODIR)
@@ -85,4 +81,4 @@ $(ODIR)/%.o: %.cpp
 # Clean-up rule
 clean:
 	@echo "Removing generated files..."
-	@rm -rf $(ODIR) $(BDIR)
+	@rm -rf $(ODIR) $(BDIR) COMPAS
