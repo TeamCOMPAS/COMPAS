@@ -228,14 +228,14 @@ double MainSequence::CalculateGamma(const double p_Mass) const {
 #define B_GAMMA m_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::B_GAMMA)]    // for convenience and readability - undefined at end of function
 #define C_GAMMA m_GammaConstants[static_cast<int>(GAMMA_CONSTANTS::C_GAMMA)]    // for convenience and readability - undefined at end of function
 
-    double gamma;
+double gamma = 0.0;                                                                                                         // default return value
 
-         if (utils::Compare(p_Mass,  1.0)          <= 0) gamma = a[76] + (a[77] * PPOW(p_Mass - a[78], a[79]));
-    else if (utils::Compare(p_Mass,  a[75])        <= 0) gamma = B_GAMMA + (a[80] - B_GAMMA) * PPOW((p_Mass - 1.0) / (a[75] - 1.0), a[81]);
-    else if (utils::Compare(p_Mass, (a[75] + 0.1)) <= 0) gamma = C_GAMMA - (10.0 * (p_Mass - a[75]) * C_GAMMA);                                                             // included = case, missing from Hurley+ 2000
-    else                                                 gamma = 0.0;           // this really is zero
+     if (utils::Compare(p_Mass,  1.0)           <= 0) gamma = an[76] + (an[77] * PPOW(std::abs(p_Mass - an[78]), an[79]));  // BSE Fortran code has abs()
+else if (utils::Compare(p_Mass,  an[75])        <= 0) gamma = B_GAMMA + (an[80] - B_GAMMA) * PPOW((p_Mass - 1.0) / (an[75] - 1.0), an[81]);
+else if (utils::Compare(p_Mass, (an[75] + 0.1)) <= 0) gamma = C_GAMMA - (10.0 * (p_Mass - an[75]) * C_GAMMA);               // see discussion just prior to eq 23 - the end point is wrong in the arxiv version of Hurley et al. 2000 (should be 0.1, not 1.0) - confirmed in BSE Fortran code
+else                                                  gamma = 0.0;                                                          // see discussion just prior to eq 23 - confirmed in BSE Fortran code
 
-    return gamma;
+return std::max(0.0, gamma);                                                                                                // see discussion following eq 23 - confirmed in BSE Fortran code
 
 #undef C_GAMMA
 #undef B_GAMMA
