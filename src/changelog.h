@@ -1659,6 +1659,9 @@
 //                                          - Corrected calculations for Hurley A(n) and B(n) coefficients (see Hurley et al. 2000, appendix)
 //                                          - Changed utils::GetGSLVersion() to avoid compiler warning "warning: ignoring attributes on template argument ‘int (*)(FILE*)’ [-Wignored-attributes]"
 //                                          - Reverted Makefile line "SOURCES := $(wildcard *.cpp)" to listing actual source files
+//  03.25.02  JR - August 20, 2025      - Defect repairs:
+//                                          - Corrected calculations for Hurley Gamma constant C (C_GAMMA - see Hurley et al. 2000, just after eq 23, should use a(75) <= 1.0, not a(75) == 1.0 - confirmed in BSE Fortran source)
+//                                          - Clamped B_GAMMA to [0.0, B_GAMMA] (per discussion just after eq 23 - confirmed in BSE Fortran source)
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1669,7 +1672,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.25.01";
+const std::string VERSION_STRING = "03.25.02";
 
 
 # endif // __changelog_h__
