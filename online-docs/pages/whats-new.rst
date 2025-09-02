@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.26.00 September 2, 2025**
+
+* Added HAMSTARS mass transfer efficiency prescription
+
 **03.25.00 August 19, 2025**
 
 * Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR).

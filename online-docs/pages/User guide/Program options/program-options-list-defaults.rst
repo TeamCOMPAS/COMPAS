@@ -887,7 +887,7 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--mass-transfer-accretion-efficiency-prescription** |br|
 Mass transfer accretion efficiency prescription. |br|
-Options: { THERMAL, FIXED } |br|
+Options: { THERMAL, FIXED, HAMSTARS } |br|
 Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
