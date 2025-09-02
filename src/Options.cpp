@@ -2442,7 +2442,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {                                   // mass transfer accretion efficiency prescription
             std::tie(found, m_MassTransferAccretionEfficiencyPrescription.type) = utils::GetMapKey(m_MassTransferAccretionEfficiencyPrescription.typeString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, m_MassTransferAccretionEfficiencyPrescription.type);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Efficiency Prescription");
         }
 
         if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {                                  // mass transfer angular momentum loss prescription

@@ -2713,9 +2713,14 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                                   // thermally limited mass transfer:
-
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                                   // thermally limited mass transfer
             acceptanceRate   = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
+            fractionAccreted = acceptanceRate / p_DonorMassRate;
+            break;
+
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::HAMSTARS:                                            // thermally limited mass transfer, following Lau+, 2024
+            // the mass transfer C parameter is fit using the data from Figure (1) of Lau+, 2024
+            acceptanceRate   = min(PPOW(10.0, (4.0 / PPOW((Mass() + 0.2), 0.3) - 0.6)) * p_AccretorMassRate, p_DonorMassRate);
             fractionAccreted = acceptanceRate / p_DonorMassRate;
             break;
 
