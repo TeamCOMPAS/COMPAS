@@ -346,7 +346,7 @@ double CH::CalculateMassLossRateBelczynski2010() {
         MdotWR = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
 
         // Calculate fraction for combining these into total mass-loss rate
-        fractionOB = CalculateMassLossRateFractionOB(m_HeliumAbundanceSurface);
+        fractionOB = CalculateMassLossFractionOB(m_HeliumAbundanceSurface);
 
     }
 
@@ -381,7 +381,7 @@ double CH::CalculateMassLossRateMerritt2025() {
     double Mdot   = 0.0;
     double MdotOB = 0.0;
     double MdotWR = 0.0;
-    double weight = 1.0;    // Initialised to 1.0 to allow us to use the OB mass loss rate by default
+    double fractionOB = 1.0;    // Initialised to 1.0 to allow us to use the OB mass loss rate by default
     
     // Calculate OB mass loss rate according to the chosen prescription
     MdotOB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
@@ -397,14 +397,14 @@ double CH::CalculateMassLossRateMerritt2025() {
         delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone  
 
         // Calculate weight for combining these into total mass-loss rate
-        weight = CalculateMassLossRateWeightOB(m_HeliumAbundanceSurface);
+        fractionOB = CalculateMassLossFractionOB(m_HeliumAbundanceSurface);
     }
 
+    // Finally, combine each of these prescriptions according to the OB wind fraction
+    Mdot = (fractionOB * MdotOB) + ((1.0 - fractionOB) * MdotWR);
+    
     // Set dominant mass loss rate
-    m_DominantMassLossRate = weight == 0 ? MASS_LOSS_TYPE::WR : MASS_LOSS_TYPE::OB;   
-
-    // Finally, combine each of these prescriptions according to the weight
-    Mdot = (weight * MdotOB) + ((1.0 - weight) * MdotWR);
+    m_DominantMassLossRate = (fractionOB * MdotOB) > ((1.0 - fractionOB) * MdotWR) ? MASS_LOSS_TYPE::OB : MASS_LOSS_TYPE::WR;
 
     // Enhance mass loss rate due to rotation
     Mdot *= CalculateMassLossRateEnhancementRotation();

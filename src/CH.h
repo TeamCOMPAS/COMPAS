@@ -74,7 +74,7 @@ protected:
     // Mass loss rate
     double          CalculateMassLossRateBelczynski2010();
     double          CalculateMassLossRateMerritt2025();
-    double          CalculateMassLossRateFractionOB(const double p_HeliumAbundanceSurface);
+    double          CalculateMassLossFractionOB(const double p_HeAbundanceSurface) const;
     
     // Radius
     double          CalculateRadiusOnPhase() const                      { return m_RZAMS; }                                                                                         // Constant from birth
