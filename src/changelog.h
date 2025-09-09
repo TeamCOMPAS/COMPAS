@@ -1666,7 +1666,7 @@
 //                                          - Clamped gamma to [0.0, gamma] in Mainsequence.cpp::CalculateGamma() (per discussion just after eq 23 - confirmed in BSE Fortran source)
 //  03.26.00  IM - September 2, 2025    - Enhancement, defect repairs:
 //                                          - First (simplified) implementation of the Lau+ (2024) Hamstars thermally limited accretion prescription
-//                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010() and CH::CalculateMassLossRateFractionOB() [previously CalculateMassLossRateWeightOB()]
+//                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010(), CalculateMassLossRateMerritt2025() and CH::CalculateMassLossFractionOB() [previously CalculateMassLossRateWeightOB()]
 //
 // Version string format is MM.mm.rr, where
 //
