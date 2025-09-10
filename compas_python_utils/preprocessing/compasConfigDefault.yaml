@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Tue Aug 19 15:39:23 2025 by COMPAS v03.25.00
+##~!!~## File Created Tue Sep  2 22:42:52 2025 by COMPAS v03.26.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -264,7 +264,7 @@ stringChoices:
 #    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE','GE_IC','CLAEYS','NONE']
 #    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['ARBITRARY','HURLEY','SOBERMAN']
 #    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
-#    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['FIXED','THERMAL']
+#    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['HAMSTARS','FIXED','THERMAL']
 #    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','HURLEY']
 #    --mass-transfer-thermal-limit-accretor-multiplier: 'CFACTOR'          # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
 #    --response-to-spin-up: 'TRANSFER_TO_ORBIT'                            # Default: 'TRANSFER_TO_ORBIT'           # Options: ['NO_LIMIT','KEPLERIAN_LIMIT','TRANSFER_TO_ORBIT']
