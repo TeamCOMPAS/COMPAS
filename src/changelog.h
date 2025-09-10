@@ -1664,6 +1664,9 @@
 //                                          - Corrected calculation for Hurley Gamma constant C (C_GAMMA - see Hurley et al. 2000, just after eq 23, should use a(75) <= 1.0, not a(75) == 1.0 - confirmed in BSE Fortran source)
 //                                          - Added abs() to gamma calculation in Mainsequence.cpp::CalculateGamma() (per BSE Fortran source)
 //                                          - Clamped gamma to [0.0, gamma] in Mainsequence.cpp::CalculateGamma() (per discussion just after eq 23 - confirmed in BSE Fortran source)
+//  03.26.00  IM - September 2, 2025    - Enhancement, defect repairs:
+//                                          - First (simplified) implementation of the Lau+ (2024) Hamstars thermally limited accretion prescription
+//                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010(), CalculateMassLossRateMerritt2025() and CH::CalculateMassLossFractionOB() [previously CalculateMassLossRateWeightOB()]
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1674,7 +1677,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.25.02";
+const std::string VERSION_STRING = "03.26.00";
 
 
 # endif // __changelog_h__
