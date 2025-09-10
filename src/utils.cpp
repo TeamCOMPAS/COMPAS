@@ -1836,7 +1836,7 @@ namespace utils {
         std::string versionStr = "Not available";                                                           // default return value
 
         char buffer[128];                                                                                   // command return buffer
-        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen("gsl-config --version", "r"), pclose);          // open pipe for command
+        std::unique_ptr<FILE, int(*)(FILE*)> pipe(popen("gsl-config --version", "r"), &pclose);             // open pipe for command
         if (pipe) {                                                                                         // ok?
             versionStr = "";                                                                                // yes
             while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) versionStr += buffer;              // copy buffer

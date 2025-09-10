@@ -533,13 +533,16 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     a[19] *= a[20];
     a[29] = PPOW(a[29], (a[32]));
     a[33] = min(1.4, 1.5135 + (0.3769 * xi));
+    a[33] = max(0.6355 - (0.4192 * xi), max(1.25, a[33]));
     a[42] = min(1.25, max(1.1, a[42]));
     a[44] = min(1.3, max(0.45, a[44]));
     a[49] = max(a[49], 0.145);
     a[50] = min(a[50], (0.306 + (0.053 * xi)));
     a[51] = min(a[51], (0.3625 + (0.062 * xi)));
-    a[52] = (utils::Compare(Z, 0.01) > 0) ? min(a[52], 1.0) : max(a[52], 0.9);
-    a[53] = (utils::Compare(Z, 0.01) > 0) ? min(a[53], 1.1) : max(a[53], 1.0);
+    a[52] = max(a[52], 0.9);
+    a[52] = (utils::Compare(Z, 0.01) > 0) ? min(a[52], 1.0) : a[52];
+    a[53] = max(a[53], 1.0);
+    a[53] = (utils::Compare(Z, 0.01) > 0) ? min(a[53], 1.1) : a[53];
     a[57] = min(1.4, a[57]);
     a[57] = max((0.6355 - (0.4192 * xi)), max(1.25, a[57]));
     a[62] = max(0.065, a[62]);
@@ -575,8 +578,8 @@ void BaseStar::CalculateAnCoefficients(DBL_VECTOR &p_AnCoefficients,
     RConstants(C_BETA_R)    = (a[69] * 16384.0) / (a[70] + PPOW(16.0, a[71]));                                      // Hurley et al. 2000, eq 22a
     RConstants(B_DELTA_R)   = (a[38] + a[39] * 8.0 * M_SQRT2) / (a[40] * 8.0 + PPOW(2.0, a[41])) - 1.0;             // Hurley et al. 2000, eq 17
 
-    GammaConstants(B_GAMMA) = a[76] + (a[77] * PPOW((1.0 - a[78]), a[79]));                                         // Hurley et al. 2000, eq 23
-    GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) == 0) ? GammaConstants(B_GAMMA) : a[80];                  // Hurley et al. 2000, eq 23
+    GammaConstants(B_GAMMA) = max(0.0, a[76] + (a[77] * PPOW((1.0 - a[78]), a[79])));                               // Hurley et al. 2000, eq 23 and discussion immediately following - max() confirmed in BSE Fortran code
+    GammaConstants(C_GAMMA) = (utils::Compare(a[75], 1.0) <= 0) ? GammaConstants(B_GAMMA) : a[80];                  // Hurley et al. 2000, eq 23 and discussion immediately following - <= 1.0 confirmed in BSE Fortran code
 
 #undef GammaConstants
 #undef RConstants
@@ -633,8 +636,8 @@ void BaseStar::CalculateBnCoefficients(DBL_VECTOR &p_BnCoefficients) {
     b[1] = min(0.54, b[1]);
     b[2] = PPOW(10.0, (-4.6739 - (0.9394 * sigma)));
     b[2] = min(max(b[2], (-0.04167 + (55.67 * Z))), (0.4771 - (9329.21 * PPOW(Z, 2.94))));
-    b[3] = max(-0.1451, (-2.2794 - (1.5175 * sigma) - (0.254 * sigma * sigma)));
-    b[3] = (utils::Compare(Z, 0.004) > 0) ? max(b[3], 0.7307 + (14265.1 * PPOW(Z, 3.395))) : PPOW(10.0, b[3]);
+    b[3] = PPOW(10.0, max(-0.1451, (-2.2794 - (1.5175 * sigma) - (0.254 * sigma * sigma))));
+    b[3] = (utils::Compare(Z, 0.004) > 0) ? max(b[3], 0.7307 + (14265.1 * PPOW(Z, 3.395))) : b[3];
     b[4] += 0.1231572 * xi_5;
     b[6] += 0.01640687 * xi_5;
     b[11] = b[11] * b[11];
@@ -2710,9 +2713,14 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
 
     switch (OPTIONS->MassTransferAccretionEfficiencyPrescription()) {
 
-        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                                   // thermally limited mass transfer:
-
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::THERMALLY_LIMITED:                                   // thermally limited mass transfer
             acceptanceRate   = min(OPTIONS->MassTransferCParameter() * p_AccretorMassRate, p_DonorMassRate);
+            fractionAccreted = acceptanceRate / p_DonorMassRate;
+            break;
+
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::HAMSTARS:                                            // thermally limited mass transfer, following Lau+, 2024
+            // the mass transfer C parameter is fit using the data from Figure (1) of Lau+, 2024
+            acceptanceRate   = min(PPOW(10.0, (4.0 / PPOW((Mass() + 0.2), 0.3) - 0.6)) * p_AccretorMassRate, p_DonorMassRate);
             fractionAccreted = acceptanceRate / p_DonorMassRate;
             break;
 
