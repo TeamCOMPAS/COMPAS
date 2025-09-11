@@ -27,46 +27,62 @@ jobs:
 
     name: Build COMPAS
     runs-on: ubuntu-22.04
+    container: teamcompas/compas:latest
+    # TODO: Switch to GHCR when package is made public
+    # container: ghcr.io/teamcompas/compas:latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-          cache: pip
-          cache-dependency-path: setup.py
-      # - name: Install TeXLive
-      #   uses: teatimeguest/setup-texlive-action@v3.3.4
-      - name: Install dependencies on ubuntu
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build COMPAS from source
         run: |
-          cd misc/cicd-scripts
-          chmod 755 linux-dependencies
-          ./linux-dependencies
-      - name: Build Compas
-        run: |
-          cd src && make -j $(nproc) -f Makefile
+          echo "Building COMPAS from source..."
+          cd src
+          make clean 2>/dev/null || echo 'No existing build to clean'
+          make -j $(nproc) -f Makefile
           ./COMPAS -v
-      - name: Install python utils
+          echo "COMPAS build completed successfully!"
+
+      - name: Install Python dependencies
         run: |
-          pip install --upgrade pip
+          echo "Installing Python dependencies..."
+          python3 -m pip install --upgrade pip
           pip install -e .[dev]
+          echo "Python dependencies installed!"
+
       - name: Run example COMPAS job
         run: |
+          echo "Running example COMPAS job..."
           export COMPAS_EXECUTABLE_PATH=${GITHUB_WORKSPACE}/src/COMPAS
           cd ${GITHUB_WORKSPACE}/py_tests/test_data/
           chmod 755 run.sh
+          echo "Contents of run.sh:"
           cat run.sh
           ./run.sh
-      - name: Run pytests
+          echo "Example job completed!"
+
+      - name: Run pytest suite
         run: |
+          echo "Running pytest suite..."
           cd ${GITHUB_WORKSPACE}
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          jupyter-kernelspec list
+          
+          if command -v jupyter-kernelspec &> /dev/null; then
+            echo "Available Jupyter kernels:"
+            jupyter-kernelspec list
+          fi
+          
           pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
           pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
-          ls py_tests/test_artifacts
+          
+          echo "Test artifacts:"
+          ls py_tests/test_artifacts/ 2>/dev/null || echo "No test artifacts found"
+          
           coverage html
           coverage-badge -o coverage_badge.svg -f
+          echo "All tests completed successfully!"
+
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
@@ -74,17 +90,67 @@ jobs:
           path: |
             htmlcov/
             coverage_badge.svg
+
       - name: Archive COMPAS detailed-evolution plot
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: evolution-plot-${{ github.run_number }}
           path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}
           if-no-files-found: error
+
       - name: Test Summary
         run: |
-          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Compas Build: Success" >> $GITHUB_STEP_SUMMARY
-          echo "- Python Utils Installation: Success" >> $GITHUB_STEP_SUMMARY
+          echo "### COMPAS CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "- COMPAS Build: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Python Dependencies: Success" >> $GITHUB_STEP_SUMMARY
           echo "- Example COMPAS Job: Success" >> $GITHUB_STEP_SUMMARY
-          echo "- Pytest Execution: Success" >> $GITHUB_STEP_SUMMARY
+          echo "- Pytest Suite: Success" >> $GITHUB_STEP_SUMMARY
+
+  comment-with-plot:
+    name: Comment PR with Evolution Plot
+    runs-on: ubuntu-22.04
+    container: docker://ghcr.io/iterative/cml:0-dvc2-base1
+    needs: compas
+    if: github.event_name == 'pull_request'
+
+    env:
+      ARTIFACT_NAME: detailedEvolutionPlot.png
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download evolution plot
+        uses: actions/download-artifact@v4
+        with:
+          name: evolution-plot-${{ github.run_number }}
+
+      - name: Create report with evolution plot
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "## ✅ COMPAS Build Successful!" >> report.md
+          echo "" >> report.md
+          echo "| Item | Value |" >> report.md
+          echo "|------|-------|" >> report.md
+          echo "| **Commit** | [\`$(echo $GITHUB_SHA | cut -c1-7)\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}) |" >> report.md
+          echo "| **Logs** | [View workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) |" >> report.md
+          echo "" >> report.md
+          
+          if [ -f "${{ env.ARTIFACT_NAME }}" ]; then
+            echo "### Detailed Evolution Plot" >> report.md
+            echo "<details><summary>Click to view evolution plot</summary>" >> report.md
+            echo "" >> report.md
+            echo "![](./${{ env.ARTIFACT_NAME }})" >> report.md
+            echo "</details>" >> report.md
+          else
+            echo "### ⚠️ Evolution plot not found" >> report.md
+          fi
+          
+          echo "" >> report.md
+          echo "---" >> report.md
+          echo "<sub>Generated by COMPAS CI </sub>" >> report.md
+          
+          # Post the report using CML
+          cml comment create report.md
