@@ -131,7 +131,7 @@ jobs:
           echo "" >> report.md
           echo "| Item | Value |" >> report.md
           echo "|------|-------|" >> report.md
-          echo "| **Commit** | [\`${GITHUB_SHA:0:7}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}) |" >> report.md
+          echo "| **Commit** | [\`$(echo $GITHUB_SHA | cut -c1-7)\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}) |" >> report.md
           echo "| **Logs** | [View workflow](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) |" >> report.md
           echo "" >> report.md
           
