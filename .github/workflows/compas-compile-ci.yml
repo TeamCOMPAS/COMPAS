@@ -118,6 +118,9 @@ jobs:
       ARTIFACT_NAME: detailedEvolutionPlot.png
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download evolution plot
         uses: actions/download-artifact@v4
         with:
