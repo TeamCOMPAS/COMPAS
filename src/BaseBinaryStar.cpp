@@ -1121,16 +1121,22 @@ double BaseBinaryStar::CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, con
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
 
+    double e2 = m_Eccentricity * m_Eccentricity;
+    double e4 = e2 * e2;
+    double e6 = e4 * e2;
+
     double ImK10, ImK12, ImK22, ImK32;
     std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
     double R1_over_a_6 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
-    double e2_spin_term = (m_Eccentricity * m_Eccentricity) *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0));
+    double e2_spin_term = e2 *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0));
+
+    double pseudo_sync_limit = OrbitalAngularVelocity() * (1.0 + (15.0 / 2.0) * e2 + (45.0 / 8.0) * e4 + (5.0 / 16.0) * e6) / ((1.0 + 3.0 * e2 + (3.0 / 8.0) * e4) * std::pow(1.0 - e2, 1.5)); // Hut 1981, Eq. (42)
 
     // if the star is rotating (super) synchronously AND quadratic 'e' terms cause the star to spin up further, ignore the higher order terms
-    if ((utils::Compare(p_Star->Omega(), OrbitalAngularVelocity()) > 0) && (utils::Compare((ImK22 + e2_spin_term), 0.0) > 0)){e2_spin_term = 0.0;}
+    if ((utils::Compare(p_Star->Omega(), pseudo_sync_limit) > 0) && (utils::Compare((ImK22 + e2_spin_term), 0.0) > 0)){e2_spin_term = 0.0;}
     return (3.0 / 2.0) * (1.0 / MoIstar) * (G_AU_Msol_yr * massCompanion * massCompanion / R1_AU) * R1_over_a_6 * (ImK22 + e2_spin_term);
 }
 
@@ -1152,19 +1158,25 @@ double BaseBinaryStar::CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_Im
     double radiusStar    = p_Star->Radius();
     double massCompanion = p_Star == m_Star1 ? m_Star2->Mass() : m_Star1->Mass();
     
+    double e2 = m_Eccentricity * m_Eccentricity;
+    double e4 = e2 * e2;
+    double e6 = e4 * e2;
+
     double ImK10, ImK12, ImK22, ImK32;
     std::tie(ImK10, ImK12, ImK22, ImK32) = p_ImKnm;
 
     double R1_AU       = radiusStar * RSOL_TO_AU;
     double R1_over_a   = R1_AU / m_SemiMajorAxis;
     double R1_over_a_7 = R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a * R1_over_a;
-    double e2_sma_term = (m_Eccentricity * m_Eccentricity) * ((3.0 * ImK10 / 4.0) + (ImK12 / 8.0) - (5.0 * ImK22) + (147.0 * ImK32 / 8.0));
+    double e2_sma_term = e2 * ((3.0 * ImK10 / 4.0) + (ImK12 / 8.0) - (5.0 * ImK22) + (147.0 * ImK32 / 8.0));
+
+    double pseudo_sync_limit = OrbitalAngularVelocity() * (1.0 + (15.0 / 2.0) * e2 + (45.0 / 8.0) * e4 + (5.0 / 16.0) * e6) / ((1.0 + 3.0 * e2 + (3.0 / 8.0) * e4) * std::pow(1.0 - e2, 1.5)); // Hut 1981, Eq. (42)
 
     // if the star is rotating (super) synchronously AND quadratic 'e' terms cause the star to spin up further, ignore the higher order terms.
     // Note: here we use the SPIN e^2 terms (not the semi-major axis terms) to determine when to ignore the higher order terms in semi-major axis evolution.
     // this is to ensure that the higher order terms are always consistently applied/ignored across the tidal evolution equations.
-    double e2_spin_term = (m_Eccentricity * m_Eccentricity) *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0));
-    if ((utils::Compare(p_Star->Omega(), OrbitalAngularVelocity()) > 0) && (utils::Compare((ImK22 + e2_spin_term), 0.0) > 0)){e2_sma_term = 0.0;}
+    double e2_spin_term = e2 *  ((ImK12 / 4.0) - (5.0 * ImK22) + (49.0 * ImK32 / 4.0));
+    if ((utils::Compare(p_Star->Omega(), pseudo_sync_limit) > 0) && (utils::Compare((ImK22 + e2_spin_term), 0.0) > 0)){e2_sma_term = 0.0;}
 
     return -(3.0 / OrbitalAngularVelocity()) * (1.0 + (massCompanion / massStar)) * (G_AU_Msol_yr * massCompanion / R1_AU / R1_AU) * R1_over_a_7 * (ImK22 + e2_sma_term);
 }
