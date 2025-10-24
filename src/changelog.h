@@ -1667,6 +1667,8 @@
 //  03.26.00  IM - September 2, 2025    - Enhancement, defect repairs:
 //                                          - First (simplified) implementation of the Lau+ (2024) Hamstars thermally limited accretion prescription
 //                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010(), CalculateMassLossRateMerritt2025() and CH::CalculateMassLossFractionOB() [previously CalculateMassLossRateWeightOB()]
+//  03.26.01  AB - October 24, 2025     - Option name change:
+//                                          - Main sequence core mass prescription ZERO renamed to HURLEY; deprecated ZERO
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1677,7 +1679,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.26.00";
+const std::string VERSION_STRING = "03.26.01";
 
 
 # endif // __changelog_h__

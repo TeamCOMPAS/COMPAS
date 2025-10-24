@@ -872,7 +872,8 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
     double age                  = m_Age;                                                                                                // default is no change
 
     switch (OPTIONS->MainSequenceCoreMassPrescription()) {
-        case CORE_MASS_PRESCRIPTION::ZERO: 
+        case CORE_MASS_PRESCRIPTION::HURLEY:
+            // In the Hurley et al. (2000) formalism, MS stars do not have a distinct core and core evolution is not tracked
             mainSequenceCoreMass = 0.0;
             break;
         
