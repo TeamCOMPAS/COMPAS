@@ -3848,6 +3848,9 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
     double quantile0 = gsl_cdf_gaussian_P(-1.0, sigmaKick);  //quantile of -1 in the Gaussian CDF; the goal is to draw from the cut-off Gaussian since the kick must exceed 0
     double rand = quantile0 + p_Rand * (1.0 - quantile0);
     remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, sigmaKick));
+    
+    if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::USSN )                   // overwrite USSN kick prescription
+        remnantKick = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
 
 	return remnantKick;
 }
@@ -4022,7 +4025,7 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
     
 	    if (error == ERROR::NONE) {                                                                 // check for errors
                                                                                                     // no errors - draw kick magnitude
-            vK = DrawSNKickMagnitude(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.kickMagnitudeRandom, p_EjectaMass, p_RemnantMass);
+            vK = DrawSNKickMagnitude(sigma, m_SupernovaDetails.COCoreMassAtCOFormation, m_SupernovaDetails.kickMagnitudeRandom, p_EjectaMass, p_RemnantMass;
         }
     }
     else {                                                                                          // user supplied kick parameters and wants to use supplied kick magnitude, so ...
