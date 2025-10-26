@@ -270,7 +270,7 @@ double HeHG::CalculateRemnantRadius() const {
  *
  * This implementation adapted from the STARTRACK implementation (STARTRACK courtesy Chris Belczynski)
  *
- * This function good for HeHG and HeGB stars (for Helium stars: always use Natasha's fit)
+ * This function is for HeHG and HeGB stars (for Helium stars: always use Natasha Ivanova's fit)
  *
  *
  * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
@@ -282,11 +282,11 @@ double HeHG::CalculateRemnantRadius() const {
  */
 double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
-    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
-	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
+    double rMin = 0.25;                              // minimum considered radius: Natasha
+	double rMax = 120.0;                             // maximum considered radius: Natasha
 
-	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
-	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
+	double rMinLambda = 0.3 * PPOW(rMin, -0.8);
+	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);
 
 	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * PPOW(m_Radius, -0.8));
 }

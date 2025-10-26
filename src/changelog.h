@@ -1671,7 +1671,7 @@
 //                                          - Main sequence core mass prescription ZERO renamed to HURLEY; deprecated ZERO
 //  03.26.02  IM - October 26, 2025     - Enhancements
 //                                          - Added option -USSN-kicks-overwrite-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
-//                                          - replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance
+//                                          - Replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance
 //
 // Version string format is MM.mm.rr, where
 //
