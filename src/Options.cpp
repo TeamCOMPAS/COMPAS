@@ -322,6 +322,7 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
 	m_KickScalingFactor						                        = 1.0;
+    m_USSNKicksOverrideMandelMuller                                 = false;                      // Default from Mandel&Mueller 2020 is to treat USSNe as normal CCSNe for kicks
 
     // Kick direction option
     m_KickDirectionDistribution.type                                = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;
@@ -375,7 +376,7 @@ void Options::OptionValues::Initialise() {
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
     m_EnhanceCHELifetimesLuminosities                               = true;                                                // default is to enhance
-    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = true;                                                // default is to scale the mass loss
+    m_ScaleMassLossWithSurfaceHeliumAbundance                       = true;                                                // default is to scale the mass loss
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
@@ -1018,14 +1019,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Print switch log to file (default = " + std::string(p_Options->m_SwitchLog ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
-            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(true),                                                                      
-            ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
+            "scale-mass-loss-with-surface-helium-abundance",
+            po::value<bool>(&p_Options->m_ScaleMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleMassLossWithSurfaceHeliumAbundance)->implicit_value(true),
+            ("Whether to transition mass loss rates for stars between OB/VMS mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "use-mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "USSN-kicks-override-Mandel-Muller",
+            po::value<bool>(&p_Options->m_USSNKicksOverrideMandelMuller)->default_value(p_Options->m_USSNKicksOverrideMandelMuller)->implicit_value(true),
+            ("Whether to use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe (default = " + std::string(p_Options->m_USSNKicksOverrideMandelMuller ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         // numerical options - alphabetically grouped by type 
@@ -5113,7 +5119,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1                         : value = RotationalFrequency1();                                               break;
         case PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2                         : value = RotationalFrequency2();                                               break;
         
-	    case PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE          : value = ScaleCHEMassLossWithSurfaceHeliumAbundance();                         break;
+	    case PROGRAM_OPTION::SCALE_MASS_LOSS_SURF_HE_ABUNDANCE              : value = ScaleMassLossWithSurfaceHeliumAbundance();                            break;
         case PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER      : value = ScaleTerminalWindVelocityWithMetallicityPower();                      break;
 	    
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS                                : value = SemiMajorAxis();                                                      break;
@@ -5124,6 +5130,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
 
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
+        case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = static_cast<int>(USSNKicksOverrideMandelMuller());                    break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
 

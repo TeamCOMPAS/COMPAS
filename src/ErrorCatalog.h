@@ -133,6 +133,8 @@ enum class ERROR: int {
     TOO_MANY_RETRIES,                                               // generic too many retries
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     TOO_MANY_RLOF_TRIES,                                            // too many tries in RLOF root finder
+    TOO_MANY_RV_ITERATIONS,                                         // too many iterations in rotational velocity root finder
+    TOO_MANY_RV_TRIES,                                              // too many tries in rotational velocity root finder
     TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                           // too many timesteps in timesteps file (exceeds maximum)
     UNABLE_TO_CREATE_DIRECTORY,                                     // unable to create directory
     UNABLE_TO_REMOVE_DIRECTORY,                                     // unable to remove directory
@@ -310,6 +312,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_RETRIES,                                      { ERROR_SCOPE::ALWAYS,              "Too many retries" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_RLOF_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when fitting star inside Roche Lobe in RLOF" }},
+    { ERROR::TOO_MANY_RV_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocitiesF" }},
+    { ERROR::TOO_MANY_RV_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocities" }},
     { ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                  { ERROR_SCOPE::ALWAYS,              "Number of timesteps in timestpes file exceeds maximum timesteps" }},
     { ERROR::UNABLE_TO_CREATE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to create directory" }},
     { ERROR::UNABLE_TO_REMOVE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to remove directory" }},

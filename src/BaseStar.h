@@ -615,6 +615,8 @@ protected:
             double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
             double              CalculateMassLossRateHeliumStarVink2017() const;
     virtual double              CalculateMassLossRateWolfRayetShenar2019() const;
+    
+            double              CalculateMassLossFractionWR(const double p_HeAbundanceSurface) const;
 
     virtual double              CalculateMassTransferRejuvenationFactor()                                               { return 1.0; }
 
@@ -625,8 +627,7 @@ protected:
     static  double              CalculateOpacity_Static(const double p_HeliumAbundanceSurface);
 
     static  double              CalculateOStarRotationalVelocityAnalyticCDF_Static(const double p_Ve);
-    static  double              CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(double p_Ve, void *p_Params);
-    static  double              CalculateOStarRotationalVelocity_Static(const double p_Xmin, const double p_Xmax);
+            double              CalculateOStarRotationalVelocity();
 
             double              CalculatePerturbationB(const double p_Mass) const;
             double              CalculatePerturbationC(double p_Mass) const;
@@ -691,7 +692,8 @@ protected:
                                                     const double p_Rand,
                                                     const double p_EjectaMass,
                                                     const double p_RemnantMass);
-    
+            double              EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate, double p_WolfRayetRate, bool p_RecalculateWolfRayetRate);
+
     virtual void                EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
 
             STELLAR_TYPE        EvolveOnPhase(const double p_DeltaTime);
@@ -740,6 +742,34 @@ protected:
 
             void                UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
+
+    /*
+     * Functor for CalculateOStarRotationalVelocity()
+     *
+     *
+     * Constructor: initialise the class
+     * template <class T> OStarRotationVelocityFunctor(double p_CDF, ERROR *p_Error)
+     *
+     * @param   [IN]    p_CDF                       Desired CDF value
+     *
+     * Function: calculate the CDF of the O star rotational velocity and compare to desired value
+     * T OStarRotationVelocityFunctor(double const& p_Ve)
+     *
+     * @param   [IN]    p_Ve                        Rotational velocity, km s^-1
+     * @return                                      Difference between star's Roche Lobe radius and radius after mass loss
+     */
+    template <class T>
+    struct OStarRotationVelocityFunctor {
+        OStarRotationVelocityFunctor(double p_CDF) {
+            m_CDF              = p_CDF;
+        }
+        T operator()(double const& p_Ve) {
+
+            return (CalculateOStarRotationalVelocityAnalyticCDF_Static(p_Ve) - m_CDF);
+        }
+    private:
+        double                 m_CDF;
+    };
 };
 
 #endif // __BaseStar_h__
