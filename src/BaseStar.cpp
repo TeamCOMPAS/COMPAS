@@ -3176,16 +3176,17 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
         case ROTATIONAL_VELOCITY_DISTRIBUTION::VLTFLAMES:                                           // VLTFLAMES
 
             // Rotational velocity based on VLT-FLAMES survey.
-            // For O-stars use results of Ramirez-Agudelo et al. (2013) https://arxiv.org/abs/1309.2929 (single stars)
+            // For O-stars (taken to be above 16 Msol), use results
+            // of Ramirez-Agudelo et al. (2013) https://arxiv.org/abs/1309.2929 (single stars)
             // and Ramirez-Agudelo et al. (2015) https://arxiv.org/abs/1507.02286 (spectroscopic binaries)
-            // For B-stars use results of Dufton et al. (2013) https://arxiv.org/abs/1212.2424
-            // For lower mass stars, I don't know what updated results there are so default back to
-            // Hurley et al. 2000 distribution for now
+            // For B-stars (taken to be between 2 and 16 Msol) use results
+            // of Dufton et al. (2013) https://arxiv.org/abs/1212.2424
+            // For lower mass stars, default back to  Hurley et al. 2000 distribution for now
 
-            if (utils::Compare(p_MZAMS, 16.0) >= 0) {                   // JR: what does 16.0 represent?  Not another mass threshold that should be in constants.h ...? /*ilya*/
+            if (utils::Compare(p_MZAMS, 16.0) >= 0) {
                 vRot = CalculateOStarRotationalVelocity_Static(0.0, 800.0);
             }
-            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {               // JR: what does 2.0 represent?  Not another mass threshold that should be in constants.h ...? **Ilya**
+            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {
                 vRot = utils::InverseSampleFromTabulatedCDF(RAND->Random(), BStarRotationalVelocityCDFTable);
             }
             else {
