@@ -1003,7 +1003,7 @@ enum class PROGRAM_OPTION: int {
     ROTATIONAL_FREQUENCY_1,
     ROTATIONAL_FREQUENCY_2,
     
-    SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,
+    SCALE_MASS_LOSS_SURF_HE_ABUNDANCE,
     SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,
     SEMI_MAJOR_AXIS,
     SEMI_MAJOR_AXIS_DISTRIBUTION,
@@ -1013,6 +1013,8 @@ enum class PROGRAM_OPTION: int {
     STELLAR_ZETA_PRESCRIPTION,
 
     TIDES_PRESCRIPTION,
+    
+    USSN_KICKS_OVERRIDE_MANDEL_MULLER,
 
     WR_FACTOR,
 
@@ -1231,8 +1233,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                           "ROTATIONAL_FREQUENCY_1" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                           "ROTATIONAL_FREQUENCY_2" },
    
-    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" }, 
-    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" }, 
+    { PROGRAM_OPTION::SCALE_MASS_LOSS_SURF_HE_ABUNDANCE,                "SCALE_MASS_LOSS_SURF_HE_ABUNDANCE" },
+    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                  "SEMI_MAJOR_AXIS" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                     "SEMI_MAJOR_AXIS_DISTRIBUTION" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MAX" },
@@ -1241,6 +1243,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
+    
+    { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                "USSN_KICKS_OVERRIDE_MANDEL_MULLER" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
 
@@ -1822,7 +1826,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                                   { TYPENAME::DOUBLE,     "PO_Rotational_Frequency(1)",                "Hz",        24, 15}},
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                                   { TYPENAME::DOUBLE,     "PO_Rotational_Frequency(2)",                "Hz",        24, 15}},
    
-    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,                    { TYPENAME::BOOL,       "PO_Scale_CHE_Mass_Loss_Surf_He_Abundance",  "flag",       0,  0}},
+    { PROGRAM_OPTION::SCALE_MASS_LOSS_SURF_HE_ABUNDANCE,                        { TYPENAME::BOOL,       "PO_Scale_Mass_Loss_Surf_He_Abundance",  "flag",       0,  0}},
     { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,                { TYPENAME::DOUBLE,     "PO_Scale_Terminal_Wind_Vel_Metallicity_Power", "-",      24, 15}},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                          { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis",                        "AU",        24, 15}},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                             { TYPENAME::INT,        "PO_Semi-Major_Axis_Dstrbtn",                "-",          4, 1 }},
@@ -1832,6 +1836,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_Tides_Prscrptn",                         "-",          4, 1 }},
+    
+    { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                        { TYPENAME::BOOL,       "PO_USSN_Kicks_Override_Mandel_Muller",  "flag",       0,  0}},
 
     { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "PO_WR_Factor",                              "-",         24, 15}},
 
