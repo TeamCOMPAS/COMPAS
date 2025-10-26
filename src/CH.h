@@ -8,7 +8,6 @@
 
 #include "BaseStar.h"
 #include "MS_gt_07.h"
-#include "HeMS.h"
 
 class BaseStar;
 class MS_gt_07;
@@ -72,9 +71,8 @@ protected:
     double          CalculateLuminosityOnPhase() const                  { return m_Luminosity; }    
 
     // Mass loss rate
-    double          CalculateMassLossRateBelczynski2010();
-    double          CalculateMassLossRateMerritt2025();
-    double          CalculateMassLossFractionOB(const double p_HeAbundanceSurface) const;
+    double          CalculateMassLossRateBelczynski2010()               { return BaseStar::CalculateMassLossRateBelczynski2010() * CalculateMassLossRateEnhancementRotation(); }
+    double          CalculateMassLossRateMerritt2025()                  { return BaseStar::CalculateMassLossRateBelczynski2010() * CalculateMassLossRateEnhancementRotation(); }
     
     // Radius
     double          CalculateRadiusOnPhase() const                      { return m_RZAMS; }                                                                                         // Constant from birth

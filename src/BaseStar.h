@@ -615,6 +615,8 @@ protected:
             double              CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot) const;
             double              CalculateMassLossRateHeliumStarVink2017() const;
     virtual double              CalculateMassLossRateWolfRayetShenar2019() const;
+    
+            double              CalculateMassLossFractionWR(const double p_HeAbundanceSurface) const;
 
     virtual double              CalculateMassTransferRejuvenationFactor()                                               { return 1.0; }
 
@@ -691,7 +693,8 @@ protected:
                                                     const double p_Rand,
                                                     const double p_EjectaMass,
                                                     const double p_RemnantMass);
-    
+            double              EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate, double p_WolfRayetRate, bool p_RecalculateWolfRayetRate);
+
     virtual void                EvolveOneTimestepPreamble() { };                                                                                                                                    // Default is NO-OP
 
             STELLAR_TYPE        EvolveOnPhase(const double p_DeltaTime);

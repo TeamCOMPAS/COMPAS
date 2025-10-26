@@ -1669,6 +1669,9 @@
 //                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010(), CalculateMassLossRateMerritt2025() and CH::CalculateMassLossFractionOB() [previously CalculateMassLossRateWeightOB()]
 //  03.26.01  AB - October 24, 2025     - Option name change:
 //                                          - Main sequence core mass prescription ZERO renamed to HURLEY; deprecated ZERO
+//  03.26.02  IM - October 26, 2025     - Enhancements
+//                                          - Added option -USSN-kicks-overwrite-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+//                                          - replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1679,7 +1682,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.26.01";
+const std::string VERSION_STRING = "03.26.02";
 
 
 # endif // __changelog_h__
