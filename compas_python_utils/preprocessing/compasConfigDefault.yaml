@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Thu Oct 23 15:46:49 2025 by COMPAS v03.26.01
+##~!!~## File Created Mon Oct 27 09:51:18 2025 by COMPAS v03.26.02
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -29,7 +29,7 @@ booleanChoices:
 #    --enhance-CHE-lifetimes-luminosities: True                            # Default: True
 #    --expel-convective-envelope-above-luminosity-threshold: False         # Default: False
 #    --natal-kick-for-PPISN: False                                         # Default: False
-#    --scale-CHE-mass-loss-with-surface-helium-abundance: True             # Default: True
+#    --scale-mass-loss-with-surface-helium-abundance: True                 # Default: True
 
     ### BINARY PROPERTIES
 #    --allow-touching-at-birth: False                                      # Default: False                                                                                                                                                                            # record binaries that have stars touching at birth in output files
@@ -57,6 +57,7 @@ booleanChoices:
 #    --allow-non-stripped-ECSN: False                                      # Default: False
 #    --pair-instability-supernovae: True                                   # Default: True
 #    --pulsational-pair-instability: True                                  # Default: True
+#    --USSN-kicks-override-Mandel-Muller: False                            # Default: False
 
     ### PULSAR PARAMETERS
 #    --evolve-pulsars: False                                               # Default: False
