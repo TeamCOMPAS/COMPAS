@@ -3045,7 +3045,7 @@ double BaseStar::CalculateOStarRotationalVelocityAnalyticCDF_Static(const double
     boost::math::inverse_gamma_distribution<> gammaComponent(alpha, beta); // (shape, scale) = (alpha, beta)
     boost::math::normal_distribution<> normalComponent(mu, sigma);
     
-    // Compute CDF at zero rotational velocity -- the CDF should relative to this quantity
+    // Compute CDF at zero rotational velocity -- the CDF should be relative to this quantity
     double CDFzero = (iGamma * boost::math::cdf(gammaComponent, 0.0)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, 0.0));
     
     double CDFunnormalised = (iGamma * boost::math::cdf(gammaComponent, p_Ve)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, p_Ve));
