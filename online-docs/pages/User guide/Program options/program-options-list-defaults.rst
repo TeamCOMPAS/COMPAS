@@ -1431,7 +1431,7 @@ This option is primarily intended for debugging/testing of convergence issues ra
 Enable mass transfer. |br|
 Default = TRUE
 
-**--USSN-kicks-overwrite-mandel-muller** |br|
+**--USSN-kicks-override-mandel-muller** |br|
 Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe. |br|
 Default = FALSE
 
@@ -1587,7 +1587,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
---muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-overwrite-mandel-muller, 
+--muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller, 
 --kick-direction, --kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
 :ref:`Back to Top <options-props-top>`
