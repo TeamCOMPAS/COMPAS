@@ -2549,10 +2549,7 @@ double BaseStar::EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate,
     
     if (p_RecalculateWolfRayetRate && fractionWR > 0.0 ) {
         MdotWR        = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
-        // *Jeff* This used to have the code below instead; I'd prefer a static function to calculate the luminosity of the WR star.
-        //HeMS *clone = HeMS::Clone((HeMS&)static_cast<const MainSequence&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);  // Do not initialise so that we can use same mass, luminosity, radius etc
-        //MdotWR      = clone->CalculateMassLossRateMerritt2025();                                                // Calculate WR mass loss rate
-        //delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone
+        // *Jeff* This used to clone the star as a HeMS star and query its CalculateMassLossRateMerritt2025(); eventually, let's switch to a static function to calculate the luminosity of the WR star
     }
     
     // Combine each of these prescriptions according to the OB wind fraction
