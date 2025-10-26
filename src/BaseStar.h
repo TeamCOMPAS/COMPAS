@@ -627,8 +627,7 @@ protected:
     static  double              CalculateOpacity_Static(const double p_HeliumAbundanceSurface);
 
     static  double              CalculateOStarRotationalVelocityAnalyticCDF_Static(const double p_Ve);
-    static  double              CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(double p_Ve, void *p_Params);
-    static  double              CalculateOStarRotationalVelocity_Static(const double p_Xmin, const double p_Xmax);
+            double              CalculateOStarRotationalVelocity();
 
             double              CalculatePerturbationB(const double p_Mass) const;
             double              CalculatePerturbationC(double p_Mass) const;
@@ -743,6 +742,34 @@ protected:
 
             void                UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMass, const double p_DeltaMass0, const double p_DeltaTime);
 
+
+    /*
+     * Functor for CalculateOStarRotationalVelocity()
+     *
+     *
+     * Constructor: initialise the class
+     * template <class T> OStarRotationVelocityFunctor(double p_CDF, ERROR *p_Error)
+     *
+     * @param   [IN]    p_CDF                       Desired CDF value
+     *
+     * Function: calculate the CDF of the O star rotational velocity and compare to desired value
+     * T OStarRotationVelocityFunctor(double const& p_Ve)
+     *
+     * @param   [IN]    p_Ve                        Rotational velocity, km s^-1
+     * @return                                      Difference between star's Roche Lobe radius and radius after mass loss
+     */
+    template <class T>
+    struct OStarRotationVelocityFunctor {
+        OStarRotationVelocityFunctor(double p_CDF) {
+            m_CDF              = p_CDF;
+        }
+        T operator()(double const& p_Ve) {
+
+            return (CalculateOStarRotationalVelocityAnalyticCDF_Static(p_Ve) - m_CDF);
+        }
+    private:
+        double                 m_CDF;
+    };
 };
 
 #endif // __BaseStar_h__

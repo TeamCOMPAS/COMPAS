@@ -279,6 +279,10 @@ constexpr int    ADAPTIVE_RLOF_MAX_TRIES                = 30;                   
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of root finder iterations in BaseBinaryStar::MassLossToFitInsideRocheLobe()
 constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR_FRAC       = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::MassLossToFitInsideRocheLobe() (added to 1.0)
 
+constexpr int    ADAPTIVE_RV_MAX_TRIES                = 30;                                                       // Maximum number of tries in BaseStar::CalculateOStarRotationalVelocity_Static()
+constexpr int    ADAPTIVE_RV_MAX_ITERATIONS           = 50;                                                       // Maximum number of root finder iterations in BaseStar::CalculateOStarRotationalVelocity_Static()
+constexpr double ADAPTIVE_RV_SEARCH_FACTOR_FRAC       = 1.0;                                                      // Search size factor (fractional part) in BaseStar::CalculateOStarRotationalVelocity_Static() (added to 1.0)
+
 constexpr int    ADAPTIVE_MASS0_MAX_TRIES               = 30;                                                       // Maximum number of tries in HG::Mass0ToMatchDesiredCoreMass()
 constexpr int    ADAPTIVE_MASS0_MAX_ITERATIONS          = 50;                                                       // Maximum number of iterations in HG::Mass0ToMatchDesiredCoreMass()
 constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR_FRAC      = 1.0;                                                      // Search size factor (fractional part) in HG::Mass0ToMatchDesiredCoreMass() (added to 1.0)

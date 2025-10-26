@@ -3047,28 +3047,14 @@ double BaseStar::CalculateOStarRotationalVelocityAnalyticCDF_Static(const double
 
     boost::math::inverse_gamma_distribution<> gammaComponent(alpha, beta); // (shape, scale) = (alpha, beta)
     boost::math::normal_distribution<> normalComponent(mu, sigma);
+    
+    // Compute CDF at zero rotational velocity -- the CDF should relative to this quantity
+    double CDFzero = (iGamma * boost::math::cdf(gammaComponent, 0.0)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, 0.0));
+    
+    double CDFunnormalised = (iGamma * boost::math::cdf(gammaComponent, p_Ve)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, p_Ve));
+    
+    return ((CDFunnormalised-CDFzero) / (1.0 - CDFzero));
 
-	return (iGamma * boost::math::cdf(gammaComponent, p_Ve)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, p_Ve));
-}
-
-
-/*
- * Calculate the inverse of the analytic cumulative distribution function (CDF) for the
- * equatorial rotational velocity of single O stars.
- *
- * (i.e. calculate the inverse of CalculateOStarRotationalVelocityAnalyticCDF_Static())
- *
- *
- * double CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(const double p_Ve, const void *p_Params)
- * 
- * @param   [IN]    p_vE                        Rotational velocity (in km s^-1) - value of the kick vk which we want to find
- * @param   [IN]    p_Params                    Pointer to RotationalVelocityParams structure containing y, the CDF draw U(0,1)
- * @return                                      Inverse CDF
- *                                              Should be zero when p_Ve = vk, the value of the kick to draw
- */
-double BaseStar::CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(double p_Ve, void* p_Params) {
-    RotationalVelocityParams* params = (RotationalVelocityParams*) p_Params;
-    return CalculateOStarRotationalVelocityAnalyticCDF_Static(p_Ve) - params->u;
 }
 
 
@@ -3081,68 +3067,93 @@ double BaseStar::CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(doubl
  * Ramirez-Agudelo et al. 2013 https://arxiv.org/abs/1309.2929
  *
  *
- * double CalculateOStarRotationalVelocity_Static(const double p_Xmin, const double p_Xmax)
+ * double CalculateOStarRotationalVelocity
  *
- * @param   [IN]    p_Xmin                      Minimum value for root
- * @param   [IN]    p_Xmax                      Maximum value for root
  * @return                                      Rotational velocity in km s^-1
  */
-double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, const double p_Xmax) {
+double BaseStar::CalculateOStarRotationalVelocity() {
 
-    double xMin = p_Xmin;
-    double xMax = p_Xmax;
+    double desiredCDF            = RAND->Random();                                                      // Random desired CDF
 
-    double result = xMin;
+    const boost::uintmax_t maxit = ADAPTIVE_RV_MAX_ITERATIONS;                                          // Limit to maximum iterations.
+    boost::uintmax_t it          = maxit;                                                               // Initially our chosen max iterations, but updated with actual.
 
-    double maximumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMax);
-    double minimumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMin);
+    // find root
+    // we use an iterative algorithm to find the root here:
+    //    - if the root finder throws an exception, we stop and return a negative value for the root (indicating no root found)
+    //    - if the root finder reaches the maximum number of (internal) iterations, we stop and return a negative value for the root (indicating no root found)
+    //    - if the root finder returns a solution, we check that func(solution) = 0.0 +/ ROOT_ABS_TOLERANCE
+    //       - if the solution is acceptable, we stop and return the solution
+    //       - if the solution is not acceptable, we reduce the search step size and try again
+    //       - if we reach the maximum number of search step reduction iterations, or the search step factor reduces to 1.0 (so search step size = 0.0),
+    //         we stop and return a negative value for the root (indicating no root found)
+   
+    double guess      = 100.0;                                                                          // guess at 100 km s^-1 (arbitrary initial guess)
 
-    double rand = RAND->Random();
+    double factorFrac = ADAPTIVE_RV_SEARCH_FACTOR_FRAC;                                                 // search step size factor fractional part
+    double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
+    
+    std::pair<double, double> root(-1.0, -1.0);                                                         // initialise root - default return
+    std::size_t tries = 0;                                                                              // number of tries
+    bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
+    ERROR error       = ERROR::NONE;
+    OStarRotationVelocityFunctor<double> func = OStarRotationVelocityFunctor<double>(desiredCDF);
+    while (!done) {                                                                                     // while no error and acceptable root found
 
-    while (utils::Compare(rand, maximumInverse) > 0) {
-        xMax          *= 2.0;
-        maximumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMax);
-    }
+        bool isRising = true;                                                                           //guess for direction of search; CDF increases monotonically
 
-    if (utils::Compare(rand, minimumInverse) >= 0) {
-
-        const gsl_root_fsolver_type *T;
-        gsl_root_fsolver            *s;
-        gsl_function                 F;
-
-    	RotationalVelocityParams     params = {rand};
-
-	    F.function = &CalculateOStarRotationalVelocityAnalyticCDFInverse_Static;
-	    F.params   = &params;
-
-	    // gsl_root_fsolver_brent
-	    // gsl_root_fsolver_bisection
-	    T = gsl_root_fsolver_brent;
-	    s = gsl_root_fsolver_alloc(T);
-
-	    gsl_root_fsolver_set(s, &F, xMin, xMax);
-
-	    int status  = GSL_CONTINUE;
-        int iter    = 0;
-        int maxIter = 100;
-
-    	while (status == GSL_CONTINUE && iter < maxIter) {
-        	iter++;
-        	status = gsl_root_fsolver_iterate(s);
-        	result = gsl_root_fsolver_root(s);
-        	xMin   = gsl_root_fsolver_x_lower(s);
-        	xMax   = gsl_root_fsolver_x_upper(s);
-        	status = gsl_root_test_interval(xMin, xMax, 0, 0.001);
+        // run the root finder
+        // regardless of any exceptions or errors, display any problems as a warning, then
+        // check if the root returned is within tolerance - so even if the root finder
+        // bumped up against the maximum iterations, or couldn't bracket the root, use
+        // whatever value it ended with and check if it's good enough for us - not finding
+        // an acceptable root should be the exception rather than the rule, so this strategy
+        // shouldn't cause undue performance issues.
+        try {
+            error = ERROR::NONE;
+            root  = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it); // find root
+            // root finder returned without raising an exception
+            if (error != ERROR::NONE) { SHOW_WARN(error); }                                             // root finder encountered an error
+            else if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RV_ITERATIONS); }                         // too many root finder iterations
+        }
+        catch(std::exception& e) {                                                                      // catch generic boost root finding error
+            // root finder exception
+            // could be too many iterations, or unable to bracket root - it may not
+            // be a hard error - so no matter what the reason is that we are here,
+            // we'll just emit a warning and keep trying
+            if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RV_ITERATIONS); }                              // too many root finder iterations
+            else             { SHOW_WARN(ERROR::ROOT_FINDER_FAILED, e.what()); }                        // some other problem - show it as a warning
         }
 
-        // JR: should we issue a warning, or throw an error, if the root finder didn't actually find the roor here (i.e. we stopped because pf maxIter)?
-        // To be consistent, should we use the Boost root solver here?
-        // **Ilya** both questions above -- IM: yes to both, TBC
-
-    	gsl_root_fsolver_free(s);   // de-allocate memory for root solver
+        // we have a solution from the root finder - it may not be an acceptable solution
+        // so we check if it is within our preferred tolerance
+        if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {          // solution within tolerance?
+            done = true;                                                                                // yes - we're done
+        }
+        else if (fabs(func(root.first)) <= ROOT_ABS_TOLERANCE) {                                        // solution within tolerance at endpoint 1?
+            root.second=root.first;
+            done = true;                                                                                // yes - we're done
+        }
+        else if (fabs(func(root.second)) <= ROOT_ABS_TOLERANCE) {                                       // solution within tolerance at endpoint 2?
+            root.first=root.second;
+            done = true;                                                                                // yes - we're done
+        }
+        else {                                                                                          // no - try again
+            // we don't have an acceptable solution - reduce search step size and try again
+            factorFrac /= 2.0;                                                                          // reduce fractional part of factor
+            factor      = 1.0 + factorFrac;                                                             // new search step size
+            tries++;                                                                                    // increment number of tries
+            if (tries > ADAPTIVE_RV_MAX_TRIES || fabs(factor - 1.0) <= ROOT_ABS_TOLERANCE) {            // too many tries, or step size 0.0?
+                // we've tried as much as we can - fail here with -ve return value
+                root.first  = -1.0;                                                                     // yes - set error return
+                root.second = -1.0;
+                SHOW_WARN(ERROR::TOO_MANY_RV_TRIES);                                                    // show warning
+                done = true;                                                                            // we're done
+            }
+        }
     }
-
-    return result;
+    
+    return root.first + (root.second - root.first) / 2.0;                                               // Midway between brackets is our result, if necessary we could return the result as an interval here.
 }
 
 
@@ -3184,7 +3195,8 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
             // For lower mass stars, default back to  Hurley et al. 2000 distribution for now
 
             if (utils::Compare(p_MZAMS, 16.0) >= 0) {
-                vRot = CalculateOStarRotationalVelocity_Static(0.0, 800.0);
+                vRot = CalculateOStarRotationalVelocity();
+                vRot = max(vRot, 0.0);                                                              // Set to no rotation if no positive solution found; warning already raised
             }
             else if (utils::Compare(p_MZAMS, 2.0) >= 0) {
                 vRot = utils::InverseSampleFromTabulatedCDF(RAND->Random(), BStarRotationalVelocityCDFTable);
