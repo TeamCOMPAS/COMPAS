@@ -123,7 +123,7 @@ namespace yaml {
             "    --allow-non-stripped-ECSN",
             "    --pair-instability-supernovae",
             "    --pulsational-pair-instability",
-            "    --USSN-kicks-override-Mandel-Muller",
+            "    --USSN-kicks-override-mandel-muller",
             "",
             "    ### PULSAR PARAMETERS",
             "    --evolve-pulsars",
