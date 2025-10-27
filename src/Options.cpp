@@ -1029,7 +1029,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "USSN-kicks-override-Mandel-Muller",
+            "USSN-kicks-override-mandel-muller",
             po::value<bool>(&p_Options->m_USSNKicksOverrideMandelMuller)->default_value(p_Options->m_USSNKicksOverrideMandelMuller)->implicit_value(true),
             ("Whether to use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe (default = " + std::string(p_Options->m_USSNKicksOverrideMandelMuller ? "TRUE" : "FALSE") + ")").c_str()
         )

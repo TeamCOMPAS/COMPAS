@@ -710,7 +710,7 @@ private:
 
         "use-mass-loss",
         "use-mass-transfer",
-        "USSN-kicks-override-Mandel-Muller",
+        "USSN-kicks-override-mandel-muller",
 
         "VMW-mass-loss-prescription",
         "version", "v",
@@ -1774,7 +1774,7 @@ public:
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
-    bool                                        USSNKicksOverrideMandelMuller() const                                   { return OPT_VALUE("USSN-kicks-override-Mandel-Muller", m_USSNKicksOverrideMandelMuller, true); }
+    bool                                        USSNKicksOverrideMandelMuller() const                                   { return OPT_VALUE("USSN-kicks-override-mandel-muller", m_USSNKicksOverrideMandelMuller, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
