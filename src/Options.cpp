@@ -1029,7 +1029,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "USSN-kicks-override-Mandel-Muller",
+            "USSN-kicks-override-mandel-muller",
             po::value<bool>(&p_Options->m_USSNKicksOverrideMandelMuller)->default_value(p_Options->m_USSNKicksOverrideMandelMuller)->implicit_value(true),
             ("Whether to use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe (default = " + std::string(p_Options->m_USSNKicksOverrideMandelMuller ? "TRUE" : "FALSE") + ")").c_str()
         )
@@ -5130,7 +5130,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
 
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
-        case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = static_cast<int>(USSNKicksOverrideMandelMuller());                    break;
+        case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = USSNKicksOverrideMandelMuller();                                      break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
 

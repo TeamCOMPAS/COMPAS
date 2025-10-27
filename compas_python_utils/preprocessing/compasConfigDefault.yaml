@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Mon Oct 27 09:51:18 2025 by COMPAS v03.26.02
+##~!!~## File Created Mon Oct 27 18:34:22 2025 by COMPAS v03.27.01
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -57,7 +57,7 @@ booleanChoices:
 #    --allow-non-stripped-ECSN: False                                      # Default: False
 #    --pair-instability-supernovae: True                                   # Default: True
 #    --pulsational-pair-instability: True                                  # Default: True
-#    --USSN-kicks-override-Mandel-Muller: False                            # Default: False
+#    --USSN-kicks-override-mandel-muller: False                            # Default: False
 
     ### PULSAR PARAMETERS
 #    --evolve-pulsars: False                                               # Default: False
