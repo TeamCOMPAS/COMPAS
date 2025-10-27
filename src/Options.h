@@ -224,14 +224,15 @@ private:
     //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
     std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
-        { "retain-core-mass-during-caseA-mass-transfer", "",                               false, "20250116" },
-        { "minimum-secondary-mass",                      "minimum-sampled-secondary-mass", false, "20250808" },
-        { "initial-mass-max",                            "initial-mass-function-max",      false, "20250808" },
-        { "initial-mass-min",                            "initial-mass-function-min",      false, "20250808" },
-        { "initial-mass-power",                          "initial-mass-function-power",    false, "20250808" },
-        { "use-mass-loss",                               "mass-loss-prescription",         false, "20250809" },
-        { "mass-transfer-jloss-macleod-linear-fraction-degen",       "mass-transfer-jloss-linear-fraction-degen",     false, "20250819" }, 
-        { "mass-transfer-jloss-macleod-linear-fraction-non-degen",   "mass-transfer-jloss-linear-fraction-non-degen", false, "20250819" },   
+        { "retain-core-mass-during-caseA-mass-transfer",           "",                                              false, "20250116" },
+        { "minimum-secondary-mass",                                "minimum-sampled-secondary-mass",                false, "20250808" },
+        { "initial-mass-max",                                      "initial-mass-function-max",                     false, "20250808" },
+        { "initial-mass-min",                                      "initial-mass-function-min",                     false, "20250808" },
+        { "initial-mass-power",                                    "initial-mass-function-power",                   false, "20250808" },
+        { "use-mass-loss",                                         "mass-loss-prescription",                        false, "20250809" },
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",     false, "20250819" }, 
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen", false, "20250819" },   
+        { "scale-CHE-mass-loss-with-surface-helium-abundance",     "scale-mass-loss-with-surface-helium-abundance", false, "20251027" },   
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -241,7 +242,6 @@ private:
 	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
         { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
         { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" },
-        { "main-sequence-core-mass-prescription",      "ZERO",        "HURLEY",      false, "20251024" },
         { "use-mass-loss",                             "TRUE",        "MERRITT2025", true,  "20250809" },
         { "use-mass-loss",                             "ON",          "MERRITT2025", true,  "20250809" },
         { "use-mass-loss",                             "YES",         "MERRITT2025", true,  "20250809" },
@@ -249,7 +249,8 @@ private:
         { "use-mass-loss",                             "FALSE",       "ZERO",        true,  "20250809" },
         { "use-mass-loss",                             "OFF",         "ZERO",        true,  "20250809" },
         { "use-mass-loss",                             "NO",          "ZERO",        true,  "20250809" },
-        { "use-mass-loss",                             "0",           "ZERO",        true,  "20250809" }
+        { "use-mass-loss",                             "0",           "ZERO",        true,  "20250809" },
+        { "main-sequence-core-mass-prescription",      "ZERO",        "HURLEY",      false, "20251024" }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
@@ -553,7 +554,6 @@ private:
         "rocket-kick-theta-1",
         "rocket-kick-theta-2",
 
-        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -695,7 +695,7 @@ private:
         "rlof-printing",
         "rotational-velocity-distribution",
 
-        "scale-CHE-mass-loss-with-surface-helium-abundance",
+        "scale-mass-loss-with-surface-helium-abundance",
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
         "store-input-files",
@@ -710,7 +710,7 @@ private:
 
         "use-mass-loss",
         "use-mass-transfer",
-        "USSN-kicks-override-mandel-muller",
+        "USSN-kicks-override-Mandel-Muller",
 
         "VMW-mass-loss-prescription",
         "version", "v",
@@ -1738,7 +1738,7 @@ public:
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
 
-    bool                                        ScaleMassLossWithSurfaceHeliumAbundance() const                         { return OPT_VALUE("scale-mass-loss-with-surface-helium-abundance", m_ScaleMassLossWithSurfaceHeliumAbundance, false); }
+    bool                                        ScaleMassLossWithSurfaceHeliumAbundance() const                         { return OPT_VALUE("scale-mass-loss-with-surface-helium-abundance", m_ScaleMassLossWithSurfaceHeliumAbundance, true); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
@@ -1774,7 +1774,7 @@ public:
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
-    bool                                        USSNKicksOverrideMandelMuller() const                                  { return OPT_VALUE("USSN-kicks-override-Mandel-Muller", m_USSNKicksOverrideMandelMuller, true); }
+    bool                                        USSNKicksOverrideMandelMuller() const                                   { return OPT_VALUE("USSN-kicks-override-Mandel-Muller", m_USSNKicksOverrideMandelMuller, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }

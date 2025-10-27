@@ -1670,9 +1670,16 @@
 //  03.26.01  AB - October 24, 2025     - Option name change:
 //                                          - Main sequence core mass prescription ZERO renamed to HURLEY; deprecated ZERO
 //  03.26.02  IM - October 27, 2025     - Enhancements
-//                                          - Added option --USSN-kicks-override-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+//                                          - Added option --USSN-kicks-override-Mandel-Muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
 //                                          - Replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (applies to all MS stars, not just CHE stars)
 //                                          - Updated rotational velocity solver to use boost root finder
+//  03.27.01  JR - October 27, 2025     - Defect repairs:
+//                                          - changed Options::OptionValue() to return correct value for option --USSN-kicks-override-Mandel-Muller
+//                                          - deprecated --scale-CHE-mass-loss-with-surface-helium-abundance in favour of --scale-mass-loss-with-surface-helium-abundance
+//                                          - removed option --scale-CHE-mass-loss-with-surface-helium-abundance from "BSEonly" vector in Options.h
+//                                          - changed "scale-CHE-mass-loss-with-surface-helium-abundance" to "--scale-mass-loss-with-surface-helium-abundance" in "RangeExcluded" vector in Options.h
+//                                          - version should have been "v03.27.00" instead of "v03.26.02" - change included new functionality.  This version is "v03.27.01" to compensate.
+//
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1683,7 +1690,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.26.02";
+const std::string VERSION_STRING = "03.27.01";
 
 
 # endif // __changelog_h__

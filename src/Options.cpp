@@ -5130,7 +5130,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
 
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
-        case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = static_cast<int>(USSNKicksOverrideMandelMuller());                    break;
+        case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = USSNKicksOverrideMandelMuller();                                      break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
 
