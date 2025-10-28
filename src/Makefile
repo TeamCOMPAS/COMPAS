@@ -91,18 +91,8 @@ ifneq ($(filter fast staticfast,$(MAKECMDGOALS)),)
 endif
 
 
-### Suppress specific warnings for clang
-COMPILER_NAME := $(shell $(CPP) --version | head -n 1)
-ifeq ($(findstring clang,$(COMPILER_NAME)),clang)
-    CLANG_VERSION_MAJOR := $(shell $(CPP) -dumpversion | cut -d. -f1)
-    ifneq (,$(filter $(CLANG_VERSION_MAJOR),17 18 19 20))
-        CLANG_VLA_FLAG := -Wno-vla-cxx-extension
-    else
-        CLANG_VLA_FLAG := -Wno-vla-extension
-    endif
-endif
-
 EXTRA_WARN_SUPPRESS := \
+	-Wno-vla-extension \ # might need -Wno-vla-cxx-extension for clang>18?
     -Wno-unused-parameter \
     -Wno-unused-variable \
     -Wno-sign-compare \
@@ -110,7 +100,7 @@ EXTRA_WARN_SUPPRESS := \
     -Wno-unused-function
 
 
-CXXFLAGS := -std=c++17 -Wall $(OPTFLAGS) $(CXXFLAGS_SPECIFIC) $(CLANG_VLA_FLAG) $(EXTRA_WARN_SUPPRESS)
+CXXFLAGS := -std=c++17 -Wall $(OPTFLAGS) $(CXXFLAGS_SPECIFIC) $(EXTRA_WARN_SUPPRESS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 
 LIBS := -lm -lz -ldl -lpthread
