@@ -812,8 +812,8 @@ Default = 4.2
 
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
-Options: {ZERO, MANDEL, BRCEK} |br|
-``ZERO``   : No core mass treatment, set to zero |br|
+Options: {HURLEY, MANDEL, BRCEK} |br|
+``HURLEY`` : Treatment from Hurley et al. (2000), in which MS stars do not have a distinct core and core evolution is not tracked |br|
 ``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
 ``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
 Default = MANDEL
@@ -1319,9 +1319,9 @@ Default = DECIN2023 |br|
 
 :ref:`Back to Top <options-props-top>`
 
-**--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
-Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
-Transition from OB to WR mass loss towards the end of the main sequence.
+**--scale-mass-loss-with-surface-helium-abundance** |br|
+Scale mass loss for main sequence, including chemically homogeneously evolving (CHE), stars with the surface helium abundance. 
+Transition from OB/VMS to WR mass loss towards the end of the main sequence.
 Default = TRUE
 
 **--scale-terminal-wind-velocity-with-metallicity-power** |br|
@@ -1431,6 +1431,10 @@ This option is primarily intended for debugging/testing of convergence issues ra
 Enable mass transfer. |br|
 Default = TRUE
 
+**--USSN-kicks-override-mandel-muller** |br|
+Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe. |br|
+Default = FALSE
+
 .. _options-props-V:
 
 :ref:`Back to Top <options-props-top>`
@@ -1531,7 +1535,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
 --luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
---expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
+--expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale--mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
 --chemically-homogeneous-evolution, --chemically-homogeneous-evolution-mode
@@ -1583,8 +1587,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
---muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --kick-direction, 
---kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
+--muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller, 
+--kick-direction, --kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
 :ref:`Back to Top <options-props-top>`
 
