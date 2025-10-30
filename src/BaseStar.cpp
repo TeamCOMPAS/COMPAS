@@ -2448,8 +2448,14 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
             otherWindsRate = CalculateMassLossRateHurley() * OPTIONS->CoolWindMassLossMultiplier();                 // apply cool wind mass loss multiplier
         }
         else  {                                                                                                     // hot stars, add Vink et al. 2001 winds (ignoring bistability jump)
+            
             otherWindsRate = CalculateMassLossRateOBVink2001();
-            m_DominantMassLossRate = MASS_LOSS_TYPE::OB;                                                            // set dominant mass loss rate
+            m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
+            
+            // If user wants to transition between OB and WR mass loss rates
+            if (OPTIONS->ScaleMassLossWithSurfaceHeliumAbundance()) {
+                otherWindsRate     = EnhanceWindsWithWolfRayetContribution(otherWindsRate, BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0), false);
+            }
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {                                                          // which is dominant?
@@ -2499,11 +2505,19 @@ double BaseStar::CalculateMassLossRateMerritt2025() {
         }
         else if (utils::Compare(m_Mass, VMS_MASS_THRESHOLD) >= 0) {                                                 // mass at or above VMS winds threshold?
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLossPrescription());                  // yes - use VMS mass loss rate
-            m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // set dominant mass loss rate                             
+            m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // set dominant mass loss rate
+            // If user wants to transition between OB/VMS and WR mass loss rates
+            if (OPTIONS->ScaleMassLossWithSurfaceHeliumAbundance()) {
+                otherWindsRate     = EnhanceWindsWithWolfRayetContribution(otherWindsRate, 0.0, true);
+            }
         }
         else {                                                                                                      // otherwise...
             otherWindsRate         = CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());                    // use OB mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::OB;                                                            // set dominant mass loss rate
+            // If user wants to transition between OB and WR mass loss rates
+            if (OPTIONS->ScaleMassLossWithSurfaceHeliumAbundance()) {
+                otherWindsRate     = EnhanceWindsWithWolfRayetContribution(otherWindsRate, 0.0, true);
+            }
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {                                                          // which is dominant?
@@ -2514,6 +2528,69 @@ double BaseStar::CalculateMassLossRateMerritt2025() {
     return LBVRate + otherWindsRate;
 }
 
+
+/*
+ * EnhanceWindsWithWolfRayetContribution
+ *
+ * Enhance the winds with a contribution due to WR finds (see CalculateMassLossFractionWR)
+ *
+ * double EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate, double p_WolfRayetRate, bool p_RecalculateWolfRayetRate)
+ *
+ * @param       p_OtherWindsRate                Wind mass loss rate due to OB or VMS winds to avoid recompution
+ * @param       p_WolfRayetRate                 Wind mass loss rate due to WR winds if already computed
+ * @param       p_RecalculateWolfRayetRate      If true, recompute the WR winds by cloning the star as a HeMS star
+ * @return                                      Total wind mass loss rate
+ */
+double BaseStar::EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate, double p_WolfRayetRate, bool p_RecalculateWolfRayetRate) {
+    
+    double MdotWR = p_WolfRayetRate;
+    double fractionWR = CalculateMassLossFractionWR(m_HeliumAbundanceSurface);
+    double totalWindsRate = 0.0;
+    
+    if (p_RecalculateWolfRayetRate && fractionWR > 0.0 ) {
+        MdotWR        = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
+        // *Jeff* This used to clone the star as a HeMS star and query its CalculateMassLossRateMerritt2025(); eventually, let's switch to a static function to calculate the luminosity of the WR star
+    }
+    
+    // Combine each of these prescriptions according to the OB wind fraction
+    totalWindsRate = ((1.0 - fractionWR) * p_OtherWindsRate) + (fractionWR * MdotWR);
+    
+    if ( fractionWR * MdotWR > (1.0 - fractionWR) * p_OtherWindsRate) {
+        m_DominantMassLossRate =MASS_LOSS_TYPE::WR;
+    }
+    
+    return totalWindsRate;
+}
+
+/*
+ * CalculateMassLossFractionWR
+ *
+ * @brief
+ * Calculate the fraction of mass loss attributable to WR mass loss, per Yoon et al. 2006
+ *
+ * The model described in Yoon et al. 2006 (also Szecsi et al. 2015) uses OB mass loss while the
+ * He surface abundance is below 0.55, WR mass loss when the surface He abundance is above 0.7,
+ * and linearly interpolate when the He surface abundance is between those limits.
+ *
+ * This function calculates the fraction of mass loss attributable to OB mass loss, based on
+ * the He surface abundance and the abundance limits described in Yoon et al. 2006.  The value
+ * returned will be 1.0 if 100% of the mass loss is attributable to OB mass lass, 0.0 if 100% of
+ * the mass loss is attributable to WR mass loss, and in the range (0.0, 1.0) if the mass loss is
+ * a mix of OB and WR.
+ *
+ *
+ * double CalculateMassLossFractionWR(const double p_HeAbundanceSurface) const
+ *
+ * @param       p_HeAbundanceSurface            Helium abundance at the surface of the star
+ * @return                                      Fraction of mass loss attributable to WR mass loss
+ */
+double BaseStar::CalculateMassLossFractionWR(const double p_HeAbundanceSurface) const {
+
+    constexpr double limOB = 0.55;                                          // per Yoon et al. 2006
+    constexpr double limWR = 0.70;                                          // per Yoon et al. 2006
+
+    return std::min(1.0, std::max (0.0, (p_HeAbundanceSurface - limOB) / (limWR - limOB)));
+}
 
 /*
  * Calculate mass loss rate
@@ -2967,28 +3044,14 @@ double BaseStar::CalculateOStarRotationalVelocityAnalyticCDF_Static(const double
 
     boost::math::inverse_gamma_distribution<> gammaComponent(alpha, beta); // (shape, scale) = (alpha, beta)
     boost::math::normal_distribution<> normalComponent(mu, sigma);
+    
+    // Compute CDF at zero rotational velocity -- the CDF should be relative to this quantity
+    double CDFzero = (iGamma * boost::math::cdf(gammaComponent, 0.0)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, 0.0));
+    
+    double CDFunnormalised = (iGamma * boost::math::cdf(gammaComponent, p_Ve)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, p_Ve));
+    
+    return ((CDFunnormalised-CDFzero) / (1.0 - CDFzero));
 
-	return (iGamma * boost::math::cdf(gammaComponent, p_Ve)) + ((1.0 - iGamma) * boost::math::cdf(normalComponent, p_Ve));
-}
-
-
-/*
- * Calculate the inverse of the analytic cumulative distribution function (CDF) for the
- * equatorial rotational velocity of single O stars.
- *
- * (i.e. calculate the inverse of CalculateOStarRotationalVelocityAnalyticCDF_Static())
- *
- *
- * double CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(const double p_Ve, const void *p_Params)
- * 
- * @param   [IN]    p_vE                        Rotational velocity (in km s^-1) - value of the kick vk which we want to find
- * @param   [IN]    p_Params                    Pointer to RotationalVelocityParams structure containing y, the CDF draw U(0,1)
- * @return                                      Inverse CDF
- *                                              Should be zero when p_Ve = vk, the value of the kick to draw
- */
-double BaseStar::CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(double p_Ve, void* p_Params) {
-    RotationalVelocityParams* params = (RotationalVelocityParams*) p_Params;
-    return CalculateOStarRotationalVelocityAnalyticCDF_Static(p_Ve) - params->u;
 }
 
 
@@ -3001,68 +3064,93 @@ double BaseStar::CalculateOStarRotationalVelocityAnalyticCDFInverse_Static(doubl
  * Ramirez-Agudelo et al. 2013 https://arxiv.org/abs/1309.2929
  *
  *
- * double CalculateOStarRotationalVelocity_Static(const double p_Xmin, const double p_Xmax)
+ * double CalculateOStarRotationalVelocity
  *
- * @param   [IN]    p_Xmin                      Minimum value for root
- * @param   [IN]    p_Xmax                      Maximum value for root
  * @return                                      Rotational velocity in km s^-1
  */
-double BaseStar::CalculateOStarRotationalVelocity_Static(const double p_Xmin, const double p_Xmax) {
+double BaseStar::CalculateOStarRotationalVelocity() {
 
-    double xMin = p_Xmin;
-    double xMax = p_Xmax;
+    double desiredCDF            = RAND->Random();                                                      // Random desired CDF
 
-    double result = xMin;
+    const boost::uintmax_t maxit = ADAPTIVE_RV_MAX_ITERATIONS;                                          // Limit to maximum iterations.
+    boost::uintmax_t it          = maxit;                                                               // Initially our chosen max iterations, but updated with actual.
 
-    double maximumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMax);
-    double minimumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMin);
+    // find root
+    // we use an iterative algorithm to find the root here:
+    //    - if the root finder throws an exception, we stop and return a negative value for the root (indicating no root found)
+    //    - if the root finder reaches the maximum number of (internal) iterations, we stop and return a negative value for the root (indicating no root found)
+    //    - if the root finder returns a solution, we check that func(solution) = 0.0 +/ ROOT_ABS_TOLERANCE
+    //       - if the solution is acceptable, we stop and return the solution
+    //       - if the solution is not acceptable, we reduce the search step size and try again
+    //       - if we reach the maximum number of search step reduction iterations, or the search step factor reduces to 1.0 (so search step size = 0.0),
+    //         we stop and return a negative value for the root (indicating no root found)
+   
+    double guess      = 100.0;                                                                          // guess at 100 km s^-1 (arbitrary initial guess)
 
-    double rand = RAND->Random();
+    double factorFrac = ADAPTIVE_RV_SEARCH_FACTOR_FRAC;                                                 // search step size factor fractional part
+    double factor     = 1.0 + factorFrac;                                                               // factor to determine search step size (size = guess * factor)
+    
+    std::pair<double, double> root(-1.0, -1.0);                                                         // initialise root - default return
+    std::size_t tries = 0;                                                                              // number of tries
+    bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
+    ERROR error       = ERROR::NONE;
+    OStarRotationVelocityFunctor<double> func = OStarRotationVelocityFunctor<double>(desiredCDF);
+    while (!done) {                                                                                     // while no error and acceptable root found
 
-    while (utils::Compare(rand, maximumInverse) > 0) {
-        xMax          *= 2.0;
-        maximumInverse = CalculateOStarRotationalVelocityAnalyticCDF_Static(xMax);
-    }
+        bool isRising = true;                                                                           //guess for direction of search; CDF increases monotonically
 
-    if (utils::Compare(rand, minimumInverse) >= 0) {
-
-        const gsl_root_fsolver_type *T;
-        gsl_root_fsolver            *s;
-        gsl_function                 F;
-
-    	RotationalVelocityParams     params = {rand};
-
-	    F.function = &CalculateOStarRotationalVelocityAnalyticCDFInverse_Static;
-	    F.params   = &params;
-
-	    // gsl_root_fsolver_brent
-	    // gsl_root_fsolver_bisection
-	    T = gsl_root_fsolver_brent;
-	    s = gsl_root_fsolver_alloc(T);
-
-	    gsl_root_fsolver_set(s, &F, xMin, xMax);
-
-	    int status  = GSL_CONTINUE;
-        int iter    = 0;
-        int maxIter = 100;
-
-    	while (status == GSL_CONTINUE && iter < maxIter) {
-        	iter++;
-        	status = gsl_root_fsolver_iterate(s);
-        	result = gsl_root_fsolver_root(s);
-        	xMin   = gsl_root_fsolver_x_lower(s);
-        	xMax   = gsl_root_fsolver_x_upper(s);
-        	status = gsl_root_test_interval(xMin, xMax, 0, 0.001);
+        // run the root finder
+        // regardless of any exceptions or errors, display any problems as a warning, then
+        // check if the root returned is within tolerance - so even if the root finder
+        // bumped up against the maximum iterations, or couldn't bracket the root, use
+        // whatever value it ended with and check if it's good enough for us - not finding
+        // an acceptable root should be the exception rather than the rule, so this strategy
+        // shouldn't cause undue performance issues.
+        try {
+            error = ERROR::NONE;
+            root  = boost::math::tools::bracket_and_solve_root(func, guess, factor, isRising, utils::BracketTolerance, it); // find root
+            // root finder returned without raising an exception
+            if (error != ERROR::NONE) { SHOW_WARN(error); }                                             // root finder encountered an error
+            else if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RV_ITERATIONS); }                         // too many root finder iterations
+        }
+        catch(std::exception& e) {                                                                      // catch generic boost root finding error
+            // root finder exception
+            // could be too many iterations, or unable to bracket root - it may not
+            // be a hard error - so no matter what the reason is that we are here,
+            // we'll just emit a warning and keep trying
+            if (it >= maxit) { SHOW_WARN(ERROR::TOO_MANY_RV_ITERATIONS); }                              // too many root finder iterations
+            else             { SHOW_WARN(ERROR::ROOT_FINDER_FAILED, e.what()); }                        // some other problem - show it as a warning
         }
 
-        // JR: should we issue a warning, or throw an error, if the root finder didn't actually find the roor here (i.e. we stopped because pf maxIter)?
-        // To be consistent, should we use the Boost root solver here?
-        // **Ilya** both questions above -- IM: yes to both, TBC
-
-    	gsl_root_fsolver_free(s);   // de-allocate memory for root solver
+        // we have a solution from the root finder - it may not be an acceptable solution
+        // so we check if it is within our preferred tolerance
+        if (fabs(func(root.first + (root.second - root.first) / 2.0)) <= ROOT_ABS_TOLERANCE) {          // solution within tolerance?
+            done = true;                                                                                // yes - we're done
+        }
+        else if (fabs(func(root.first)) <= ROOT_ABS_TOLERANCE) {                                        // solution within tolerance at endpoint 1?
+            root.second=root.first;
+            done = true;                                                                                // yes - we're done
+        }
+        else if (fabs(func(root.second)) <= ROOT_ABS_TOLERANCE) {                                       // solution within tolerance at endpoint 2?
+            root.first=root.second;
+            done = true;                                                                                // yes - we're done
+        }
+        else {                                                                                          // no - try again
+            // we don't have an acceptable solution - reduce search step size and try again
+            factorFrac /= 2.0;                                                                          // reduce fractional part of factor
+            factor      = 1.0 + factorFrac;                                                             // new search step size
+            tries++;                                                                                    // increment number of tries
+            if (tries > ADAPTIVE_RV_MAX_TRIES || fabs(factor - 1.0) <= ROOT_ABS_TOLERANCE) {            // too many tries, or step size 0.0?
+                // we've tried as much as we can - fail here with -ve return value
+                root.first  = -1.0;                                                                     // yes - set error return
+                root.second = -1.0;
+                SHOW_WARN(ERROR::TOO_MANY_RV_TRIES);                                                    // show warning
+                done = true;                                                                            // we're done
+            }
+        }
     }
-
-    return result;
+    
+    return root.first + (root.second - root.first) / 2.0;                                               // Midway between brackets is our result, if necessary we could return the result as an interval here.
 }
 
 
@@ -3096,16 +3184,18 @@ double BaseStar::CalculateRotationalVelocity(double p_MZAMS) {
         case ROTATIONAL_VELOCITY_DISTRIBUTION::VLTFLAMES:                                           // VLTFLAMES
 
             // Rotational velocity based on VLT-FLAMES survey.
-            // For O-stars use results of Ramirez-Agudelo et al. (2013) https://arxiv.org/abs/1309.2929 (single stars)
+            // For O-stars (taken to be above 16 Msol), use results
+            // of Ramirez-Agudelo et al. (2013) https://arxiv.org/abs/1309.2929 (single stars)
             // and Ramirez-Agudelo et al. (2015) https://arxiv.org/abs/1507.02286 (spectroscopic binaries)
-            // For B-stars use results of Dufton et al. (2013) https://arxiv.org/abs/1212.2424
-            // For lower mass stars, I don't know what updated results there are so default back to
-            // Hurley et al. 2000 distribution for now
+            // For B-stars (taken to be between 2 and 16 Msol) use results
+            // of Dufton et al. (2013) https://arxiv.org/abs/1212.2424
+            // For lower mass stars, default back to  Hurley et al. 2000 distribution for now
 
-            if (utils::Compare(p_MZAMS, 16.0) >= 0) {                   // JR: what does 16.0 represent?  Not another mass threshold that should be in constants.h ...? /*ilya*/
-                vRot = CalculateOStarRotationalVelocity_Static(0.0, 800.0);
+            if (utils::Compare(p_MZAMS, 16.0) >= 0) {
+                vRot = CalculateOStarRotationalVelocity();
+                vRot = max(vRot, 0.0);                                                              // Set to no rotation if no positive solution found; warning already raised
             }
-            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {               // JR: what does 2.0 represent?  Not another mass threshold that should be in constants.h ...? **Ilya**
+            else if (utils::Compare(p_MZAMS, 2.0) >= 0) {
                 vRot = utils::InverseSampleFromTabulatedCDF(RAND->Random(), BStarRotationalVelocityCDFTable);
             }
             else {
@@ -3854,7 +3944,12 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
     double quantile0 = gsl_cdf_gaussian_P(-1.0, sigmaKick);  //quantile of -1 in the Gaussian CDF; the goal is to draw from the cut-off Gaussian since the kick must exceed 0
     double rand = quantile0 + p_Rand * (1.0 - quantile0);
     remnantKick = muKick * (1.0 + gsl_cdf_gaussian_Pinv(rand, sigmaKick));
-
+    
+    // Mandel * Mueller 2020 call for USSN kicks to be treated in the same way as CCSN kicks; however, if this override flag is set, set the USSN kick to be equal to the user-provided magnitude
+    if (utils::SNEventType(m_SupernovaDetails.events.current) == SN_EVENT::USSN && OPTIONS->USSNKicksOverrideMandelMuller() ) {
+        remnantKick = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
+    }
+    
 	return remnantKick;
 }
 
