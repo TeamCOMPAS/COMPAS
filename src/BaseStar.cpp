@@ -3234,7 +3234,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmDynamical(const double p_Omega, const do
     double radiusAU              = m_Radius * RSOL_TO_AU;
     double coreRadiusAU          = CalculateConvectiveCoreRadius() * RSOL_TO_AU;
     double convectiveEnvRadiusAU = CalculateRadialExtentConvectiveEnvelope() * RSOL_TO_AU;
-    double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell
+    double radiusIntershellAU    = radiusAU - convectiveEnvRadiusAU;                                    // Outer radial coordinate of radiative intershell, or inner radial coordinate of convective envelope
 
     // There should be no Dynamical tides if the entire star is convective, i.e. if there are no convective-radiative boundaries. 
     // If so, return 0.0 for all dynamical components of ImKnm.
@@ -3275,34 +3275,34 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmDynamical(const double p_Omega, const do
         double coreRadiusOverRadius_3 = coreRadiusOverRadius * coreRadiusOverRadius * coreRadiusOverRadius;
         double coreRadiusOverRadius_9 = coreRadiusOverRadius_3 * coreRadiusOverRadius_3 * coreRadiusOverRadius_3;
         double massOverCoreMass       = m_Mass / coreMass;
-        double E2Dynamical            = (2.0 / 3.0) * coreRadiusOverRadius_9 * massOverCoreMass * std::cbrt(massOverCoreMass) * beta2Dynamical * rhoFactorDynamcial;
+        double E2Core                 = (2.0 / 3.0) * coreRadiusOverRadius_9 * massOverCoreMass * std::cbrt(massOverCoreMass) * beta2Dynamical * rhoFactorDynamcial;
 
         // (l=2, n=1, m=0), Gravity Wave dissipation from core boundary
         double s10     = w10 * sqrtR3OverG_M;
         double s10_4_3 = s10 * std::cbrt(s10);
         double s10_8_3 = s10_4_3 * s10_4_3;
-        k10GravityCore = E2Dynamical *  std::copysign(s10_8_3, w10);
+        k10GravityCore = E2Core *  std::copysign(s10_8_3, w10);
         if (std::isnan(k10GravityCore)) k10GravityCore = 0.0;
 
         // (l=2, n=1, m=2), Gravity Wave dissipation from core boundary
         double s12     = w12 * sqrtR3OverG_M;
         double s12_4_3 = s12 * std::cbrt(s12);
         double s12_8_3 = s12_4_3 * s12_4_3;
-        k12GravityCore = E2Dynamical * std::copysign(s12_8_3, w12);
+        k12GravityCore = E2Core * std::copysign(s12_8_3, w12);
         if (std::isnan(k12GravityCore)) k12GravityCore = 0.0;
 
         // (l=2, n=2, m=2), Gravity Wave dissipation from core boundary
         double s22     = w22 * sqrtR3OverG_M;
         double s22_4_3 = s22 * std::cbrt(s22);
         double s22_8_3 = s22_4_3 * s22_4_3;
-        k22GravityCore = E2Dynamical * std::copysign(s22_8_3, w22);
+        k22GravityCore = E2Core * std::copysign(s22_8_3, w22);
         if (std::isnan(k22GravityCore)) k22GravityCore = 0.0;
 
         // (l=2, n=3, m=2), Gravity Wave dissipation from core boundary
         double s32     = w32 * sqrtR3OverG_M;
         double s32_4_3 = s32 * std::cbrt(s32);
         double s32_8_3 = s32_4_3 * s32_4_3;
-        k32GravityCore = E2Dynamical * std::copysign(s32_8_3, w32);
+        k32GravityCore = E2Core * std::copysign(s32_8_3, w32);
         if (std::isnan(k32GravityCore)) k32GravityCore = 0.0;    
     }
 
@@ -3314,8 +3314,8 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmDynamical(const double p_Omega, const do
     if ((utils::Compare(convectiveEnvRadiusAU / radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0) || (utils::Compare(envMass / m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0)) {    
 
         constexpr double dynPrefactor     = 3.207452512782476;                                                        // 3^(11/3) * Gamma(1/3)^2 / 40 PI
-        constexpr double m_l_factor_22    = 0.183440402716368;                                                        // m * (l(l+1))^{-4/3}
-        double cbrtdNdlnr       = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / (radiusAU - radiusIntershellAU) / (radiusAU - radiusIntershellAU));
+        constexpr double m_l_factor_22    = 0.183440402716368;                                                        // m * (l(l+1))^{-4/3}, assuming l=2, m=2
+        double cbrtdNdlnr       = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / radiusIntershellAU / (radiusAU - radiusIntershellAU));
         
         double alpha            = radiusIntershellAU / radiusAU;
         double oneMinusAlpha    = 1.0 - alpha;
@@ -3335,27 +3335,33 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmDynamical(const double p_Omega, const do
         double alpha_2_3Minus_1 = (alpha * 2.0 / 3.0) - 1.0;
 
         // Assume GW dissipation from the envelope boundary only acts if the radiative zone extends to the core, i.e. if there is no convective core.
-        if (utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) {                              
+        if (utils::Compare(coreRadiusAU/radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) < 0) {  
             double Epsilon       = alpha_11 * envMass / m_Mass * oneMinusGamma_2 * alpha_2_3Minus_1 * alpha_2_3Minus_1 / beta_2 / oneMinusAlpha_3 / oneMinusAlpha_2;
+            double R3_Epsilon_dNdlnr_factor = R3OverG_M * Epsilon / cbrtdNdlnr;
+            double E2Envelope    = dynPrefactor * m_l_factor_22 * R3_Epsilon_dNdlnr_factor;
 
-            // (l=2, n=1, m=0), Gravity Wave dissipation from envelope boundary is always 0.0 since m * (l(l+1))^{-4/3} = 0
+            // (l=2, n=1, m=0), Gravity Wave dissipation from envelope boundary
+            double w10_4_3       = w10 * std::cbrt(w10);
+            double w10_8_3       = w10_4_3 * w10_4_3;
+            k10GravityEnv        = E2Envelope * std::copysign(w10_8_3, w10);
+            if (std::isnan(k10GravityEnv)) k10GravityEnv = 0.0;  
 
             // (l=2, n=1, m=2), Gravity Wave dissipation from envelope boundary
             double w12_4_3       = w12 * std::cbrt(w12);
             double w12_8_3       = w12_4_3 * w12_4_3;
-            k12GravityEnv        = dynPrefactor * m_l_factor_22 * std::copysign(w12_8_3, w12) * R3OverG_M * Epsilon / cbrtdNdlnr;
+            k12GravityEnv        = E2Envelope * std::copysign(w12_8_3, w12);
             if (std::isnan(k12GravityEnv)) k12GravityEnv = 0.0;  
 
             // (l=2, n=2, m=2), Gravity Wave dissipation from envelope boundary
             double w22_4_3       = w22 * std::cbrt(w22);
             double w22_8_3       = w22_4_3 * w22_4_3;
-            k22GravityEnv        = dynPrefactor * m_l_factor_22 * std::copysign(w22_8_3, w22)* R3OverG_M * Epsilon / cbrtdNdlnr;
+            k22GravityEnv        = E2Envelope * std::copysign(w22_8_3, w22);
             if (std::isnan(k22GravityEnv)) k22GravityEnv = 0.0;  
 
             // (l=2, n=3, m=2), Gravity Wave dissipation from envelope boundary
             double w32_4_3       = w32 * std::cbrt(w32);
             double w32_8_3       = w32_4_3 * w32_4_3;
-            k32GravityEnv        = dynPrefactor * m_l_factor_22 * std::copysign(w32_8_3, w32) * R3OverG_M * Epsilon / cbrtdNdlnr;
+            k32GravityEnv        = E2Envelope * std::copysign(w32_8_3, w32);
             if (std::isnan(k32GravityEnv)) k32GravityEnv = 0.0;  
         }
 
