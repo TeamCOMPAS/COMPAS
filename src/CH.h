@@ -68,7 +68,7 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const               { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                                                          // Use class member variables
 
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
-    double          CalculateLuminosityOnPhase() const                  { return m_Luminosity; }    
+    double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }    
 
     // Mass loss rate
     double          CalculateMassLossRateBelczynski2010()               { return BaseStar::CalculateMassLossRateBelczynski2010() * CalculateMassLossRateEnhancementRotation(); }
