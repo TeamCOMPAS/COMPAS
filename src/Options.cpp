@@ -376,7 +376,7 @@ void Options::OptionValues::Initialise() {
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
     m_EnhanceCHELifetimesLuminosities                               = true;                                                // default is to enhance
-    m_ScaleMassLossWithSurfaceHeliumAbundance                       = true;                                                // default is to scale the mass loss
+    m_ScaleMassLossWithSurfaceHeliumAbundance                       = false;                                               // default is not to scale the mass loss
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;

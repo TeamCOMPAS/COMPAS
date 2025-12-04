@@ -1322,7 +1322,7 @@ Default = DECIN2023 |br|
 **--scale-mass-loss-with-surface-helium-abundance** |br|
 Scale mass loss for main sequence, including chemically homogeneously evolving (CHE), stars with the surface helium abundance. 
 Transition from OB/VMS to WR mass loss towards the end of the main sequence.
-Default = TRUE
+Default = FALSE
 
 **--scale-terminal-wind-velocity-with-metallicity-power** |br|
 Scale terminal wind velocity with metallicity to this power
