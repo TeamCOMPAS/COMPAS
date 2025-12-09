@@ -2451,11 +2451,6 @@ double BaseStar::CalculateMassLossRateBelczynski2010() {
             
             otherWindsRate = CalculateMassLossRateOBVink2001();
             m_DominantMassLossRate = MASS_LOSS_TYPE::OB;
-            
-            // If user wants to transition between OB and WR mass loss rates
-            if (OPTIONS->ScaleMassLossWithSurfaceHeliumAbundance()) {
-                otherWindsRate     = EnhanceWindsWithWolfRayetContribution(otherWindsRate, BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0), false);
-            }
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {                                                          // which is dominant?
@@ -2506,18 +2501,10 @@ double BaseStar::CalculateMassLossRateMerritt2025() {
         else if (utils::Compare(m_Mass, VMS_MASS_THRESHOLD) >= 0) {                                                 // mass at or above VMS winds threshold?
             otherWindsRate         = CalculateMassLossRateVMS(OPTIONS->VMSMassLossPrescription());                  // yes - use VMS mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::VMS;                                                           // set dominant mass loss rate
-            // If user wants to transition between OB/VMS and WR mass loss rates
-            if (OPTIONS->ScaleMassLossWithSurfaceHeliumAbundance()) {
-                otherWindsRate     = EnhanceWindsWithWolfRayetContribution(otherWindsRate, 0.0, true);
-            }
         }
         else {                                                                                                      // otherwise...
             otherWindsRate         = CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());                    // use OB mass loss rate
             m_DominantMassLossRate = MASS_LOSS_TYPE::OB;                                                            // set dominant mass loss rate
-            // If user wants to transition between OB and WR mass loss rates
-            if (OPTIONS->ScaleMassLossWithSurfaceHeliumAbundance()) {
-                otherWindsRate     = EnhanceWindsWithWolfRayetContribution(otherWindsRate, 0.0, true);
-            }
         }
 
         if (utils::Compare(LBVRate, otherWindsRate) > 0) {                                                          // which is dominant?
@@ -2528,69 +2515,6 @@ double BaseStar::CalculateMassLossRateMerritt2025() {
     return LBVRate + otherWindsRate;
 }
 
-
-/*
- * EnhanceWindsWithWolfRayetContribution
- *
- * Enhance the winds with a contribution due to WR finds (see CalculateMassLossFractionWR)
- *
- * double EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate, double p_WolfRayetRate, bool p_RecalculateWolfRayetRate)
- *
- * @param       p_OtherWindsRate                Wind mass loss rate due to OB or VMS winds to avoid recompution
- * @param       p_WolfRayetRate                 Wind mass loss rate due to WR winds if already computed
- * @param       p_RecalculateWolfRayetRate      If true, recompute the WR winds by cloning the star as a HeMS star
- * @return                                      Total wind mass loss rate
- */
-double BaseStar::EnhanceWindsWithWolfRayetContribution (double p_OtherWindsRate, double p_WolfRayetRate, bool p_RecalculateWolfRayetRate) {
-    
-    double MdotWR = p_WolfRayetRate;
-    double fractionWR = CalculateMassLossFractionWR(m_HeliumAbundanceSurface);
-    double totalWindsRate = 0.0;
-    
-    if (p_RecalculateWolfRayetRate && fractionWR > 0.0 ) {
-        MdotWR        = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
-        // *Jeff* This used to clone the star as a HeMS star and query its CalculateMassLossRateMerritt2025(); eventually, let's switch to a static function to calculate the luminosity of the WR star
-    }
-    
-    // Combine each of these prescriptions according to the OB wind fraction
-    totalWindsRate = ((1.0 - fractionWR) * p_OtherWindsRate) + (fractionWR * MdotWR);
-    
-    if ( fractionWR * MdotWR > (1.0 - fractionWR) * p_OtherWindsRate) {
-        m_DominantMassLossRate =MASS_LOSS_TYPE::WR;
-    }
-    
-    return totalWindsRate;
-}
-
-/*
- * CalculateMassLossFractionWR
- *
- * @brief
- * Calculate the fraction of mass loss attributable to WR mass loss, per Yoon et al. 2006
- *
- * The model described in Yoon et al. 2006 (also Szecsi et al. 2015) uses OB mass loss while the
- * He surface abundance is below 0.55, WR mass loss when the surface He abundance is above 0.7,
- * and linearly interpolate when the He surface abundance is between those limits.
- *
- * This function calculates the fraction of mass loss attributable to OB mass loss, based on
- * the He surface abundance and the abundance limits described in Yoon et al. 2006.  The value
- * returned will be 1.0 if 100% of the mass loss is attributable to OB mass lass, 0.0 if 100% of
- * the mass loss is attributable to WR mass loss, and in the range (0.0, 1.0) if the mass loss is
- * a mix of OB and WR.
- *
- *
- * double CalculateMassLossFractionWR(const double p_HeAbundanceSurface) const
- *
- * @param       p_HeAbundanceSurface            Helium abundance at the surface of the star
- * @return                                      Fraction of mass loss attributable to WR mass loss
- */
-double BaseStar::CalculateMassLossFractionWR(const double p_HeAbundanceSurface) const {
-
-    constexpr double limOB = 0.55;                                          // per Yoon et al. 2006
-    constexpr double limWR = 0.70;                                          // per Yoon et al. 2006
-
-    return std::min(1.0, std::max (0.0, (p_HeAbundanceSurface - limOB) / (limWR - limOB)));
-}
 
 /*
  * Calculate mass loss rate
