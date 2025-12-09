@@ -224,15 +224,15 @@ private:
     //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
     std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
-        { "retain-core-mass-during-caseA-mass-transfer",           "",                                              false, "20250116" },
-        { "minimum-secondary-mass",                                "minimum-sampled-secondary-mass",                false, "20250808" },
-        { "initial-mass-max",                                      "initial-mass-function-max",                     false, "20250808" },
-        { "initial-mass-min",                                      "initial-mass-function-min",                     false, "20250808" },
-        { "initial-mass-power",                                    "initial-mass-function-power",                   false, "20250808" },
-        { "use-mass-loss",                                         "mass-loss-prescription",                        false, "20250809" },
-        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",     false, "20250819" }, 
-        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen", false, "20250819" },   
-        { "scale-CHE-mass-loss-with-surface-helium-abundance",     "scale-mass-loss-with-surface-helium-abundance", false, "20251027" },   
+        { "retain-core-mass-during-caseA-mass-transfer",           "",                                                  false, "20250116" },
+        { "minimum-secondary-mass",                                "minimum-sampled-secondary-mass",                    false, "20250808" },
+        { "initial-mass-max",                                      "initial-mass-function-max",                         false, "20250808" },
+        { "initial-mass-min",                                      "initial-mass-function-min",                         false, "20250808" },
+        { "initial-mass-power",                                    "initial-mass-function-power",                       false, "20250808" },
+        { "use-mass-loss",                                         "mass-loss-prescription",                            false, "20250809" },
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",         false, "20250819" }, 
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen",     false, "20250819" },   
+        { "scale-mass-loss-with-surface-helium-abundance",         "scale-CHE-mass-loss-with-surface-helium-abundance", false, "20251209" },    
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -695,7 +695,7 @@ private:
         "rlof-printing",
         "rotational-velocity-distribution",
 
-        "scale-mass-loss-with-surface-helium-abundance",
+        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis-distribution",
         "stellar-zeta-prescription",
         "store-input-files",
@@ -986,7 +986,7 @@ public:
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
             bool                                                m_EnhanceCHELifetimesLuminosities;                              // Whether to enhance the lifetimes and luminosities of CHE stars relative to SSE MS stars
-            bool                                                m_ScaleMassLossWithSurfaceHeliumAbundance;                      // Whether to transition between OB/VMS and WR mass loss rates for stars on the MS/CHE
+            bool                                                m_ScaleCHEMassLossWithSurfaceHeliumAbundance;                   // Whether to transition between OB and WR mass loss rates for CHE stars on the MS
 
             // Supernova remnant mass
             ENUM_OPT<REMNANT_MASS_PRESCRIPTION>                 m_RemnantMassPrescription;                                      // Which remnant mass prescription
@@ -1738,7 +1738,7 @@ public:
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
 
-    bool                                        ScaleMassLossWithSurfaceHeliumAbundance() const                         { return OPT_VALUE("scale-mass-loss-with-surface-helium-abundance", m_ScaleMassLossWithSurfaceHeliumAbundance, true); }
+    bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, true); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }

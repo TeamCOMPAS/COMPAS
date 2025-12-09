@@ -95,7 +95,7 @@ namespace yaml {
             "    --enhance-CHE-lifetimes-luminosities",
             "    --expel-convective-envelope-above-luminosity-threshold",
             "    --natal-kick-for-PPISN",
-            "    --scale-mass-loss-with-surface-helium-abundance",
+            "    --scale-CHE-mass-loss-with-surface-helium-abundance",
             "",
             "    ### BINARY PROPERTIES",
             "    --allow-touching-at-birth                                       # record binaries that have stars touching at birth in output files",
