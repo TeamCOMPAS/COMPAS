@@ -1319,9 +1319,9 @@ Default = DECIN2023 |br|
 
 :ref:`Back to Top <options-props-top>`
 
-**--scale-mass-loss-with-surface-helium-abundance** |br|
-Scale mass loss for main sequence, including chemically homogeneously evolving (CHE), stars with the surface helium abundance. 
-Transition from OB/VMS to WR mass loss towards the end of the main sequence.
+**--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
+Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
+Transition from OB to WR mass loss towards the end of the main sequence.
 Default = TRUE
 
 **--scale-terminal-wind-velocity-with-metallicity-power** |br|
@@ -1535,7 +1535,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
 --luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
---expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale--mass-loss-with-surface-helium-abundance
+--expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
 --chemically-homogeneous-evolution, --chemically-homogeneous-evolution-mode

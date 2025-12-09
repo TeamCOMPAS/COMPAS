@@ -2025,6 +2025,10 @@ void BaseBinaryStar::CalculateWindsMassLoss(double p_Dt) {
 
             m_aMassLossDiff = aWinds - m_SemiMajorAxisPrev;                                                                     // change to orbit (semi-major axis) due to winds mass loss
         }
+        else {                                                                                                                  // reset total mass loss rate to zero
+            m_Star1->UpdateTotalMassLossRate(0.0);
+            m_Star2->UpdateTotalMassLossRate(0.0);
+        }
     }
 }
 
