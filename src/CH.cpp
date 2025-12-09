@@ -285,6 +285,134 @@ void CH::UpdateAgeAfterMassLoss() {
 }
 
 
+/*
+ * CalculateMassLossFractionOB
+ *
+ * @brief
+ * Calculate the fraction of mass loss attributable to OB mass loss, per Yoon et al. 2006
+ *
+ * The model described in Yoon et al. 2006 (also Szecsi et al. 2015) uses OB mass loss while the
+ * He surface abundance is below 0.55, WR mass loss when the surface He abundance is above 0.7,
+ * and linearly interpolate when the He surface abundance is between those limits.
+ *
+ * This function calculates the fraction of mass loss attributable to OB mass loss, based on
+ * the He surface abundance and the abundance limits described in Yoon et al. 2006.  The value
+ * returned will be 1.0 if 100% of the mass loss is attributable to OB mass lass, 0.0 if 100% of
+ * the mass loss is attributable to WR mass loss, and in the range (0.0, 1.0) if the mass loss is
+ * a mix of OB and WR.
+ *
+ *
+ * double CalculateMassLossFractionOB(const double p_HeAbundanceSurface) const
+ *
+ * @param       p_HeAbundanceSurface            Helium abundance at the surface of the star
+ * @return                                      Fraction of mass loss attributable to OB mass loss
+ */
+double CH::CalculateMassLossFractionOB(const double p_HeAbundanceSurface) const {
+
+    constexpr double limOB = 0.55;                                          // per Yoon et al. 2006
+    constexpr double limWR = 0.70;                                          // per Yoon et al. 2006
+
+    return std::min(1.0, std::max (0.0, (limWR - p_HeAbundanceSurface) / (limWR - limOB)));
+}
+
+
+/*
+ * Calculate the dominant mass loss mechanism and associated rate for the star 
+ * at the current evolutionary phase
+ * 
+ * According to Belczynski et al. 2010 prescription - based on implementation in StarTrack
+ *
+ * Modifications for CH stars
+ * 
+ * double CalculateMassLossRateBelczynski2010()
+ *
+ * @return                                      Mass loss rate in Msol per year
+ */
+double CH::CalculateMassLossRateBelczynski2010() {
+
+    // Define variables
+    double Mdot   = 0.0;
+    double MdotOB = 0.0;
+    double MdotWR = 0.0;
+    double fractionOB = 1.0;    // Initialised to 1.0 to allow us to use the OB mass loss rate by default
+
+    // Calculate OB mass loss rate according to the Vink et al. formalism
+    MdotOB = BaseStar::CalculateMassLossRateBelczynski2010();
+
+    // If user wants to transition between OB and WR mass loss rates
+    if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()) {
+
+        // Calculate WR mass loss rate
+        MdotWR = BaseStar::CalculateMassLossRateWolfRayetZDependent(0.0);
+
+        // Calculate fraction for combining these into total mass-loss rate
+        fractionOB = CalculateMassLossFractionOB(m_HeliumAbundanceSurface);
+
+    }
+
+    // Finally, combine each of these prescriptions according to the OB wind fraction
+    Mdot = (fractionOB * MdotOB) + ((1.0 - fractionOB) * MdotWR);
+
+    // Set dominant mass loss rate
+    m_DominantMassLossRate = (fractionOB * MdotOB) > ((1.0 - fractionOB) * MdotWR) ? MASS_LOSS_TYPE::OB : MASS_LOSS_TYPE::WR;
+
+    // Enhance mass loss rate due to rotation
+    Mdot *= CalculateMassLossRateEnhancementRotation();
+
+    return Mdot;
+}
+
+
+/*
+ * Calculate the dominant mass loss mechanism and associated rate for the star 
+ * at the current evolutionary phase
+ * 
+ * According to Merritt et al. 2024 prescription
+ *
+ * Modifications for CH stars
+ * 
+ * double CalculateMassLossRateMerritt2025()
+ * 
+ * @return                                      Mass loss rate in Msol per year
+ */
+double CH::CalculateMassLossRateMerritt2025() {
+
+    // Define variables
+    double Mdot   = 0.0;
+    double MdotOB = 0.0;
+    double MdotWR = 0.0;
+    double fractionOB = 1.0;    // Initialised to 1.0 to allow us to use the OB mass loss rate by default
+
+    // Calculate OB mass loss rate according to the chosen prescription
+    MdotOB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
+
+    // If user wants to transition between OB and WR mass loss rates
+    if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()) {
+
+        // Here we are going to pretend that this CH star is an HeMS star by
+        // cloning it, so that we can ask it what its mass loss rate would be if it were
+        // a HeMS star
+        HeMS *clone = HeMS::Clone((HeMS&)static_cast<const CH&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);  // Do not initialise so that we can use same mass, luminosity, radius etc
+        MdotWR      = clone->CalculateMassLossRateMerritt2025();                                                // Calculate WR mass loss rate              
+        delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone  
+
+        // Calculate weight for combining these into total mass-loss rate
+        fractionOB = CalculateMassLossFractionOB(m_HeliumAbundanceSurface);
+    }
+
+    // Finally, combine each of these prescriptions according to the OB wind fraction
+    Mdot = (fractionOB * MdotOB) + ((1.0 - fractionOB) * MdotWR);
+
+    // Set dominant mass loss rate
+    m_DominantMassLossRate = (fractionOB * MdotOB) > ((1.0 - fractionOB) * MdotWR) ? MASS_LOSS_TYPE::OB : MASS_LOSS_TYPE::WR;
+
+    // Enhance mass loss rate due to rotation
+    Mdot *= CalculateMassLossRateEnhancementRotation();
+
+    return Mdot;
+}
+
+
 STELLAR_TYPE CH::EvolveToNextPhase() {
 
     STELLAR_TYPE stellarType = STELLAR_TYPE::MS_GT_07;
