@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.27.02 December 16, 2025**
+
+* Fixed a bug in the assignment of kick direction angles
+* Undid replacement of --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (see 03.26.02)
+
 **03.26.02 October 27, 2025**
 
 * Added option --USSN-kicks-override-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
