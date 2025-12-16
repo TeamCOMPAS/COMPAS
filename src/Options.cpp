@@ -2241,7 +2241,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const BOOST_MAP p
 
         if (phi1Defaulted || theta1Defaulted) {
             double phi1, theta1;
-            std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
+            std::tie(theta1, phi1) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi1Defaulted) {
                 m_KickPhi1 = phi1;
                 if (p_UpdateMap == BOOST_MAP::UPDATE) {
@@ -2264,7 +2264,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const BOOST_MAP p
 
         if (phi2Defaulted || theta2Defaulted) {
             double phi2, theta2;
-            std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
+            std::tie(theta2, phi2) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi2Defaulted) {
                 m_KickPhi2 = phi2;
                 if (p_UpdateMap == BOOST_MAP::UPDATE) {
