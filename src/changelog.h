@@ -1679,6 +1679,13 @@
 //                                          - removed option --scale-CHE-mass-loss-with-surface-helium-abundance from "BSEonly" vector in Options.h
 //                                          - changed "scale-CHE-mass-loss-with-surface-helium-abundance" to "--scale-mass-loss-with-surface-helium-abundance" in "RangeExcluded" vector in Options.h
 //                                          - version should have been "v03.27.00" instead of "v03.26.02" - change included new functionality.  This version is "v03.27.01" to compensate.
+//  03.27.02  AB - December 9, 2025     - Defect repairs:
+//                                          - Reverted a change from PR #1437: --scale-mass-loss-with-surface-helium-abundance is changed back to 
+//                                            --scale-CHE-mass-loss-with-surface-helium-abundance and applies only to CHE stars
+//                                          - Corrected behaviour of MS stars that stopped ageing after mass transfer when mass loss is disabled (issue #1444)
+//                                          - Corrected luminosity evolution for CH stars (issue #1443)
+//  03.27.03  IM - December 16, 2025    - Defect repair:
+//                                          - Fix issue #1446: Theta and phi variables are flipped when assigning kicks, potentially giving unintended kick distributions
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1690,7 +1697,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.27.01";
+const std::string VERSION_STRING = "03.27.03";
 
 
 # endif // __changelog_h__
