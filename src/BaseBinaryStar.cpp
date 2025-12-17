@@ -2857,6 +2857,139 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                 }
             } break;
 
+            case TIDES_PRESCRIPTION::ZAHN1977: {                                                                          
+                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Zahn (1977)
+                // Porb = 2*np.pi / omega_orb
+                // Pspin = 2*np.pi / omega_spin
+                // Ptid_inv = np.abs(1/Porb - 1/Pspin)      # Eq. (33)
+                // Ptid = 1/Ptid_inv                        # Eq. (33)
+
+                // fconv = np.minimum(1, (Ptid/(2*tau_conv))**2)   # Eq. (32)
+                // k_over_T_c = (2/21) * (fconv/tau_conv) * Menv/M # Eq. (30)
+                // double ImKnm1_Zahn = Imk22_eq_zahn = 2 * (k_over_T_c) * (R_AU**3 / (G_AU_Msol_yr * M)) * (2*omega_orb - 2*omega_spin)
+                double envMass1, envMassMax1;
+                std::tie(envMass1, envMassMax1) = m_Star1->CalculateConvectiveEnvelopeMass();
+
+                double envMass2, envMassMax2;
+                std::tie(envMass2, envMassMax2) = m_Star2->CalculateConvectiveEnvelopeMass();
+
+                double pOrbital = _2_PI / omega;
+                double pSpin1   = _2_PI / m_Star1->Omega();
+                double pSpin2   = _2_PI / m_Star2->Omega();
+                double pTid1 = 1 / std::abs(1.0 / pOrbital - 1.0 / pSpin1);
+                double pTid2 = 1 / std::abs(1.0 / pOrbital - 1.0 / pSpin2);
+
+                double tauConv1 = m_Star1->CalculateEddyTurnoverTimescale();
+                double tauConv2 = m_Star2->CalculateEddyTurnoverTimescale();
+
+                double fConv1 = std::min(1.0, std::pow(pTid1 / (2.0 * tauConv1), 2));
+                double fConv2 = std::min(1.0, std::pow(pTid2 / (2.0 * tauConv2), 2));
+                double kOverT1 = (2.0 / 21.0) * (fConv1 / tauConv1) * (envMass1 / m_Star1->Mass());
+                double kOverT2 = (2.0 / 21.0) * (fConv2 / tauConv2) * (envMass2 / m_Star2->Mass());
+
+                double R1_AU = m_Star1->Radius() * RSOL_TO_AU;
+                double R2_AU = m_Star2->Radius() * RSOL_TO_AU;
+
+                double omega1 = m_Star1->Omega();
+                double omega2 = m_Star2->Omega();
+
+                double E2_Dynamical_Zahn1      = 1.592 * std::pow(10, -9) * std::pow(m_Star1->Mass(), 2.84); // Eq. 43
+                double E2_Dynamical_Zahn2      = 1.592 * std::pow(10, -9) * std::pow(m_Star2->Mass(), 2.84); // Eq. 43
+
+                // double DSemiMajorAxis1Dt_Zahn = - m_SemiMajorAxis * 12.0 * kOverT1 * (q1 * (1.0 + q1)) * std::pow(R1_AU / m_SemiMajorAxis, 8) * ( (1.0 - omega1_over_omega) + (m_Eccentricity * m_Eccentricity * (23.0 - 27.0/2.0 * omega1_over_omega)) ) ; // Eq. (4.3)  
+                // double DEccentricity1Dt_Zahn  = -3.0/2.0 * kOverT1 * (q1 * (1.0 + q1)) * std::pow(R1_AU / m_SemiMajorAxis, 8) * m_Eccentricity * ( 27.0 - 33.0/2.0 * omega1_over_omega ); // Eq. (4.4)
+                // double DOmega1Dt_Zahn         = (1.0 / m_Star1->CalculateMomentOfInertiaAU()) * 6.0 * kOverT1 * (q1 * q1) * std::pow(R1_AU / m_SemiMajorAxis, 6) * ((omega - omega1) +  m_Eccentricity * m_Eccentricity * (26.0 * omega - 15.0 * omega1) ); // Eq. (4.5)
+
+                double w10 = 1.0 * omega;
+                double w12_1 = (1.0 * omega - 2.0 * omega1);
+                double w12_2 = (1.0 * omega - 2.0 * omega2);
+
+                double w22_1 = (2.0 * omega - 2.0 * omega1);
+                double w22_2 = (2.0 * omega - 2.0 * omega2);
+
+                double w32_1 = (3.0 * omega - 2.0 * omega1);
+                double w32_2 = (3.0 * omega - 2.0 * omega2);
+                
+                double ImK22_Zahn_Equilibrium1 = 2.0 * kOverT1 * (R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * w22_1; // Eq. (4.1), (4.2)
+                ImK22_Zahn_Equilibrium1        = std::isnan(ImK22_Zahn_Equilibrium1) ? 0.0 : ImK22_Zahn_Equilibrium1; // check for NaN
+                double ImK22_Zahn_Equilibrium2 = 2.0 * kOverT2 * (R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * w22_2; // Eq. (4.1), (4.2)
+                ImK22_Zahn_Equilibrium2        = std::isnan(ImK22_Zahn_Equilibrium2) ? 0.0 : ImK22_Zahn_Equilibrium2; // check for NaN
+
+                double ImK10_Zahn_Equilibrium1 = 2.0 * kOverT1 * (R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * w10; 
+                ImK10_Zahn_Equilibrium1 = std::isnan(ImK10_Zahn_Equilibrium1) ? 0.0 : ImK10_Zahn_Equilibrium1; // check for NaN
+                double ImK10_Zahn_Equilibrium2 = 2.0 * kOverT2 * (R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * w10; 
+                ImK10_Zahn_Equilibrium2 = std::isnan(ImK10_Zahn_Equilibrium2) ? 0.0 : ImK10_Zahn_Equilibrium2; // check for NaN
+
+                double ImK12_Zahn_Equilibrium1 = 2.0 * kOverT1 * (R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * w12_1;
+                ImK12_Zahn_Equilibrium1 = std::isnan(ImK12_Zahn_Equilibrium1) ? 0.0 : ImK12_Zahn_Equilibrium1; // check for NaN
+                double ImK12_Zahn_Equilibrium2 = 2.0 * kOverT2 * (R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * w12_2;
+                ImK12_Zahn_Equilibrium2 = std::isnan(ImK12_Zahn_Equilibrium2) ? 0.0 : ImK12_Zahn_Equilibrium2; // check for NaN
+
+                double ImK32_Zahn_Equilibrium1 = 2.0 * kOverT1 * (R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * w32_1;
+                ImK32_Zahn_Equilibrium1 = std::isnan(ImK32_Zahn_Equilibrium1) ? 0.0 : ImK32_Zahn_Equilibrium1; // check for NaN
+                double ImK32_Zahn_Equilibrium2 = 2.0 * kOverT2 * (R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * w32_2;
+                ImK32_Zahn_Equilibrium2 = std::isnan(ImK32_Zahn_Equilibrium2) ? 0.0 : ImK32_Zahn_Equilibrium2; // check for NaN
+
+
+                double ImK22_Zahn_Dynamical1   = std::copysign(1.0, w22_1) * E2_Dynamical_Zahn1 * std::pow(std::sqrt(R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * std::abs(w22_1), 8.0/3.0); // Eq. (5.5)
+                ImK22_Zahn_Dynamical1          = std::isnan(ImK22_Zahn_Dynamical1) ? 0.0 : ImK22_Zahn_Dynamical1; // check for NaN
+                double ImK22_Zahn_Dynamical2   = std::copysign(1.0, w22_2) * E2_Dynamical_Zahn2 * std::pow(std::sqrt(R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * std::abs(w22_2), 8.0/3.0); // Eq. (5.5)
+                ImK22_Zahn_Dynamical2          = std::isnan(ImK22_Zahn_Dynamical2) ? 0.0 : ImK22_Zahn_Dynamical2; // check for NaN
+
+                double ImK10_Zahn_Dynamical1   = std::copysign(1.0, w10) * E2_Dynamical_Zahn1 * std::pow(std::sqrt(R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * std::abs(w10), 8.0/3.0); // Eq. (5.5)
+                ImK10_Zahn_Dynamical1          = std::isnan(ImK10_Zahn_Dynamical1) ? 0.0 : ImK10_Zahn_Dynamical1; // check for NaN
+                double ImK10_Zahn_Dynamical2   =std::copysign(1.0, w22_1) *  E2_Dynamical_Zahn2 * std::pow(std::sqrt(R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * std::abs(w10), 8.0/3.0); // Eq. (5.5)
+                ImK10_Zahn_Dynamical2          = std::isnan(ImK10_Zahn_Dynamical2) ? 0.0 : ImK10_Zahn_Dynamical2; // check for NaN
+
+                double ImK12_Zahn_Dynamical1   = std::copysign(1.0, w12_1) * E2_Dynamical_Zahn1 * std::pow(std::sqrt(R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * std::abs(w12_1), 8.0/3.0); // Eq. (5.5)
+                ImK12_Zahn_Dynamical1          = std::isnan(ImK12_Zahn_Dynamical1) ? 0.0 : ImK12_Zahn_Dynamical1; // check for NaN
+                double ImK12_Zahn_Dynamical2   = std::copysign(1.0, w12_2) * E2_Dynamical_Zahn2 * std::pow(std::sqrt(R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * std::abs(w12_2), 8.0/3.0); // Eq. (5.5)
+                ImK12_Zahn_Dynamical2          = std::isnan(ImK12_Zahn_Dynamical2) ? 0.0 : ImK12_Zahn_Dynamical2; // check for NaN
+                
+                double ImK32_Zahn_Dynamical1   = std::copysign(1.0, w32_1) * E2_Dynamical_Zahn1 * std::pow(std::sqrt(R1_AU * R1_AU * R1_AU / (G_AU_Msol_yr * m_Star1->Mass())) * std::abs(w32_1), 8.0/3.0); // Eq. (5.5)
+                ImK32_Zahn_Dynamical1          = std::isnan(ImK32_Zahn_Dynamical1) ? 0.0 : ImK32_Zahn_Dynamical1; // check for NaN
+                double ImK32_Zahn_Dynamical2   = std::copysign(1.0, w32_2) * E2_Dynamical_Zahn2 * std::pow(std::sqrt(R2_AU * R2_AU * R2_AU / (G_AU_Msol_yr * m_Star2->Mass())) * std::abs(w32_2), 8.0/3.0); // Eq. (5.5)
+                ImK32_Zahn_Dynamical2          = std::isnan(ImK32_Zahn_Dynamical2) ? 0.0 : ImK32_Zahn_Dynamical2; // check for NaN
+
+                DBL_DBL_DBL_DBL ImKnm1_tidal  = std::make_tuple(ImK10_Zahn_Equilibrium1+ImK10_Zahn_Dynamical1, ImK12_Zahn_Equilibrium1+ImK12_Zahn_Dynamical1, ImK22_Zahn_Equilibrium1 + ImK22_Zahn_Dynamical1, ImK32_Zahn_Equilibrium1+ImK32_Zahn_Dynamical1);
+                DBL_DBL_DBL_DBL ImKnm2_tidal  = std::make_tuple(ImK10_Zahn_Equilibrium2+ImK10_Zahn_Dynamical2, ImK12_Zahn_Equilibrium2+ImK12_Zahn_Dynamical2, ImK22_Zahn_Equilibrium2 + ImK22_Zahn_Dynamical2, ImK32_Zahn_Equilibrium2 + ImK32_Zahn_Dynamical2);
+
+
+                double DSemiMajorAxis1Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKnm1_tidal, m_Star1);                                                                        // change in semi-major axis from star1
+                double DSemiMajorAxis2Dt_tidal = CalculateDSemiMajorAxisTidalDt(ImKnm2_tidal, m_Star2);                                                                        // change in semi-major axis from star2
+
+                double DEccentricity1Dt_tidal  = CalculateDEccentricityTidalDt(ImKnm1_tidal, m_Star1);                                                                         // change in eccentricity from star1
+                double DEccentricity2Dt_tidal  = CalculateDEccentricityTidalDt(ImKnm2_tidal, m_Star2);                                                                         // change in eccentricity from star2
+
+                double DOmega1Dt_tidal         = CalculateDOmegaTidalDt(ImKnm1_tidal, m_Star1);                                                                                // change in spin from star1
+                double DOmega2Dt_tidal         = CalculateDOmegaTidalDt(ImKnm2_tidal, m_Star2);                                                                                // change in spin from star2
+                                
+                // limit change in stellar and orbital properties from tides to a maximum fraction of the current value
+                double fraction_tidal_change = 1.0;
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR)));
+                fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR)));
+               
+                m_Star1->SetOmega(m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 1 spin
+                m_Star2->SetOmega(m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 2 spin
+                m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR);         // evolve separation
+                m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR);            // evolve eccentricity
+                
+                m_CircularizationTimescale  = - m_Eccentricity /  (DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * YEAR_TO_MYR;                                       // Circularization timescale in Myr (for output files)
+                m_CircularizationTimescale  =   (std::isnan(m_CircularizationTimescale) || std::isinf(m_CircularizationTimescale))? 0.0 : m_CircularizationTimescale;    // check for NaN or Inf for circular binaries
+                
+                m_SynchronizationTimescale1 = - (m_Star1->Omega() - omega) / DOmega1Dt_tidal * YEAR_TO_MYR;                                                              // Synchronization timescale for Star1 in Myr (for output files)
+                m_SynchronizationTimescale1 =   (std::isnan(m_SynchronizationTimescale1) || std::isinf(m_SynchronizationTimescale1))? 0.0 : m_SynchronizationTimescale1; // check for NaN or Inf for synchronized binaries
+                
+                m_SynchronizationTimescale2 = - (m_Star2->Omega() - omega) / DOmega2Dt_tidal * YEAR_TO_MYR;                                                              // Synchronization timescale for Star2 in Myr (for output files)
+                m_SynchronizationTimescale2 =   (std::isnan(m_SynchronizationTimescale2) || std::isinf(m_SynchronizationTimescale2))? 0.0 : m_SynchronizationTimescale2; // check for NaN or Inf for synchronized binaries
+
+                m_TotalAngularMomentum   = CalculateAngularMomentum();                                                                                                      // re-calculate angular momenta
+                m_OrbitalAngularMomentum = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity);
+
+            } break;
+
             default:
                 // the only way this can happen is if someone added a TIDES_PRESCRIPTION
                 // and it isn't accounted for in this code.  We should not default here, with or without a warning.
@@ -3179,9 +3312,8 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
 
         CalculateEnergyAndAngularMomentum();                                                                            // perform energy and angular momentum calculations
-        
-        ProcessTides(p_Dt);                                                                                             // process tides if required
-
+        ProcessTides(p_Dt);   
+                                                                                                  // process tides if required
         // assign new values to "previous" values, for following timestep
         m_EccentricityPrev  = m_Eccentricity;
         m_SemiMajorAxisPrev = m_SemiMajorAxis;
