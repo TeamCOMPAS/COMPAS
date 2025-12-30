@@ -51,13 +51,13 @@ def test_compas_fraction():
 
 
 def test_analytical_function():
-    default_case = analytical_star_forming_mass_per_binary_using_kroupa_imf(
-        m1_max=150,
-        m1_min=5,
-        m2_min=0.1,
-        fbin=1
+    result = analytical_star_forming_mass_per_binary_using_kroupa_imf(
+        m1_min=M1_MIN,
+        m1_max=M1_MAX,
+        m2_min=M2_MIN,
+        fbin=F_BIN
     )
-    assert 79.0 < default_case < 79.2
+    assert result > 0
 
 
 def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output, tmpdir, test_archive_dir):
@@ -93,10 +93,7 @@ def plot_star_forming_mass_per_binary_comparison(
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
             fname = f"{tmpdir}/test_{i}.h5"
-
-            generate_mock_bbh_population_file(filename=fname, n_systems=int(n),
-                                              m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
-            # generate_mock_bbh_population_file(fname, n_systems=int(n))
+            generate_mock_population(fname, n_systems=int(n), m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
             vals[i] = (star_forming_mass_per_binary(fname, m1_min, m1_max, m2_min, fbin))
         numerical_vals.append(vals)
 

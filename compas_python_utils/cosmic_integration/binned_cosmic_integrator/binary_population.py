@@ -11,11 +11,6 @@ from .conversions import m1_m2_to_chirp_mass, m1_m2_to_eta
 from .plotting import plot_binary_population
 from .stellar_type import BH, NS, WD
 
-# Default IMF limits
-M1_MIN = 5
-M1_MAX = 150
-M2_MIN = 0.1
-
 DCO_GROUPS = dict(
     BBH=[BH, BH],
     BNS=[NS, NS],
@@ -63,9 +58,9 @@ class BinaryPopulation:
             z_zams: np.ndarray,
             n_systems: int,
             dcos_included: List[str],
-            m1_min: float = M1_MIN,
-            m1_max: float = M1_MAX,
-            m2_min: float = M2_MIN,
+            m1_min: float = None,
+            m1_max: float = None,
+            m2_min: float = None,
             binary_fraction: float = 0.7,
     ):
         # Population selection
@@ -100,9 +95,9 @@ class BinaryPopulation:
             cls,
             path: str,
             dcos_included: List[str] = ["BBH"],
-            m1_min: float = M1_MIN,
-            m1_max: float = M1_MAX,
-            m2_min: float = M2_MIN,
+            m1_min: float = None,
+            m1_max: float = None,
+            m2_min: float = None,
             binary_fraction: float = 0.7,
     ) -> "BinaryPopulation":
         mask = cls._generate_mask(path, dcos_included)
@@ -289,12 +284,15 @@ def generate_mock_population(
         frac_bbh: float = 0.7,
         frac_bns: float = 0.2,
         frac_bhns: float = 0.1,
-        m1_min: float = M1_MIN,
-        m1_max: float = M1_MAX,
-        m2_min: float = M2_MIN,
+        m1_min: float = None,
+        m1_max: float = None,
+        m2_min: float = None,
 ):
     if filename == "":
         filename = "dco_mock_population.h5"
+    
+    if m1_min is None or m1_max is None or m2_min is None:
+        raise ValueError("m1_min, m1_max, and m2_min must be provided to generate_mock_population")
 
     # sample masses and assign types
     m1, m2 = draw_samples_from_kroupa_imf(n_samples=n_systems, Mlower=m1_min, Mupper=m1_max, m2_low=m2_min)
