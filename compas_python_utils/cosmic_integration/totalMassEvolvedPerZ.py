@@ -210,230 +210,123 @@ def draw_samples_from_kroupa_imf(
 
 
 ###################################################
-# New version of analytical calculation
+# Analytical calculation of star forming mass per binary
 ###################################################
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
-        m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
-):
+    m1_min, m1_max, m2_min, fbin=1.0, imf_mass_bounds=(0.01, 0.08, 0.5, 200.0)):
     """
-    Analytical computation of the mass of stars formed per binary star formed within the
-    [m1 min, m1 max] and [m2 min, ..] rage,
-    using the Kroupa IMF:
+    Takes: 
+        m1_min, m1_max, m2_min: COMPAS mass ranges [Msun]
+        fbin: binary fraction (if None, use piecewise constant fbin(m1))
+        imf_mass_bounds: Kroupa IMF mass bounds [Msun]
+    Computes:
+      N_bin_in_COMPAS 
+      average_stellar_mass_sys = M_sys,Univ / N_sys,Univ (blue)
+      M_sf_Univ_per_N_binary_COMPAS = average_stellar_mass_sys / N_bin_in_COMPAS
 
-        p(M) \propto M^-0.3 for M between m1 and m2
-        p(M) \propto M^-1.3 for M between m2 and m3;
-        p(M) = alpha * M^-2.3 for M between m3 and m4;
-
-    m1_min, m1_max are the min and max sampled primary masses
-    m2_min is the min sampled secondary mass
-
-    This function further assumes a flat mass ratio distribution with qmin = m2_min/m1, and  m2_max = m1_max
-    Lieke base on Ilya Mandel's derivation
+    Assumes:
+      Kroupa IMF: P(m1) = alpha * C_cont,i * m1^{gamma_i}  on IMF segment i
+      Piecewise constant on binary-fraction: f_bin(m1) with bins j
+      Flat mass ratio: P(q)=U(0,1)  =>  P(m2>m2_min | m1) = 1 - m2_min/m1  (for m1 >= m2_min)
     """
-    #########
+    # -------------------------
     # Kroupa IMF 
+    # -------------------------
     m1, m2, m3, m4 = imf_mass_bounds
-    continuity_constants = [1./(m2*m3), 1./(m3), 1.0]  
-    IMF_powers = [-0.3, -1.3, -2.3]  
+    continuity_constants = [1.0 / (m2 * m3), 1.0 / m3, 1.0]
+    IMF_powers = [-0.3, -1.3, -2.3]
 
-    if m1_min < m3:
-        raise ValueError(f"This analytical derivation requires IMF break m3  < m1_min ({m3} !< {m1_min})")
     if m1_min > m1_max:
-        raise ValueError(f"Minimum sampled primary mass cannot be above maximum sampled primary mass: m1_min ({m1_min} !<  m1_max {m1_max})")
+        raise ValueError(f"Require m1_min <= m1_max, got {m1_min} > {m1_max}.")
+    if m1_min < m1:
+        raise ValueError(f"Require m1_min >= {m1} (Universe lower IMF bound).")
     if m1_max > m4:
-        raise ValueError(f"Maximum sampled primary mass cannot be above maximum mass of Kroupa IMF:  m1_max ({m1_max} !<  m4 {m4})")
-    
-    # normalize IMF over the complete mass range:
-    alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
-    # print('alpha', alpha)
+        raise ValueError(f"Require m1_max <= {m4} (Universe upper IMF bound).")
 
-    #########
-    # fbin edges and values are chosen to approximately follow Figure 1 from Offner et al. (2023)
-    binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]    
-    if fbin == None:
-        # use a binary fraction that varies with mass
-        binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0] 
+    # Normalization alpha over full IMF range [m1, m4]
+    alpha = (
+        - (m4 ** (-1.3) - m3 ** (-1.3)) / 1.3
+        - (m3 ** (-0.3) - m2 ** (-0.3)) / (m3 * 0.3)
+        + (m2 ** (0.7) - m1 ** (0.7)) / (m2 * m3 * 0.7)
+    ) ** (-1)
+
+    # -------------------------
+    # Binary-fraction bins
+    # -------------------------
+    binary_bin_edges = [m1, 0.08, 0.5, 1.0, 10.0, m4]
+    if fbin is None:
+        binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
     else:
-        # otherwise use a constant binary fraction
-        binaryFractions = [fbin] * 5
+        binaryFractions = [float(fbin)] * (len(binary_bin_edges) - 1)
 
-    ##################
-    # we want to compute M_stellar_sys_in_universe / N_binaries_in_COMPAS
-    #  = N_binaries_in_universe/N_binaries_in_COMPAS * N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
-    def N_binaries_kroupa_fbin(m1_low, m1_high, m2_min):
-        """
-        Computes:
-        N = alpha * Σ_i Σ_j binaryFractions[i] *
-            ∫ ( m^{IMF_powers[j]} - m2_min * m^{IMF_powers[j]-1} )
-                * continuity_constants[j] dm
+    # -------------------------
+    # Helpers: overlaps and power integrals
+    # -------------------------
+    def overlap(lo1, hi1, lo2, hi2):
+        lo = max(lo1, lo2)
+        hi = min(hi1, hi2)
+        return lo, hi
 
-        The integral is taken over the overlap of:
-        - binary-fraction bin i,
-        - IMF segment j,
-        - [m1_low, m1_high].
-        """
-        if m1_high <= m1_low:
-            raise ValueError("Require m1_high > m1_low")
+    def int_power(lo, hi, power):
+        """∫_lo^hi m^{power} dm, for power != -1."""
+        if hi <= lo:
+            return 0.0
+        return (hi ** (power + 1) - lo ** (power + 1)) / (power + 1)
 
-        total = 0.0
-        #Compute double piecewise integral
-        for i in range(len(binaryFractions)):
-            # overlap of binary-fraction bin with [m1_low, m1_high]
-            bin_lo = max(binary_bin_edges[i],     m1_low)
-            bin_hi = min(binary_bin_edges[i + 1], m1_high)
+    # -------------------------
+    # Average_stellar_mass_sys = ∫_Univ (1+0.5 fbin) m1 P(m1) dm1
+    # -------------------------
+    av_Mstar_integral_sum = 0.0
+    for i in range(len(IMF_powers)):  # IMF segment index i
+        gamma_i = IMF_powers[i]
+        C_cont_i = continuity_constants[i]
+        imf_lo, imf_hi = imf_mass_bounds[i], imf_mass_bounds[i + 1]
 
-            if bin_hi <= bin_lo:
+        for j in range(len(binaryFractions)):  # fbin bin index j
+            fbin_j = binaryFractions[j]
+            fb_lo, fb_hi = binary_bin_edges[j], binary_bin_edges[j + 1]
+
+            A, B = overlap(imf_lo, imf_hi, fb_lo, fb_hi)
+            if B <= A:
                 continue
-            # split across IMF segments
-            for j in range(len(IMF_powers)):
-                m_start = max(bin_lo, imf_mass_bounds[j])
-                m_end   = min(bin_hi, imf_mass_bounds[j + 1])
 
-                if m_end <= m_start:
-                    continue
+            # integrand: (1 + 0.5 fbin_j) * m1 * (alpha*C_cont_i*m1^{gamma_i})
+            # => alpha * (1+0.5 fbin_j) * C_cont_i * ∫ m1^{gamma_i+1} dm1
+            av_Mstar_integral_sum += (1.0 + 0.5 * fbin_j) * C_cont_i * int_power(A, B, gamma_i + 1)
 
-                # ∫ m^{IMF_powers[j]} dm
-                integral_main = (
-                    m_end**(IMF_powers[j] + 1) - m_start**(IMF_powers[j] + 1)
-                ) / (IMF_powers[j] + 1)
+    average_stellar_mass_sys = alpha * av_Mstar_integral_sum
 
-                # ∫ m^{IMF_powers[j]-1} dm (only if m2_min > 0)
-                if m2_min > 0.0:
-                    integral_m2 = (
-                        m_end**(IMF_powers[j]) - m_start**(IMF_powers[j])
-                    ) / (IMF_powers[j])
-                else:
-                    integral_m2 = 0.0
+    # -------------------------
+    # N_bin_in_COMPAS = ∫_{m1_min}^{m1_max} P(m1) fbin(m1) (1 - m2_min/m1) dm1
+    # -------------------------
+    N_bin_compas_sum = 0.0
+    for i in range(len(IMF_powers)):  # IMF segment index i
+        gamma_i = IMF_powers[i]
+        C_cont_i = continuity_constants[i]
+        imf_lo, imf_hi = imf_mass_bounds[i], imf_mass_bounds[i + 1]
 
-                total += binaryFractions[i] * continuity_constants[j] * (integral_main - m2_min * integral_m2)
+        for j in range(len(binaryFractions)):  # fbin bin index j
+            fbin_j = binaryFractions[j]
+            fb_lo, fb_hi = binary_bin_edges[j], binary_bin_edges[j + 1]
 
-        return alpha * total
+            # overlap additionally with COMPAS m1-range
+            A, B = overlap(imf_lo, imf_hi, fb_lo, fb_hi)
+            A, B = overlap(A, B, m1_min, m1_max)
+            if B <= A:
+                continue
 
-    # Integral for COMPAS sampled binaries
-    N_compas = N_binaries_kroupa_fbin(m1_low=m1_min, m1_high=m1_max, m2_min=m2_min)
+            # integrand: alpha*C_cont_i*m^{gamma_i} * fbin_j * (1 - m2_min/m)
+            # => alpha*fbin_j*C_cont_i * ∫ (m^{gamma_i} - m2_min*m^{gamma_i-1}) dm
+            term_main = int_power(A, B, gamma_i)              # ∫ m^{gamma_i} dm
+            term_m2   = int_power(A, B, gamma_i - 1)          # ∫ m^{gamma_i-1} dm
+            N_bin_compas_sum += fbin_j * C_cont_i * (term_main - m2_min * term_m2)
 
-    ##################
-    # Next for N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
-    # N_stellar_sys_in_universe/N_binaries_in_universe = the binary fraction 
+    N_bin_in_COMPAS = alpha * N_bin_compas_sum
 
-    # M_stellar_sys_in_universe/N_stellar_sys_in_universe = average mass of a stellar system in the Universe,
-    # we are computing 1/fbin * M_stellar_sys_in_universe/N_stellar_sys_in_universe, skipping steps this leads to:
-    # int_A^B (1/fb(m1) + 0.5) m1 P(m1) dm1. 
-    # This is a double piecewise integral, i.e. pieces over the binary fraction bins and IMF mass bins.
-    average_mass_stellar_sys_int = 0
+    if N_bin_in_COMPAS <= 0.0:
+        raise ValueError("Computed N_bin_in_COMPAS <= 0; check bounds and m2_min.")
 
-    # For every binary fraction bin
-    for i in range(len(binary_bin_edges) - 1):
-        # And every piece of the Kroupa IMF
-        for j in range(len(imf_mass_bounds) - 1):
-            # Check if the binary fraction bin overlaps with the IMF mass bin
-            if binary_bin_edges[i + 1] <= imf_mass_bounds[j] or binary_bin_edges[i] >= imf_mass_bounds[j + 1]:
-                continue  # No overlap
-
-            # Integrate from the most narrow range
-            m_start = max(binary_bin_edges[i], imf_mass_bounds[j])
-            m_end = min(binary_bin_edges[i + 1], imf_mass_bounds[j + 1])
-
-            # Compute the definite integral:
-            integral = (m_end**(IMF_powers[j] + 2) - m_start**(IMF_powers[j] + 2) ) / (IMF_powers[j] + 2) * continuity_constants[j]
-
-            # Compute the sum term
-            average_mass_stellar_sys_int += (1 + 0.5 * binaryFractions[i]) * integral    
-
-    # Addint normalization
-    average_mass_stellar_sys = alpha * average_mass_stellar_sys_int
-
-    # Now compute the average mass per binary in COMPAS M_stellar_sys_in_universe / N_binaries_in_COMPAS
-    M_sf_Univ_per_N_binary_COMPAS = (1/N_compas) * average_mass_stellar_sys
+    M_sf_Univ_per_N_binary_COMPAS = average_stellar_mass_sys / N_bin_in_COMPAS
 
     return M_sf_Univ_per_N_binary_COMPAS
 
-
-
-# ###################################################
-# def analytical_star_forming_mass_per_binary_using_kroupa_imf(
-#         m1_min, m1_max, m2_min, fbin=1., imf_mass_bounds=[0.01,0.08,0.5,200]
-# ):
-#     """
-#     Analytical computation of the mass of stars formed per binary star formed within the
-#     [m1 min, m1 max] and [m2 min, ..] rage, using the Kroupa IMF:
-
-#         p(M) \propto M^-0.3 for M between m1 and m2
-#         p(M) \propto M^-1.3 for M between m2 and m3;
-#         p(M) = alpha * M^-2.3 for M between m3 and m4;
-
-#     m1_min, m1_max are the min and max sampled primary masses
-#     m2_min is the min sampled secondary mass
-
-#     This function further assumes a flat mass ratio distribution with qmin = m2_min/m1, and  m2_max = m1_max
-#     Lieke base on Ilya Mandel's derivation
-#     """
-#     # Kroupa IMF 
-#     m1, m2, m3, m4 = imf_mass_bounds
-#     continuity_constants = [1./(m2*m3), 1./(m3), 1.0]  
-#     IMF_powers = [-0.3, -1.3, -2.3]  
-
-#     if m1_min < m3:
-#         raise ValueError(f"This analytical derivation requires IMF break m3  < m1_min ({m3} !< {m1_min})")
-#     if m1_min > m1_max:
-#         raise ValueError(f"Minimum sampled primary mass cannot be above maximum sampled primary mass: m1_min ({m1_min} !<  m1_max {m1_max})")
-#     if m1_max > m4:
-#         raise ValueError(f"Maximum sampled primary mass cannot be above maximum mass of Kroupa IMF:  m1_max ({m1_max} !<  m4 {m4})")
-    
-#     # normalize IMF over the complete mass range:
-#     alpha = (-(m4**(-1.3)-m3**(-1.3))/1.3 - (m3**(-0.3)-m2**(-0.3))/(m3*0.3) + (m2**0.7-m1**0.7)/(m2*m3*0.7))**(-1)
-
-#     # we want to compute M_stellar_sys_in_universe / N_binaries_in_COMPAS
-#     #  = N_binaries_in_universe/N_binaries_in_COMPAS * N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
-#     #  = 1/fint * 1/fbin * average mass of a stellar system in the Universe
-
-#     # fint =  N_binaries_in_COMPAS/N_binaries_in_universe: fraction of binaries that COMPAS simulates
-#     fint = -alpha / 1.3 * (m1_max ** (-1.3) - m1_min ** (-1.3)) + alpha * m2_min / 2.3 * (m1_max ** (-2.3) - m1_min ** (-2.3))
-
-#     # Next for N_stellar_sys_in_universe/N_binaries_in_universe * M_stellar_sys_in_universe/N_stellar_sys_in_universe
-#     # N_stellar_sys_in_universe/N_binaries_in_universe = the binary fraction 
-#     # fbin edges and values are chosen to approximately follow Figure 1 from Offner et al. (2023)
-#     binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]    
-#     if fbin == None:
-#         # use a binary fraction that varies with mass
-#         binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0] 
-#     else:
-#         # otherwise use a constant binary fraction
-#         binaryFractions = [fbin] * 5
-
-#     # M_stellar_sys_in_universe/N_stellar_sys_in_universe = average mass of a stellar system in the Universe,
-#     # we are computing 1/fbin * M_stellar_sys_in_universe/N_stellar_sys_in_universe, skipping steps this leads to:
-#     # int_A^B (1/fb(m1) + 0.5) m1 P(m1) dm1. 
-#     # This is a double piecewise integral, i.e. pieces over the binary fraction bins and IMF mass bins.
-#     piece_wise_integral = 0
-
-#     # For every binary fraction bin
-#     for i in range(len(binary_bin_edges) - 1):
-#         fbin = binaryFractions[i] # Binary fraction for this range
-
-#         # And every piece of the Kroupa IMF
-#         for j in range(len(imf_mass_bounds) - 1):
-#             exponent = IMF_powers[j] # IMF exponent for these masses
-
-#             # Check if the binary fraction bin overlaps with the IMF mass bin
-#             if binary_bin_edges[i + 1] <= imf_mass_bounds[j] or binary_bin_edges[i] >= imf_mass_bounds[j + 1]:
-#                 continue  # No overlap
-
-#             # Integrate from the most narrow range
-#             m_start = max(binary_bin_edges[i], imf_mass_bounds[j])
-#             m_end = min(binary_bin_edges[i + 1], imf_mass_bounds[j + 1])
-
-#             # Compute the definite integral:
-#             integral = ( m_end**(exponent + 2) - m_start**(exponent + 2) ) / (exponent + 2) * continuity_constants[j]
-
-#             # Compute the sum term
-#             sum_term = (1 /fbin + 0.5) * integral
-#             piece_wise_integral += sum_term
-
-#     # combining them:
-#     Average_mass_stellar_sys_per_fbin = alpha * piece_wise_integral
-
-#     # Now compute the average mass per binary in COMPAS M_stellar_sys_in_universe / N_binaries_in_COMPAS
-#     M_sf_Univ_per_N_binary_COMPAS = (1/fint) * Average_mass_stellar_sys_per_fbin
-
-#     return M_sf_Univ_per_N_binary_COMPAS
