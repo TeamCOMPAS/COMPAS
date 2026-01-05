@@ -277,7 +277,6 @@ def _load_data(path: str, group: str, var_names: List[str], mask: Optional[xp.nd
 
 
 # Mock generation utility
-
 def generate_mock_population(
         filename: str = "",
         n_systems: int = 2000,
