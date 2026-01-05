@@ -11,6 +11,10 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_popu
 from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
 
 
+# Testvalues used in test_total_mass_evolved_per_z defined in py_tests/test_values.py
+from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
+
+
 HERE = os.path.dirname(__file__)
 TEST_CONFIG_DIR = os.path.join(HERE, "test_data")
 TEST_BASH = os.path.join(TEST_CONFIG_DIR, "run.sh")
