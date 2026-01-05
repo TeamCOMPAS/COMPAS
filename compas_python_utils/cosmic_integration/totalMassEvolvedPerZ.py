@@ -73,36 +73,49 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
     mi, aij : float
         IMF breakpoints and slopes
     """
-    binary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
+    fbinary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
     
     def get_binary_fraction(mass):
         binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
-        for i in range(len(binary_bin_edges) - 1):
-            if binary_bin_edges[i] <= mass < binary_bin_edges[i + 1]:
+        for i in range(len(fbinary_bin_edges) - 1):
+            if mass < fbinary_bin_edges[0]:  
+                # Mass below lowest binary fraction bin edge (shouldnt happen)
+                return binaryFractions[0]
+            if fbinary_bin_edges[i] <= mass < fbinary_bin_edges[i + 1]:
                 return binaryFractions[i]
-        return 0  # catch-all
-
-    def IMF_mass(mass):
-        return IMF(mass, m1, m2, m3, m4, a12, a23, a34) * mass
+            if mass >= fbinary_bin_edges[-1]:
+                # Mass above highest binary fraction bin edge (shouldnt happen)
+                return binaryFractions[-1]
 
     def integrand_full(mass, f_bin):
         local_f_bin = get_binary_fraction(mass) if f_bin is None else f_bin
         expected_q = quad(lambda q: q * mass_ratio_pdf_function(q), 0, 1)[0]
-        return (1 - local_f_bin + local_f_bin * (1 + expected_q)) * IMF_mass(mass)
+        # mass of single stars = (1 - f_bin) * m1 
+        # mass of binaries = f_bin * (1 + <q>) * m1 
+        expected_mass_all_stellar_sys =(1 + local_f_bin * expected_q) * mass * IMF(mass, m1, m2, m3, m4, a12, a23, a34) 
+        return expected_mass_all_stellar_sys
 
     def integrand_compas(mass, f_bin):
         local_f_bin = get_binary_fraction(mass) if f_bin is None else f_bin
+        # Only binaries contribute in COMPAS population
+        # Integrand is (1 + q) * f_bin * m1 * P(m1) * P(q),
         q_min = m2_low / mass
         if q_min >= 1:
             return 0  # No valid secondaries
-        f_q = quad(mass_ratio_pdf_function, q_min, 1)[0]
+        # Integrate (1 + q)P(q) dq over q from q_min to 1, 
+        # we get p(q)dq:
+        p_qdq = quad(mass_ratio_pdf_function, q_min, 1)[0]
+        # and q P(q) dq (= expected_q)
         expected_q = quad(lambda q: q * mass_ratio_pdf_function(q), q_min, 1)[0]
-        return local_f_bin * f_q * (1 + expected_q) * IMF_mass(mass)
+
+        expected_mass_compas_binaries = (p_qdq + expected_q) * local_f_bin * mass * IMF(mass, m1, m2, m3, m4, a12, a23, a34)
+        return expected_mass_compas_binaries
+
 
     # split integral at binary fraction steps if f_bin is None (i.e. variable and like a step function)
     def split_integral(func, a, b, f_bin):
         total = 0
-        for edge_start, edge_end in zip(binary_bin_edges[:-1], binary_bin_edges[1:]):
+        for edge_start, edge_end in zip(fbinary_bin_edges[:-1], fbinary_bin_edges[1:]):
             left = max(a, edge_start)
             right = min(b, edge_end)
             if left < right:
@@ -117,7 +130,8 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
         full_mass = quad(integrand_full, m1, m4, args=(f_bin,))[0]
         compas_mass = quad(integrand_compas, m1_low, m1_upp, args=(f_bin,))[0]
 
-    return compas_mass / full_mass
+    fraction = compas_mass / full_mass
+    return fraction
 
 
 def retrieveMassEvolvedPerZ(path):
@@ -143,6 +157,7 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
     fraction = get_COMPAS_fraction(m1_low=Mlower, m1_upp=Mupper, m2_low=m2_low, f_bin=binaryFraction,
                                    mass_ratio_pdf_function=mass_ratio_pdf_function,
                                    m1=m1, m2=m2, m3=m3, m4=m4, a12=a12, a23=a23, a34=a34)
+
     multiplicationFactor = 1 / fraction
 
     # Warning: This is slow and error prone! esp if you sample metallicities smoothly
@@ -253,11 +268,11 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     # -------------------------
     # Binary-fraction bins
     # -------------------------
-    binary_bin_edges = [m1, 0.08, 0.5, 1.0, 10.0, m4]
+    fbinary_bin_edges = [m1, 0.08, 0.5, 1.0, 10.0, m4]
     if fbin is None:
         binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
     else:
-        binaryFractions = [float(fbin)] * (len(binary_bin_edges) - 1)
+        binaryFractions = [float(fbin)] * (len(fbinary_bin_edges) - 1)
 
     # -------------------------
     # Helpers: overlaps and power integrals
@@ -284,7 +299,7 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
 
         for j in range(len(binaryFractions)):  # fbin bin index j
             fbin_j = binaryFractions[j]
-            fb_lo, fb_hi = binary_bin_edges[j], binary_bin_edges[j + 1]
+            fb_lo, fb_hi = fbinary_bin_edges[j], fbinary_bin_edges[j + 1]
 
             A, B = overlap(imf_lo, imf_hi, fb_lo, fb_hi)
             if B <= A:
@@ -307,7 +322,7 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
 
         for j in range(len(binaryFractions)):  # fbin bin index j
             fbin_j = binaryFractions[j]
-            fb_lo, fb_hi = binary_bin_edges[j], binary_bin_edges[j + 1]
+            fb_lo, fb_hi = fbinary_bin_edges[j], fbinary_bin_edges[j + 1]
 
             # overlap additionally with COMPAS m1-range
             A, B = overlap(imf_lo, imf_hi, fb_lo, fb_hi)
