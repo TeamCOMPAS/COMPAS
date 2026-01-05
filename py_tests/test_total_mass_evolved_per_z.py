@@ -62,8 +62,8 @@ def test_analytical_function():
 
 def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output, tmpdir, test_archive_dir):
     np.random.seed(42)
-    m1_max = M1_MAX
     m1_min = M1_MIN
+    m1_max = M1_MAX
     m2_min = M2_MIN
     fbin = F_BIN
 
@@ -106,6 +106,8 @@ def plot_star_forming_mass_per_binary_comparison(
         linewidth=0
     )
     plt.plot(n_samps, np.median(numerical_vals, axis=0), color='tab:orange', label="numerical")
+    plt.text(n_samps[-1], np.median(numerical_vals, axis=0)[-1]*0.9, f"median numerical = {np.round(np.median(numerical_vals, axis=0)[-1],3)}", va='bottom', ha='right', color='tab:orange')
+    plt.text(n_samps[-1], analytical*1.1, f"analytical = {np.round(analytical,3)}", va='bottom', ha='right', color='tab:blue')
     plt.xscale("log")
     plt.ylabel(r"Star forming mass per binary [M$_{\odot}$]")
     plt.xlabel("Number of samples")
