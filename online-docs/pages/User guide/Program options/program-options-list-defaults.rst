@@ -939,7 +939,7 @@ Default = 10.0
 
 **--maximum-evolution-time** |br|
 Maximum time to evolve binaries (Myr). Evolution of the binary will stop if this number is reached. |br|
-Default = 13700.0
+Default = Hubble time (i.e., 14031 Myr)
 
 **--maximum-mass-donor-nandez-ivanova** |br|
 Maximum donor mass allowed for the revised common envelope formalism of Nandez & Ivanova (:math:`M_\odot`). |br|
