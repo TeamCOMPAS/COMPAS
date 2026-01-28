@@ -392,10 +392,10 @@ constexpr double MULLERMANDEL_SIGMA3                    = 0.05;
 constexpr double MULLERMANDEL_MUBH                    	= 0.8;
 constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
-constexpr double MULLERMANDEL_KICKNS                    = 520.0;                                                    // As calibrated by Kapil+ 2023
+constexpr double MULLERMANDEL_KICKNS                    = 630.0;                                                    // As calibrated by Disberg+ 2026
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
-constexpr double MULLERMANDEL_SIGMAKICKBH               = 0.3;
-constexpr double MULLERMANDEL_SIGMAKICKNS               = 0.3;
+constexpr double MULLERMANDEL_SIGMAKICKBH               = 0.45;
+constexpr double MULLERMANDEL_SIGMAKICKNS               = 0.45;
 
 // Constants for Disberg & Mandel (2025) SN kick prescription
 constexpr double DISBERG_MANDEL_MU                      = 5.60;
