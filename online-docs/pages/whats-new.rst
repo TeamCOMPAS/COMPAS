@@ -5,7 +5,6 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **03.28.00 January 28, 2026**
 
-* Updated the default sigma for drawing kicks from a Maxwellian to 217 km/s, following the correction to Hobbs et al. (2005) from Disberg & Mandel (2025).
 * Updated the default values for the Mandel-Müller kick prescription to a magnitude of 630 km/s and a sigma of 0.45, as calibrated by Disberg et al. (2026) to the results of Disberg & Mandel (2025).
 
 **03.27.02 December 16, 2025**
