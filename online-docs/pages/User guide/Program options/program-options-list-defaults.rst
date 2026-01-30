@@ -629,12 +629,12 @@ Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 **--kick-magnitude-sigma-CCSN-BH** |br|
 Sigma for chosen kick magnitude distribution for black holes (:math:`km s^{−1}`). |br|
 Ignored if not needed for the chosen kick magnitude distribution. |br|
-Default = 265.0
+Default = 217.0
 
 **--kick-magnitude-sigma-CCSN-NS** |br|
 Sigma for chosen kick magnitude distribution for neutron stars (:math:`km s^{−1}`). |br|
 Ignored if not needed for the chosen kick magnitude distribution. |br|
-Default = 265.0
+Default = 217.0
 
 **--kick-magnitude-sigma-ECSN** |br|
 Sigma for chosen kick magnitude distribution for ECSN (:math:`km s^{−1}`). |br|
@@ -993,15 +993,15 @@ Default = 200.0
 
 **--muller-mandel-kick-multiplier-NS** |br|
 Scaling prefactor for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
-Default = 520.0
+Default = 630.0
 
 **--muller-mandel-sigma-kick-BH** |br|
 Scatter width for BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
-Default = 0.3
+Default = 0.45
 
 **--muller-mandel-sigma-kick-NS** |br|
 Scatter width for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
-Default = 0.3
+Default = 0.45
 
 .. _options-props-N:
 
