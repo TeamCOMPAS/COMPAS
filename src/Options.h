@@ -241,6 +241,7 @@ private:
         { "pulsational-pair-instability-prescription", "COMPAS",      "WOOSLEY",     false, "20250208" },
 	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
         { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
+        { "tides-prescription",                        "KAPIL2025",   "KAPIL2026",   false, "20260130" },
         { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" },
         { "use-mass-loss",                             "TRUE",        "MERRITT2025", true,  "20250809" },
         { "use-mass-loss",                             "ON",          "MERRITT2025", true,  "20250809" },

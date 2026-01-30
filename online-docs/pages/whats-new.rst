@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.29.00 January 30, 2026**
+* Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.
+* Renamed the ``KAPIL2025`` tides prescription with ``KAPIL2026`` to match paper date.
+
 **03.28.00 January 28, 2026**
 
 * Updated the default values for the Mandel-Müller kick prescription to a magnitude of 630 km/s and a sigma of 0.45, as calibrated by Disberg et al. (2026) to the results of Disberg & Mandel (2025).
