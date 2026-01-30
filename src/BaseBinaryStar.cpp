@@ -2774,9 +2774,9 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                     
             } break;
         
-            case TIDES_PRESCRIPTION::KAPIL2025: {                                                                               // KAPIL2025
+            case TIDES_PRESCRIPTION::KAPIL2026: {                                                                               // KAPIL2026
 
-                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2025
+                // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2026
 
                 DBL_DBL_DBL_DBL ImKnm1_tidal   = m_Star1->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
                 DBL_DBL_DBL_DBL ImKnm2_tidal   = m_Star2->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
@@ -3225,7 +3225,7 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
         }
     
-        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2025) {                // tides prescription = KAPIL2025
+        if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2026) {                // tides prescription = KAPIL2026
                                                                                             // yes - need to adjust dt     
             double omega                  = OrbitalAngularVelocity();
             
