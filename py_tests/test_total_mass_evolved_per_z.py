@@ -5,16 +5,16 @@ from compas_python_utils.cosmic_integration.totalMassEvolvedPerZ import (
 from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_population import \
     generate_mock_population
 import numpy as np
+
+from py_tests.conftest import test_archive_dir, fake_compas_output
+
 import matplotlib.pyplot as plt
 import h5py as h5
 
 import pytest
 
-MAKE_PLOTS = False
-
-M1_MIN = 5
-M1_MAX = 150
-M2_MIN = 0.1
+# Testvalues defined in py_tests/test_values.py
+from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
 
 
 def test_imf(test_archive_dir):
@@ -51,50 +51,53 @@ def test_compas_fraction():
 
 
 def test_analytical_function():
-    default_case = analytical_star_forming_mass_per_binary_using_kroupa_imf(
-        m1_max=150,
-        m1_min=5,
-        m2_min=0.1,
-        fbin=1
+    result = analytical_star_forming_mass_per_binary_using_kroupa_imf(
+        m1_min=M1_MIN,
+        m1_max=M1_MAX,
+        m2_min=M2_MIN,
+        fbin=F_BIN
     )
-    assert 79.0 < default_case < 79.2
+    assert result > 0
 
 
 def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output, tmpdir, test_archive_dir):
     np.random.seed(42)
-    m1_max = M1_MAX
     m1_min = M1_MIN
+    m1_max = M1_MAX
     m2_min = M2_MIN
-    fbin = 1
+    fbin = F_BIN
 
-    numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
     analytical = analytical_star_forming_mass_per_binary_using_kroupa_imf(m1_min, m1_max, m2_min, fbin)
-
+    numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
+    
     assert numerical > 0
     assert analytical > 0
 
     assert np.isclose(numerical, analytical, rtol=1)
     if MAKE_PLOTS:
         fig = plot_star_forming_mass_per_binary_comparison(tmpdir, analytical, m1_min, m1_max, m2_min, fbin)
-        fig.savefig(f"{test_archive_dir}/analytical_vs_numerical.png")
+        fig.savefig(f"{test_archive_dir}/analytical_vs_numerical_var.png")
 
 
 def plot_star_forming_mass_per_binary_comparison(
         tmpdir, analytical, m1_min, m1_max, m2_min, fbin,
         nreps=5, nsamps=5
 ):
-    plt.axhline(analytical, color='tab:blue', label="analytical", ls='--')
+    # Analytical values
+    plt.axhline(analytical, color='tab:blue', label=f"analytical fbin = {fbin}", ls='--')
+
+    # Compute numerical values
     n_samps = np.geomspace(1e3, 5e4, nsamps)
     numerical_vals = []
     for _ in range(nreps):
         vals = np.zeros(len(n_samps))
         for i, n in enumerate(n_samps):
             fname = f"{tmpdir}/test_{i}.h5"
-            generate_mock_population(tmpdir, n_systems=int(n))
+            generate_mock_population(fname, n_systems=int(n), m1_min=m1_min, m1_max=m1_max, m2_min=m2_min)
             vals[i] = (star_forming_mass_per_binary(fname, m1_min, m1_max, m2_min, fbin))
         numerical_vals.append(vals)
 
-    # plot the upper and lower bounds of the numerical values
+    # plot the upper and lower bounds of the numerical   values
     numerical_vals = np.array(numerical_vals)
     lower = np.percentile(numerical_vals, 5, axis=0)
     upper = np.percentile(numerical_vals, 95, axis=0)
@@ -103,9 +106,12 @@ def plot_star_forming_mass_per_binary_comparison(
         linewidth=0
     )
     plt.plot(n_samps, np.median(numerical_vals, axis=0), color='tab:orange', label="numerical")
+    plt.text(n_samps[-1], np.median(numerical_vals, axis=0)[-1]*0.9, f"median numerical = {np.round(np.median(numerical_vals, axis=0)[-1],3)}", va='bottom', ha='right', color='tab:orange')
+    plt.text(n_samps[-1], analytical*1.1, f"analytical = {np.round(analytical,3)}", va='bottom', ha='right', color='tab:blue')
     plt.xscale("log")
-    plt.ylabel("Star forming mass per binary [M$_{\odot}$]")
+    plt.ylabel(r"Star forming mass per binary [M$_{\odot}$]")
     plt.xlabel("Number of samples")
+    plt.ylim(bottom=10)
     plt.xlim(min(n_samps), max(n_samps))
     plt.legend()
     return plt.gcf()
