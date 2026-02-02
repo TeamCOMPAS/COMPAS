@@ -99,7 +99,7 @@ class COMPASData(object):
             "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14),np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13)),
             "NSWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 13),
                                   np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 13)),
-            "WDBH": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 14),
+            "BHWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 14),
                                   np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 14)),
         }
 
@@ -139,8 +139,8 @@ class COMPASData(object):
         self.NSNSmask = type_masks["NSNS"] * hubble_mask * rlof_mask * pessimistic_mask
         self.WDWDmask = type_masks["WDWD"] * hubble_mask * rlof_mask * pessimistic_mask
         self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.WDWDmask = type_masks["NSWD"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.WDWDmask = type_masks["WDBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NSWDmask = type_masks["NSWD"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHWDmask = type_masks["BHWD"] * hubble_mask * rlof_mask * pessimistic_mask
         self.CHE_BHBHmask = type_masks["CHE_BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.NonCHE_BHBHmask = type_masks["NON_CHE_BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.allTypesMask = type_masks["all"] * hubble_mask * rlof_mask * pessimistic_mask
