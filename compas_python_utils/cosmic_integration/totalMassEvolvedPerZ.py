@@ -79,12 +79,12 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
         binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
         for i in range(len(fbinary_bin_edges) - 1):
             if mass < fbinary_bin_edges[0]:  
-                # Mass below lowest binary fraction bin edge (shouldnt happen)
+                # Mass below lowest binary fraction bin edge (shouldn't happen)
                 return binaryFractions[0]
             if fbinary_bin_edges[i] <= mass < fbinary_bin_edges[i + 1]:
                 return binaryFractions[i]
             if mass >= fbinary_bin_edges[-1]:
-                # Mass above highest binary fraction bin edge (shouldnt happen)
+                # Mass above highest binary fraction bin edge (shouldn't happen)
                 return binaryFractions[-1]
 
     def integrand_full(mass, f_bin):
