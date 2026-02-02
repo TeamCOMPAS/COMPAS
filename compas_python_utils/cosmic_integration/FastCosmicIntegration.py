@@ -246,7 +246,7 @@ def compute_snr_and_detection_grids(dco_type, sensitivity="O1", snr_threshold=8.
     """
     # If DCO type includes a WD, return empty arrays since we currently only support LVK sensitivity
     if dco_type in ["WDWD", "NSWD", "WDBH"]:
-        warnings.warn("!! Detected rate is not computed since DCO type {} doesnt work with LVK sensitivity {}".format(dco_type, sensitivity))
+        warnings.warn("!! Detected rate is not computed since DCO type {} doesn't work with LVK sensitivity {}".format(dco_type, sensitivity))
 
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
