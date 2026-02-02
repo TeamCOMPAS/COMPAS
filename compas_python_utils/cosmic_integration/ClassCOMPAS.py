@@ -2,7 +2,11 @@
 import numpy as np
 import h5py as h5
 import os
-from . import totalMassEvolvedPerZ as MPZ
+import sys
+# Get the COMPAS_ROOT_DIR var, and add the cosmic_integration directory to the path
+compas_root_dir = os.getenv('COMPAS_ROOT_DIR')
+sys.path.append(os.path.join(compas_root_dir, 'compas_python_utils/cosmic_integration'))
+import totalMassEvolvedPerZ as MPZ
 
 
 class COMPASData(object):
@@ -31,12 +35,13 @@ class COMPASData(object):
         self.mass2 = None  # Msun
         self.DCOmask = None
         self.allTypesMask = None
-        self.BBHmask = None
-        self.DNSmask = None
+        self.BHBHmask = None
+        self.NSNSmask = None
         self.BHNSmask = None
+        self.WDWDmask = None
         self.CHE_mask = None
-        self.CHE_BBHmask = None
-        self.NonCHE_BBHmask = None
+        self.CHE_BHBHmask = None
+        self.NonCHE_BHBHmask = None
         self.initialZ = None
         self.sw_weights = None
         self.n_systems = None
@@ -63,9 +68,9 @@ class COMPASData(object):
             print("          and optionally self.setGridAndMassEvolved() if using a metallicity grid")
 
     def setCOMPASDCOmask(
-        self, types="BBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
+        self, types="BHBH", withinHubbleTime=True, pessimistic=True, noRLOFafterCEE=True
     ):
-        # By default, we mask for BBHs that merge within a Hubble time, assuming
+        # By default, we mask for BHBHs that merge within a Hubble time, assuming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
         
@@ -73,14 +78,14 @@ class COMPASData(object):
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
         dco_seeds = dco_seeds.flatten()
 
-        if types == "CHE_BBH" or types == "NON_CHE_BBH":
+        if types == "CHE_BHBH" or types == "NON_CHE_BHBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
                 self.get_COMPAS_variables("BSE_System_Parameters", ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)", "SEED"])
           
             che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
             che_seeds = sys_seeds[()][che_mask]
 
-        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BBH" or types == "NON_CHE_BBH" else np.repeat(False, len(dco_seeds))
+        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BHBH" or types == "NON_CHE_BHBH" else np.repeat(False, len(dco_seeds))
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True, use astype(bool) to set masks to bool type
         hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
@@ -88,12 +93,18 @@ class COMPASData(object):
         # mask on stellar types (where 14=BH and 13=NS), BHNS can be BHNS or NSBH
         type_masks = {
             "all": np.repeat(True, len(dco_seeds)),
-            "BBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
-            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13), np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14)),
-            "BNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
+            "BHBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
+            "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),  
+            "WDWD": np.logical_and(np.isin(stellar_type_1,[10,11,12]),np.isin(stellar_type_2,[10,11,12])),
+            "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14),np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13)),
+            "NSWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 13),
+                                  np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 13)),
+            "BHWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 14),
+                                  np.logical_and(np.isin(stellar_type_2,[10,11,12]),stellar_type_1 == 14)),
         }
-        type_masks["CHE_BBH"]     = np.logical_and(self.CHE_mask, type_masks["BBH"]) if types == "CHE_BBH" else np.repeat(False, len(dco_seeds))
-        type_masks["NON_CHE_BBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BBH"]) if types == "NON_CHE_BBH" else np.repeat(True, len(dco_seeds))
+
+        type_masks["CHE_BHBH"]     = np.logical_and(self.CHE_mask, type_masks["BHBH"]) if types == "CHE_BHBH" else np.repeat(False, len(dco_seeds))
+        type_masks["NON_CHE_BHBH"] = np.logical_and(np.logical_not(self.CHE_mask), type_masks["BHBH"]) if types == "NON_CHE_BHBH" else np.repeat(True, len(dco_seeds))
 
         # if the user wants to make RLOF or optimistic CEs
         if noRLOFafterCEE or pessimistic:
@@ -124,11 +135,14 @@ class COMPASData(object):
 
         # create a mask for each dco type supplied
         self.DCOmask = type_masks[types] * hubble_mask * rlof_mask * pessimistic_mask
-        self.BBHmask = type_masks["BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHBHmask = type_masks["BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NSNSmask = type_masks["NSNS"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.WDWDmask = type_masks["WDWD"] * hubble_mask * rlof_mask * pessimistic_mask
         self.BHNSmask = type_masks["BHNS"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.DNSmask = type_masks["BNS"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.CHE_BBHmask = type_masks["CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
-        self.NonCHE_BBHmask = type_masks["NON_CHE_BBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NSWDmask = type_masks["NSWD"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.BHWDmask = type_masks["BHWD"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.CHE_BHBHmask = type_masks["CHE_BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
+        self.NonCHE_BHBHmask = type_masks["NON_CHE_BHBH"] * hubble_mask * rlof_mask * pessimistic_mask
         self.allTypesMask = type_masks["all"] * hubble_mask * rlof_mask * pessimistic_mask
         self.optimisticmask = pessimistic_mask
 
@@ -158,6 +172,9 @@ class COMPASData(object):
         
         primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
+        # Raise an error if DCO table is empty
+        if len(primary_masses) == 0:
+            raise ValueError("BSE_Double_Compact_Objects is empty!")
 
         initial_seeds, initial_Z = self.get_COMPAS_variables("BSE_System_Parameters", ["SEED", "Metallicity@ZAMS(1)"])
 
@@ -172,6 +189,10 @@ class COMPASData(object):
         self.delayTimes = np.add(formation_times[self.DCOmask], coalescence_times[self.DCOmask])
         self.mass1 = primary_masses[self.DCOmask]
         self.mass2 = secondary_masses[self.DCOmask]
+
+        #Check that you have some systems of interest in your DCO table (i.e.  len(primary_masses[self.DCOmask])>0 )
+        if len(self.mass1) == 0:
+            raise ValueError("No DCOs found with the current mask. Please check your DCO table, or change your mask settings.")
 
         # Stuff of data I dont need for integral
         # but I might be to laze to read in myself
