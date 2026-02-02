@@ -5,7 +5,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 **03.29.00 January 30, 2026**
 * Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.
-* Renamed the ``KAPIL2025`` tides prescription with ``KAPIL2026`` to match paper date.
+* Renamed the ``KAPIL2025`` tides prescription to ``KAPIL2026`` to match paper date.
 
 **03.28.00 January 28, 2026**
 
