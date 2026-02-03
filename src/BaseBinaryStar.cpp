@@ -2777,6 +2777,7 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
             case TIDES_PRESCRIPTION::KAPIL2026: {                                                                               // KAPIL2026
 
                 // Evolve binary semi-major axis, eccentricity, and spin of each star based on Kapil et al., 2026
+                double jTotPrev   = CalculateAngularMomentum(); 
 
                 DBL_DBL_DBL_DBL ImKnm1_tidal   = m_Star1->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star2->Mass());
                 DBL_DBL_DBL_DBL ImKnm2_tidal   = m_Star2->CalculateImKnmTidal(omega, m_SemiMajorAxis, m_Star1->Mass());
@@ -2796,23 +2797,22 @@ void BaseBinaryStar::ProcessTides(const double p_Dt) {
                 fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * OrbitalAngularVelocity() / (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR)));
                 fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR)));
                 fraction_tidal_change = std::min(fraction_tidal_change, std::abs(TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC * m_Eccentricity / ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR)));
-                
-                double semiMajorAxisPrev = m_SemiMajorAxis;                                                                                     
-                double eccentricityPrev  = m_Eccentricity;                                                                                        
-                double omega1Prev = m_Star1->Omega();                                                                                     
-                double omega2Prev = m_Star2->Omega();                                                                                     
-                double jorbPrev = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), semiMajorAxisPrev, eccentricityPrev);                                
-
-                m_Star1->SetOmega(m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 1 spin
-                m_Star2->SetOmega(m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR));                                                    // evolve star 2 spin
+                  
                 m_SemiMajorAxis          = m_SemiMajorAxis + fraction_tidal_change * ((DSemiMajorAxis1Dt_tidal + DSemiMajorAxis2Dt_tidal) * p_Dt * MYR_TO_YEAR);         // evolve separation
                 m_Eccentricity           = m_Eccentricity + fraction_tidal_change * ((DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * p_Dt * MYR_TO_YEAR);            // evolve eccentricity
                 
-                // enforce angular momentum conservation limit on eccentricity evolution based on Eq. (A5) of Kapil et al., 2026
-                double ecc_prefactor     = m_Star1->CalculateMomentOfInertiaAU() * (omega1Prev - m_Star1->Omega()) + m_Star2->CalculateMomentOfInertiaAU() * (omega2Prev - m_Star2->Omega()) + jorbPrev;
-                double jorb_prefactor = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, 0.0); 
-                double eccentricity_consv = std::sqrt(1.0 - (ecc_prefactor * ecc_prefactor) / jorb_prefactor / jorb_prefactor); 
-                m_Eccentricity           = std::max(m_Eccentricity, eccentricity_consv);                                                                                 // limit eccentricity based on angular momentum conservation
+
+                // correct stellar spins by an overall constant to enforce total angular momentum conservation while preserving spin ratio
+                // corrective_factor  = (L_orb_i + I*omega1_i + I*omega2_i - L_orb_f) / (I1*omega1_f + I2*omega2_f)
+                // corrective_factor should be 1.0 if angular momentum is conserved properly by the secular equations
+                double angular_momentum_orbital   = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity); 
+                double omega1Proposed = m_Star1->Omega() + fraction_tidal_change * (DOmega1Dt_tidal * p_Dt * MYR_TO_YEAR);                                                    // evolve star 1 spin
+                double omega2Proposed = m_Star2->Omega() + fraction_tidal_change * (DOmega2Dt_tidal * p_Dt * MYR_TO_YEAR);                                                    // evolve star 2 spin
+                double omega_corrective_factor = (jTotPrev - angular_momentum_orbital) / (m_Star1->CalculateMomentOfInertiaAU() * omega1Proposed + m_Star2->CalculateMomentOfInertiaAU() * omega2Proposed);
+                omega_corrective_factor = std::isinf(omega_corrective_factor) || std::isnan(omega_corrective_factor) ? 1.0 : omega_corrective_factor;
+                
+                m_Star1->SetOmega(omega1Proposed * omega_corrective_factor);
+                m_Star2->SetOmega(omega2Proposed * omega_corrective_factor);
 
                 m_CircularizationTimescale  = - m_Eccentricity /  (DEccentricity1Dt_tidal + DEccentricity2Dt_tidal) * YEAR_TO_MYR;                                       // Circularization timescale in Myr (for output files)
                 m_CircularizationTimescale  =   (std::isnan(m_CircularizationTimescale) || std::isinf(m_CircularizationTimescale))? 0.0 : m_CircularizationTimescale;    // check for NaN or Inf for circular binaries
@@ -3322,8 +3322,7 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         }
 
         CalculateEnergyAndAngularMomentum();                                                                            // perform energy and angular momentum calculations
-        ProcessTides(p_Dt);   
-                                                                                                  // process tides if required
+        ProcessTides(p_Dt);                                                                                             // process tides if required
         // assign new values to "previous" values, for following timestep
         m_EccentricityPrev  = m_Eccentricity;
         m_SemiMajorAxisPrev = m_SemiMajorAxis;
