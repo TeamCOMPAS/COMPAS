@@ -393,15 +393,13 @@ def createParameterDistributionsAndSampler(testing=False):
     # Slope = -2.3 for M1 > 1 Msun
     fM1 = np.power(M1, -2.3)
 
-    # Slope = -1.6 for M1 = 0.5 - 1.0 Msun -> Slope = -2.3
+    # Slope = -2.3 for M1 = 0.5 - 1.0 Msun (corrected value; in Mads code slope value was -1.6)
     ind = np.where(M1 <= 1.)
-    #fM1[ind] = np.power(M1[ind], -1.6) #The original line
-    fM1[ind] = np.power(M1[ind], -2.3) #The corrected line
+    fM1[ind] = np.power(M1[ind], -2.3)
 
-    # Slope = -0.8 for M1 = 0.15 - 0.5 Msun
+    # Slope = -1.3 for M1 = 0.15 - 0.5 Msun (corrected value; in Mads code slope value was -0.8)
     ind = np.where(M1 <= 0.5)
-    #fM1[ind] = np.power(M1[ind], -0.8) / np.power(0.5, 1.6-0.8)  #The original line
-    fM1[ind] = np.power(M1[ind], -1.3) / np.power(0.5, 2.3-1.3)   #The corrected line
+    fM1[ind] = np.power(M1[ind], -1.3) / np.power(0.5, 2.3-1.3)
 
     # Cumulative primary mass distribution function
     cumfM1 = np.cumsum(fM1)-fM1[0]
