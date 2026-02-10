@@ -3328,7 +3328,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmDynamical(const double p_Omega, const do
     if ((utils::Compare(convectiveEnvRadiusAU / radiusAU, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0) || (utils::Compare(envMass / m_Mass, TIDES_MINIMUM_FRACTIONAL_EXTENT) > 0)) {    
 
         constexpr double dynPrefactor     = 3.207452512782476;                                                        // 3^(11/3) * Gamma(1/3)^2 / 40 PI
-        constexpr double m_l_factor_22    = 0.183440402716368;                                                        // m * (l(l+1))^{-4/3}, assuming l=2, m=2
+        constexpr double m_l_factor_22    = 0.091720201358184;                                                        // (l(l+1))^{-4/3}, assuming l=2
         double cbrtdNdlnr       = std::cbrt(G_AU_Msol_yr * radIntershellMass / radiusIntershellAU / radiusIntershellAU / (radiusAU - radiusIntershellAU));
         
         double alpha            = radiusIntershellAU / radiusAU;
@@ -3442,7 +3442,7 @@ DBL_DBL_DBL_DBL BaseStar::CalculateImKnmEquilibrium(const double p_Omega, const 
     double twoOmegaSpin   = omegaSpin + omegaSpin;
 
     double rhoConv        = envMass / (4.0 * M_PI * (rOut_3 - rIn_3) / 3.0);
-    double lConv          = rEnvAU;                                                              // set length scale to height of convective envelope
+    double lConv          = rEnvAU / 2.0;                                                              // set length scale to height of convective envelope
     double tConv          = CalculateEddyTurnoverTimescale();
     double vConv          = lConv / tConv;
     double omegaConv      = 1.0 / tConv;                                                         // absent factor of 2*PI, following Barker (2020)
