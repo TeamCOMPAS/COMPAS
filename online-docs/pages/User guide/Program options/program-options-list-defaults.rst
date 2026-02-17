@@ -939,7 +939,8 @@ Default = 10.0
 
 **--maximum-evolution-time** |br|
 Maximum time to evolve binaries (Myr). Evolution of the binary will stop if this number is reached. |br|
-Default = 13800 (i.e., approximate age of the Universe cf. WMPA and Planck)
+Set to 13800 Myr as the approximate age of the Universe cf. WMPA and Planck. |br|
+Default = 13800 
 
 **--maximum-mass-donor-nandez-ivanova** |br|
 Maximum donor mass allowed for the revised common envelope formalism of Nandez & Ivanova (:math:`M_\odot`). |br|
