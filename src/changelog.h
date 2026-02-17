@@ -1688,7 +1688,12 @@
 //                                          - Fix issue #1446: Theta and phi variables are flipped when assigning kicks, potentially giving unintended kick distributions
 //  03.28.00  PD - January 28, 2026     - Enhancement:
 //                                          - Updated default MullerMandel kick parameters in constants.h to the values from Disberg+2026, previous values were from Kapil+2023
-//
+//  03.29.00  VK - January 30, 2026     - Enhancements:
+//                                          - Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called '--tides-prescription ZAHN1977'.
+//                                          - Renamed KAPIL2025 tides prescription to KAPIL2026 to match publication.
+//                                          - Updated the spin limit in 'BaseBinaryStar::CalculateDOmegaTidalDt()' to allow pseudo-synchronization based on Hut (1981), which affects the maximum spin with KAPIL2026 and ZAHN1977 options.
+//                                          - Added a limit to rotation change per time step in KAPIL2026 to ensure angular momentum conservation.
+//                                          - Updated dynamical tides equations in KAPIL2026 to match paper.
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1699,7 +1704,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.28.00";
+const std::string VERSION_STRING = "03.29.00";
 
 
 # endif // __changelog_h__

@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Tue Dec  9 15:41:35 2025 by COMPAS v03.27.02
+##~!!~## File Created Mon Feb  2 10:03:24 2026 by COMPAS v03.29.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -277,7 +277,7 @@ stringChoices:
 #    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 
     ### TIDES
-#    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['KAPIL2025','PERFECT','NONE']
+#    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['ZAHN1977','KAPIL2026','PERFECT','NONE']
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks-mode: 'FALLBACK'                                   # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']
