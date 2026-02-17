@@ -241,7 +241,7 @@ void Options::OptionValues::Initialise() {
     m_RandomSeed                                                    = 0;
 
     // Specify how long to evolve for
-    m_MaxEvolutionTime                                              = HUBBLE_TIME / SECONDS_IN_MYR; //13700.0;
+    m_MaxEvolutionTime                                              = 13800; // in Myr; approximate age of the Universe cf. WMPA and Planck. ;
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepsFileName                                             = "";
 
@@ -2618,7 +2618,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
-        COMPLAIN_IF(m_MaxEvolutionTime > HUBBLE_TIME / SECONDS_IN_MYR, "Maximum evolution time in Myr (--maxEvolutionTime) must be <= " + std::to_string(HUBBLE_TIME / SECONDS_IN_MYR) + " Myr");
+        COMPLAIN_IF(m_MaxEvolutionTime > 13800, "Maximum evolution time in Myr (--maxEvolutionTime) must be <= " + std::to_string(13800) + " Myr");
 
         COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
         COMPLAIN_IF(m_MetallicityDistributionMin < MINIMUM_METALLICITY || m_MetallicityDistributionMin > MAXIMUM_METALLICITY, "Minimum metallicity (--metallicity-min) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
