@@ -1,4 +1,6 @@
 CPP := g++
+UNAME_S := $(shell uname -s)
+HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null)
 
 # Build configuration: DOCKER_BUILD=1 for Docker, otherwise local
 ifeq ($(DOCKER_BUILD),1)
@@ -72,16 +74,28 @@ SOURCES :=						\
 OBJS := $(patsubst %.cpp,$(ODIR)/%.o,$(SOURCES))
 
 # GSL, Boost, and HDF5 directories
-GSLINCDIR := /include
-GSLLIBDIR := /lib
+GSLINCDIR ?= /include
+GSLLIBDIR ?= /lib
 
 # boost directories
-BOOSTINCDIR := /include
-BOOSTLIBDIR := /lib
+BOOSTINCDIR ?= /include
+BOOSTLIBDIR ?= /lib
 
 # hdf5 directories
-HDF5INCDIR := /usr/include/hdf5/serial
-HDF5LIBDIR := /usr/lib/x86_64-linux-gnu/hdf5/serial
+HDF5INCDIR ?= /usr/include/hdf5/serial
+HDF5LIBDIR ?= /usr/lib/x86_64-linux-gnu/hdf5/serial
+
+# Homebrew defaults for macOS local builds
+ifeq ($(UNAME_S),Darwin)
+ifneq ($(wildcard $(HOMEBREW_PREFIX)/opt/boost/include/boost/version.hpp),)
+    GSLINCDIR := $(HOMEBREW_PREFIX)/opt/gsl/include
+    GSLLIBDIR := $(HOMEBREW_PREFIX)/opt/gsl/lib
+    BOOSTINCDIR := $(HOMEBREW_PREFIX)/opt/boost/include
+    BOOSTLIBDIR := $(HOMEBREW_PREFIX)/opt/boost/lib
+    HDF5INCDIR := $(HOMEBREW_PREFIX)/opt/hdf5/include
+    HDF5LIBDIR := $(HOMEBREW_PREFIX)/opt/hdf5/lib
+endif
+endif
 
 # Define flags
 OPTFLAGS :=
@@ -99,6 +113,11 @@ ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 LIBS := -lm -lz -ldl -lpthread
 GSLLIBS := -lgsl -lgslcblas
 BOOSTLIBS := -lboost_filesystem -lboost_program_options -lboost_system
+ifeq ($(UNAME_S),Darwin)
+ifeq ($(wildcard $(BOOSTLIBDIR)/libboost_system*),)
+    BOOSTLIBS := -lboost_filesystem -lboost_program_options
+endif
+endif
 HDF5LIBS := -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
 LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS) $(LFLAGS_SPECIFIC)
 
