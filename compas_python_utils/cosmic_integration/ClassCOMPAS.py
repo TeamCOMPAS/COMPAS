@@ -3,10 +3,16 @@ import numpy as np
 import h5py as h5
 import os
 import sys
-# Get the COMPAS_ROOT_DIR var, and add the cosmic_integration directory to the path
-compas_root_dir = os.getenv('COMPAS_ROOT_DIR')
-sys.path.append(os.path.join(compas_root_dir, 'compas_python_utils/cosmic_integration'))
-import totalMassEvolvedPerZ as MPZ
+from pathlib import Path
+
+try:
+    from . import totalMassEvolvedPerZ as MPZ
+except ImportError:
+    # Fallback for direct script execution: add this module's directory to sys.path.
+    ci_dir = Path(__file__).resolve().parent
+    if str(ci_dir) not in sys.path:
+        sys.path.append(str(ci_dir))
+    import totalMassEvolvedPerZ as MPZ
 
 
 class COMPASData(object):
@@ -251,5 +257,4 @@ class COMPASData(object):
             m2_min=self.m2_min.value,
             fbin=self.binaryFraction,
         )
-
 
