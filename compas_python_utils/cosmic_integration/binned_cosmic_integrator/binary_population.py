@@ -115,7 +115,22 @@ class BinaryPopulation:
             "BSE_System_Parameters",
             ["SEED", "Metallicity@ZAMS(1)"],
         )
+        m1_zams, m2_zams = _load_data(
+            path,
+            "BSE_System_Parameters",
+            ["Mass@ZAMS(1)", "Mass@ZAMS(2)"],
+        )
         dco_mask = xp.in1d(all_seeds, seeds)
+
+        if m1_min is None or m1_max is None or m2_min is None:
+            # Infer the sampled mass ranges from system-level ZAMS masses when not provided.
+            unequal_m1 = m1_zams[m1_zams != m2_zams]
+            inferred_m1_min = float(np.min(unequal_m1)) if unequal_m1.size > 0 else float(np.min(m1_zams))
+            inferred_m1_max = float(np.max(m1_zams))
+            inferred_m2_min = float(np.min(m2_zams))
+            m1_min = inferred_m1_min if m1_min is None else m1_min
+            m1_max = inferred_m1_max if m1_max is None else m1_max
+            m2_min = inferred_m2_min if m2_min is None else m2_min
 
         return cls(
             m1=m1,
