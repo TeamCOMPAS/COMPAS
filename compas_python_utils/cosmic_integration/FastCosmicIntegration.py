@@ -11,20 +11,20 @@ import warnings
 import astropy.units as u
 import argparse
 import importlib
-from pathlib import Path
 
 try:
     from . import ClassCOMPAS
     from .cosmology import get_cosmology
     from . import selection_effects
-except ImportError:
-    # Fallback for direct script execution: add this module's directory to sys.path.
-    ci_dir = Path(__file__).resolve().parent
-    if str(ci_dir) not in sys.path:
-        sys.path.append(str(ci_dir))
-    import ClassCOMPAS
-    from cosmology import get_cosmology
-    import selection_effects
+except ImportError as exc:
+    raise ImportError(
+        "Failed to import COMPAS cosmic_integration package modules.\n"
+        "Environment/setup appears incorrect.\n\n"
+        "Please install COMPAS in editable mode from the repository root:\n"
+        "  python -m pip install -e '.[dev]'\n\n"
+        "Then run via package/module entry points (not by executing this file directly).\n"
+        "Note: this setup guidance message is temporary and will be removed in a future release."
+    ) from exc
 
 
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):

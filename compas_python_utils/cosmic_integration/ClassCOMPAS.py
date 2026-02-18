@@ -2,17 +2,18 @@
 import numpy as np
 import h5py as h5
 import os
-import sys
-from pathlib import Path
 
 try:
     from . import totalMassEvolvedPerZ as MPZ
-except ImportError:
-    # Fallback for direct script execution: add this module's directory to sys.path.
-    ci_dir = Path(__file__).resolve().parent
-    if str(ci_dir) not in sys.path:
-        sys.path.append(str(ci_dir))
-    import totalMassEvolvedPerZ as MPZ
+except ImportError as exc:
+    raise ImportError(
+        "Failed to import COMPAS cosmic_integration package modules.\n"
+        "Environment/setup appears incorrect.\n\n"
+        "Please install COMPAS in editable mode from the repository root:\n"
+        "  python -m pip install -e '.[dev]'\n\n"
+        "Then run via package/module entry points (not by executing this file directly).\n"
+        "Note: this setup guidance message is temporary and will be removed in a future release."
+    ) from exc
 
 
 class COMPASData(object):
@@ -257,4 +258,3 @@ class COMPASData(object):
             m2_min=self.m2_min.value,
             fbin=self.binaryFraction,
         )
-
