@@ -8,11 +8,7 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_popu
     generate_mock_population
 
 # Testvalues used in test_total_mass_evolved_per_z defined in py_tests/test_values.py
-from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
-
-
-# Testvalues used in test_total_mass_evolved_per_z defined in py_tests/test_values.py
-from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
+from test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
 
 
 HERE = os.path.dirname(__file__)
@@ -35,8 +31,7 @@ def example_compas_output_path(clean=False):
     if not os.path.exists(compas_data_path) or clean:  # Check if path exists
         curr_dir = os.getcwd()
         os.chdir(TEST_CONFIG_DIR)
-        # run the command in shell "compas_run_submit {TEST_CONFIG_FNAME}" with subprocess
-        subprocess.run(TEST_BASH, shell=True, check=True)
+        subprocess.run(["bash", TEST_BASH], check=True)
         os.chdir(curr_dir)
         print("Generated COMPAS test data")
 

@@ -6,15 +6,13 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_popu
     generate_mock_population
 import numpy as np
 
-from py_tests.conftest import test_archive_dir, fake_compas_output
-
 import matplotlib.pyplot as plt
 import h5py as h5
 
 import pytest
 
 # Testvalues defined in py_tests/test_values.py
-from py_tests.test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
+from test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN
 
 
 def test_imf(test_archive_dir):
