@@ -12,12 +12,19 @@ import astropy.units as u
 import argparse
 import importlib
 
-# Get the COMPAS_ROOT_DIR var, and add the cosmic_integration directory to the path
-compas_root_dir = os.getenv('COMPAS_ROOT_DIR')
-sys.path.append(os.path.join(compas_root_dir, 'compas_python_utils/cosmic_integration'))
-import ClassCOMPAS
-from cosmology import get_cosmology
-import selection_effects
+try:
+    from . import ClassCOMPAS
+    from .cosmology import get_cosmology
+    from . import selection_effects
+except ImportError as exc:
+    raise ImportError(
+        "Failed to import COMPAS cosmic_integration package modules.\n"
+        "Environment/setup appears incorrect.\n\n"
+        "Please install COMPAS in editable mode from the repository root:\n"
+        "  python -m pip install -e '.[dev]'\n\n"
+        "Then run via package/module entry points (not by executing this file directly).\n"
+        "Note: this setup guidance message is temporary and will be removed in a future release."
+    ) from exc
 
 
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):
@@ -435,9 +442,22 @@ def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weig
     m1=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(1)");
     m2=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(2)");
     if use_sampled_mass_ranges:
-        COMPAS.Mlower=min(m1[m1!=m2])*u.Msun    # the m1!=m2 ensures we don't include masses set equal through RLOF at ZAMS
-        COMPAS.Mupper=max(m1)*u.Msun
-        COMPAS.m2_min=min(m2)*u.Msun
+        sampled_m1 = m1[m1 != m2]  # avoid equalized ZAMS masses after immediate interactions
+        sampled_m1_min = np.min(sampled_m1) if sampled_m1.size > 0 else np.min(m1)
+        sampled_m1_max = np.max(m1)
+        sampled_m2_min = np.min(m2)
+
+        # Degenerate sampled ranges can happen in tiny fixed-mass test runs (e.g. m1_min == m1_max).
+        # In that case fall back to user-provided/default bounds.
+        if sampled_m1_min < sampled_m1_max and sampled_m2_min < sampled_m1_max:
+            COMPAS.Mlower = sampled_m1_min * u.Msun
+            COMPAS.Mupper = sampled_m1_max * u.Msun
+            COMPAS.m2_min = sampled_m2_min * u.Msun
+        else:
+            warnings.warn(
+                "Sampled mass range is degenerate; falling back to supplied mass bounds.",
+                stacklevel=2,
+            )
     COMPAS.find_star_forming_mass_per_binary_sampling()
 
 
@@ -930,4 +950,3 @@ def main():
 ##################################################################
 if __name__ == "__main__":
     main()
-
