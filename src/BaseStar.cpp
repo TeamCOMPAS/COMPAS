@@ -2328,8 +2328,8 @@ double BaseStar::CalculateMassLossRateWolfRayetSanderVink2020(const double p_Mu)
  * as a function of effective temperature, according to the
  * prescription of Sander et al. 2023 (https://arxiv.org/abs/2301.01785)
  * 
- * Use the correction given in Eq. 18, with the effective temperature
- * (what they refer to as T_\star in Eq. 1) as T_eff,crit
+ * Use the correction given in Eq. 18, with the stellar effective temperature used * as a proxy for T_eff,crit (the effective temperature at  
+ * temperature at the critical/sonic point). Using T_eff as a proxy for T_eff,crit introduces a small approximation.
  * 
  * 
  * double CalculateMassLossRateWolfRayetTemperatureCorrectionSander2023(const double p_Mdot)
