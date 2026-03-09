@@ -77,12 +77,12 @@ function ComparisonPlots(filename1, name1, filename2, name2)
 
     %Plot LMXBs/IMXBs
     figure(fignumber); clf(fignumber);
-    [LMXBcount, NSLMXBcount]=LMXBplot(filename1, name1, fignumber, 'r', 40);
-    fprintf('\nLMXBs:\t\t#LMXB\t\t#NS LMXB\n');
-    fprintf('%s:\t%d\t\t%d\n', name1, LMXBcount, NSLMXBcount);
+    [LMXBcount, NSLMXBcount, meanduration]=LMXBplot(filename1, name1, fignumber, 'r', 40);
+    fprintf('\nLMXBs:\t\t#LMXB\t\t#NS LMXB\tLMXB mean duration (Myr)\n');
+    fprintf('%s:\t%d\t\t%d\t\t%f\n', name1, LMXBcount, NSLMXBcount, meanduration);
     if(nargin==4),
-        [LMXBcount, NSLMXBcount]=LMXBplot(filename2, name2, fignumber, 'b', 20);
-        fprintf('%s:\t%d\t\t%d\n', name2, LMXBcount, NSLMXBcount);
+        [LMXBcount, NSLMXBcount, meanduration]=LMXBplot(filename2, name2, fignumber, 'b', 20);
+        fprintf('%s:\t%d\t\t%d\t\t%f\n', name2, LMXBcount, NSLMXBcount, meanduration);
     end;
     figure(fignumber), hold off; set(gca,'FontSize', 20); legend; title('LMXB on first MT onto CO');
     xlabel('Compact object mass (M$_\odot$)', 'Interpreter', 'latex'), ylabel('Companion mass (M$_\odot$)', 'Interpreter', 'latex'); 
@@ -300,7 +300,7 @@ end %end of BeXRBplot
 %Find all LMXBs/IMXBs at the time of the first mass transfer episode onto the
 %compact object.  They consist of an NS or a BH and a companion with a mass
 %below 5 Msun.
-function [LMXBcount, NSLMXBcount] = LMXBplot(file, name, fignumberLMXB, colour, point)
+function [LMXBcount, NSLMXBcount, meanduration] = LMXBplot(file, name, fignumberLMXB, colour, point)
     seedRLOF=h5read(file,'/BSE_RLOF/SEED');
     timeRLOF=h5read(file,'/BSE_RLOF/Time>MT');
     M1RLOF=h5read(file,'/BSE_RLOF/Mass(1)<MT');
@@ -312,6 +312,8 @@ function [LMXBcount, NSLMXBcount] = LMXBplot(file, name, fignumberLMXB, colour, 
     timeCE=h5read(file,'/BSE_Common_Envelopes/Time');
     relevantbinary=(star1RLOF>=13 & star1RLOF<=14 & star2RLOF==1 & M2RLOF<=5 & ~RLOFisCE) ...
         | (star2RLOF>=13 & star2RLOF<=14 & star1RLOF==1 & M1RLOF<=5 & ~RLOFisCE);
+    %relevantbinary=(star1RLOF>=13 & star1RLOF<=14 & star2RLOF==1 & M2RLOF<=1.5 & ~RLOFisCE) ...
+    %    | (star2RLOF>=13 & star2RLOF<=14 & star1RLOF==1 & M1RLOF<=1.5 & ~RLOFisCE); %if we want to consider only true LMXBs
     relevantseedRLOF=cast(seedRLOF, 'int64');  relevantseedRLOF(~relevantbinary)=-1;
     uniqueseeds=unique(seedRLOF(relevantbinary));
     [blah,indexlist]=ismember(cast(uniqueseeds,'int64'), relevantseedRLOF);
@@ -319,6 +321,10 @@ function [LMXBcount, NSLMXBcount] = LMXBplot(file, name, fignumberLMXB, colour, 
     MCO=M1relevant; MCO(star2RLOF(indexlist)>=13)=M2relevant(star2RLOF(indexlist)>=13);
     Mcomp=M1relevant; Mcomp(star2RLOF(indexlist)==1)=M2relevant(star2RLOF(indexlist)==1);
     LMXBcount=length(MCO); NSLMXBcount=sum(MCO<2); %number of LMXBs, NS LXMBs
+    [blah,indexlistlast]=ismember(cast(uniqueseeds,'int64'), flip(relevantseedRLOF));
+    indexlistlast=length(seedRLOF)-indexlistlast+1;
+    duration=timeRLOF(indexlistlast)-timeRLOF(indexlist);
+    meanduration=mean(duration);
     [isCE,CEIndex]=ismember(uniqueseeds,seedCE);  %doesn't check if CE happened before or after
     precededbyCE=false(size(indexlist)); 
     for(i=1:length(indexlist)), if(isCE(i)), precededbyCE(i)=(timeCE(CEIndex(i)) < timeRLOF(indexlist(i))); end; end;
