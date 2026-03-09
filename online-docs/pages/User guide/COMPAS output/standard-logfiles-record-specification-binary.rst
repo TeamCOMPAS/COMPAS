@@ -81,6 +81,9 @@ Binary Properties
    * - Header String:
      - CE_Event_Counter
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 .. _binary-props-D:
 
 :ref:`Back to Top <binary-props-top>`
@@ -116,6 +119,9 @@ Binary Properties
      - Current timestep (Myr).
    * - Header String:
      - dT
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 .. _binary-props-E:
 
@@ -251,6 +257,9 @@ Binary Properties
    * - Header Strings:
      - Evolution_Status
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 .. _binary-props-F:
 
 .. _binary-props-G:
@@ -293,6 +302,9 @@ Binary Properties
    * - Header String:
      - Immediate_RLOF>CE
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 .. _binary-props-J:
 
 .. _binary-props-K:
@@ -484,6 +496,9 @@ Binary Properties
    * - Header String:
      - Merges_Hubble_Time
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 .. _binary-props-N:
 
 .. _binary-props-O:
@@ -587,6 +602,9 @@ Binary Properties
    * - Header String:
      - Orbital_Velocity<SN
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 .. _binary-props-P:
 
 .. _binary-props-Q:
@@ -966,6 +984,9 @@ Binary Properties
    * - Header String:
      - Stellar_Type(1)>MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -985,6 +1006,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)>MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1004,6 +1028,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)>MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1023,6 +1050,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)>MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1267,6 +1297,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)<MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1286,6 +1319,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)<MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1305,6 +1341,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)<MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_PRE_MTvSTAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1324,6 +1363,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)<MT
 
+.. raw:: html
+   <div style="clear: both;"></div>
+   
 `Note that this property has the same header string as RLOF_PRE_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1487,6 +1529,13 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - RocheLobe(2)<CE
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
+.. _binary-props-S:
+
+:ref:`Back to Top <binary-props-top>`
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
@@ -1518,10 +1567,6 @@ but not both. If both are printed then the file will contain two columns with th
      - Ratio of the secondary star’s stellar radius to Roche radius (R/RL), evaluated at periapsis.
    * - Header String:
      - Radius(2)|RL
-
-.. _binary-props-S:
-
-:ref:`Back to Top <binary-props-top>`
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -1604,6 +1649,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - SemiMajorAxis<SN
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 `Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1622,6 +1670,9 @@ but not both. If both are printed then the file will contain two columns with th
      - Semi-major axis immediately prior to supernova event (\ :math:`R_\odot`).
    * - Header String:
      - SemiMajorAxis<SN
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 `Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA. It is expected that one or the other is printed in any file, but 
 not both. If both are printed then the file will contain two columns with the same header string.`
@@ -1658,6 +1709,9 @@ not both. If both are printed then the file will contain two columns with the sa
    * - Header String:
      - SemiMajorAxis
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 `Note that this property has the same header string as SEMI_MAJOR_AXIS_RSOL. It is expected that one or the other is printed in any file, but not both. 
 If both are printed then the file will contain two columns with the same header string.`
 
@@ -1676,6 +1730,9 @@ If both are printed then the file will contain two columns with the same header 
      - Semi-major axis (\ :math:`R_\odot`).
    * - Header String:
      - SemiMajorAxis
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 `Note that this property has the same header string as SEMI_MAJOR_AXIS. It is expected that one or the other is printed in any file, but not both. If both 
 are printed then the file will contain two columns with the same header string.`
@@ -1760,6 +1817,9 @@ are printed then the file will contain two columns with the same header string.`
    * - Header String:
      - Stellar_Type(1)>CE
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 `Note that this property has the same header string as STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1778,6 +1838,9 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the primary star at the onset of RLOF leading to the common-envelope episode.
    * - Header String:
      - Stellar_Type(1)<CE
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 `Note that this property has the same header string as STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
@@ -1798,6 +1861,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)>CE
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 `Note that this property has the same header string as STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1816,6 +1882,9 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the secondary star at the onset of RLOF leading to the common-envelope episode.
    * - Header String:
      - Stellar_Type(2)<CE
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 `Note that this property has the same header string as STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
@@ -1836,6 +1905,9 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)>CE
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 `Note that this property has the same header string as STELLAR_TYPE_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1854,6 +1926,9 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type name (per :cite:`Hurley2000`) of the primary star at the onset of RLOF leading to the common-envelope episode. e.g. "First_Giant_Branch", "Core_Helium_Burning", "Helium_White_Dwarf", etc.
    * - Header String:
      - Stellar_Type(1)<CE
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 `Note that this property has the same header string as STELLAR_TYPE_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not 
 both. If both are printed then the file will contain two columns with the same header string.`
@@ -1874,6 +1949,9 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - Stellar_Type(2)>CE
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 `Note that this property has the same header string as STELLAR_TYPE_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not 
 both. If both are printed then the file will contain two columns with the same header string.`
 
@@ -1892,6 +1970,9 @@ both. If both are printed then the file will contain two columns with the same h
      - Stellar type name (per :cite:`Hurley2000`) of the secondary star at the onset of RLOF leading to the common-envelope episode. e.g. "First_Giant_Branch", "Core_Helium_Burning", "Helium_White_Dwarf", etc.
    * - Header String:
      - Stellar_Type(2)<CE
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 `Note that this property has the same header string as STELLAR_TYPE_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not 
 both. If both are printed then the file will contain two columns with the same header string.`
@@ -2038,6 +2119,9 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - SystemicVelocityZ
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 .. _binary-props-T:
 
 :ref:`Back to Top <binary-props-top>`
@@ -2138,7 +2222,6 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - ImKnm2_10_dyn, ImKnm2_12_dyn, ImKnm2_22_dyn, ImKnm2_32_dyn
 
-
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
@@ -2203,6 +2286,9 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - Energy_Total
 
+.. raw:: html
+   <div style="clear: both;"></div>
+
 .. _binary-props-U:
 
 :ref:`Back to Top <binary-props-top>`
@@ -2222,6 +2308,9 @@ both. If both are printed then the file will contain two columns with the same h
      - Flag to indicate the binary is unbound (or has become unbound after a supernova event).
    * - Header String:
      - Unbound
+
+.. raw:: html
+   <div style="clear: both;"></div>
 
 .. _binary-props-V:
 
