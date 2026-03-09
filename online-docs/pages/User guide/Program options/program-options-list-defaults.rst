@@ -212,7 +212,7 @@ Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Go
 Default = −0.833333
 
 **--convective-envelope-mass-threshold** |br|
-Mass threshold of envelope which should be convective, above which the envelopes of giants are labeled convective. |br|
+Mass threshold of envelope which should be convective, above which the envelopes of giants are labelled convective. |br|
 Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
 Default = 0.1
 
@@ -402,10 +402,12 @@ Default = TRUE
 
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
-Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
+Options: { LEGACY, HURLEY, FIXED_TEMPERATURE, CONVECTIVE_MASS_FRACTION } |br|
 ``LEGACY`` refers to the model used in Stevenson et al., 2017 |br|
 ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002 |br|
 ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
+``CONVECTIVE_MASS_FRACTION`` means that whether the envelope is labelled convective is determined by the fraction of the envelope's mass which is convective; 
+that threshold can be changed from its default value with the additional option ``--convective-envelope-mass-threshold`` |br|
 Default = LEGACY
 
 **--errors-to-file** |br|
