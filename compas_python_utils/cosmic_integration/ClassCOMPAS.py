@@ -92,7 +92,7 @@ class COMPASData(object):
             che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
             che_seeds = sys_seeds[()][che_mask]
 
-        self.CHE_mask = np.in1d(dco_seeds, che_seeds) if types == "CHE_BHBH" or types == "NON_CHE_BHBH" else np.repeat(False, len(dco_seeds))
+        self.CHE_mask = np.isin(dco_seeds, che_seeds) if types == "CHE_BHBH" or types == "NON_CHE_BHBH" else np.repeat(False, len(dco_seeds))
 
         # if user wants to mask on Hubble time use the flag, otherwise just set all to True, use astype(bool) to set masks to bool type
         hubble_mask = hubble_flag.astype(bool) if withinHubbleTime else np.repeat(True, len(dco_seeds))
@@ -118,14 +118,14 @@ class COMPASData(object):
 
             # get the flags and unique seeds from the Common Envelopes file
             ce_seeds = self.get_COMPAS_variables("BSE_Common_Envelopes", "SEED")
-            dco_from_ce = np.in1d(ce_seeds, dco_seeds)
+            dco_from_ce = np.isin(ce_seeds, dco_seeds)
             dco_ce_seeds = ce_seeds[dco_from_ce]
 
             # if masking on RLOF, get flag and match seeds to dco seeds
             if noRLOFafterCEE:
                 rlof_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Immediate_RLOF>CE")[dco_from_ce].astype(bool)
                 rlof_seeds = np.unique(dco_ce_seeds[rlof_flag])
-                rlof_mask = np.logical_not(np.in1d(dco_seeds, rlof_seeds))
+                rlof_mask = np.logical_not(np.isin(dco_seeds, rlof_seeds))
             else:
                 rlof_mask = np.repeat(True, len(dco_seeds))
 
@@ -133,7 +133,7 @@ class COMPASData(object):
             if pessimistic:
                 pessimistic_flag = self.get_COMPAS_variables("BSE_Common_Envelopes", "Optimistic_CE")[dco_from_ce].astype(bool)
                 pessimistic_seeds = np.unique(dco_ce_seeds[pessimistic_flag])
-                pessimistic_mask = np.logical_not(np.in1d(dco_seeds, pessimistic_seeds))
+                pessimistic_mask = np.logical_not(np.isin(dco_seeds, pessimistic_seeds))
             else:
                 pessimistic_mask = np.repeat(True, len(dco_seeds))
         else:
@@ -189,7 +189,7 @@ class COMPASData(object):
         self.seedsDCO = dco_seeds[self.DCOmask]
         if self.initialZ is None:
             self.initialZ = initial_Z
-        maskMetallicity = np.in1d(initial_seeds, self.seedsDCO)
+        maskMetallicity = np.isin(initial_seeds, self.seedsDCO)
         self.metallicitySystems = self.initialZ[maskMetallicity]
         self.n_systems = len(initial_seeds)
 
