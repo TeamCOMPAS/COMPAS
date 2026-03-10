@@ -120,7 +120,7 @@ class BinaryPopulation:
             "BSE_System_Parameters",
             ["Mass@ZAMS(1)", "Mass@ZAMS(2)"],
         )
-        dco_mask = xp.in1d(all_seeds, seeds)
+        dco_mask = xp.isin(all_seeds, seeds)
 
         if m1_min is None or m1_max is None or m2_min is None:
             # Infer the sampled mass ranges from system-level ZAMS masses when not provided.
@@ -165,20 +165,20 @@ class BinaryPopulation:
         # get the flags and unique seeds from the Common Envelopes file
         ce_seeds, rlof_flag, optimistic_ce = _load_data(
             path, "BSE_Common_Envelopes", ["SEED", "Immediate_RLOF>CE", "Optimistic_CE"])
-        dco_from_ce = xp.in1d(ce_seeds, dco_seeds)
+        dco_from_ce = xp.isin(ce_seeds, dco_seeds)
         dco_ce_seeds = ce_seeds[dco_from_ce]
         del ce_seeds
 
         # mask out all DCOs that have RLOF after CE
         rlof_flag = rlof_flag[dco_from_ce].astype(bool)
         rlof_seeds = xp.unique(dco_ce_seeds[rlof_flag])
-        mask_out_with_rlof_seeds = xp.logical_not(xp.in1d(dco_seeds, rlof_seeds))
+        mask_out_with_rlof_seeds = xp.logical_not(xp.isin(dco_seeds, rlof_seeds))
         del rlof_flag, rlof_seeds
 
         # mask out all DCOs that have an "optimistic CE"
         optimistic_ce_flag = optimistic_ce[dco_from_ce].astype(bool)
         optimistic_ce_seeds = xp.unique(dco_ce_seeds[optimistic_ce_flag])
-        mask_out_optimistic_ce_seeds = xp.logical_not(xp.in1d(dco_seeds, optimistic_ce_seeds))
+        mask_out_optimistic_ce_seeds = xp.logical_not(xp.isin(dco_seeds, optimistic_ce_seeds))
         del optimistic_ce_flag, optimistic_ce_seeds
 
         lens = dict(
