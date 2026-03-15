@@ -1697,6 +1697,8 @@
 //  03.29.01  JR - March 15, 2026       - Defect repair:
 //                                          - Fix for issue 1441: vector out-of-bounds access in Log.cpp, which is known to cause COMPAS to terminate on at least one Linux
 //                                            distribution (Manjaro), possibly C++ version specific.  See issue 1441 for description of defect and repair details.
+//  03.29.02  AB - March 16, 2026       - Defect repair:
+//                                          - Fix for issue 1463: sign error in the Claeys+2014 common-envelope lambda prescription
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1708,7 +1710,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.29.01";
+const std::string VERSION_STRING = "03.29.02";
 
 
 # endif // __changelog_h__
