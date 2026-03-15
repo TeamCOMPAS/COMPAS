@@ -31,7 +31,7 @@
 }
 
 /* left align tables (default seems to be centred) */
-/* disable for now - until I work ou the best fix for issue #1424
+/* disable for now - until I work out the best fix for issue #1424
 table {
     float: left;
 }
