@@ -2805,6 +2805,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
                             fileDetails.propertyTypes.push_back(TYPENAME::INT);                                                                 // append property typename
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
                             fileDetails.hdrStrings.push_back("Star_Switching");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
@@ -2814,6 +2815,9 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
                             fileDetails.propertyTypes.push_back(TYPENAME::STELLAR_TYPE);                                                        // append property typename
                             fileDetails.propertyTypes.push_back(TYPENAME::STELLAR_TYPE);                                                        // append property typename
+
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
 
                             fileDetails.hdrStrings.push_back("Switching_From");                                                                 // append header string for field
                             fileDetails.hdrStrings.push_back("Switching_To");                                                                   // append header string for field
@@ -2830,6 +2834,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
                             fileDetails.propertyTypes.push_back(TYPENAME::BOOL);                                                                // append property typename
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
                             fileDetails.hdrStrings.push_back("Is_Merger");                                                                      // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("BOOL");                                                                          // append type string for field
@@ -2846,6 +2851,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         if (p_Logfile != LOGFILE::BSE_SWITCH_LOG && p_Logfile != LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
                                                                                                                                                 // no - proceed
                             fileDetails.propertyTypes.push_back(TYPENAME::UINT);                                                                // append property typename
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
                             fileDetails.hdrStrings.push_back("Record_Type");                                                                    // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field - "INT" is good enough
