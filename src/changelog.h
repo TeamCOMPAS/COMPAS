@@ -1695,7 +1695,7 @@
 //                                          - Added a limit to rotation change per time step in KAPIL2026 to ensure angular momentum conservation.
 //                                          - Updated dynamical tides equations in KAPIL2026 to match paper.
 //  03.29.01  JR - March 15, 2026       - Defect repair:
-//                                          - Fix for issue 1441: vector out-of-bounds access in Log.cpp, which is know to cause COMPAS to terminate on at least one Linux
+//                                          - Fix for issue 1441: vector out-of-bounds access in Log.cpp, which is known to cause COMPAS to terminate on at least one Linux
 //                                            distribution (Manjaro), possibly C++ version specific.  See issue 1441 for description of defect and repair details.
 //
 //
