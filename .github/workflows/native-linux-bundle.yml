@@ -230,16 +230,24 @@ jobs:
         env:
           COMPAS_BINARY_WHEEL: '1'
         run: |
+          python -m pip install wheel auditwheel
           python setup.py bdist_wheel
           ls -1 dist/*.whl
           ! ls -1 dist/*.whl | grep -q 'none-any.whl'
-          ls -1 dist/*.whl | grep -q 'compas_popsynth-.*-py3-none-linux_x86_64.whl'
+
+      - name: Repair wheel for manylinux
+        run: |
+          mkdir -p wheelhouse
+          auditwheel show dist/*.whl
+          auditwheel repair --wheel-dir wheelhouse dist/*.whl
+          ls -1 wheelhouse/*.whl
+          ls -1 wheelhouse/*.whl | grep -q 'compas_popsynth-.*-py3-none-manylinux_.*_x86_64.whl'
 
       - name: Upload bundled wheel artifact
         uses: actions/upload-artifact@v4
         with:
           name: COMPAS-python-wheel-linux-x86_64
-          path: dist/*.whl
+          path: wheelhouse/*.whl
           if-no-files-found: error
 
   verify-bundled-linux-wheel:
