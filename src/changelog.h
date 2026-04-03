@@ -1699,6 +1699,8 @@
 //                                            distribution (Manjaro), possibly C++ version specific.  See issue 1441 for description of defect and repair details.
 //  03.29.02  AB - March 16, 2026       - Defect repair:
 //                                          - Fix for issue 1463: sign error in the Claeys+2014 common-envelope lambda prescription
+//  03.29.03 NRS - April  3, 2026       - Defect repair:
+//                                          - Fixed HeSDs not being recorded in the Supernovae logs (mentioned in issue 1350).
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1710,7 +1712,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.29.02";
+const std::string VERSION_STRING = "03.29.03";
 
 
 # endif // __changelog_h__
