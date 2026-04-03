@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Launch a bundled COMPAS executable with its colocated shared-library
+# directory available on the platform-specific dynamic linker path.
+
 set -euo pipefail
 
 HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"

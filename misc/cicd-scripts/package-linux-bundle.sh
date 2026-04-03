@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Create the redistributable Linux COMPAS bundle used by the native tarball
+# workflow and by the Linux PyPI wheel build.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"

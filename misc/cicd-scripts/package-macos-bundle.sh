@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Create the redistributable macOS COMPAS bundle embedded in the platform-
+# specific macOS wheels built by cibuildwheel.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"

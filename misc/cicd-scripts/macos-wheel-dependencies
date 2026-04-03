@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Install the Homebrew packages required to compile and bundle the macOS PyPI
+# wheel on GitHub's macOS runners.
+
 set -euo pipefail
 
 if ! command -v brew >/dev/null 2>&1; then

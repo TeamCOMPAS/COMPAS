@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Install the native system packages needed to compile and repair the Linux
+# PyPI wheel inside the manylinux container used by cibuildwheel.
+
 set -euo pipefail
 
 if command -v dnf >/dev/null 2>&1; then

@@ -76,8 +76,8 @@ EXTRA_REQUIRE = dict(
         "sphinx-togglebutton",
         "linuxdoc>=20210324"
     ],
-    full=ANALYSIS_REQUIRES,
-    dev=ANALYSIS_REQUIRES + DEV_ONLY_REQUIRES,
+    full=[],
+    dev=DEV_ONLY_REQUIRES,
     gpu=["cupy"],
 )
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
             f"{NAME}.cosmic_integration": ["SNR_Grid*"],
         },
         include_package_data=True,
-        install_requires=CORE_RUNTIME_REQUIRES,
+        install_requires=CORE_RUNTIME_REQUIRES + ANALYSIS_REQUIRES,
         extras_require=EXTRA_REQUIRE,
         classifiers=CLASSIFIERS,
         zip_safe=not BUILD_BINARY_WHEEL,
