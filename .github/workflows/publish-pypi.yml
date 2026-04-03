@@ -1,6 +1,9 @@
 name: Publish compas-popsynth to PyPI
 
 on:
+  push:
+    branches:
+      - dev
   workflow_dispatch:
     inputs:
       mode:
@@ -154,7 +157,7 @@ jobs:
       - build-linux-wheel
       - build-macos-arm64-wheel
       - build-macos-x86_64-wheel
-    if: ${{ github.event.inputs.mode == 'publish' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'publish' }}
     environment: pypi
     permissions:
       id-token: write
