@@ -129,6 +129,7 @@ if __name__ == "__main__":
                 f"compas_h5copy= {NAME}.h5copy:main",
                 f"compas_h5sample= {NAME}.h5sample:main",
                 f"compas_plot_detailed_evolution={NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
+                f"compas_run={NAME}.compas_runner:main",
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",
                 f"compas_sample_stroopwafel={NAME}.preprocessing.stroopwafelInterface:main",
                 f"compas_sample_moe_di_stefano={NAME}.preprocessing.sampleMoeDiStefano:main",

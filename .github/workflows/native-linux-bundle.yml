@@ -123,11 +123,23 @@ jobs:
     needs: native-linux-bundle
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Download bundle artifact
         uses: actions/download-artifact@v4
         with:
           name: COMPAS-linux-x86_64
           path: downloaded-artifact
+
+      - name: Install Python runner only
+        run: |
+          python -m pip install --no-deps -e .
 
       - name: Unpack bundled artifact
         run: |
@@ -163,3 +175,25 @@ jobs:
             -o "$ARTIFACT_SMOKE_DIR"
 
           test -d "$ARTIFACT_SMOKE_DIR"
+
+      - name: Run Python runner against downloaded bundle
+        env:
+          COMPAS_BUNDLE_ROOT: ${{ github.workspace }}/bundle-test/COMPAS-linux-x86_64
+        run: |
+          compas_run --print-path
+          compas_run -v
+
+          PYTHON_RUNNER_SMOKE_DIR="${RUNNER_TEMP}/compas-python-runner-smoke"
+          rm -rf "$PYTHON_RUNNER_SMOKE_DIR"
+
+          compas_run \
+            -n 1 \
+            --initial-mass-1 35 \
+            --initial-mass-2 31 \
+            -a 3.5 \
+            --random-seed 0 \
+            --metallicity 0.001 \
+            --quiet \
+            -o "$PYTHON_RUNNER_SMOKE_DIR"
+
+          test -d "$PYTHON_RUNNER_SMOKE_DIR"
