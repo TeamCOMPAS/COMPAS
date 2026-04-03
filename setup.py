@@ -15,6 +15,7 @@ if python_version < (3, 8):
     sys.exit("Python < 3.8 is not supported, aborting setup")
 
 NAME = "compas_python_utils"
+DIST_NAME = "compas-popsynth"
 PACKAGES = find_packages()
 HERE = os.path.dirname(os.path.realpath(__file__))
 META_PATH = os.path.join(NAME, "__init__.py")
@@ -25,28 +26,38 @@ CLASSIFIERS = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
-INSTALL_REQUIRES = [
+CORE_RUNTIME_REQUIRES = [
     "numpy>=1.16",
+    "PyYAML",
+]
+ANALYSIS_REQUIRES = [
     "h5py",
-    "argparse",
     "stroopwafel",
-    "pytest>=3.6",
-    "pre-commit",
-    "flake8",
-    "black==22.10.0",
-    "isort",
     "matplotlib>=3.3.2",
     "pandas",
     "astropy>=4.0",
     "scipy>=1.5.0",
-    "latex",
-    "PyYAML",
     "tqdm",
-    "corner"
+    "corner",
+]
+DEV_ONLY_REQUIRES = [
+    "pytest>=3.6",
+    "pytest-cov",
+    "pre-commit",
+    "flake8",
+    "black==22.10.0",
+    "isort",
+    "coverage-badge",
+    "deepdiff",
+    "jupytext",
+    "jupyter-autotime",
+    "memory_profiler",
+    "nbconvert",
+    "ipykernel",
 ]
 EXTRA_REQUIRE = dict(
     docs=[
@@ -64,20 +75,8 @@ EXTRA_REQUIRE = dict(
         "sphinx-togglebutton",
         "linuxdoc>=20210324"
     ],
-    dev=[
-        "pytest-cov",
-        "pre-commit",
-        "flake8",
-        "black==22.10.0",
-        "isort",
-        "coverage-badge",
-        "deepdiff",
-        "jupytext",
-        "jupyter-autotime",
-        "memory_profiler",
-        "nbconvert",
-        "ipykernel",
-    ],
+    full=ANALYSIS_REQUIRES,
+    dev=ANALYSIS_REQUIRES + DEV_ONLY_REQUIRES,
     gpu=["cupy"],
 )
 
@@ -93,6 +92,10 @@ if BUILD_BINARY_WHEEL and _bdist_wheel is not None:
         def finalize_options(self):
             super().finalize_options()
             self.root_is_pure = False
+
+        def get_tag(self):
+            _, _, platform_tag = super().get_tag()
+            return "py3", "none", platform_tag
 
     cmdclass["bdist_wheel"] = COMPASBdistWheel
 
@@ -122,7 +125,7 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
 
 if __name__ == "__main__":
     setup(
-        name=NAME,
+        name=DIST_NAME,
         version=find_meta("version"),
         author=find_meta("author"),
         author_email=find_meta("email"),
@@ -134,6 +137,7 @@ if __name__ == "__main__":
         long_description=read("README.md"),
         long_description_content_type="text/markdown",
         packages=PACKAGES,
+        python_requires=">=3.8",
         package_data={
             NAME: [
                 "bundled/COMPAS-linux-x86_64/*",
@@ -145,7 +149,7 @@ if __name__ == "__main__":
             f"{NAME}.cosmic_integration": ["SNR_Grid*"],
         },
         include_package_data=True,
-        install_requires=INSTALL_REQUIRES,
+        install_requires=CORE_RUNTIME_REQUIRES,
         extras_require=EXTRA_REQUIRE,
         classifiers=CLASSIFIERS,
         zip_safe=not BUILD_BINARY_WHEEL,
