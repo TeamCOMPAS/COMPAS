@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if command -v dnf >/dev/null 2>&1; then
+    PKG_MANAGER="dnf"
+elif command -v yum >/dev/null 2>&1; then
+    PKG_MANAGER="yum"
+else
+    echo "Expected dnf or yum in the manylinux build environment" >&2
+    exit 1
+fi
+
+"$PKG_MANAGER" install -y \
+    boost-devel \
+    gcc-c++ \
+    gsl-devel \
+    hdf5-devel \
+    make \
+    patchelf \
+    which

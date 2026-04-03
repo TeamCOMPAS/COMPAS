@@ -33,68 +33,28 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install native build dependencies
-        run: |
-          bash misc/cicd-scripts/linux-dependencies native-build
-
-      - name: Build COMPAS from source
-        working-directory: src
-        run: |
-          make DOCKER_BUILD=1 CPP="ccache g++" -j "$(nproc)" -f Makefile
-          ./COMPAS -v
-
-      - name: Package Linux bundle
-        run: |
-          bash misc/cicd-scripts/package-linux-bundle.sh src/COMPAS dist/COMPAS-linux-x86_64
-
-      - name: Stage bundle into Python package tree
-        run: |
-          rm -rf compas_python_utils/bundled/COMPAS-linux-x86_64
-          mkdir -p compas_python_utils/bundled
-          cp -a dist/COMPAS-linux-x86_64 compas_python_utils/bundled/
-          test -f compas_python_utils/bundled/COMPAS-linux-x86_64/run_compas.sh
-
-      - name: Ensure wheel build tool is available
-        run: |
-          python -m pip install wheel auditwheel
-
-      - name: Build Linux wheel
+      - name: Build Linux wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.1.2
         env:
-          COMPAS_BINARY_WHEEL: '1'
-        run: |
-          python setup.py bdist_wheel
-          ls -1 dist/*.whl
-
-      - name: Repair wheel for manylinux
-        run: |
-          mkdir -p wheelhouse
-          auditwheel show dist/*.whl
-          auditwheel repair --wheel-dir wheelhouse dist/*.whl
-          ls -1 wheelhouse/*.whl
-          ls -1 wheelhouse/*.whl | grep -q 'compas_popsynth-.*-py3-none-manylinux_.*_x86_64.whl'
-
-      - name: Verify wheel install and smoke test
-        run: |
-          python -m venv wheel-venv
-          . wheel-venv/bin/activate
-          python -m pip install --no-deps wheelhouse/*.whl
-          compas_run --print-path
-          compas_run -v
-
-          WHEEL_SMOKE_DIR="${RUNNER_TEMP}/compas-pypi-wheel-smoke"
-          rm -rf "$WHEEL_SMOKE_DIR"
-
-          compas_run \
-            -n 1 \
-            --initial-mass-1 35 \
-            --initial-mass-2 31 \
-            -a 3.5 \
-            --random-seed 0 \
-            --metallicity 0.001 \
-            --quiet \
-            -o "$WHEEL_SMOKE_DIR"
-
-          test -d "$WHEEL_SMOKE_DIR"
+          CIBW_BUILD: cp311-manylinux_x86_64
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_ENVIRONMENT_LINUX: COMPAS_BINARY_WHEEL=1
+          CIBW_BEFORE_ALL_LINUX: >
+            bash {project}/misc/cicd-scripts/manylinux-dependencies &&
+            make -C {project}/src DOCKER_BUILD=1 CPP=g++ -j "$(nproc)" -f Makefile &&
+            {project}/src/COMPAS -v &&
+            bash {project}/misc/cicd-scripts/package-linux-bundle.sh {project}/src/COMPAS {project}/dist/COMPAS-linux-x86_64 &&
+            rm -rf {project}/compas_python_utils/bundled/COMPAS-linux-x86_64 &&
+            mkdir -p {project}/compas_python_utils/bundled &&
+            cp -a {project}/dist/COMPAS-linux-x86_64 {project}/compas_python_utils/bundled/ &&
+            test -f {project}/compas_python_utils/bundled/COMPAS-linux-x86_64/run_compas.sh
+          CIBW_TEST_COMMAND_LINUX: >
+            compas_run --print-path &&
+            compas_run -v &&
+            WHEEL_SMOKE_DIR="$(mktemp -d)" &&
+            compas_run -n 1 --initial-mass-1 35 --initial-mass-2 31 -a 3.5 --random-seed 0 --metallicity 0.001 --quiet -o "$WHEEL_SMOKE_DIR" &&
+            test -d "$WHEEL_SMOKE_DIR"
 
       - name: Upload wheel artifact
         uses: actions/upload-artifact@v4
