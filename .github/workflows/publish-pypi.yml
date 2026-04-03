@@ -107,7 +107,7 @@ jobs:
 
   build-macos-x86_64-wheel:
     name: Build and verify macOS x86_64 wheel
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     steps:
       - name: Checkout repository

@@ -56,6 +56,28 @@ dependencies_for() {
     otool -L "$1" | tail -n +2 | awk '{print $1}'
 }
 
+resolve_dependency_path() {
+    local dependency="$1"
+    local referencing_file="$2"
+    local reference_dir
+
+    case "$dependency" in
+        @loader_path/*)
+            reference_dir="$(CDPATH= cd -- "$(dirname -- "$referencing_file")" && pwd)"
+            echo "$reference_dir/${dependency#@loader_path/}"
+            ;;
+        @executable_path/*)
+            echo "$BIN_DIR/${dependency#@executable_path/}"
+            ;;
+        @rpath/*)
+            return 1
+            ;;
+        *)
+            echo "$dependency"
+            ;;
+    esac
+}
+
 copy_dependency() {
     local source_path="$1"
     local dest_path="$LIB_DIR/$(basename "$source_path")"
@@ -100,18 +122,24 @@ while [ "${#queue[@]}" -gt 0 ]; do
     queue=("${queue[@]:1}")
 
     while IFS= read -r dependency; do
+        resolved_dependency="$(resolve_dependency_path "$dependency" "$current_file" || true)"
+
         case "$dependency" in
-            @loader_path/*|@executable_path/*|@rpath/*|"")
+            @rpath/*|"")
                 continue
                 ;;
         esac
 
-        if is_system_library "$dependency"; then
+        if [ -z "$resolved_dependency" ] || [ ! -e "$resolved_dependency" ]; then
             continue
         fi
 
-        dependency_name="$(basename "$dependency")"
-        copy_dependency "$dependency"
+        if is_system_library "$resolved_dependency"; then
+            continue
+        fi
+
+        dependency_name="$(basename "$resolved_dependency")"
+        copy_dependency "$resolved_dependency"
 
         if ! grep -qx "$dependency_name" "$SEEN_DEPS" 2>/dev/null; then
             echo "$dependency_name" >> "$SEEN_DEPS"
