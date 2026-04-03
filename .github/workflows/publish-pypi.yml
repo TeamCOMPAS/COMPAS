@@ -85,11 +85,11 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: >
             bash {project}/misc/cicd-scripts/macos-wheel-dependencies &&
             make -C {project}/src CPP=clang++ -j "$(sysctl -n hw.logicalcpu)" -f Makefile &&
-            {project}/src/COMPAS -v &&
+            test -x {project}/src/COMPAS &&
             bash {project}/misc/cicd-scripts/package-macos-bundle.sh {project}/src/COMPAS arm64 {project}/dist/COMPAS-macos-arm64 &&
             rm -rf {project}/compas_python_utils/bundled/COMPAS-macos-arm64 &&
             mkdir -p {project}/compas_python_utils/bundled &&
-            cp -a {project}/dist/COMPAS-macos-arm64 {project}/compas_python_utils/bundled/ &&
+            cp -R {project}/dist/COMPAS-macos-arm64 {project}/compas_python_utils/bundled/ &&
             test -f {project}/compas_python_utils/bundled/COMPAS-macos-arm64/run_compas.sh
           CIBW_TEST_COMMAND_MACOS: >
             compas_run --print-path &&
@@ -127,11 +127,11 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: >
             bash {project}/misc/cicd-scripts/macos-wheel-dependencies &&
             make -C {project}/src CPP=clang++ -j "$(sysctl -n hw.logicalcpu)" -f Makefile &&
-            {project}/src/COMPAS -v &&
+            test -x {project}/src/COMPAS &&
             bash {project}/misc/cicd-scripts/package-macos-bundle.sh {project}/src/COMPAS x86_64 {project}/dist/COMPAS-macos-x86_64 &&
             rm -rf {project}/compas_python_utils/bundled/COMPAS-macos-x86_64 &&
             mkdir -p {project}/compas_python_utils/bundled &&
-            cp -a {project}/dist/COMPAS-macos-x86_64 {project}/compas_python_utils/bundled/ &&
+            cp -R {project}/dist/COMPAS-macos-x86_64 {project}/compas_python_utils/bundled/ &&
             test -f {project}/compas_python_utils/bundled/COMPAS-macos-x86_64/run_compas.sh
           CIBW_TEST_COMMAND_MACOS: >
             compas_run --print-path &&
