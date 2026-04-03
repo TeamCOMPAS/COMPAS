@@ -21,6 +21,7 @@ Thumbs.db
 # Others
 .ipynb_checkpoints/
 __pycache__/
+.ccache/
 COMPAS_Output*/
 output*/
 *.coverage
