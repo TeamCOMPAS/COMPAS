@@ -85,6 +85,7 @@ jobs:
           CIBW_BUILD: cp311-macosx_arm64
           CIBW_ARCHS_MACOS: arm64
           CIBW_ENVIRONMENT_MACOS: COMPAS_BINARY_WHEEL=1 MACOSX_DEPLOYMENT_TARGET=14.0
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_BEFORE_ALL_MACOS: >
             bash {project}/misc/cicd-scripts/macos-wheel-dependencies &&
             make -C {project}/src CPP=clang++ -j "$(sysctl -n hw.logicalcpu)" -f Makefile &&
@@ -127,6 +128,7 @@ jobs:
           CIBW_BUILD: cp311-macosx_x86_64
           CIBW_ARCHS_MACOS: x86_64
           CIBW_ENVIRONMENT_MACOS: COMPAS_BINARY_WHEEL=1 MACOSX_DEPLOYMENT_TARGET=14.0
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_BEFORE_ALL_MACOS: >
             bash {project}/misc/cicd-scripts/macos-wheel-dependencies &&
             make -C {project}/src CPP=clang++ -j "$(sysctl -n hw.logicalcpu)" -f Makefile &&

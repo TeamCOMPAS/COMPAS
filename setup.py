@@ -142,6 +142,7 @@ if __name__ == "__main__":
         package_data={
             NAME: [
                 "bundled/*",
+                "bundled/*/*.sh",
                 "bundled/*/bin/*",
                 "bundled/*/lib/*",
             ],
