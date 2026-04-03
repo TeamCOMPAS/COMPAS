@@ -59,24 +59,123 @@ jobs:
       - name: Upload wheel artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compas-popsynth-wheel
+          name: compas-popsynth-wheel-linux
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
+  build-macos-arm64-wheel:
+    name: Build and verify macOS arm64 wheel
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build macOS arm64 wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.1.2
+        env:
+          CIBW_BUILD: cp311-macosx_arm64
+          CIBW_ARCHS_MACOS: arm64
+          CIBW_ENVIRONMENT_MACOS: COMPAS_BINARY_WHEEL=1
+          CIBW_BEFORE_ALL_MACOS: >
+            bash {project}/misc/cicd-scripts/macos-wheel-dependencies &&
+            make -C {project}/src CPP=clang++ -j "$(sysctl -n hw.logicalcpu)" -f Makefile &&
+            {project}/src/COMPAS -v &&
+            bash {project}/misc/cicd-scripts/package-macos-bundle.sh {project}/src/COMPAS arm64 {project}/dist/COMPAS-macos-arm64 &&
+            rm -rf {project}/compas_python_utils/bundled/COMPAS-macos-arm64 &&
+            mkdir -p {project}/compas_python_utils/bundled &&
+            cp -a {project}/dist/COMPAS-macos-arm64 {project}/compas_python_utils/bundled/ &&
+            test -f {project}/compas_python_utils/bundled/COMPAS-macos-arm64/run_compas.sh
+          CIBW_TEST_COMMAND_MACOS: >
+            compas_run --print-path &&
+            compas_run -v &&
+            WHEEL_SMOKE_DIR="$(mktemp -d)" &&
+            compas_run -n 1 --initial-mass-1 35 --initial-mass-2 31 -a 3.5 --random-seed 0 --metallicity 0.001 --quiet -o "$WHEEL_SMOKE_DIR" &&
+            test -d "$WHEEL_SMOKE_DIR"
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compas-popsynth-wheel-macos-arm64
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
+  build-macos-x86_64-wheel:
+    name: Build and verify macOS x86_64 wheel
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build macOS x86_64 wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.1.2
+        env:
+          CIBW_BUILD: cp311-macosx_x86_64
+          CIBW_ARCHS_MACOS: x86_64
+          CIBW_ENVIRONMENT_MACOS: COMPAS_BINARY_WHEEL=1
+          CIBW_BEFORE_ALL_MACOS: >
+            bash {project}/misc/cicd-scripts/macos-wheel-dependencies &&
+            make -C {project}/src CPP=clang++ -j "$(sysctl -n hw.logicalcpu)" -f Makefile &&
+            {project}/src/COMPAS -v &&
+            bash {project}/misc/cicd-scripts/package-macos-bundle.sh {project}/src/COMPAS x86_64 {project}/dist/COMPAS-macos-x86_64 &&
+            rm -rf {project}/compas_python_utils/bundled/COMPAS-macos-x86_64 &&
+            mkdir -p {project}/compas_python_utils/bundled &&
+            cp -a {project}/dist/COMPAS-macos-x86_64 {project}/compas_python_utils/bundled/ &&
+            test -f {project}/compas_python_utils/bundled/COMPAS-macos-x86_64/run_compas.sh
+          CIBW_TEST_COMMAND_MACOS: >
+            compas_run --print-path &&
+            compas_run -v &&
+            WHEEL_SMOKE_DIR="$(mktemp -d)" &&
+            compas_run -n 1 --initial-mass-1 35 --initial-mass-2 31 -a 3.5 --random-seed 0 --metallicity 0.001 --quiet -o "$WHEEL_SMOKE_DIR" &&
+            test -d "$WHEEL_SMOKE_DIR"
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compas-popsynth-wheel-macos-x86_64
           path: wheelhouse/*.whl
           if-no-files-found: error
 
   publish-pypi:
     name: Publish wheel to PyPI
     runs-on: ubuntu-22.04
-    needs: build-linux-wheel
+    needs:
+      - build-linux-wheel
+      - build-macos-arm64-wheel
+      - build-macos-x86_64-wheel
     if: ${{ github.event.inputs.mode == 'publish' }}
     environment: pypi
     permissions:
       id-token: write
 
     steps:
-      - name: Download wheel artifact
+      - name: Download Linux wheel artifact
         uses: actions/download-artifact@v4
         with:
-          name: compas-popsynth-wheel
+          name: compas-popsynth-wheel-linux
+          path: dist
+
+      - name: Download macOS arm64 wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: compas-popsynth-wheel-macos-arm64
+          path: dist
+
+      - name: Download macOS x86_64 wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: compas-popsynth-wheel-macos-x86_64
           path: dist
 
       - name: Publish to PyPI

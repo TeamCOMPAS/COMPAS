@@ -27,6 +27,7 @@ CLASSIFIERS = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
@@ -140,9 +141,9 @@ if __name__ == "__main__":
         python_requires=">=3.8",
         package_data={
             NAME: [
-                "bundled/COMPAS-linux-x86_64/*",
-                "bundled/COMPAS-linux-x86_64/bin/*",
-                "bundled/COMPAS-linux-x86_64/lib/*",
+                "bundled/*",
+                "bundled/*/bin/*",
+                "bundled/*/lib/*",
             ],
             f"{NAME}.preprocessing": ["*.txt", "*.yaml"],
             f"{NAME}.detailed_evolution_plotter": ["van_den_heuvel_figures/*"],
