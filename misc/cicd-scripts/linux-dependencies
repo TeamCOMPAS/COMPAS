@@ -1,17 +1,47 @@
-#! /bin/sh
+#!/usr/bin/env bash
 
+set -euo pipefail
 
-sudo apt-get install -y     \
-          texlive-latex-recommended \
-          texlive-latex-extra       \
-          texlive-fonts-recommended \
-          texlive-fonts-extra       \
-          texlive-xetex             \
-          latexmk                   \
-          xindy                     \
-          dvipng                    \
-          cm-super
-sudo apt install texlive-latex-extra --fix-missing
-sudo apt update && sudo apt install g++ libboost-all-dev libgsl-dev libhdf5-serial-dev
-sudo apt-get install gcc libpq-dev -y
-sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
+PROFILE="${1:-full}"
+
+COMMON_BUILD_PACKAGES=(
+    g++
+    libboost-all-dev
+    libgsl-dev
+    libhdf5-serial-dev
+)
+
+FULL_ONLY_PACKAGES=(
+    texlive-latex-recommended
+    texlive-latex-extra
+    texlive-fonts-recommended
+    texlive-fonts-extra
+    texlive-xetex
+    latexmk
+    xindy
+    dvipng
+    cm-super
+    gcc
+    libpq-dev
+    python3-dev
+    python3-pip
+    python3-venv
+    python3-wheel
+)
+
+sudo apt-get update
+
+case "$PROFILE" in
+    native-build)
+        sudo apt-get install -y "${COMMON_BUILD_PACKAGES[@]}"
+        ;;
+    full)
+        sudo apt-get install -y "${FULL_ONLY_PACKAGES[@]}"
+        sudo apt-get install -y --fix-missing texlive-latex-extra
+        sudo apt-get install -y "${COMMON_BUILD_PACKAGES[@]}"
+        ;;
+    *)
+        echo "Usage: $0 [full|native-build]" >&2
+        exit 1
+        ;;
+esac
