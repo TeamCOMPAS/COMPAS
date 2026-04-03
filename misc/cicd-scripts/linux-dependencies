@@ -5,6 +5,7 @@ set -euo pipefail
 PROFILE="${1:-full}"
 
 COMMON_BUILD_PACKAGES=(
+    ccache
     g++
     libboost-all-dev
     libgsl-dev
