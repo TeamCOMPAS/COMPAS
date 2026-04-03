@@ -115,7 +115,7 @@ cp "$SCRIPT_DIR/run_compas.sh" "$BUNDLE_DIR/run_compas.sh"
 chmod 755 "$BIN_DIR/COMPAS" "$BUNDLE_DIR/run_compas.sh"
 maybe_strip "$BIN_DIR/COMPAS"
 
-declare -a queue=("$BIN_DIR/COMPAS")
+declare -a queue=("$BINARY_PATH")
 
 while [ "${#queue[@]}" -gt 0 ]; do
     current_file="${queue[0]}"
@@ -143,7 +143,7 @@ while [ "${#queue[@]}" -gt 0 ]; do
 
         if ! grep -qx "$dependency_name" "$SEEN_DEPS" 2>/dev/null; then
             echo "$dependency_name" >> "$SEEN_DEPS"
-            queue+=("$LIB_DIR/$dependency_name")
+            queue+=("$resolved_dependency")
         fi
     done < <(dependencies_for "$current_file")
 done
