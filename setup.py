@@ -3,7 +3,12 @@ import os
 import re
 import sys
 
-from setuptools import find_packages, setup
+from setuptools import Distribution, find_packages, setup
+
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+except ImportError:
+    _bdist_wheel = None
 
 python_version = sys.version_info
 if python_version < (3, 8):
@@ -14,6 +19,7 @@ PACKAGES = find_packages()
 HERE = os.path.dirname(os.path.realpath(__file__))
 META_PATH = os.path.join(NAME, "__init__.py")
 CPP_VERSION_FILE = os.path.join("src", "changelog.h")
+BUILD_BINARY_WHEEL = os.environ.get("COMPAS_BINARY_WHEEL") == "1"
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -76,6 +82,21 @@ EXTRA_REQUIRE = dict(
 )
 
 
+class COMPASDistribution(Distribution):
+    def has_ext_modules(self):
+        return BUILD_BINARY_WHEEL
+
+
+cmdclass = {}
+if BUILD_BINARY_WHEEL and _bdist_wheel is not None:
+    class COMPASBdistWheel(_bdist_wheel):
+        def finalize_options(self):
+            super().finalize_options()
+            self.root_is_pure = False
+
+    cmdclass["bdist_wheel"] = COMPASBdistWheel
+
+
 def read(*parts):
     with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
         return f.read()
@@ -114,6 +135,11 @@ if __name__ == "__main__":
         long_description_content_type="text/markdown",
         packages=PACKAGES,
         package_data={
+            NAME: [
+                "bundled/COMPAS-linux-x86_64/*",
+                "bundled/COMPAS-linux-x86_64/bin/*",
+                "bundled/COMPAS-linux-x86_64/lib/*",
+            ],
             f"{NAME}.preprocessing": ["*.txt", "*.yaml"],
             f"{NAME}.detailed_evolution_plotter": ["van_den_heuvel_figures/*"],
             f"{NAME}.cosmic_integration": ["SNR_Grid*"],
@@ -122,7 +148,9 @@ if __name__ == "__main__":
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRA_REQUIRE,
         classifiers=CLASSIFIERS,
-        zip_safe=True,
+        zip_safe=not BUILD_BINARY_WHEEL,
+        distclass=COMPASDistribution,
+        cmdclass=cmdclass,
         entry_points={
             "console_scripts": [
                 f"compas_h5view= {NAME}.h5view:main",

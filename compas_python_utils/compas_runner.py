@@ -10,14 +10,14 @@ PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parent
 
 
-def _is_executable_file(path: Path) -> bool:
-    return path.is_file() and os.access(path, os.X_OK)
+def _is_runnable_file(path: Path) -> bool:
+    return path.is_file() and (os.access(path, os.X_OK) or path.suffix == ".sh")
 
 
 def _validate_explicit_path(path: Path, variable_name: str) -> str:
-    if not _is_executable_file(path):
+    if not _is_runnable_file(path):
         raise FileNotFoundError(
-            f"{variable_name} points to a non-executable path: {path}"
+            f"{variable_name} points to a non-runnable path: {path}"
         )
     return str(path)
 
@@ -49,7 +49,7 @@ def resolve_compas_executable() -> str:
     if bundle_root:
         candidates = [Path(bundle_root) / "run_compas.sh", Path(bundle_root) / "bin" / "COMPAS"]
         for candidate in candidates:
-            if _is_executable_file(candidate):
+            if _is_runnable_file(candidate):
                 return str(candidate)
         raise FileNotFoundError(
             "COMPAS_BUNDLE_ROOT is set, but neither run_compas.sh nor bin/COMPAS "
@@ -57,7 +57,7 @@ def resolve_compas_executable() -> str:
         )
 
     for candidate in _candidate_paths():
-        if _is_executable_file(candidate):
+        if _is_runnable_file(candidate):
             return str(candidate)
 
     raise FileNotFoundError(
@@ -73,7 +73,11 @@ def run_compas(
     **kwargs,
 ) -> subprocess.CompletedProcess:
     resolved_executable = executable or resolve_compas_executable()
-    command = [resolved_executable, *(compas_args or [])]
+    executable_path = Path(resolved_executable)
+    if executable_path.suffix == ".sh":
+        command = ["bash", resolved_executable, *(compas_args or [])]
+    else:
+        command = [resolved_executable, *(compas_args or [])]
     return subprocess.run(command, check=check, **kwargs)
 
 

@@ -197,3 +197,92 @@ jobs:
             -o "$PYTHON_RUNNER_SMOKE_DIR"
 
           test -d "$PYTHON_RUNNER_SMOKE_DIR"
+
+  build-bundled-linux-wheel:
+    name: Build Linux wheel with bundled COMPAS
+    runs-on: ubuntu-22.04
+    needs: native-linux-bundle
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: COMPAS-linux-x86_64
+          path: downloaded-artifact
+
+      - name: Stage bundled artifact into package tree
+        run: |
+          rm -rf compas_python_utils/bundled/COMPAS-linux-x86_64
+          mkdir -p compas_python_utils/bundled
+          tar -xzf downloaded-artifact/COMPAS-linux-x86_64.tar.gz -C compas_python_utils/bundled
+          test -x compas_python_utils/bundled/COMPAS-linux-x86_64/bin/COMPAS
+          test -f compas_python_utils/bundled/COMPAS-linux-x86_64/run_compas.sh
+
+      - name: Build bundled Linux wheel
+        env:
+          COMPAS_BINARY_WHEEL: '1'
+        run: |
+          python setup.py bdist_wheel
+          ls -1 dist/*.whl
+          ! ls -1 dist/*.whl | grep -q 'none-any.whl'
+
+      - name: Upload bundled wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: COMPAS-python-wheel-linux-x86_64
+          path: dist/*.whl
+          if-no-files-found: error
+
+  verify-bundled-linux-wheel:
+    name: Verify bundled Linux wheel install
+    runs-on: ubuntu-22.04
+    needs: build-bundled-linux-wheel
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download bundled wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: COMPAS-python-wheel-linux-x86_64
+          path: downloaded-wheel
+
+      - name: Install wheel in fresh virtual environment
+        run: |
+          python -m venv wheel-venv
+          . wheel-venv/bin/activate
+          python -m pip install --no-deps downloaded-wheel/*.whl
+          compas_run --print-path | tee resolved-path.txt
+
+          grep -q 'compas_python_utils/bundled/COMPAS-linux-x86_64/run_compas.sh' resolved-path.txt
+
+      - name: Run installed wheel smoke test
+        run: |
+          . wheel-venv/bin/activate
+          compas_run -v
+
+          WHEEL_SMOKE_DIR="${RUNNER_TEMP}/compas-wheel-smoke"
+          rm -rf "$WHEEL_SMOKE_DIR"
+
+          compas_run \
+            -n 1 \
+            --initial-mass-1 35 \
+            --initial-mass-2 31 \
+            -a 3.5 \
+            --random-seed 0 \
+            --metallicity 0.001 \
+            --quiet \
+            -o "$WHEEL_SMOKE_DIR"
+
+          test -d "$WHEEL_SMOKE_DIR"
