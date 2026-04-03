@@ -120,14 +120,16 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
         r"VERSION_STRING = ['\"]([^'\"]*)['\"]", version_file, re.M
     )
     if version_match:
-        return version_match.group(1)
+        raw_version = version_match.group(1)
+        normalized_parts = [str(int(part)) for part in raw_version.split(".")]
+        return ".".join(normalized_parts)
     raise RuntimeError("Unable to find version string.")
 
 
 if __name__ == "__main__":
     setup(
         name=DIST_NAME,
-        version=find_meta("version"),
+        version=find_version(),
         author=find_meta("author"),
         author_email=find_meta("email"),
         maintainer=find_meta("author"),

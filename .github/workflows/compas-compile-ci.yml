@@ -40,7 +40,7 @@ jobs:
           echo "Building COMPAS from source..."
           cd src
           make clean 2>/dev/null || echo 'No existing build to clean'
-          make -j $(nproc) -f Makefile
+          make DOCKER_BUILD=1 CPP="g++" -j "$(nproc)" -f Makefile
           ./COMPAS -v
           echo "COMPAS build completed successfully!"
 
