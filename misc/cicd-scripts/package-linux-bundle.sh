@@ -18,6 +18,18 @@ cleanup() {
 
 trap cleanup EXIT
 
+maybe_strip() {
+    local path="$1"
+
+    if ! command -v strip >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Best-effort size reduction only. Some binaries or shared libraries may
+    # already be stripped or may not support the requested mode.
+    strip --strip-unneeded "$path" 2>/dev/null || strip "$path" 2>/dev/null || true
+}
+
 if [ ! -x "$BINARY_PATH" ]; then
     echo "Expected executable COMPAS binary at '$BINARY_PATH'" >&2
     exit 1
@@ -34,6 +46,7 @@ mkdir -p "$BIN_DIR" "$LIB_DIR"
 cp -Lf "$BINARY_PATH" "$BIN_DIR/COMPAS"
 cp "$SCRIPT_DIR/run_compas.sh" "$BUNDLE_DIR/run_compas.sh"
 chmod 755 "$BIN_DIR/COMPAS" "$BUNDLE_DIR/run_compas.sh"
+maybe_strip "$BIN_DIR/COMPAS"
 
 ldd "$BIN_DIR/COMPAS" | tee "$TMP_LDD"
 
@@ -52,6 +65,7 @@ awk '
             ;;
         *)
             cp -Ln "$lib" "$LIB_DIR/"
+            maybe_strip "$LIB_DIR/$(basename "$lib")"
             ;;
     esac
 done
