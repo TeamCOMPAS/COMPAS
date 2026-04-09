@@ -1,0 +1,199 @@
+name: Native Linux bundle
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - src/**
+      - misc/cicd-scripts/**
+      - .github/workflows/native-linux-bundle.yml
+  push:
+    branches:
+      - dev
+    paths:
+      - src/**
+      - misc/cicd-scripts/**
+      - .github/workflows/native-linux-bundle.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-linux-bundle:
+    name: Build native Linux bundle
+    runs-on: ubuntu-22.04
+
+    env:
+      BUNDLE_DIR: dist/COMPAS-linux-x86_64
+      BUNDLE_TARBALL: dist/COMPAS-linux-x86_64.tar.gz
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_COMPILERCHECK: content
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore compiler cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ runner.os }}-native-linux-bundle-ccache-${{ hashFiles('src/Makefile', 'misc/cicd-scripts/linux-dependencies', '.github/workflows/native-linux-bundle.yml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-native-linux-bundle-ccache-${{ hashFiles('src/Makefile', 'misc/cicd-scripts/linux-dependencies', '.github/workflows/native-linux-bundle.yml') }}-
+
+      - name: Install native build dependencies
+        run: |
+          # Keep this workflow lean: install only the native compiler and link dependencies.
+          bash misc/cicd-scripts/linux-dependencies native-build
+
+      - name: Build COMPAS from source
+        working-directory: src
+        run: |
+          ccache --zero-stats || true
+          ccache --max-size=500M || true
+          make DOCKER_BUILD=1 CPP="ccache g++" -j "$(nproc)" -f Makefile
+          ./COMPAS -v
+          ccache --show-stats || true
+
+      - name: Run native smoke test
+        working-directory: src
+        run: |
+          rm -rf smoke-output
+          ./COMPAS \
+            -n 1 \
+            --initial-mass-1 35 \
+            --initial-mass-2 31 \
+            -a 3.5 \
+            --random-seed 0 \
+            --metallicity 0.001 \
+            --quiet \
+            -o smoke-output
+          test -d smoke-output
+          find smoke-output -maxdepth 2 -type f | sort | sed -n '1,40p'
+
+      - name: Inspect runtime dependencies
+        run: |
+          echo "Runtime dependencies for native build:"
+          ldd src/COMPAS
+
+      - name: Package portable Linux bundle
+        run: |
+          bash misc/cicd-scripts/package-linux-bundle.sh src/COMPAS "$BUNDLE_DIR"
+
+      - name: Test bundled launcher
+        run: |
+          "$BUNDLE_DIR/run_compas.sh" -v
+
+          BUNDLE_SMOKE_DIR="${RUNNER_TEMP}/compas-bundle-smoke"
+          rm -rf "$BUNDLE_SMOKE_DIR"
+
+          "$BUNDLE_DIR/run_compas.sh" \
+            -n 1 \
+            --initial-mass-1 35 \
+            --initial-mass-2 31 \
+            -a 3.5 \
+            --random-seed 0 \
+            --metallicity 0.001 \
+            --quiet \
+            -o "$BUNDLE_SMOKE_DIR"
+
+          test -d "$BUNDLE_SMOKE_DIR"
+
+          echo "Runtime dependencies for bundled binary with bundled lib/:"
+          LD_LIBRARY_PATH="${GITHUB_WORKSPACE}/$BUNDLE_DIR/lib" ldd "$BUNDLE_DIR/bin/COMPAS"
+
+      - name: Archive bundle tarball
+        run: |
+          tar -C dist -czf "$BUNDLE_TARBALL" COMPAS-linux-x86_64
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: COMPAS-linux-x86_64
+          path: ${{ env.BUNDLE_TARBALL }}
+          if-no-files-found: error
+
+  verify-native-linux-bundle:
+    name: Verify bundled artifact on fresh runner
+    runs-on: ubuntu-22.04
+    needs: native-linux-bundle
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: COMPAS-linux-x86_64
+          path: downloaded-artifact
+
+      - name: Install Python runner only
+        run: |
+          python -m pip install --no-deps -e .
+
+      - name: Unpack bundled artifact
+        run: |
+          mkdir -p bundle-test
+          tar -xzf downloaded-artifact/COMPAS-linux-x86_64.tar.gz -C bundle-test
+          test -x bundle-test/COMPAS-linux-x86_64/run_compas.sh
+
+      - name: Inspect downloaded bundle dependencies
+        run: |
+          LD_LIBRARY_PATH="${GITHUB_WORKSPACE}/bundle-test/COMPAS-linux-x86_64/lib" \
+            ldd bundle-test/COMPAS-linux-x86_64/bin/COMPAS | tee bundle-test/ldd.txt
+
+          ! grep -q 'not found' bundle-test/ldd.txt
+          grep -q 'bundle-test/COMPAS-linux-x86_64/lib/libhdf5_serial' bundle-test/ldd.txt
+          grep -q 'bundle-test/COMPAS-linux-x86_64/lib/libgsl' bundle-test/ldd.txt
+          grep -q 'bundle-test/COMPAS-linux-x86_64/lib/libboost_program_options' bundle-test/ldd.txt
+
+      - name: Run downloaded bundle smoke test
+        run: |
+          ./bundle-test/COMPAS-linux-x86_64/run_compas.sh -v
+
+          ARTIFACT_SMOKE_DIR="${RUNNER_TEMP}/compas-downloaded-bundle-smoke"
+          rm -rf "$ARTIFACT_SMOKE_DIR"
+
+          ./bundle-test/COMPAS-linux-x86_64/run_compas.sh \
+            -n 1 \
+            --initial-mass-1 35 \
+            --initial-mass-2 31 \
+            -a 3.5 \
+            --random-seed 0 \
+            --metallicity 0.001 \
+            --quiet \
+            -o "$ARTIFACT_SMOKE_DIR"
+
+          test -d "$ARTIFACT_SMOKE_DIR"
+
+      - name: Run Python runner against downloaded bundle
+        env:
+          COMPAS_BUNDLE_ROOT: ${{ github.workspace }}/bundle-test/COMPAS-linux-x86_64
+        run: |
+          compas_run --print-path
+          compas_run -v
+
+          PYTHON_RUNNER_SMOKE_DIR="${RUNNER_TEMP}/compas-python-runner-smoke"
+          rm -rf "$PYTHON_RUNNER_SMOKE_DIR"
+
+          compas_run \
+            -n 1 \
+            --initial-mass-1 35 \
+            --initial-mass-2 31 \
+            -a 3.5 \
+            --random-seed 0 \
+            --metallicity 0.001 \
+            --quiet \
+            -o "$PYTHON_RUNNER_SMOKE_DIR"
+
+          test -d "$PYTHON_RUNNER_SMOKE_DIR"
