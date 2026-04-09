@@ -6,6 +6,8 @@ import yaml
 import argparse
 import warnings
 
+from compas_python_utils.compas_runner import resolve_compas_executable
+
 # Check if we are using python 3
 python_version = sys.version_info[0]
 print("python_version =", python_version)
@@ -43,15 +45,14 @@ class pythonProgramOptions:
         self.stringChoices = config['stringChoices'] if config['stringChoices'] else {}
         self.listChoices = config['listChoices'] if config['listChoices'] else {}
 
-        compas_root_dir = os.environ.get('COMPAS_ROOT_DIR', REPO_ROOT)
+        compas_root_dir = os.environ.get('COMPAS_ROOT_DIR')
         if compas_root_dir is None:
             warnings.warn(
                 'COMPAS_ROOT_DIR environment variable not set. Setting '
                 f'`export COMPAS_ROOT_DIR={REPO_ROOT}`'
             )
             os.environ['COMPAS_ROOT_DIR'] = REPO_ROOT
-        compas_exe = os.path.join(compas_root_dir, 'src/COMPAS')
-        compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH', compas_exe)
+        compas_executable_override = resolve_compas_executable()
         print('compas_executable_override', compas_executable_override)
         self.compas_executable = compas_executable_override
 

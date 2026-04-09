@@ -172,6 +172,14 @@ You can use pip to install the `compas_python_utils`
 
     pip install .
 
+You can also install the packaged PyPI distribution when a supported platform
+wheel is available::
+
+    pip install compas-popsynth
+
+This installs the Python utilities together with the bundled native COMPAS
+executable and the commonly used Python analysis dependencies.
+
 
 Use `-e .[dev]` to install in development mode (i.e. editable mode) and include the development dependencies.
 
