@@ -1701,6 +1701,8 @@
 //                                          - Fix for issue 1463: sign error in the Claeys+2014 common-envelope lambda prescription
 //  03.29.03 NRS - April  3, 2026       - Defect repair:
 //                                          - Fixed HeSDs not being recorded in the Supernovae logs (mentioned in issue 1350).
+//  03.29.04  IM - April 19, 2026       - Enhancement:
+//                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
 //
 //
 // Version string format is MM.mm.rr, where
@@ -1712,7 +1714,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.29.03";
+const std::string VERSION_STRING = "03.29.04";
 
 
 # endif // __changelog_h__

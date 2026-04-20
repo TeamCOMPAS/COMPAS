@@ -1471,31 +1471,31 @@ double GiantBranch::CalculateRemnantNSMassMullerMandel(const double p_COCoreMass
         while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
                (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
                 utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                utils::Compare(remnantMass, p_COCoreMass) > 0)) {
             remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
         }
         if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_COCoreMass) + MULLERMANDEL_MINNS) / 2.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
         while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
                (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
                 utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                utils::Compare(remnantMass, p_COCoreMass) > 0)) {
             remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
         }
         if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_COCoreMass) + MULLERMANDEL_MINNS) / 2.0;
     }
     else {
         while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
                (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
                 utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                utils::Compare(remnantMass, p_COCoreMass) > 0)) {
             remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
         }
         if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_COCoreMass) + MULLERMANDEL_MINNS) / 2.0;
     }
     return remnantMass;
 }
