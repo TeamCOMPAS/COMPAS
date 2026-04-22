@@ -60,11 +60,21 @@ jobs:
               Buffer.from(download.data)
             );
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
       - name: Unpack evolution plot artifact
         run: |
+          set -e
           mkdir -p evolution-plot
           unzip -o evolution-plot.zip -d evolution-plot
-          test -f "evolution-plot/${ARTIFACT_NAME}"
+          if [ ! -f "evolution-plot/${ARTIFACT_NAME}" ]; then
+            echo "Error: Expected artifact not found at evolution-plot/${ARTIFACT_NAME}"
+            exit 1
+          fi
+          echo "✓ Artifact unpacked successfully"
 
       - name: Create report with evolution plot
         env:
@@ -73,6 +83,9 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
+          set -e
+          trap 'rm -f evolution-plot.zip report.md' EXIT
+          
           # Create the markdown file
           cat <<EOF > report.md
           ## ✅ COMPAS Build Successful!
