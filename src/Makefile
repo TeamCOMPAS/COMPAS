@@ -1,4 +1,5 @@
-CPP ?= g++
+CPP = g++
+
 UNAME_S := $(shell uname -s)
 HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null)
 
