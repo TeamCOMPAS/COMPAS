@@ -30,14 +30,13 @@ jobs:
 
     name: Build COMPAS
     runs-on: ubuntu-22.04
+    container: teamcompas/compas:latest
+    # TODO: Switch to GHCR when package is made public
+    # container: ghcr.io/teamcompas/compas:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install build dependencies
-        run: |
-          bash misc/cicd-scripts/linux-dependencies native-build
 
       - name: Build COMPAS from source
         run: |
