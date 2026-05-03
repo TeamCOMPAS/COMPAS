@@ -1,24 +1,34 @@
-function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, ...
-    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, Rdetections, DetectableMergerRate]=...
-    CosmicHistoryIntegrator(filename, zlistformation, zmaxdetection, Msimulated, makeplots)
+function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByBinary, ...
+    FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, MergerRateByRedshiftByBinary,...
+    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, pdetectionByRedshiftByMtByEta, ...
+    DetectableMergerRateByRedshiftByBinary, DetectableMergerRateByRedshiftByMtByEta, ...
+    RdetectionsByRedshiftByBinary, RdetectionsByRedshiftByMtByEta, RdetectionsPerfectDetectorByRedshiftByBinary]=...
+    CosmicHistoryIntegrator(filename, noisefile, zlistformation, zmaxdetection, Msimulated, makeplots, data)
 % Integrator for the binary black hole merger rate over cosmic history
 % COMPAS (Compact Object Mergers: Population Astrophysics and Statistics) 
 % software package
 %
 % USAGE: 
-% [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, ...
-%    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, Rdetections, DetectableMergerRate]]=...
-%    CosmicHistoryIntegrator(filename, zlistformation, zmaxdetection, Msimulated [,makeplots])
+% [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByBinary, ...
+%    FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, MergerRateByRedshiftByBinary,...
+%    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, pdetectionByRedshiftByMtByEta, ...
+%    DetectableMergerRateByRedshiftByBinary, DetectableMergerRateByRedshiftByMtByEta,  ...
+%    RdetectionsByRedshiftByBinary, RdetectionsByRedshiftByMtByEta, RdetectionsPerfectDetectorByRedshiftByBinary]=...
+%    CosmicHistoryIntegrator(filename, noisefile, zlistformation, zmaxdetection, Msimulated, Msimulated [,makeplots, data])
 %
 % INPUTS:
 %   filename: name of population synthesis input file 
 %           should be in COMPAS output h5 format
+%   noisefile: file containing noise ASD (first column frequency, second ASD)
 %   zlistformation: vector of redshifts at which the formation rate is
 %   computed
 %   zmaxdetection:  maximum redshift to which the detection rate is computed
 %   Msimulated: total star forming mass represented by the simulation (for
 %   normalisation)
 %   makeplots:  if set to 1, generates a set of useful plots (default = 0)
+%   data: if provided, this contains a list of simulated binaries as a matrix, 
+%   with each row containing a binary and the columns containing M1, M2, Z and 
+%   tdelay in that order; the filename is then ignored
 %
 % OUTPUTS: 
 %   SFR is a vector of size length(zlistformation) containing the star formation rate 
@@ -26,14 +36,20 @@ function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRate
 %   Zlist is a vector of metallicities, taken from the COMPAS run input file
 %   Mtlist is a list of total mass bins
 %   etalist is a list of symmetric mass ratio bins
+%   FormationRateByRedshiftByBinary is a matrix of size length(zformationlist) X length(M1)
+% which contains a formation rate of merging double compact objects just
+% like this binary, in units of formed DCOs per Mpc^3 of comoving volume per year of source time
 %   FormationRateByRedshiftByZ is a matrix of size length(zformationlist) X length(Zlist) 
-% which contains a formation rate of merging double compact objects in the given redshift 
+% which contains the formation rate of merging double compact objects in the given redshift 
 % and metallicity bin, in units of formed DCOs per Mpc^3 of comoving volume per
 % year of source time
 %   FormationRateByRedshiftByMtByEta is a matrix of size length(zformationlist) 
 % X length(Mtlist) X length(etalist) which contains a formation rate of merging double compact objects 
 % in the given redshift, total mass and eta bin, in units of formed DCOs per Mpc^3 
 % of comoving volume per year of source time
+%   MergerRateByRedshiftByBinary is a matrix of size length(zformationlist) X length(M1)
+% which contains the merger rate of merging double compact objects just
+% like this binary, in units of mergers per Mpc^3 of comoving volume per year of source time
 %   MergerRateByRedshiftByZ is a matrix of size length(zformationlist) X length(Zlist) 
 % which contains a merger rate of double compact objects in the given redshift 
 % and metallicity bin, in units of mergers per Mpc^3 of comoving volume per
@@ -44,21 +60,39 @@ function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRate
 % of comoving volume per year of source time
 %   zlistdetection is a vector of redshifts at which detection rates are
 % computed (a subset of zlistformation going up to zmaxdetection)
-%   Rdetection is a matrix of size length(zlistdetection) X length(Mtlist) X
-% length(etalist) containing the detection rate per year of observer time
-% from a given redshift bin and total mass and symmetric mass ratio pixel
-%   DetectableMergerRate is a matrix of the same size as Rdetection but 
-% containing the intrinsic rate of detectable mergers per Mpc^3 of comoving
+%   pdetectionByRedshiftByMtByEta is a matrix of size length(zlistdetection) X length(Mtlist) X length(etalist)
+% containing the probability that a binary of a given mass and mass ratio
+% is detectable for a given merger redshift
+%   DetectableMergerRateByRedshiftByBinary is a matrix of size 
+% length(zlistdetection) X length(M1), containing the intrinsic rate of mergers of 
+% binaries just like this one per Mpc^3 of comoving
 % volume per year of source time
+%   DetectableMergerRateByRedshiftByMtByEta is a matrix of size 
+% length(zlistdetection) X length(Mtlist) X length(etalist) containing the detection rate per year of observer time
+% from a given redshift bin and total mass and symmetric mass ratio pixel
+%   RdetectionsByRedshiftByBinary is a matrix of the same size as 
+% DetectableMergerRateByRedshiftByBinary containing the detection rate  
+% for binaries just like this one per year of observer time
+% from a given redshift bin
+%   RdetectionsByRedshiftByMtByEta is a matrix of the same size as 
+% DetectableMergerRateByRedshiftByMtByEta containing the detection rate per 
+% year of observer time from a given redshift bin and total mass and symmetric mass ratio pixel
+%   RdetectionsPerfectDetectorByRedshiftByBinary is a matrix of the same size
+% as RdetectionsByRedshiftByBinary containing the detection rate per year 
+% of observer time from a given redshift bin for binaries just like this one
+% assuming an imaginary perfectly sensitive detector
 
 %
 % EXAMPLE:
 % zlist=0:0.01:10;
-% [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, ...
-%    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, Rdetections, DetectableMergerRate]=...
-% CosmicHistoryIntegrator('~/Work/COMPASresults/runs/Zdistalpha1-031803.h5', zlist, 1.5, 90e6, 1);
+% [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByBinary, ...
+%    FormationRateByRedshiftByZ, FormationRateByRedshiftByMtByEta, MergerRateByRedshiftByBinary,...
+%    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, pdetectionByRedshiftByMtByEta, ...
+%    DetectableMergerRateByRedshiftByBinary, DetectableMergerRateByRedshiftByMtByEta,  ...
+%    RdetectionsByRedshiftByBinary, RdetectionsByRedshiftByMtByEta, RdetectionsPerfectDetectorByRedshiftByBinary]=...
+% CosmicHistoryIntegrator('~/Work/COMPASresults/runs/Zdistalpha1-031803.h5', '~/Work/Rai/aligo_O4high.txt', zlist, 1.5, 90e6, 1);
 % figure(10), semilogy(zlist, sum(MergerRateByRedshiftByZ,2)*1e9,'LineWidth',3), set(gca,'FontSize',20),
-% xlabel('Redshift z'), ylabel('Formation rate of merging DCO per Gpc^3 per yr')
+% xlabel('Redshift z'), ylabel('Merger rate of DCO per Gpc^3 per yr')
 % 
 
 
@@ -71,15 +105,26 @@ c=299792458;		%speed of light, m/s
 Mpc=Mpcm/c;         %Mpc in seconds
 yr=3.15569e7;       %year in seconds
 
-if (nargin<4)
+if (nargin<5)
     error('Not enough input arguments.');
 end;
 if (nargin<5), makeplots=0; end;
+if (nargin<7),
+    %load COMPAS data
+    [M1,M2,Z,Tdelay]=DataRead(filename); 
+else
+    if(size(data,2)~=4), 
+        error('The data must have 4 columns: M1, M2, Z, Tdelay');
+    end;
+    M1=data(:,1);  M2=data(:,2); Z=data(:,3); Tdelay=data(:,4);
+    %maxNS=0.0;    %pretend all are BBH if reading from file
+end;
+    
+
 
 %cosmology calculator
 [tL,Dl,dVc]=Cosmology(zlistformation); 
-%load COMPAS data
-[M1,M2,Z,Tdelay,maxNS]=DataRead(filename); 
+
 %metallicity-specific SFR
 [SFR,Zlist,Zweight]=Metallicity(zlistformation,min(Z),max(Z)); 
 
@@ -90,44 +135,72 @@ if (nargin<5), makeplots=0; end;
 dz=zlistformation(2)-zlistformation(1);
 etalist=0.01:0.01:0.25;
 Mtlist=1:1:ceil(max(M1+M2));
+FormationRateByRedshiftByBinary=zeros(length(zlistformation),length(M1));
 FormationRateByRedshiftByZ=zeros(length(zlistformation),length(Zlist));
 FormationRateByRedshiftByMtByEta=zeros(length(zlistformation),length(Mtlist),length(etalist));
+MergerRateByRedshiftByBinary=zeros(length(zlistformation),length(M1));
 MergerRateByRedshiftByZ=zeros(length(zlistformation),length(Zlist));
 MergerRateByRedshiftByMtByEta=zeros(length(zlistformation),length(Mtlist),length(etalist));
-x=zeros(size(M1));
+etaindexByBinary=zeros(size(M1));   MtindexByBinary=zeros(size(M1));
 for(i=1:length(M1)),
     Zcounter=find(Zlist>=Z(i),1);
     eta=M1(i)*M2(i)/(M1(i)+M2(i))^2;
-    etaindex=ceil(eta*100);
-    Mtindex=ceil(M1(i)+M2(i));
-    FormationRateByRedshiftByZ(:,Zcounter)=transpose(SFR).*Zweight(:,Zcounter)/Msimulated;
-    FormationRateByRedshiftByMtByEta(:,Mtindex,etaindex)=transpose(SFR).*Zweight(:,Zcounter)/Msimulated;
+    etaindex=ceil(eta*100);     etaindexByBinary(i)=etaindex;
+    Mtindex=ceil(M1(i)+M2(i));  MtindexByBinary(i)=Mtindex;
+    FormationRateByRedshiftByBinary(:,i)=transpose(SFR).*Zweight(:,Zcounter)/Msimulated;
+    FormationRateByRedshiftByZ(:,Zcounter)=FormationRateByRedshiftByZ(:,Zcounter)+...
+        FormationRateByRedshiftByBinary(:,i);
+    FormationRateByRedshiftByMtByEta(:,Mtindex,etaindex)=FormationRateByRedshiftByMtByEta(:,Mtindex,etaindex)+...
+        FormationRateByRedshiftByBinary(:,i);
     tLform=tL+Tdelay(i);    %lookback time of when binary would have to form in order to merge at lookback time tL
     firsttooearlyindex=find((tLform)>max(tL),1);
     if(isempty(firsttooearlyindex)), firsttooearlyindex=length(tL)+1; end;
     zForm=interp1(tL,zlistformation,tLform(1:firsttooearlyindex-1));
     zFormindex=ceil((zForm-zlistformation(1))./dz)+1;
     if(~isempty(zFormindex))
-        x(i)=SFR(zFormindex(1))*Zweight(zFormindex(1),Zcounter)/Msimulated;
+        MergerRateByRedshiftByBinary(1:firsttooearlyindex-1,i)=...
+            transpose(SFR(zFormindex)).*Zweight(zFormindex,Zcounter)/Msimulated;
         MergerRateByRedshiftByZ(1:firsttooearlyindex-1,Zcounter)=...
             MergerRateByRedshiftByZ(1:firsttooearlyindex-1,Zcounter)+...
-            transpose(SFR(zFormindex)).*Zweight(zFormindex,Zcounter)/Msimulated;
+            MergerRateByRedshiftByBinary(1:firsttooearlyindex-1,i);
         MergerRateByRedshiftByMtByEta(1:firsttooearlyindex-1,Mtindex,etaindex) =...
             MergerRateByRedshiftByMtByEta(1:firsttooearlyindex-1,Mtindex,etaindex) + ...
-            transpose(SFR(zFormindex)).*Zweight(zFormindex,Zcounter)/Msimulated;
+            MergerRateByRedshiftByBinary(1:firsttooearlyindex-1,i);
     end;
 end;
 
 zlistdetection=zlistformation(1:find(zlistformation<=zmaxdetection,1,"last"));
-fin=load('~/Work/Rai/LIGOfuture_data/freqVector.txt');
-%noise=load('~/Work/Rai/LIGOfuture_data/dataNomaLIGO.txt');
-noise=load('~/Work/Rai/LIGOfuture_data/dataEarly_low.txt');
-[Rdetections,DetectableMergerRate]=...
-    DetectionRate(zlistformation,Mtlist,etalist,MergerRateByRedshiftByMtByEta,zlistdetection,fin,noise,Dl,dVc);
+    
+%detection probability
+pdetectionByRedshiftByMtByEta=...
+    DetectionProbability(zlistdetection,Mtlist,etalist,noisefile,Dl);
+pdetectionsByZByBinary=zeros(length(zlistdetection),length(M1));
+for(i=1:length(M1)),
+    pdetectionByRedshiftByBinary(:,i)=pdetectionByRedshiftByMtByEta(:,MtindexByBinary(i),etaindexByBinary(i));
+end;
+%Detections per unit source time per unit Vc in each Mt and eta bin
+DetectableMergerRateByRedshiftByMtByEta=...
+    MergerRateByRedshiftByMtByEta(1:length(zlistdetection),:,:).*pdetectionByRedshiftByMtByEta;
+%Detections per unit source time per unit Vc for each binary
+DetectableMergerRateByRedshiftByBinary=...
+    MergerRateByRedshiftByBinary(1:length(zlistdetection),:).*pdetectionByRedshiftByBinary;
+%Detections per unit observer time in each Mt and eta bin
+RdetectionsByRedshiftByMtByEta=...
+    DetectableMergerRateByRedshiftByMtByEta.*transpose(dVc(1:length(zlistdetection)))./(1+zlistdetection'); 
+%Detections per unit observer time by binary
+RdetectionsByRedshiftByBinary=...
+    DetectableMergerRateByRedshiftByBinary.*transpose(dVc(1:length(zlistdetection)))./(1+zlistdetection');
+%Detections per unit observer time per binary by an imaginary perfect detector
+RdetectionsPerfectDetectorByRedshiftByBinary=...
+    MergerRateByRedshiftByBinary(1:length(zlistdetection),:).*...
+        transpose(dVc(1:length(zlistdetection)))./(1+zlistdetection');
+%total detection rate
+disp(['Total detection rate: ', ...
+        num2str(sum(sum(RdetectionsByRedshiftByBinary))), ' per year']);
 
 if(makeplots==1),   %make a set of default plots
     MakePlots(M1,M2,Z,Tdelay,zlistformation,Zlist,SFR,Zweight,...
-        MergerRateByRedshiftByZ, Rdetections, DetectableMergerRate, zlistdetection, Mtlist, etalist, 1);
+        MergerRateByRedshiftByZ, RdetectionsByRedshiftByMtByEta, DetectableMergerRateByRedshiftByMtByEta, zlistdetection, Mtlist, etalist, 1);
 end;
 
 end %end of CosmicHistoryIntegrator
@@ -136,7 +209,7 @@ end %end of CosmicHistoryIntegrator
 %Load the data stored in COMPAS .h5 output format from a file
 %Select only double compact object mergers of interest, and return the
 %component masses, metallicities, and star formation to merger delay times
-function [M1,M2,Z,Tdelay, maxNS]=DataRead(file)
+function [M1,M2,Z,Tdelay]=DataRead(file)
     if(exist(file, 'file')~=2), 
         error('Input file does not exist');
     end;    
@@ -157,7 +230,7 @@ function [M1,M2,Z,Tdelay, maxNS]=DataRead(file)
     %NSBH=(((type1==13) & (type2==14)) | ((type1==14) & (type2==13)));
     %mergingDCO=mergingBNS | mergingNSBH | mergingBBH;
     %BNScount=sum(mergingBNS); NSBHcount=sum(mergingNSBH); BBHcount=sum(mergingBBH);
-    maxNS=max(max(mass1(type1==13)), max(mass2(type2==13)));
+    %maxNS=max(max(mass1(type1==13)), max(mass2(type2==13)));
     chirpmass=mass1.^0.6.*mass2.^0.6./(mass1+mass2).^0.2;
     q=mass2./mass1;
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
@@ -235,16 +308,17 @@ end %end of Metallicity
 
 %Compute detection rates per year of observer time and per year of source time
 %per Mpc^3 of comoving volume as a function of total mass and eta
-function [Rdetections, DetectableMergerRate]=...
-    DetectionRate(zlistformation,Mtlist,etalist,MergerRateByRedshiftByMtByEta,zlistdetection,freqfile,noisefile,Dl,dVc)
+%Compute the detection probability as a function of detection redshift, 
+%total mass and eta
+function [pdetection]=...
+    DetectionProbability(zlistdetection,Mtlist,etalist,noisefile,Dl)
 
-    fin=load('~/Work/Rai/LIGOfuture_data/freqVector.txt');
-    noise=load('~/Work/Rai/LIGOfuture_data/dataMid_low.txt');
+    noise=load(noisefile);
 
-    flow=10;
+    flow=max(10,ceil(min(noise(:,1))));
     df=1;
     f=flow:df:500; %BBH focussed
-    Sf=interp1(fin, noise.^2, f);
+    Sf=interp1(noise(:,1), noise(:,2).^2, f);
 
     Ntheta=1e6;
     psi=rand(1,Ntheta)*pi;
@@ -275,26 +349,19 @@ function [Rdetections, DetectableMergerRate]=...
 
     for(i=1:length(zlistdetection)),
         for(j=1:length(Mtlist)),
-            SNR(i,j,:)=SNRat1Mpc(ceil(j*(zlistdetection(i)+1)),:)./Dl(i);
+            SNR(i,j,:)=SNRat1Mpc(ceil(Mtlist(j)*(zlistdetection(i)+1)),:)./Dl(i);
         end;
     end;
-    %for(i=1:length(zlistdetection)), SNR(i,:,:)=SNRat1Mpc./Dl(i); end;
 
-    SNR8pre=1:0.1:1000;
+    SNR8pre=1:0.01:100;
     theta=1./SNR8pre;
     pdetect=1-interp1([0,Thetas,1],[(0:Ntheta)/Ntheta,1],theta);
     pdetect(1)=0;   %set of measure zero to exceed threshold, but enforce just in case
 
-    Rdetections=zeros(length(zlistdetection),length(Mtlist),length(etalist));          %Detections per unit observer time
-    DetectableMergerRate=zeros(length(zlistdetection),length(Mtlist),length(etalist)); %Detections per unit source time per unit Vc
     SNR8=SNR/8;
-    pdetection=zeros(size(Rdetections));
-    pdetection=pdetect(max(min(floor(SNR8*10),length(pdetect)),1));
-
-    DetectableMergerRate=MergerRateByRedshiftByMtByEta(1:length(zlistdetection),:,:).*pdetection;
-    Rdetections=DetectableMergerRate.*transpose(dVc(1:length(zlistdetection)))./(1+zlistdetection');
-
-end %end of DetectionRate
+    pdetection=zeros(length(zlistdetection),length(Mtlist),length(etalist));
+    pdetection=pdetect(max(min(floor((SNR8-1)*100),length(pdetect)),1));
+end %end of DetectionProbability
 
 %Make a set of default plots
 function MakePlots(M1,M2,Z,Tdelay,zlistformation,Zlist,SFR,Zweight,...
@@ -341,11 +408,11 @@ function MakePlots(M1,M2,Z,Tdelay,zlistformation,Zlist,SFR,Zweight,...
 
 
     figure(fignumber+4), clf(fignumber+4);
-    RdetectionsByzMt=sum(Rdetections,3); %sum across eta
-    semilogy(zlistdetection, cumsum(sum(RdetectionsByzMt,2)), 'LineWidth', 3),  hold on;
-    semilogy(zlistdetection, cumsum(sum(RdetectionsByzMt(:,Mtlist<=5),2)), 'LineWidth', 1);
-    semilogy(zlistdetection, cumsum(sum(RdetectionsByzMt(:,Mtlist>5 & Mtlist<20),2)), 'LineWidth', 1);
-    semilogy(zlistdetection, cumsum(sum(RdetectionsByzMt(:,Mtlist>=20),2)), 'LineWidth', 1); hold off;
+    RdetectionsByRedshiftMt=sum(Rdetections,3); %sum across eta
+    semilogy(zlistdetection, cumsum(sum(RdetectionsByRedshiftMt,2)), 'LineWidth', 3),  hold on;
+    semilogy(zlistdetection, cumsum(sum(RdetectionsByRedshiftMt(:,Mtlist<=5),2)), 'LineWidth', 1);
+    semilogy(zlistdetection, cumsum(sum(RdetectionsByRedshiftMt(:,Mtlist>5 & Mtlist<20),2)), 'LineWidth', 1);
+    semilogy(zlistdetection, cumsum(sum(RdetectionsByRedshiftMt(:,Mtlist>=20),2)), 'LineWidth', 1); hold off;
     legend('Total rate', 'From M_t<=5 M_o', 'From 5<M_t/M_o<20', 'From M_t>=20 M_o'),
     set(gca, 'FontSize', 20); %for labels
     xlabel('z'),
