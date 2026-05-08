@@ -19,7 +19,7 @@ function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByBinary, ...
 % INPUTS:
 %   filename: name of population synthesis input file 
 %           should be in COMPAS output h5 format
-%   noisefile: file containing noise ASD (first column frequency, second ASD)
+%   noisefile: file containing noise PSD (first column frequency, second PSD)
 %   zlistformation: vector of redshifts at which the formation rate is
 %   computed
 %   zmaxdetection:  maximum redshift to which the detection rate is computed
@@ -90,7 +90,7 @@ function [SFR, Zlist, Mtlist, etalist, FormationRateByRedshiftByBinary, ...
 %    MergerRateByRedshiftByZ, MergerRateByRedshiftByMtByEta, zlistdetection, pdetectionByRedshiftByMtByEta, ...
 %    DetectableMergerRateByRedshiftByBinary, DetectableMergerRateByRedshiftByMtByEta,  ...
 %    RdetectionsByRedshiftByBinary, RdetectionsByRedshiftByMtByEta, RdetectionsPerfectDetectorByRedshiftByBinary]=...
-% CosmicHistoryIntegrator('~/Work/COMPASresults/runs/Zdistalpha1-031803.h5', '~/Work/Rai/aligo_O4high.txt', zlist, 1.5, 90e6, 1);
+% CosmicHistoryIntegrator('~/Work/COMPASresults/runs/Zdistalpha1-031803.h5', '~/Work/Rai/psd-O4-2023_06_v1-L.txt', zlist, 1.5, 90e6, 1);
 % figure(10), semilogy(zlist, sum(MergerRateByRedshiftByZ,2)*1e9,'LineWidth',3), set(gca,'FontSize',20),
 % xlabel('Redshift z'), ylabel('Merger rate of DCO per Gpc^3 per yr')
 % 
@@ -318,7 +318,8 @@ function [pdetection]=...
     flow=max(10,ceil(min(noise(:,1))));
     df=1;
     f=flow:df:500; %BBH focussed
-    Sf=interp1(noise(:,1), noise(:,2).^2, f);
+    Sf=interp1(noise(:,1), noise(:,2), f);
+    %Sf=interp1(noise(:,1), noise(:,2).^2, f); %for ASDs
 
     Ntheta=1e6;
     psi=rand(1,Ntheta)*pi;
