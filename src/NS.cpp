@@ -394,6 +394,12 @@ void NS::CalculateAndSetPulsarParameters() {
 /*
  * Calculate the NS magnetic field decay timescale (in Myr)
  * 
+ * taud = tauconst * (Bref/B)**alpha
+ * where tauconst is taud(B=Bref). We assume Bref = 1E11 G.
+ * 
+ * From Dall'Osso et al. 2012 (https://academic.oup.com/mnras/article/422/4/2878/1048228) 
+ * following Colpi et al. 2000 (https://iopscience.iop.org/article/10.1086/312448)
+ * 
  * double CalculateMagneticFieldDecayTimescale
  * 
  * @return                                      Magnetic field decay timescale for an isolated neutron star in Myr
@@ -401,16 +407,28 @@ void NS::CalculateAndSetPulsarParameters() {
  * */
 double NS::CalculateMagneticFieldDecayTimescale(){
 
-    double taud = 0.0;
-    double Bref = 1E11; // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
+    std::cout << "CalculateMagneticFieldDecayTimescale" << std::endl;
 
-    if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){              // No scaling with magnetic field
-        taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                    // Decay timescale is just a constant
+    double taud                 = 0.0;                                                          // Initialise variable to hold magnetic field decay timescale
+    double Bref                 = 1E11;                                                         // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
+    double initialMagField_G    = m_PulsarDetails.magneticField * TESLA_TO_GAUSS;               // Convert T to G 
+
+    std::cout << "Bref = " << Bref << std::endl;
+    std::cout << "initialMagField_G = " << initialMagField_G << std::endl;
+
+    if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){                              // No scaling with magnetic field
+        std::cout << "alpha = 0" << std::endl;
+        taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                                    // Decay timescale is just a constant
     }
     else{
-        taud = OPTIONS->PulsarMagneticFieldDecayTimescale() * PPOW(Bref/m_PulsarDetails.magneticField, OPTIONS->PulsarMagneticFieldDecayTimescalePower());
+        std::cout << "alpha != 0" << std::endl;
+        std::cout << "B = " << m_PulsarDetails.magneticField << std::endl;
+        taud = OPTIONS->PulsarMagneticFieldDecayTimescale() * PPOW(Bref/initialMagField_G, OPTIONS->PulsarMagneticFieldDecayTimescalePower());
     }
     
+    std::cout << "tauconst = " << OPTIONS->PulsarMagneticFieldDecayTimescale() << std::endl;
+    std::cout << "taud = " << taud << std::endl;
+
     return taud;
 }
 
@@ -426,6 +444,9 @@ double NS::CalculateMagneticFieldDecayTimescale(){
  */
 double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField){
 
+    std::cout << "CalculateMagneticFieldStrengthOnPhase" << std::endl;
+    std::cout << "p_Time " << p_Time << std::endl;
+
     double magneticFieldStrength = 0.0;
 
     double magFieldLowerLimit    = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA; 
@@ -433,10 +454,13 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
     const double alpha           = OPTIONS->PulsarMagneticFieldDecayTimescalePower();                                
 
     if (alpha == 0.0){              // see Equation 6 in  arXiv:0903.3538v2    
+        std::cout << "alpha == 0" << std::endl;
         magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * exp(-p_Time / tau);   // update pulsar magnetic field in SI. 
     }
     else{                   // Equation 8 in Dall'Osso et al. 2012 (https://ui.adsabs.harvard.edu/abs/2012MNRAS.422.2878D/abstract) but with a minimum magnetic field
-        magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * PPOW(1.0 + alpha*(p_Time/tau), 1.0/alpha);
+        std::cout << "alpha != 0" << std::endl;
+        magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * PPOW(1.0 + alpha*(p_Time/tau), -1.0/alpha);
+        std::cout << "p_initialMagField, magneticFieldStrength = " << p_initialMagField << " " << magneticFieldStrength << std::endl;
     }
 
     return magneticFieldStrength;
@@ -457,6 +481,9 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
  */
 double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod){
     
+    std::cout << "CalculateSpinPeriodOnPhase" << std::endl;
+    std::cout << "p_Time " << p_Time << std::endl;
+
     // Initialise variables for results
     double spinPeriodSquared = 0.0;
     double spinPeriod        = 0.0;
@@ -492,7 +519,7 @@ double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initia
         brackets = (1.0 / (2.0 - alpha)) * (1.0 - PPOW(1.0 + alpha * (p_Time/tau), ((alpha - 2.0)/alpha))); 
     }
 
-    spinPeriodSquared = initialSpinPeriodSquared + prefactor * initialMagField_G * initialMagField_G * brackets; // spin period squared
+    spinPeriodSquared = initialSpinPeriodSquared + prefactor * initialMagField_G * initialMagField_G * tau * brackets; // spin period squared
     
     spinPeriod = sqrt(spinPeriodSquared); // final spin period
 
@@ -504,10 +531,15 @@ double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initia
  *
  * This function is called in multiple situations in the NS::UpdateMagneticFieldAndSpin() function
  *
+ * Note that we assume the rotational and magnetic axis 
+ * are orthogonal and are not evolved in the current model.
+ * A model with evolving alpha will be implemented in a future version. 
+ * 
  * Modifies the following class member variables:
  *
  *    m_AngularMomentum_CGS
  *    m_PulsarDetails.spinFrequency
+ *    m_PulsarDetails.spinPeriod
  *    m_PulsarDetails.magneticField
  *    m_PulsarDetails.spinDownRate
  *
@@ -518,6 +550,10 @@ double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initia
  */
 void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     
+    std::cout << std::endl;
+    std::cout << "SpinDownIsolatedPulsar" << std::endl;
+    std::cout << "p_Stepsize " << p_Stepsize << std::endl;
+
     // Get initial state
     double initialMagField        = m_PulsarDetails.magneticField;                                                          // (in T)
     // double initialMagField_G      = initialMagField * TESLA_TO_GAUSS;
