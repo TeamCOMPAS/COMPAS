@@ -59,13 +59,15 @@ protected:
 
     // member functions - alphabetically
     double      CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const ;
-    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                            { return 1.28; }                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+    double      CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                            { return HURLEY_HJELLMING_WEBBINK_QCRIT_HE_GIANT; }
 
     double      CalculateLuminosityOnPhase(const double p_CoreMass, const double p_GBPB, const double p_GBPD) const { return CalculateLuminosityOnPhase_Static(p_CoreMass, p_GBPB, p_GBPD); }
     double      CalculateLuminosityOnPhase() const                                                                  { return CalculateLuminosityOnPhase(m_CoreMass, m_GBParams[static_cast<int>(GBP::B)], m_GBParams[static_cast<int>(GBP::D)]); }
 
     double      CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const;
     double      CalculateRadiusOnPhase() const                                                                      { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
+    
+    double          CalculateZetaEquilibrium()                                                                      { return 0.0; }                                         // At lowest order, giants with a convective envelope have radii that are insensitive to mass loss 
 
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                                  { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }

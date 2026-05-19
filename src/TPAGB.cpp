@@ -80,7 +80,7 @@ void TPAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 double TPAGB::CalculateLambdaDewi() const {
 
-    double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
+    double lambda3 = std::min(0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                           // (A.4) Claeys+2014 with corrected typo (see e.g. Appendix E.1 in Marchant+2021)
     double lambda1 = std::max(1.0, std::max(lambda3, -3.5 - (0.75 * log10(m_Mass)) + log10(m_Luminosity)));                 // (A.5) Bottom, Claeys+2014
 	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
@@ -978,8 +978,11 @@ double TPAGB::ChooseTimestep(const double p_Time) const {
  * @return                                      Boolean flag: true if star has gone Supernova, false if not
  */
 bool TPAGB::IsSupernova() const {
-    // no supernova if CO core mass is too low or helium core mass is too low at base of AGB or the envelope has already been removed
-    return utils::Compare(m_COCoreMass, m_GBParams[static_cast<int>(GBP::McSN)]) >= 0 && 
-           utils::Compare(CalculateInitialSupernovaMass(), OPTIONS->MCBUR1())    >= 0 && 
-           utils::Compare(m_COCoreMass, m_Mass) < 0;
+    double snMass = CalculateInitialSupernovaMass();
+    bool isCCSN = utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
+        utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
+    bool isECSN = utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN()) &&
+        utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
+        utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
+    return isCCSN || isECSN;
 }

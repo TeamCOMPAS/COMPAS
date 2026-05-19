@@ -79,7 +79,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
     // open the run details file inside the HDF5 container
     string h5GroupName = p_Filename;                                                                                    // HDF5 group name for run details file
     h5GroupName        = utils::trim(h5GroupName);                                                                      // remove leading and trailing blanks
-    hid_t h5GroupId = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                          // open the group
+    hid_t h5GroupId    = H5Gopen(m_Run_Details_H5_File.fileId, h5GroupName.c_str(), H5P_DEFAULT);                       // open the group
     if (h5GroupId >= 0) {                                                                                               // group open (and therefore already exists)?
         Squawk("ERROR: HDF5 group with name " + h5GroupName + " already exists");                                       // that's not ok - announce error
         (void)H5Gclose(h5GroupId);                                                                                      // close the group
@@ -146,9 +146,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                     }
                     
                     if (ok) {                                                                                           // have valid property
-                        h5DatasetName = std::get<0>(runDetails);                                                        // dataset name
+                        h5DatasetName       = std::get<0>(runDetails);                                                  // dataset name
                         TYPENAME compasType = std::get<1>(runDetails);                                                  // COMPAS data type
-                        h5DataType = GetHDF5DataType(compasType, std::get<2>(runDetails));                              // HDF5 data type
+                        h5DataType          = GetHDF5DataType(compasType, std::get<2>(runDetails));                     // HDF5 data type
                         h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
@@ -160,7 +160,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                             // derivation
                             h5DatasetName += "-Derivation";                                                             // derivation
-                            h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
+                            h5Dset         = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                             if (h5Dset < 0) {                                                                           // dataset not created
                                 Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                // announce error
                                 ok = false;                                                                             // fail
@@ -177,9 +177,9 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
                 for (std::size_t idx = 0; idx < m_OptionDetails.size(); idx++) {                                        // for each program option
                     // option
                     TYPENAME compasType = m_OptionDetails[idx].dataType;                                                // COMPAS data type
-                    h5DataType = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());                 // HDF5 data type for COMPAS data type
-                    h5DatasetName = m_OptionDetails[idx].optionStr;                                                     // dataset (option name)
-                    h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize);       // create dataset
+                    h5DataType          = GetHDF5DataType(compasType, (m_OptionDetails[idx].valueStr).length());        // HDF5 data type for COMPAS data type
+                    h5DatasetName       = m_OptionDetails[idx].optionStr;                                               // dataset (option name)
+                    h5Dset              = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5DataType, "-", chunkSize); // create dataset
                     if (h5Dset < 0) {                                                                                   // dataset not created
                         Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                        // announce error
                         ok = false;                                                                                     // fail
@@ -190,7 +190,7 @@ bool Log::OpenHDF5RunDetailsFile(const string p_Filename) {
 
                         // derivation
                         h5DatasetName += "-Derivation";                                                                 // derivation
-                        h5Dset = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
+                        h5Dset         = CreateHDF5Dataset(m_HDF5ContainerName, h5GroupId, h5DatasetName, h5String13DataType, "-", chunkSize); // create dataset
                         if (h5Dset < 0) {                                                                               // dataset not created
                             Squawk("ERROR: Error creating HDF5 dataset with name " + h5DatasetName);                    // announce error
                             ok = false;                                                                                 // fail
@@ -284,21 +284,23 @@ void Log::Start(const string      p_LogBasePathString,
         // may be changed if a logfile definitions file is present and processed.
 
         // BSE
-        if (NotesPropertyPresent(m_BSE_CEE_Rec        )) m_BSE_CEE_Notes         = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_DCO_Rec        )) m_BSE_DCO_Notes         = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Detailed_Rec   )) m_BSE_Detailed_Notes    = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Pulsars_Rec    )) m_BSE_Pulsars_Notes     = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_RLOF_Rec       )) m_BSE_RLOF_Notes        = BOOL_VECTOR(m_BSE_RLOF_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_SNE_Rec        )) m_BSE_SNE_Notes         = BOOL_VECTOR(m_BSE_SNE_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_Switch_Rec     )) m_BSE_Switch_Notes      = BOOL_VECTOR(m_BSE_Switch_Notes.size(), true);
-        if (NotesPropertyPresent(m_BSE_SysParms_Rec   )) m_BSE_SysParms_Notes    = BOOL_VECTOR(m_BSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_CEE_Rec         )) m_BSE_CEE_Notes          = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_DCO_Rec         )) m_BSE_DCO_Notes          = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Detailed_Rec    )) m_BSE_Detailed_Notes     = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Pulsars_Rec     )) m_BSE_Pulsars_Notes      = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_RLOF_Rec        )) m_BSE_RLOF_Notes         = BOOL_VECTOR(m_BSE_RLOF_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SNE_Rec         )) m_BSE_SNE_Notes          = BOOL_VECTOR(m_BSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Switch_Rec      )) m_BSE_Switch_Notes       = BOOL_VECTOR(m_BSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_SysParms_Rec    )) m_BSE_SysParms_Notes     = BOOL_VECTOR(m_BSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_Sys_Snapshot_Rec)) m_BSE_Sys_Snapshot_Notes = BOOL_VECTOR(m_BSE_Sys_Snapshot_Notes.size(), true);
 
         // SSE
-        if (NotesPropertyPresent(m_SSE_Detailed_Rec   )) m_SSE_Detailed_Notes    = BOOL_VECTOR(m_SSE_Detailed_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_SNE_Rec        )) m_SSE_SNE_Notes         = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_Switch_Rec     )) m_SSE_Switch_Notes      = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_SysParms_Rec   )) m_SSE_SysParms_Notes    = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
-        if (NotesPropertyPresent(m_SSE_Pulsars_Rec    )) m_SSE_Pulsars_Notes     = BOOL_VECTOR(m_SSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Detailed_Rec    )) m_SSE_Detailed_Notes     = BOOL_VECTOR(m_SSE_Detailed_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Pulsars_Rec     )) m_SSE_Pulsars_Notes      = BOOL_VECTOR(m_SSE_Pulsars_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SNE_Rec         )) m_SSE_SNE_Notes          = BOOL_VECTOR(m_SSE_SNE_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Switch_Rec      )) m_SSE_Switch_Notes       = BOOL_VECTOR(m_SSE_Switch_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_SysParms_Rec    )) m_SSE_SysParms_Notes     = BOOL_VECTOR(m_SSE_SysParms_Notes.size(), true);
+        if (NotesPropertyPresent(m_SSE_Sys_Snapshot_Rec)) m_SSE_Sys_Snapshot_Notes = BOOL_VECTOR(m_SSE_Sys_Snapshot_Notes.size(), true);
 
         // process the logfile definitions file if specified
         m_Enabled = UpdateAllLogfileRecordSpecs();                                                                          // update all logfile record specifications - disable logging upon failure
@@ -1340,7 +1342,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     case TYPENAME::STELLAR_TYPE    : v = static_cast<int>(boost::get<STELLAR_TYPE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_CASE         : v = static_cast<int>(boost::get<MT_CASE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::MT_TRACKING     : v = static_cast<int>(boost::get<MT_TRACKING>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
-                    case TYPENAME::MASS_TRANSFER_TIMESCALE  : v = static_cast<int>(boost::get<MASS_TRANSFER_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
+                    case TYPENAME::MT_TIMESCALE    : v = static_cast<int>(boost::get<MT_TIMESCALE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_EVENT        : v = static_cast<int>(boost::get<SN_EVENT>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::SN_STATE        : v = static_cast<int>(boost::get<SN_STATE>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
                     case TYPENAME::EVOLUTION_STATUS: v = static_cast<int>(boost::get<EVOLUTION_STATUS>(p_H5file.dataSets[p_DataSetIdx].buf[i])); break;
@@ -1440,7 +1442,7 @@ bool Log::WriteHDF5_(h5AttrT& p_H5file, const string p_H5filename, const size_t 
                     strcpy(cBuf[i], buf[i].c_str());                                                                        // copy chars + null terminator
                 }
 
-                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);;                            // write the data
+                ok = H5Dwrite(dSet, dType, h5Dspace, h5FSpace, H5P_DEFAULT, (const void *)cBuf);                            // write the data
             
                 // release allocated memory
                 for (size_t i = 0; i < bufSize; i++) {
@@ -2099,6 +2101,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 annotations      = m_BSE_Switch_Notes;                                                                              // logfile annotations
                 break;
 
+            case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG:                                                                                  // BSE_SYSTEM_SNAPSHOT_LOG
+                recordProperties = m_BSE_Sys_Snapshot_Rec;                                                                          // record properties
+                annotations      = m_BSE_Sys_Snapshot_Notes;                                                                        // logfile annotations
+                break;
+
             case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                    // BSE_SYSTEM_PARAMETERS
                 recordProperties = m_BSE_SysParms_Rec;                                                                              // record properties
                 annotations      = m_BSE_SysParms_Notes;                                                                            // logfile annotations
@@ -2120,8 +2127,8 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 break;
 
             case LOGFILE::SSE_DETAILED_OUTPUT:                                                                                      // SSE_DETAILED_OUTPUT
-                recordProperties = m_SSE_SNE_Rec;                                                                                   // record properties
-                annotations      = m_SSE_SNE_Notes;                                                                                 // logfile annotations
+                recordProperties = m_SSE_Detailed_Rec;                                                                              // record properties
+                annotations      = m_SSE_Detailed_Notes;                                                                            // logfile annotations
                 break;
 
             case LOGFILE::SSE_SUPERNOVAE:                                                                                           // SSE_SUPERNOVAE
@@ -2137,6 +2144,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
             case LOGFILE::SSE_PULSAR_EVOLUTION:                                                                                     // SSE_PULSAR_EVOLUTION
                 recordProperties = m_SSE_Pulsars_Rec;                                                                               // record properties
                 annotations      = m_SSE_Pulsars_Notes;                                                                             // logfile annotations
+                break;
+
+            case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG:                                                                                  // SSE_SYSTEM_SNAPSHOT_LOG
+                recordProperties = m_SSE_Sys_Snapshot_Rec;                                                                          // record properties
+                annotations      = m_SSE_Sys_Snapshot_Notes;                                                                        // logfile annotations
                 break;
 
             case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                    // SSE_SYSTEM_PARAMETERS
@@ -2261,24 +2273,24 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
     hid_t h5DataType = -1;                                                                                          // HDF5 datatype - return value
 
     switch (p_COMPASdatatype) {                                                                                     // which COMPAS datatype?
-        case TYPENAME::SHORTINT        : h5DataType = H5T_NATIVE_SHORT; break;
-        case TYPENAME::INT             : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::LONGINT         : h5DataType = H5T_NATIVE_LONG; break;
-        case TYPENAME::USHORTINT       : h5DataType = H5T_NATIVE_USHORT; break;
-        case TYPENAME::UINT            : h5DataType = H5T_NATIVE_UINT; break;
-        case TYPENAME::ULONGINT        : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::FLOAT           : h5DataType = H5T_NATIVE_FLOAT; break;
-        case TYPENAME::DOUBLE          : h5DataType = H5T_NATIVE_DOUBLE; break;
-        case TYPENAME::LONGDOUBLE      : h5DataType = H5T_NATIVE_LDOUBLE; break;
-        case TYPENAME::OBJECT_ID       : h5DataType = H5T_NATIVE_ULONG; break;
-        case TYPENAME::ERROR           : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::STELLAR_TYPE    : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_CASE         : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MT_TRACKING     : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::MASS_TRANSFER_TIMESCALE  : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_EVENT        : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::SN_STATE        : h5DataType = H5T_NATIVE_INT; break;
-        case TYPENAME::EVOLUTION_STATUS: h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SHORTINT         : h5DataType = H5T_NATIVE_SHORT; break;
+        case TYPENAME::INT              : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::LONGINT          : h5DataType = H5T_NATIVE_LONG; break;
+        case TYPENAME::USHORTINT        : h5DataType = H5T_NATIVE_USHORT; break;
+        case TYPENAME::UINT             : h5DataType = H5T_NATIVE_UINT; break;
+        case TYPENAME::ULONGINT         : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::FLOAT            : h5DataType = H5T_NATIVE_FLOAT; break;
+        case TYPENAME::DOUBLE           : h5DataType = H5T_NATIVE_DOUBLE; break;
+        case TYPENAME::LONGDOUBLE       : h5DataType = H5T_NATIVE_LDOUBLE; break;
+        case TYPENAME::OBJECT_ID        : h5DataType = H5T_NATIVE_ULONG; break;
+        case TYPENAME::ERROR            : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::STELLAR_TYPE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_CASE          : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TRACKING      : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::MT_TIMESCALE     : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_EVENT         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::SN_STATE         : h5DataType = H5T_NATIVE_INT; break;
+        case TYPENAME::EVOLUTION_STATUS : h5DataType = H5T_NATIVE_INT; break;
         case TYPENAME::STRING: {
             hid_t h5DType = H5Tcopy(H5T_C_S1);                                                                      // HDF5 c-string datatype
             size_t size = p_StringQualifier == STRING_QUALIFIER::FIXED_LENGTH ? p_FieldWidth + 1 : H5T_VARIABLE;    // size is dependent upon string type (fixed or variable length)
@@ -2297,8 +2309,8 @@ hid_t Log::GetHDF5DataType(const TYPENAME p_COMPASdatatype, const int p_FieldWid
                 h5DataType = H5T_NATIVE_UCHAR;
             }
             } break;
-        default:                                                                                                    // unknown property type
-            Squawk(ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                                              // announce error
+        default:                                                                                                    // unknown datatype
+            Squawk("Log::GetHDF5DataType(): " + ERR_MSG(ERROR::UNKNOWN_DATA_TYPE));                                 // announce error
     }
 
     return h5DataType;                                                                                              // HDF5 datatype
@@ -2463,6 +2475,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.annotations      = m_BSE_Switch_Notes;
                     break;
 
+                case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG:                                                                                          // BSE_SYSTEM_SNAPSHOT_LOG
+                    fileDetails.filename         = OPTIONS->LogfileSystemSnapshotLog();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSystemSnapshotLogRecordTypes();
+                    fileDetails.recordProperties = m_BSE_Sys_Snapshot_Rec;
+                    fileDetails.annotations      = m_BSE_Sys_Snapshot_Notes;
+                    break;
+
                 case LOGFILE::BSE_SYSTEM_PARAMETERS:                                                                                            // BSE_SYSTEM_PARAMETERS
                     fileDetails.filename         = OPTIONS->LogfileSystemParameters();
                     fileDetails.recordTypes      = OPTIONS->LogfileSystemParametersRecordTypes();
@@ -2504,6 +2523,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.recordTypes      = OPTIONS->LogfilePulsarEvolutionRecordTypes();
                     fileDetails.recordProperties = m_SSE_Pulsars_Rec;
                     fileDetails.annotations      = m_SSE_Pulsars_Notes;
+                    break;
+
+                case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG:                                                                                          // SSE_SYSTEM_SNAPSHOT_LOG
+                    fileDetails.filename         = OPTIONS->LogfileSystemSnapshotLog();
+                    fileDetails.recordTypes      = OPTIONS->LogfileSystemSnapshotLogRecordTypes();
+                    fileDetails.recordProperties = m_SSE_Sys_Snapshot_Rec;
+                    fileDetails.annotations      = m_SSE_Sys_Snapshot_Notes;
                     break;
 
                 case LOGFILE::SSE_SYSTEM_PARAMETERS:                                                                                            // SSE_SYSTEM_PARAMETERS
@@ -2779,6 +2805,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
                             fileDetails.propertyTypes.push_back(TYPENAME::INT);                                                                 // append property typename
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
                             fileDetails.hdrStrings.push_back("Star_Switching");                                                                 // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field
@@ -2788,6 +2815,9 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG || p_Logfile == LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
                             fileDetails.propertyTypes.push_back(TYPENAME::STELLAR_TYPE);                                                        // append property typename
                             fileDetails.propertyTypes.push_back(TYPENAME::STELLAR_TYPE);                                                        // append property typename
+
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
 
                             fileDetails.hdrStrings.push_back("Switching_From");                                                                 // append header string for field
                             fileDetails.hdrStrings.push_back("Switching_To");                                                                   // append header string for field
@@ -2804,6 +2834,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
 
                         if (p_Logfile == LOGFILE::BSE_SWITCH_LOG) {                                                                             // BSE Switch Log
                             fileDetails.propertyTypes.push_back(TYPENAME::BOOL);                                                                // append property typename
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
                             fileDetails.hdrStrings.push_back("Is_Merger");                                                                      // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("BOOL");                                                                          // append type string for field
@@ -2820,6 +2851,7 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                         if (p_Logfile != LOGFILE::BSE_SWITCH_LOG && p_Logfile != LOGFILE::SSE_SWITCH_LOG) {                                     // BSE Switch Log or SSE Switch Log
                                                                                                                                                 // no - proceed
                             fileDetails.propertyTypes.push_back(TYPENAME::UINT);                                                                // append property typename
+                            fileDetails.stringTypes.push_back(STRING_QUALIFIER::FIXED_LENGTH);                                                  // append string type - default is fixed length
                             fileDetails.hdrStrings.push_back("Record_Type");                                                                    // append header string for field
                             fileDetails.unitsStrings.push_back("-");                                                                            // append units string for field
                             fileDetails.typeStrings.push_back("INT");                                                                           // append type string for field - "INT" is good enough
@@ -3139,6 +3171,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = m_BSE_Switch_Rec;
             baseNotes = m_BSE_Switch_Notes;
             break;
+        case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG:
+            if (p_UseDefaultProps) baseProps = m_BSE_Sys_Snapshot_Rec;
+            baseNotes = m_BSE_Sys_Snapshot_Notes;
+            break;
         case LOGFILE::BSE_SYSTEM_PARAMETERS:
             if (p_UseDefaultProps) baseProps = m_BSE_SysParms_Rec;
             baseNotes = m_BSE_SysParms_Notes;
@@ -3158,6 +3194,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
         case LOGFILE::SSE_PULSAR_EVOLUTION:
             if (p_UseDefaultProps) baseProps = m_SSE_Pulsars_Rec;
             baseNotes = m_SSE_Pulsars_Notes;
+            break;
+        case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG:
+            if (p_UseDefaultProps) baseProps = m_SSE_Sys_Snapshot_Rec;
+            baseNotes = m_SSE_Sys_Snapshot_Notes;
             break;
         case LOGFILE::SSE_SYSTEM_PARAMETERS:
             if (p_UseDefaultProps) baseProps = m_SSE_SysParms_Rec;
@@ -3253,19 +3293,21 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
 
     // replace existing props and annotations vector for given logfile
     switch (p_Logfile) {
-        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec         = newProps; m_BSE_CEE_Notes         = newNotes; break;
-        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec    = newProps; m_BSE_Detailed_Notes    = newNotes; break;
-        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec         = newProps; m_BSE_DCO_Notes         = newNotes; break;
-        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec     = newProps; m_BSE_Pulsars_Notes     = newNotes; break;
-        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec        = newProps; m_BSE_RLOF_Notes        = newNotes; break;
-        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec         = newProps; m_BSE_SNE_Notes         = newNotes; break;
-        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec      = newProps; m_BSE_Switch_Notes      = newNotes; break;
-        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec    = newProps; m_BSE_SysParms_Notes    = newNotes; break;
-        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec    = newProps; m_SSE_Detailed_Notes    = newNotes; break;
-        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec         = newProps; m_SSE_SNE_Notes         = newNotes; break;
-        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec      = newProps; m_SSE_Switch_Notes      = newNotes; break;
-        case LOGFILE::SSE_PULSAR_EVOLUTION      : m_SSE_Pulsars_Rec     = newProps; m_SSE_Pulsars_Notes     = newNotes; break;
-        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec    = newProps; m_SSE_SysParms_Notes    = newNotes; break;
+        case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec          = newProps; m_BSE_CEE_Notes          = newNotes; break;
+        case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec     = newProps; m_BSE_Detailed_Notes     = newNotes; break;
+        case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec          = newProps; m_BSE_DCO_Notes          = newNotes; break;
+        case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec      = newProps; m_BSE_Pulsars_Notes      = newNotes; break;
+        case LOGFILE::BSE_RLOF_PARAMETERS       : m_BSE_RLOF_Rec         = newProps; m_BSE_RLOF_Notes         = newNotes; break;
+        case LOGFILE::BSE_SUPERNOVAE            : m_BSE_SNE_Rec          = newProps; m_BSE_SNE_Notes          = newNotes; break;
+        case LOGFILE::BSE_SWITCH_LOG            : m_BSE_Switch_Rec       = newProps; m_BSE_Switch_Notes       = newNotes; break;
+        case LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG   : m_BSE_Sys_Snapshot_Rec = newProps; m_BSE_Sys_Snapshot_Notes = newNotes; break;
+        case LOGFILE::BSE_SYSTEM_PARAMETERS     : m_BSE_SysParms_Rec     = newProps; m_BSE_SysParms_Notes     = newNotes; break;
+        case LOGFILE::SSE_DETAILED_OUTPUT       : m_SSE_Detailed_Rec     = newProps; m_SSE_Detailed_Notes     = newNotes; break;
+        case LOGFILE::SSE_SUPERNOVAE            : m_SSE_SNE_Rec          = newProps; m_SSE_SNE_Notes          = newNotes; break;
+        case LOGFILE::SSE_SWITCH_LOG            : m_SSE_Switch_Rec       = newProps; m_SSE_Switch_Notes       = newNotes; break;
+        case LOGFILE::SSE_PULSAR_EVOLUTION      : m_SSE_Pulsars_Rec      = newProps; m_SSE_Pulsars_Notes      = newNotes; break;
+        case LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG   : m_SSE_Sys_Snapshot_Rec = newProps; m_SSE_Sys_Snapshot_Notes = newNotes; break;
+        case LOGFILE::SSE_SYSTEM_PARAMETERS     : m_SSE_SysParms_Rec     = newProps; m_SSE_SysParms_Notes     = newNotes; break;
         default: break;                                                                                                 // avoids compiler warning...
     }
 }

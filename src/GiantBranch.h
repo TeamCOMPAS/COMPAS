@@ -36,7 +36,7 @@ protected:
             double          CalculateCoreMassAtBGB(const double p_Mass, const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMassAtBGB_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_GBParams);
             double          CalculateCoreMassAtHeIgnition(const double p_Mass) const;
-    static  double          CalculateCoreMassAtSupernova_Static(const double p_McBAGB);
+    static  double          CalculateCoreMassAtSupernova_Static(const double p_Mthreshold, const double p_McBAGB);
 
     static  double          CalculateCoreMass_Luminosity_B_Static(const double p_Mass);
     static  double          CalculateCoreMass_Luminosity_D_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs);
@@ -100,7 +100,8 @@ protected:
             double          CalculateRadialExtentConvectiveEnvelope() const;
 
             double          CalculateRadiusAtHeIgnition(const double p_Mass) const;
-            double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
+            double          CalculateRadiusOnMassChange(double p_dM)                                        { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Luminosity); }
+    virtual double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
             double          CalculateRadiusOnPhase() const                                                  { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
     static  double          CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity, const DBL_VECTOR &p_BnCoefficients);
     static  double          CalculateRadiusOnZAHB_Static(const double      p_Mass,

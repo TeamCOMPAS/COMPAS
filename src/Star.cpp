@@ -39,6 +39,10 @@ Star::Star(const unsigned long int p_RandomSeed,
     }
 
     m_SaveStar = nullptr;
+   
+    // thresholds flags for system detailed output file
+    if (OPTIONS->SystemSnapshotAgeThresholds().size()  > 0) m_SystemSnapshotAgeFlags.assign(OPTIONS->SystemSnapshotAgeThresholds().size(), -1.0);
+    if (OPTIONS->SystemSnapshotTimeThresholds().size() > 0) m_SystemSnapshotTimeFlags.assign(OPTIONS->SystemSnapshotTimeThresholds().size(), false);
 }
 
 
@@ -351,91 +355,32 @@ STELLAR_TYPE Star::AgeOneTimestep(const double p_DeltaTime, bool p_Switch) {
 
 
 /*
- * Evolve the star a single timestep - suggested timestep is provided
+ * Evolve the star a single timestep
  *
- *    - save current state
- *    - age star timestep
- *    - if ageing caused too much change, revert state, shorten timestep and try again
- *    - loop until suitable timestep found (and taken)
  *
- * The functional return is the timestep actually taken (in Myr)
+ * void EvolveOneTimestep(const double p_Dt)
  *
- * double EvolveOneTimestep(const double p_Dt, const bool p_Force)
+ * @param   [IN]    p_Dt                        The timestep to take
  *
- * @param   [IN]    p_Dt                        The suggested timestep to evolve
- * @param   [IN]    p_Force                     Flag to force using the timestep passed (default = FALSE)
- *                                              If p_Force is TRUE
- *                                                 - radial change is not checked and the timestep will not be shortened
- *                                                 - the class member m_Dt will not be updated in BaseStar::CalculateMassLossValues()
- *                                              If p_Force is FALSE
- *                                                 - radial change is checked and the timestep may be shortened
- *                                                 - the class member m_Dt may be updated in BaseStar::CalculateMassLossValues()
- * @return                                      The timestep actually taken
  */
-double Star::EvolveOneTimestep(const double p_Dt, const bool p_Force) {
-
-    double       dt = p_Dt;
+void Star::EvolveOneTimestep(const double p_Dt) {
 
     STELLAR_TYPE stellarType;
-
-    bool         takeTimestep = false;
-    int          retryCount   = 0;
-
-    while (!takeTimestep) {                                                                                     // do this until a suitable timestep is found (or the maximum retry count is reached)
-        
-        SaveState();                                                                                            // save the state of the star - in case we want to revert
-
-        double minTimestep = std::max(m_Star->CalculateDynamicalTimescale(), ABSOLUTE_MINIMUM_TIMESTEP);        // calculate the minimum timestep - maximum of dynamical timescale for this star and the absolute minimum timestep
-
-        // evolve the star a single timestep
-
-        stellarType = AgeOneTimestep(dt, false);                                                                // age the star one time step - modify stellar attributes as appropriate, but do not switch stellar type
-
-        // determine if the timestep should be taken
-        // don't take the timestep if we stepped too far
-
-        takeTimestep = true;                                                                                    // flag to determine if the timestep should be taken
-        if (!p_Force && utils::Compare(m_Star->CalculateRadialChange(), MAXIMUM_RADIAL_CHANGE) >= 0) {          // too much change?
-            if (utils::Compare(dt, minTimestep) <= 0) {                                                         // yes - already at or below minimum timestep?
-                takeTimestep = true;                                                                            // yes - just take the last timestep
-                SHOW_WARN(ERROR::TIMESTEP_BELOW_MINIMUM);                                                       // announce the problem if required and plough on regardless...
-            }
-            else {                                                                                              // not at or below minimum - reduce timestep and try again
-                retryCount++;                                                                                   // increment retry count
-                if (retryCount > MAX_TIMESTEP_RETRIES) {                                                        // too many retries?
-                    takeTimestep = true;                                                                        // yes - take the last timestep anyway
-                    SHOW_WARN(ERROR::TOO_MANY_RETRIES);                                                         // announce the problem if required and plough on regardless...
-                }
-                else {                                                                                          // not too many retries - retry with smaller timestep
-                    if (RevertState()) {                                                                        // revert to last state ok?
-                        dt = std::max(dt / 2.0, minTimestep);                                                   // yes - halve the timestep - but clamp to minimum
-                        takeTimestep = false;                                                                   // previous timestep discarded - use new one
-                    }
-                    else {                                                                                      // revert failed
-                        THROW_ERROR(ERROR::REVERT_FAILED);                                                      // throw error
-                    }
-                }
-            }
-        }
-    }
-
-    // take the timestep
-
-    (void)SwitchTo(stellarType);                                                                                // switch phase if required  JR: whether this goes before or after the log record is a little problematic, but in the end probably doesn't matter too much
-
+    
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::PRE_MASS_LOSS);                           // log record - pre mass loss
+    
+    m_Star->ResolveMassLoss(p_Dt);                                                                              // apply wind mass loss if required
 
-    (void)m_Star->ResolveMassLoss(!p_Force);                                                                    // apply wind mass loss if required
+    stellarType = AgeOneTimestep(p_Dt, false);                                                                  // age the star one time step - modify stellar attributes as appropriate, but do not switch stellar type
 
-    if(OPTIONS->EvolvePulsars() && m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR){                        // If star is a neutron star and we are evolving pulsars
-        (void)m_Star->SpinDownIsolatedPulsar(dt * MYR_TO_YEAR * SECONDS_IN_YEAR);                               // Convert dt to seconds for this function (uses cgs units)                                                         // Update pulsar parameters due to spin down as an isolated pulsar
+    (void)SwitchTo(stellarType);                                                                                // switch phase if required
+
+    if(OPTIONS->EvolvePulsars() && m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR){                        // if star is a neutron star and we are evolving pulsars
+        (void)m_Star->SpinDownIsolatedPulsar(p_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR);                             // update pulsar parameters due to spin down as an isolated pulsar; convert timestep to seconds for this function (uses cgs units)
     }
-
-    (void)m_Star->PrintStashedSupernovaDetails();                                                               // print stashed SSE Supernova log record if necessary
 
     (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::POST_MASS_LOSS);                          // log record - post mass loss
 
-    return dt;                                                                                                  // return the timestep actually taken
 }
 
 
@@ -478,6 +423,9 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
 
         unsigned long int stepNum = 0;                                                                          // initialise step number
         while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {
+            if (m_Star->StellarType() == STELLAR_TYPE::MASSLESS_REMNANT) {                                      // massless remnant?
+                evolutionStatus = EVOLUTION_STATUS::MASSLESS_REMNANT;                                           // set status
+            }
             if (m_Star->Time() > OPTIONS->MaxEvolutionTime()) {                                                 // out of time?
                 evolutionStatus = EVOLUTION_STATUS::TIMES_UP;                                                   // set status
             }
@@ -503,16 +451,55 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
                     dt = timesteps[stepNum];
                 }
                 else {                                                                                          // not using user-provided timesteps
-                    dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier();                           // calculate new timestep   
+                    dt = m_Star->CalculateTimestep() * OPTIONS->TimestepMultiplier() * OPTIONS->TimestepMultipliers(static_cast<int>(m_Star->StellarType())); // calculate new timestep   
                     dt = std::round(dt / TIMESTEP_QUANTUM) * TIMESTEP_QUANTUM;                                  // quantised
                 }
                 stepNum++;                                                                                      // increment step number                                                      
 
-                EvolveOneTimestep(dt, true);                                                                    // evolve for timestep
+                EvolveOneTimestep(dt);                                                                          // evolve for timestep
                 UpdateAttributes(0.0, 0.0, true);                                                               // keeps SSE in sync with BSE
 
                 (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::TIMESTEP_COMPLETED);          // log detailed output record 
-                
+
+                // check thresholds for system detailed output printing
+                // don't use utils::Compare() here - not for time/age
+
+                bool printSystemSnapshotRec = false;                                                            // so we only print this timestep once
+
+                // age threshold
+                // we print a record each timestep the star crosses the threshold from below
+                // notes:
+                //    (a) the age of individual stars can drop for various reasons (phase change, rejuvenation, winds/mass transfer, etc.),
+                //        and if the age of the star drops below an age threshold, we will log another record if the star then ages beyond
+                //        the same threshold (so we might log several records for the star crossing the same threshold if the age of the
+                //        star oscillates around the threshold)
+                //    (b) we will print multiple records for exceeding the age threshold if the constituent stars exceed the age threshold
+                //        at different timesteps (likely)
+                for (size_t threshold = 0; threshold < OPTIONS->SystemSnapshotAgeThresholds().size(); threshold++) { // for each system detailed output age threshold
+
+                    double thresholdValue = OPTIONS->SystemSnapshotAgeThresholds(threshold);                    // this threshold value
+      
+                    // flag need to print (log) system snapshot record
+                    // we don't want to print multiple records for the same timestep, so we flag need rather than print here
+                    printSystemSnapshotRec |= m_SystemSnapshotAgeFlags[threshold] < 0.0 && m_Star->Age() >= thresholdValue;
+
+                    // record the current age of the star in the threshold flag - this is how we check for re-crossing a threshold
+                    // if the age of the star has dropped below the threshold value, we reset the threshold flag for the star
+                    // the check will fail if the star hasn't crossed the threshold already, but the flag will be -1.0 anyway
+                    m_SystemSnapshotAgeFlags[threshold] = (m_Star->Age() < thresholdValue) ? -1.0 : m_Star->Age();
+                }
+
+                // time threshold
+                // we print a record at the first timestep that the simulation time exceeds the time threshold
+                for (size_t threshold = 0; threshold < OPTIONS->SystemSnapshotTimeThresholds().size(); threshold++) { // for each system snapshott time threshold
+                    if (!m_SystemSnapshotTimeFlags[threshold] && m_Star->Time() >= OPTIONS->SystemSnapshotTimeThresholds(threshold)) { // need to action?
+                        m_SystemSnapshotTimeFlags[threshold] = true;                                            // yes, flag action taken
+                        printSystemSnapshotRec            = true;                                               // flag need to print (log) system snapshot record
+                    }
+                }
+
+                if (printSystemSnapshotRec) (void)m_Star->PrintSystemSnapshotLog();                             // print (log) system record record if necessary
+
                 if (m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR && OPTIONS->EvolvePulsars()){           // Pulsar output if star is a neutron star and user wants pulsar output
                     (void)m_Star->PrintPulsarEvolutionParameters(SSE_PULSAR_RECORD_TYPE::TIMESTEP_COMPLETED);   // log pulsar evolution parameters
                 } 
@@ -523,8 +510,6 @@ EVOLUTION_STATUS Star::Evolve(const long int p_Id) {
             evolutionStatus = EVOLUTION_STATUS::TIMESTEPS_NOT_CONSUMED;                                         // no - set status
             SHOW_WARN(ERROR::TIMESTEPS_NOT_CONSUMED);                                                           // show warning
         }
-
-        (void)m_Star->PrintStashedSupernovaDetails();                                                           // print final stashed SSE Supernova log record if necessary
 
         (void)m_Star->PrintDetailedOutput(m_Id, SSE_DETAILED_RECORD_TYPE::FINAL_STATE);                         // log detailed output record 
 

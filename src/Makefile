@@ -1,53 +1,27 @@
+CPP = g++
 
-# use GNU C++ compiler by default
-#
-# can be overridden with CPP parameter
-#
-# e.g. make CPP=clang will use clang instead of g++
-# (note uppercase 'CPP' and no whitespace around '=')
+UNAME_S := $(shell uname -s)
+HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null)
 
-CPP := g++
-
-# gsl directories
-GSLINCDIR := /include
-GSLLIBDIR := /lib
-
-# boost directories
-BOOSTINCDIR := /include
-BOOSTLIBDIR := /lib
-
-# hdf5 directories
-HDF5INCDIR := /usr/include/hdf5/serial
-HDF5LIBDIR := /usr/lib/x86_64-linux-gnu/hdf5/serial
-
-EXE := COMPAS
-
-# build COMPAS
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
-  $(info Building $(EXE) with $(CPP))
+# Build configuration: DOCKER_BUILD=1 for Docker, otherwise local
+ifeq ($(DOCKER_BUILD),1)
+    # Docker-specific settings
+    ODIR := ../obj
+    BDIR := ../bin
+    OPTFLAGS_SPECIFIC := -O3
+    CXXFLAGS_SPECIFIC :=
+    LFLAGS_SPECIFIC :=
+else
+    # Local-specific settings
+    ODIR := obj
+    BDIR := bin
+    OPTFLAGS_SPECIFIC := -march=native -O3
+    CXXFLAGS_SPECIFIC := -g -fnon-call-exceptions -Woverloaded-virtual
+    LFLAGS_SPECIFIC := -rdynamic
 endif
 
-
-OPTFLAGS :=
-ifneq ($(filter fast,$(MAKECMDGOALS)),)
-  $(info Adding optimisation flags into the compilation - will take longer to build)
-  OPTFLAGS += -march=native -O3
-endif
-
-ifneq ($(filter staticfast,$(MAKECMDGOALS)),)
-  $(info Adding optimisation flags into the (static) compilation - will take longer to build)
-  OPTFLAGS += -march=native -O3
-endif
-
-
-CXXFLAGS := -std=c++17 -g -fnon-call-exceptions -Wall -Woverloaded-virtual $(OPTFLAGS)
-ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
-
-LIBS := -lm -lz -ldl -lpthread
-GSLLIBS := -lgsl -lgslcblas
-BOOSTLIBS := -lboost_filesystem -lboost_program_options -lboost_system
-HDF5LIBS := -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
-LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -rdynamic -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS)
+# Common variables for both builds
+EXE := $(BDIR)/COMPAS
 
 SOURCES :=						\
 	profiling.cpp               \
@@ -98,36 +72,85 @@ SOURCES :=						\
 								\
 	main.cpp
 
-OBJI := $(SOURCES:.cpp=.o)
+OBJS := $(patsubst %.cpp,$(ODIR)/%.o,$(SOURCES))
 
-# Create the list of header files, and remove
-# main.h from this auto-generated list
-INCL := $(SOURCES:.cpp=.h)
-INCL := $(filter-out main.h,$(INCL))
+# GSL, Boost, and HDF5 directories
+GSLINCDIR ?= /include
+GSLLIBDIR ?= /lib
 
-all: $(EXE)
-	@echo $(OBJI)
+# boost directories
+BOOSTINCDIR ?= /include
+BOOSTLIBDIR ?= /lib
 
-$(EXE): $(OBJI)
-	@echo $(SOURCES)
-	@echo $(OBJI)
-	$(CPP) $(OBJI) $(LFLAGS) -o $@
+# hdf5 directories
+HDF5INCDIR ?= /usr/include/hdf5/serial
+HDF5LIBDIR ?= /usr/lib/x86_64-linux-gnu/hdf5/serial
+
+# Homebrew defaults for macOS local builds
+ifeq ($(UNAME_S),Darwin)
+ifneq ($(wildcard $(HOMEBREW_PREFIX)/opt/boost/include/boost/version.hpp),)
+    GSLINCDIR := $(HOMEBREW_PREFIX)/opt/gsl/include
+    GSLLIBDIR := $(HOMEBREW_PREFIX)/opt/gsl/lib
+    BOOSTINCDIR := $(HOMEBREW_PREFIX)/opt/boost/include
+    BOOSTLIBDIR := $(HOMEBREW_PREFIX)/opt/boost/lib
+    HDF5INCDIR := $(HOMEBREW_PREFIX)/opt/hdf5/include
+    HDF5LIBDIR := $(HOMEBREW_PREFIX)/opt/hdf5/lib
+endif
+endif
+
+# Define flags
+OPTFLAGS :=
+ifneq ($(filter fast staticfast,$(MAKECMDGOALS)),)
+    $(info Adding optimisation flags into the compilation - will take longer to build)
+    OPTFLAGS += $(OPTFLAGS_SPECIFIC)
+endif
+
+# might need -Wno-vla-cxx-extension for clang>18?
+EXTRA_WARN_SUPPRESS := -Wno-vla-extension 
+
+CXXFLAGS := -std=c++17 -Wall $(OPTFLAGS) $(CXXFLAGS_SPECIFIC) $(EXTRA_WARN_SUPPRESS)
+ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
+
+LIBS := -lm -lz -ldl -lpthread
+GSLLIBS := -lgsl -lgslcblas
+BOOSTLIBS := -lboost_filesystem -lboost_program_options -lboost_system
+ifeq ($(UNAME_S),Darwin)
+ifeq ($(wildcard $(BOOSTLIBDIR)/libboost_system*),)
+    BOOSTLIBS := -lboost_filesystem -lboost_program_options
+endif
+endif
+HDF5LIBS := -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
+LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS) $(LFLAGS_SPECIFIC)
+
+.PHONY: all static fast staticfast clean link
+
+# Main targets
+all: $(EXE) link
 
 static: $(EXE)_STATIC
-	@echo $(OBJI)
 
-$(EXE)_STATIC: $(OBJI)
-	@echo $(SOURCES)
-	@echo $(OBJI)
-	$(CPP) $(OBJI) $(LFLAGS) -static -o $@
+fast: all
 
-%.o: %.cpp
-	$(CPP) $(CXXFLAGS) $(ICFLAGS) -c $?
+staticfast: static
 
-.phony: clean static fast staticfast
+$(EXE): $(OBJS)
+	@mkdir -p $(BDIR)
+	$(CPP) $(OBJS) $(LFLAGS) -o $@
 
-fast: $(EXE)
-staticfast:$(EXE)_STATIC
+$(EXE)_STATIC: $(OBJS)
+	@mkdir -p $(BDIR)
+	$(CPP) $(OBJS) $(LFLAGS) -static -o $@
 
+# Create a symbolic link for backward compatibility
+link: $(EXE)
+	@ln -sf $(EXE) COMPAS
+
+# Pattern rule to compile source files into object files
+$(ODIR)/%.o: %.cpp
+	@mkdir -p $(ODIR)
+	$(CPP) $(CXXFLAGS) $(ICFLAGS) -o $@ -c $<
+
+# Clean-up rule
 clean:
-	rm -f $(OBJI) $(EXE) $(EXE)_STATIC
+	@echo "Removing generated files..."
+	@rm -rf $(ODIR) $(BDIR) COMPAS

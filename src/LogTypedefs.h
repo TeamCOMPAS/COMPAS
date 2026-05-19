@@ -41,6 +41,7 @@ enum class TYPENAME: int {
     ULONGLONGINT,
     FLOAT,
     DOUBLE,
+    DOUBLE_VECTOR,
     LONGDOUBLE,
     STRING,
     OBJECT_ID,
@@ -48,7 +49,7 @@ enum class TYPENAME: int {
     STELLAR_TYPE,
     MT_CASE,
     MT_TRACKING,
-    MASS_TRANSFER_TIMESCALE,
+    MT_TIMESCALE,
     SN_EVENT,
     SN_STATE,
     STRING_VECTOR,
@@ -76,7 +77,7 @@ const COMPASUnorderedMap<TYPENAME, STR_STR> TYPENAME_LABEL = {
     { TYPENAME::STELLAR_TYPE,     { "STELLAR_TYPE",           "INT"            }},
     { TYPENAME::MT_CASE,          { "MT_CASE",                "INT"            }},
     { TYPENAME::MT_TRACKING,      { "MT_TRACKING",            "INT"            }},
-    { TYPENAME::MASS_TRANSFER_TIMESCALE,    { "MASS_TRANSFER_TIMESCALE", "INT" }},
+    { TYPENAME::MT_TIMESCALE,     { "MT_TIMESCALE",           "INT"            }},
     { TYPENAME::SN_EVENT,         { "SN_EVENT",               "INT"            }},
     { TYPENAME::SN_STATE,         { "SN_STATE",               "INT"            }},
     { TYPENAME::STRING_VECTOR,    { "STRING_VECTOR",          "VECTOR<STRING>" }},
@@ -146,6 +147,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     AGE,                                             \
     ANGULAR_MOMENTUM,                                \
     BINDING_ENERGY_AT_COMMON_ENVELOPE,               \
+    BINDING_ENERGY_CONVECTIVE_ENVELOPE,              \
     BINDING_ENERGY_FIXED,                            \
     BINDING_ENERGY_NANJING,                          \
     BINDING_ENERGY_PRE_COMMON_ENVELOPE,              \
@@ -156,9 +158,11 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     CO_CORE_MASS,                                    \
     CO_CORE_MASS_AT_COMMON_ENVELOPE,                 \
     CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        \
+    CONVECTIVE_ENV_MASS,                             \
     CORE_MASS,                                       \
     CORE_MASS_AT_COMMON_ENVELOPE,                    \
     CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           \
+    CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,         \
     DRAWN_KICK_MAGNITUDE,                            \
     DOMINANT_MASS_LOSS_RATE,                         \
     DT,                                              \
@@ -205,6 +209,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     IS_USSN,                                         \
     KICK_MAGNITUDE,                                  \
     LAMBDA_AT_COMMON_ENVELOPE,                       \
+    LAMBDA_CONVECTIVE_ENVELOPE,                      \
     LAMBDA_DEWI,                                     \
     LAMBDA_FIXED,                                    \
     LAMBDA_KRUCKOW,                                  \
@@ -247,7 +252,6 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     RADIUS_PREV,                                     \
     RANDOM_SEED,                                     \
     RECYCLED_NEUTRON_STAR,                           \
-    RLOF_ONTO_NS,                                    \
     ROCKET_KICK_MAGNITUDE,                           \
     ROCKET_KICK_PHI,                                 \
     ROCKET_KICK_THETA,                               \
@@ -272,8 +276,12 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     TIME,                                            \
     TIMESCALE_MS,                                    \
     TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          \
+    TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,        \
     TRUE_ANOMALY,                                    \
     TZAMS,                                           \
+    VELOCITY_X,                                      \
+    VELOCITY_Y,                                      \
+    VELOCITY_Z,                                      \
     ZETA_HURLEY,                                     \
     ZETA_HURLEY_HE,                                  \
     ZETA_SOBERMAN,                                   \
@@ -296,6 +304,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::AGE,                                             "AGE" },
     { STAR_PROPERTY::ANGULAR_MOMENTUM,                                "ANGULAR_MOMENTUM" },
     { STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,               "BINDING_ENERGY_AT_COMMON_ENVELOPE" },
+    { STAR_PROPERTY::BINDING_ENERGY_CONVECTIVE_ENVELOPE,              "BINDING_ENERGY_CONVECTIVE_ENVELOPE" },
     { STAR_PROPERTY::BINDING_ENERGY_FIXED,                            "BINDING_ENERGY_FIXED" },
     { STAR_PROPERTY::BINDING_ENERGY_NANJING,                          "BINDING_ENERGY_NANJING" },
     { STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,              "BINDING_ENERGY_PRE_COMMON_ENVELOPE" },
@@ -306,9 +315,11 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::CO_CORE_MASS,                                    "CO_CORE_MASS" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                 "CO_CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,        "CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::CONVECTIVE_ENV_MASS,                             "CONVECTIVE_ENV_MASS" },
     { STAR_PROPERTY::CORE_MASS,                                       "CORE_MASS" },
     { STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                    "CORE_MASS_AT_COMMON_ENVELOPE" },
     { STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,           "CORE_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,         "CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                            "DRAWN_KICK_MAGNITUDE" },
     { STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,                         "DOMINANT_MASS_LOSS_RATE"},
     { STAR_PROPERTY::DT,                                              "DT" },
@@ -356,6 +367,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::IS_USSN,                                         "IS_USSN" },
     { STAR_PROPERTY::KICK_MAGNITUDE,                                  "KICK_MAGNITUDE" },
     { STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                       "LAMBDA_AT_COMMON_ENVELOPE" },
+    { STAR_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,                      "LAMBDA_CONVECTIVE_ENVELOPE" },
     { STAR_PROPERTY::LAMBDA_DEWI,                                     "LAMBDA_DEWI" },
     { STAR_PROPERTY::LAMBDA_FIXED,                                    "LAMBDA_FIXED" },
     { STAR_PROPERTY::LAMBDA_KRUCKOW,                                  "LAMBDA_KRUCKOW" },
@@ -398,7 +410,6 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RADIUS_PREV,                                     "RADIUS_PREV" },
     { STAR_PROPERTY::RANDOM_SEED,                                     "RANDOM_SEED" },
     { STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                           "RECYCLED_NEUTRON_STAR" },
-    { STAR_PROPERTY::RLOF_ONTO_NS,                                    "RLOF_ONTO_NS" },
     { STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                           "ROCKET_KICK_MAGNITUDE" },
     { STAR_PROPERTY::ROCKET_KICK_PHI,                                 "ROCKET_KICK_PHI" },
     { STAR_PROPERTY::ROCKET_KICK_THETA,                               "ROCKET_KICK_THETA" },
@@ -422,8 +433,12 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::TIME,                                            "TIME" },
     { STAR_PROPERTY::TIMESCALE_MS,                                    "TIMESCALE_MS" },
     { STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,          "TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION" },
+    { STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,        "TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION" },
     { STAR_PROPERTY::TRUE_ANOMALY,                                    "TRUE_ANOMALY" },
     { STAR_PROPERTY::TZAMS,                                           "TZAMS" },
+    { STAR_PROPERTY::VELOCITY_X,                                      "VELOCITY_X" },
+    { STAR_PROPERTY::VELOCITY_Y,                                      "VELOCITY_Y" },
+    { STAR_PROPERTY::VELOCITY_Z,                                      "VELOCITY_Z" },
     { STAR_PROPERTY::ZETA_HURLEY,                                     "ZETA_HURLEY" },
     { STAR_PROPERTY::ZETA_HURLEY_HE,                                  "ZETA_HURLEY_HE" },
     { STAR_PROPERTY::ZETA_SOBERMAN,                                   "ZETA_SOBERMAN" },
@@ -497,6 +512,9 @@ enum class BINARY_PROPERTY: int {
     MASS_TRANSFER_TRACKER_HISTORY,
     MERGES_IN_HUBBLE_TIME,
     OPTIMISTIC_COMMON_ENVELOPE,
+    ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,
+    ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,
+    ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,
     ORBITAL_ANGULAR_VELOCITY,
     ORBITAL_VELOCITY_PRE_SUPERNOVA,
     RADIUS_1_POST_COMMON_ENVELOPE,
@@ -516,6 +534,10 @@ enum class BINARY_PROPERTY: int {
     RLOF_POST_MT_STAR2_MASS,
     RLOF_POST_MT_STAR1_RADIUS,
     RLOF_POST_MT_STAR2_RADIUS,
+    RLOF_POST_MT_STAR1_TEFF, 
+    RLOF_POST_MT_STAR2_TEFF,
+    RLOF_POST_MT_STAR1_LUM, 
+    RLOF_POST_MT_STAR2_LUM,
     RLOF_POST_MT_STAR1_RLOF,
     RLOF_POST_MT_STAR2_RLOF,
     RLOF_POST_MT_STAR1_STELLAR_TYPE,
@@ -530,6 +552,10 @@ enum class BINARY_PROPERTY: int {
     RLOF_PRE_MT_STAR2_MASS,
     RLOF_PRE_MT_STAR1_RADIUS,
     RLOF_PRE_MT_STAR2_RADIUS,
+    RLOF_PRE_MT_STAR1_TEFF, 
+    RLOF_PRE_MT_STAR2_TEFF,
+    RLOF_PRE_MT_STAR1_LUM, 
+    RLOF_PRE_MT_STAR2_LUM,
     RLOF_PRE_MT_STAR1_RLOF,
     RLOF_PRE_MT_STAR2_RLOF,
     RLOF_PRE_MT_STAR1_STELLAR_TYPE,
@@ -552,6 +578,7 @@ enum class BINARY_PROPERTY: int {
     SEMI_MAJOR_AXIS_AT_DCO_FORMATION,
     SEMI_MAJOR_AXIS_INITIAL,
     SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
+    SEMI_MAJOR_AXIS_POST_STAGE_1_CE,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA,
     SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
     SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
@@ -570,15 +597,37 @@ enum class BINARY_PROPERTY: int {
     STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,
     STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,
     SUPERNOVA_ORBIT_INCLINATION_ANGLE,
-    SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,
-    SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,
-    SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,
     SUPERNOVA_STATE,
-    SYNCHRONIZATION_TIMESCALE,
+    SYNCHRONIZATION_TIMESCALE_1,
+    SYNCHRONIZATION_TIMESCALE_2,
     SYSTEMIC_SPEED,
     SYSTEMIC_VELOCITY_X,
     SYSTEMIC_VELOCITY_Y,
     SYSTEMIC_VELOCITY_Z,
+    TIDAL_POTENTIAL_LOVE_NUMBER_10_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_12_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_22_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_32_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_10_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_12_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_22_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_32_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_1,
+    TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2,
+    TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2,
     TIME,
     TIME_TO_COALESCENCE,
     TOTAL_ANGULAR_MOMENTUM,
@@ -621,6 +670,9 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                      "MASS_TRANSFER_TRACKER_HISTORY" },
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                              "MERGES_IN_HUBBLE_TIME" },
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                         "OPTIMISTIC_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,                  "ORBITAL_ANGULAR_MOMENTUM_VECTOR_X" },
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,                  "ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y" },
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,                  "ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z" },
     { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                           "ORBITAL_ANGULAR_VELOCITY" },
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                     "ORBITAL_VELOCITY_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                      "RADIUS_1_POST_COMMON_ENVELOPE" },
@@ -630,7 +682,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RANDOM_SEED,                                        "RANDOM_SEED" },
     { BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY,                          "RLOF_ACCRETION_EFFICIENCY"},
     { BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,                                "RLOF_MASS_LOSS_RATE"},
-    { BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,                                "RLOF_MASS_TRANSFER_TIMESCALE"},
+    { BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,                       "RLOF_MASS_TRANSFER_TIMESCALE"},
     { BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,                       "RLOF_POST_MT_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                          "RLOF_POST_MT_ECCENTRICITY" },
     { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                         "RLOF_POST_MT_EVENT_COUNTER" },
@@ -640,6 +692,10 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                            "RLOF_POST_MT_STAR2_MASS" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,                          "RLOF_POST_MT_STAR1_RADIUS" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS,                          "RLOF_POST_MT_STAR2_RADIUS" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF,                            "RLOF_POST_MT_STAR1_TEFF" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF,                            "RLOF_POST_MT_STAR2_TEFF" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM,                             "RLOF_POST_MT_STAR1_LUM" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM,                             "RLOF_POST_MT_STAR2_LUM" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,                            "RLOF_POST_MT_STAR1_RLOF" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,                            "RLOF_POST_MT_STAR2_RLOF" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE,                    "RLOF_POST_MT_STAR1_STELLAR_TYPE" },
@@ -654,6 +710,10 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS,                             "RLOF_PRE_MT_STAR2_MASS" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS,                           "RLOF_PRE_MT_STAR1_RADIUS" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS,                           "RLOF_PRE_MT_STAR2_RADIUS" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF,                             "RLOF_PRE_MT_STAR1_TEFF" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF,                             "RLOF_PRE_MT_STAR2_TEFF" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM,                              "RLOF_PRE_MT_STAR1_LUM" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM,                              "RLOF_PRE_MT_STAR2_LUM" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,                             "RLOF_PRE_MT_STAR1_RLOF" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,                             "RLOF_PRE_MT_STAR2_RLOF" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE,                     "RLOF_PRE_MT_STAR1_STELLAR_TYPE" },
@@ -676,6 +736,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                   "SEMI_MAJOR_AXIS_AT_DCO_FORMATION" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                            "SEMI_MAJOR_AXIS_INITIAL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,               "SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE" },
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE,                    "SEMI_MAJOR_AXIS_POST_STAGE_1_CE" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                      "SEMI_MAJOR_AXIS_PRE_SUPERNOVA" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                 "SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL" },
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                "SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE" },
@@ -694,15 +755,37 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,           "STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,            "STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE" },
     { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                  "SUPERNOVA_ORBIT_INCLINATION_ANGLE" },
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,               "SUPERNOVA_ORBIT_INCLINATION_VECTOR_X" },
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,               "SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y" },
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,               "SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z" },
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                    "SUPERNOVA_STATE" },
-    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                          "SYNCHRONIZATION_TIMESCALE" },
+    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_1,                        "SYNCHRONIZATION_TIMESCALE_1" },
+    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_2,                        "SYNCHRONIZATION_TIMESCALE_2" },
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                     "SYSTEMIC_SPEED" },
     { BINARY_PROPERTY::SYSTEMIC_VELOCITY_X,                                "SYSTEMIC_VELOCITY_X" },
     { BINARY_PROPERTY::SYSTEMIC_VELOCITY_Y,                                "SYSTEMIC_VELOCITY_Y" },
     { BINARY_PROPERTY::SYSTEMIC_VELOCITY_Z,                                "SYSTEMIC_VELOCITY_Z" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_1,                   "TIDAL_POTENTIAL_LOVE_NUMBER_10_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_1,                   "TIDAL_POTENTIAL_LOVE_NUMBER_12_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_1,                   "TIDAL_POTENTIAL_LOVE_NUMBER_22_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_1,                   "TIDAL_POTENTIAL_LOVE_NUMBER_32_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_10_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_12_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_22_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_32_2" },    
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2" }, 
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_1" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2" },
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2" }, 
     { BINARY_PROPERTY::TIME,                                               "TIME" },
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                "TIME_TO_COALESCENCE" },
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                             "TOTAL_ANGULAR_MOMENTUM" },
@@ -751,8 +834,11 @@ enum class PROGRAM_OPTION: int {
     COMMON_ENVELOPE_MASS_ACCRETION_MIN,
     COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,
     COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,
+    COMMON_ENVELOPE_SECOND_STAGE_BETA,
+    COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION,
     COMMON_ENVELOPE_SLOPE_KRUCKOW,
 
+    CONVECTIVE_ENVELOPE_MASS_THRESHOLD,
     CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD,
 
     COOL_WIND_MASS_LOSS_MULTIPLIER,
@@ -781,7 +867,7 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION,
     INITIAL_MASS_FUNCTION_MAX,
     INITIAL_MASS_FUNCTION_MIN,
-    INITIAL_MASS_FUNCTIONPOWER,
+    INITIAL_MASS_FUNCTION_POWER,
 
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
@@ -813,6 +899,8 @@ enum class PROGRAM_OPTION: int {
     LBV_MASS_LOSS_PRESCRIPTION,
 
     MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,
+    MALTSEV_FALLBACK,
+    MALTSEV_MODE,
 
     MASS_LOSS_PRESCRIPTION,
 
@@ -833,7 +921,7 @@ enum class PROGRAM_OPTION: int {
     METALLICITY_DISTRIBUTION_MAX,
     METALLICITY_DISTRIBUTION_MIN,
 
-    MINIMUM_MASS_SECONDARY,
+    MINIMUM_SAMPLED_SECONDARY_MASS,
 
     MT_ACCRETION_EFFICIENCY_PRESCRIPTION,
     MT_ANG_MOM_LOSS_PRESCRIPTION,
@@ -858,20 +946,22 @@ enum class PROGRAM_OPTION: int {
 
     MT_FRACTION_ACCRETED,
     MT_JLOSS,
-    MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,
-    MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,
+    MT_JLOSS_LINEAR_FRACTION_DEGEN,
+    MT_JLOSS_LINEAR_FRACTION_NON_DEGEN,
     MT_REJUVENATION_PRESCRIPTION,
     MT_THERMALLY_LIMITED_VARIATION,
 
     MULLER_MANDEL_KICK_MULTIPLIER_BH,
     MULLER_MANDEL_KICK_MULTIPLIER_NS,
-    MULLER_MANDEL_SIGMA_KICK,
+    MULLER_MANDEL_SIGMA_KICK_BH,
+    MULLER_MANDEL_SIGMA_KICK_NS,
 
     NEUTRINO_MASS_LOSS_ASSUMPTION_BH,
     NEUTRINO_MASS_LOSS_VALUE_BH,
 
     NOTES,
 
+    NS_ACCRETION_IN_CE,
     NS_EOS,
 
     ORBITAL_PERIOD,
@@ -909,6 +999,8 @@ enum class PROGRAM_OPTION: int {
     RANDOM_SEED_CMDLINE,
 
     REMNANT_MASS_PRESCRIPTION,
+    
+    RESPONSE_TO_SPIN_UP,
 
     ROCKET_KICK_MAGNITUDE_1,
     ROCKET_KICK_MAGNITUDE_2,
@@ -939,6 +1031,8 @@ enum class PROGRAM_OPTION: int {
     SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,
 
     TIDES_PRESCRIPTION,
+    
+    USSN_KICKS_OVERRIDE_MANDEL_MULLER,
 
     WR_FACTOR,
 
@@ -986,6 +1080,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,               "COMMON_ENVELOPE_MASS_ACCRETION_MIN" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,      "COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,     "COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_BETA,                "COMMON_ENVELOPE_SECOND_STAGE_BETA" },
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION,  "COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION" },
     { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                    "COMMON_ENVELOPE_SLOPE_KRUCKOW" },
 
     { PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER,                   "COOL_WIND_MASS_LOSS_MULTIPLIER" },
@@ -1014,7 +1110,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                            "INITIAL_MASS_FUNCTION" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                      "INITIAL_MASS_FUNCTION_POWER" },
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1045,6 +1141,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
     { PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,       "MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER"},
     
+    { PROGRAM_OPTION::MALTSEV_FALLBACK,                                 "MALTSEV_FALLBACK" },
+    { PROGRAM_OPTION::MALTSEV_MODE,                                     "MALTSEV_MODE" },
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
     { PROGRAM_OPTION::MASS_RATIO,                                       "MASS_RATIO" },
@@ -1064,7 +1162,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                     "METALLICITY_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                     "METALLICITY_DISTRIBUTION_MIN" },
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                   "MINIMUM_SAMPLED_SECONDARY_MASS" },
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,             "MT_ACCRETION_EFFICIENCY_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                     "MT_ANG_MOM_LOSS_PRESCRIPTION" },
@@ -1089,20 +1187,22 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                             "MT_FRACTION_ACCRETED" },
     { PROGRAM_OPTION::MT_JLOSS,                                         "MT_JLOSS" },
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,           "MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN" },
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,       "MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN" },
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_DEGEN,                   "MT_JLOSS_LINEAR_FRACTION_DEGEN" },
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_NON_DEGEN,               "MT_JLOSS_LINEAR_FRACTION_NON_DEGEN" },
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                     "MT_REJUVENATION_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                   "MT_THERMALLY_LIMITED_VARIATION" },
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                 "MULLER_MANDEL_KICK_MULTIPLIER_BH" },
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                 "MULLER_MANDEL_KICK_MULTIPLIER_NS" },
-    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                         "MULLER_MANDEL_SIGMA_KICK" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                      "MULLER_MANDEL_SIGMA_KICK_BH" },
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                      "MULLER_MANDEL_SIGMA_KICK_NS" },
 
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                 "NEUTRINO_MASS_LOSS_ASSUMPTION_BH" },
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                      "NEUTRINO_MASS_LOSS_VALUE_BH" },
 
     { PROGRAM_OPTION::NOTES,                                            "NOTES" },
 
+    { PROGRAM_OPTION::NS_ACCRETION_IN_CE,                               "NS_ACCRETION_IN_CE" },
     { PROGRAM_OPTION::NS_EOS,                                           "NS_EOS" },
 
     { PROGRAM_OPTION::ORBITAL_PERIOD,                                   "ORBITAL_PERIOD" },
@@ -1153,8 +1253,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                           "ROTATIONAL_FREQUENCY_1" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                           "ROTATIONAL_FREQUENCY_2" },
    
-    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" }, 
-    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" }, 
+    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" },
+    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                  "SEMI_MAJOR_AXIS" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                     "SEMI_MAJOR_AXIS_DISTRIBUTION" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MAX" },
@@ -1170,6 +1270,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,     "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD" },
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
+    
+    { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                "USSN_KICKS_OVERRIDE_MANDEL_MULLER" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
 
@@ -1244,6 +1346,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::AGE,                                               { TYPENAME::DOUBLE,           "Age",                             "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::ANGULAR_MOMENTUM,                                  { TYPENAME::DOUBLE,           "Ang_Momentum",                    "Msol AU^2 yr^-1",  24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_AT_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,           "Binding_Energy@CE",               "erg",              24, 15}},
+    { ANY_STAR_PROPERTY::BINDING_ENERGY_CONVECTIVE_ENVELOPE,                { TYPENAME::DOUBLE,           "BE_ConvectiveEnvelope",           "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_FIXED,                              { TYPENAME::DOUBLE,           "BE_Fixed",                        "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_NANJING,                            { TYPENAME::DOUBLE,           "BE_Nanjing",                      "erg",              24, 15}},
     { ANY_STAR_PROPERTY::BINDING_ENERGY_PRE_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,           "Binding_Energy<CE",               "erg",              24, 15}},
@@ -1254,9 +1357,11 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::CO_CORE_MASS,                                      { TYPENAME::DOUBLE,           "Mass_CO_Core",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMMON_ENVELOPE,                   { TYPENAME::DOUBLE,           "Mass_CO_Core@CE",                 "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Mass_CO_Core@CO",                 "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::CONVECTIVE_ENV_MASS,                               { TYPENAME::DOUBLE,           "Mass_Convective_Env",             "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS,                                         { TYPENAME::DOUBLE,           "Mass_Core",                       "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMMON_ENVELOPE,                      { TYPENAME::DOUBLE,           "Mass_Core@CE",                    "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,             { TYPENAME::DOUBLE,           "Mass_Core@CO",                    "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,           { TYPENAME::DOUBLE,           "Radius_Core@CO",                  "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,                              { TYPENAME::DOUBLE,           "Drawn_Kick_Magnitude",            "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,                           { TYPENAME::INT,              "Dominant_Mass_Loss_Rate",         "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::DT,                                                { TYPENAME::DOUBLE,           "dT",                              "Myr",              24, 15}},
@@ -1303,6 +1408,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::IS_USSN,                                           { TYPENAME::BOOL,             "USSN",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::KICK_MAGNITUDE,                                    { TYPENAME::DOUBLE,           "Applied_Kick_Magnitude",          "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_AT_COMMON_ENVELOPE,                         { TYPENAME::DOUBLE,           "Lambda@CE",                       "-",                24, 15}},
+    { ANY_STAR_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,                        { TYPENAME::DOUBLE,           "Lambda_Convective",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_DEWI,                                       { TYPENAME::DOUBLE,           "Lambda_Dewi",                     "-",                24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_FIXED,                                      { TYPENAME::DOUBLE,           "Lambda_Fixed",                    "-",                24, 15}},
     { ANY_STAR_PROPERTY::LAMBDA_KRUCKOW,                                    { TYPENAME::DOUBLE,           "Lambda_Kruckow",                  "-",                24, 15}},
@@ -1336,7 +1442,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                               { TYPENAME::DOUBLE,           "Pulsar_Birth_Period",             "s",                24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                       { TYPENAME::DOUBLE,           "Pulsar_Birth_Spin_Down",          "s/s",              24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                             { TYPENAME::DOUBLE,           "Pulsar_Spin_Freq",                "rad/s",            24, 15}},
-    { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,           "Pulsar_Spin_Period",              "ms",               24, 15}},
+    { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,           "Pulsar_Spin_Period",              "s",                24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE,                        { TYPENAME::DOUBLE,           "Tau_Radial",                      "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE,   { TYPENAME::DOUBLE,           "Tau_Radial>CE",                   "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,    { TYPENAME::DOUBLE,           "Tau_Radial<CE",                   "Myr",              24, 15}},
@@ -1344,7 +1450,6 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RADIUS_PREV,                                       { TYPENAME::DOUBLE,           "Radius_Prev",                     "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,         "SEED",                            "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,             "Recycled_NS",                     "Event",             0, 0 }},
-    { ANY_STAR_PROPERTY::RLOF_ONTO_NS,                                      { TYPENAME::BOOL,             "RLOF->NS",                        "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                             { TYPENAME::DOUBLE,           "Rocket_Kick_Magnitude",           "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::ROCKET_KICK_PHI,                                   { TYPENAME::DOUBLE,           "Rocket_Kick_Phi",                 "-",                24, 15}},
     { ANY_STAR_PROPERTY::ROCKET_KICK_THETA,                                 { TYPENAME::DOUBLE,           "Rocket_Kick_Theta",               "-",                24, 15}},
@@ -1370,8 +1475,12 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::TIME,                                              { TYPENAME::DOUBLE,           "Time",                            "Myr",              24, 15 }},
     { ANY_STAR_PROPERTY::TIMESCALE_MS,                                      { TYPENAME::DOUBLE,           "tMS",                             "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,            { TYPENAME::DOUBLE,           "Mass_Total@CO",                   "Msol",             24, 15}},
+    { ANY_STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,          { TYPENAME::DOUBLE,           "Radius_Total@CO",                 "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::TRUE_ANOMALY,                                      { TYPENAME::DOUBLE,           "True_Anomaly(psi)",               "-",                24, 15}},
     { ANY_STAR_PROPERTY::TZAMS,                                             { TYPENAME::DOUBLE,           "Teff@ZAMS",                       "K",                24, 15}},
+    { ANY_STAR_PROPERTY::VELOCITY_X,                                        { TYPENAME::DOUBLE,           "VelocityX",                       "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::VELOCITY_Y,                                        { TYPENAME::DOUBLE,           "VelocityY",                       "kms^-1",           24, 15}},
+    { ANY_STAR_PROPERTY::VELOCITY_Z,                                        { TYPENAME::DOUBLE,           "VelocityZ",                       "kms^-1",           24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY,                                       { TYPENAME::DOUBLE,           "Zeta_Hurley",                     "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_HURLEY_HE,                                    { TYPENAME::DOUBLE,           "Zeta_Hurley_He",                  "-",                24, 15}},
     { ANY_STAR_PROPERTY::ZETA_SOBERMAN,                                     { TYPENAME::DOUBLE,           "Zeta_Soberman",                   "-",                24, 15}},
@@ -1411,6 +1520,9 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,      "MT_History",                "-",                 4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,             "Merges_Hubble_Time",        "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,             "Optimistic_CE",             "State",             0, 0 }},
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_X",     "-",               24, 15}},   
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Y",     "-",               24, 15}},   
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Z",     "-",               24, 15}},   
     { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,           "Orbital_Angular_Velocity",  "kms^-1",           24, 15}},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,           "Orb_Velocity<SN",           "kms^-1",           24, 15}},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,           "Radius(1)>CE",              "Rsol",             24, 15}},
@@ -1420,7 +1532,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RANDOM_SEED,                                         { TYPENAME::ULONGINT,         "SEED",                      "-",                12, 1 }},
     { BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY,                           { TYPENAME::DOUBLE,           "Beta",                      "-",                24, 15}},
     { BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,                                 { TYPENAME::DOUBLE,           "MassTransferRateDonor",     "Msol/Myr",         24, 15}},
-    { BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,                        {     TYPENAME::MASS_TRANSFER_TIMESCALE,  "MassTransferTimescale",    "-",          4, 1}},
+    { BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,                        { TYPENAME::MT_TIMESCALE,     "MassTransferTimescale",     "-",                 4, 1 }},
     { BINARY_PROPERTY::RLOF_POST_MT_COMMON_ENVELOPE,                        { TYPENAME::BOOL,             "CEE>MT",                    "State",             0, 0 }},
     { BINARY_PROPERTY::RLOF_POST_MT_ECCENTRICITY,                           { TYPENAME::DOUBLE,           "Eccentricity>MT",           "-",                24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_EVENT_COUNTER,                          { TYPENAME::UINT,             "MT_Event_Counter",          "Count",             6, 1 }},
@@ -1430,6 +1542,10 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                             { TYPENAME::DOUBLE,           "Mass(2)>MT",                "Msol",             24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,                           { TYPENAME::DOUBLE,           "Radius(1)>MT",              "Rsol",             24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS,                           { TYPENAME::DOUBLE,           "Radius(2)>MT",              "Rsol",             24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF,                             { TYPENAME::DOUBLE,           "Teff(1)>MT",                "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF,                             { TYPENAME::DOUBLE,           "Teff(2)>MT",                "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM,                              { TYPENAME::DOUBLE,           "Lum(1)>MT",                 "Lsol",             24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM,                              { TYPENAME::DOUBLE,           "Lum(2)>MT",                 "Lsol",             24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,                             { TYPENAME::BOOL,             "RLOF(1)>MT",                "State",             0, 0 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,                             { TYPENAME::BOOL,             "RLOF(2)>MT",                "State",             0, 0 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)>MT",         "-",                4, 1 }},
@@ -1444,6 +1560,10 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS,                              { TYPENAME::DOUBLE,           "Mass(2)<MT",                 "Msol",            24, 15}},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS,                            { TYPENAME::DOUBLE,           "Radius(1)<MT",               "Rsol",            24, 15}},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS,                            { TYPENAME::DOUBLE,           "Radius(2)<MT",               "Rsol",            24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF,                              { TYPENAME::DOUBLE,           "Teff(1)<MT",                 "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF,                              { TYPENAME::DOUBLE,           "Teff(2)<MT",                 "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM,                               { TYPENAME::DOUBLE,           "Lum(1)<MT",                  "Lsol",             24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM,                               { TYPENAME::DOUBLE,           "Lum(2)<MT",                  "Lsol",             24, 15}},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,                              { TYPENAME::BOOL,             "RLOF(1)<MT",                 "Event",            0, 0 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,                              { TYPENAME::BOOL,             "RLOF(2)<MT",                 "Event",            0, 0 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)<MT",         "-",                4, 1 }},
@@ -1466,6 +1586,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,                    { TYPENAME::DOUBLE,           "SemiMajorAxis@DCO",          "AU",              24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,                             { TYPENAME::DOUBLE,           "SemiMajorAxis@ZAMS",         "AU",              24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,                { TYPENAME::DOUBLE,           "SemiMajorAxis>CE",           "Rsol",            24, 15}},
+    { BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE,                     { TYPENAME::DOUBLE,           "SemiMajorAxisStage1>CE",     "Rsol",            24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,                 { TYPENAME::DOUBLE,           "SemiMajorAxis<CE",           "Rsol",            24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA,                       { TYPENAME::DOUBLE,           "SemiMajorAxis<SN",           "AU",              24, 15}},
     { BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,                  { TYPENAME::DOUBLE,           "SemiMajorAxis<SN",           "Rsol",            24, 15}},
@@ -1484,15 +1605,37 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,           "Stellar_Type(2)>CE",         "-",               42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,           "Stellar_Type(2)<CE",         "-",               42, 1 }},
     { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,           "SN_Orbit_Inclination_Angle", "-",               24, 15}},   
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_X,                { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_X",     "-",               24, 15}},   
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Y,                { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Y",     "-",               24, 15}},   
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_VECTOR_Z,                { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Z",     "-",               24, 15}},   
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,         "Supernova_State",            "State",            4, 1 }},
-    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,           "Tau_Sync",                   "Myr",             24, 15}},
+    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_1,                         { TYPENAME::DOUBLE,           "Tau_Sync(1)",                "Myr",             24, 15}},
+    { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_2,                         { TYPENAME::DOUBLE,           "Tau_Sync(2)",                "Myr",             24, 15}},
     { BINARY_PROPERTY::SYSTEMIC_SPEED,                                      { TYPENAME::DOUBLE,           "SystemicSpeed",              "kms^-1",          24, 15}},
     { BINARY_PROPERTY::SYSTEMIC_VELOCITY_X,                                 { TYPENAME::DOUBLE,           "SystemicVelocityX",          "kms^-1",          24, 15}},
     { BINARY_PROPERTY::SYSTEMIC_VELOCITY_Y,                                 { TYPENAME::DOUBLE,           "SystemicVelocityY",          "kms^-1",          24, 15}},
     { BINARY_PROPERTY::SYSTEMIC_VELOCITY_Z,                                 { TYPENAME::DOUBLE,           "SystemicVelocityZ",          "kms^-1",          24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_1,                    { TYPENAME::DOUBLE,           "ImKnm_10(1)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_1,                    { TYPENAME::DOUBLE,           "ImKnm_12(1)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_1,                    { TYPENAME::DOUBLE,           "ImKnm_22(1)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_1,                    { TYPENAME::DOUBLE,           "ImKnm_32(1)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_2,                    { TYPENAME::DOUBLE,           "ImKnm_10(2)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_2,                    { TYPENAME::DOUBLE,           "ImKnm_12(2)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_2,                    { TYPENAME::DOUBLE,           "ImKnm_22(2)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_2,                    { TYPENAME::DOUBLE,           "ImKnm_32(2)",                  "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1,                 { TYPENAME::DOUBLE,           "ImKnm_10_eq(1)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1,                 { TYPENAME::DOUBLE,           "ImKnm_12_eq(1)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1,                 { TYPENAME::DOUBLE,           "ImKnm_22_eq(1)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_1,                 { TYPENAME::DOUBLE,           "ImKnm_32_eq(1)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2,                 { TYPENAME::DOUBLE,           "ImKnm_10_eq(2)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2,                 { TYPENAME::DOUBLE,           "ImKnm_12_eq(2)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2,                 { TYPENAME::DOUBLE,           "ImKnm_22_eq(2)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2,                 { TYPENAME::DOUBLE,           "ImKnm_32_eq(2)",               "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1,                { TYPENAME::DOUBLE,           "ImKnm_10_dyn(1)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1,                { TYPENAME::DOUBLE,           "ImKnm_12_dyn(1)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1,                { TYPENAME::DOUBLE,           "ImKnm_22_dyn(1)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_1,                { TYPENAME::DOUBLE,           "ImKnm_32_dyn(1)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2,                { TYPENAME::DOUBLE,           "ImKnm_10_dyn(2)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2,                { TYPENAME::DOUBLE,           "ImKnm_12_dyn(2)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2,                { TYPENAME::DOUBLE,           "ImKnm_22_dyn(2)",              "-",             24, 15}},
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2,                { TYPENAME::DOUBLE,           "ImKnm_32_dyn(2)",              "-",             24, 15}},
     { BINARY_PROPERTY::TIME,                                                { TYPENAME::DOUBLE,           "Time",                       "Myr",             24, 15}},
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                 { TYPENAME::DOUBLE,           "Coalescence_Time",           "Myr",             24, 15}},
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                              { TYPENAME::DOUBLE,           "Ang_Momentum_Total",         "Msol AU^2 yr^-1", 24, 15}},
@@ -1542,6 +1685,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN,                       { TYPENAME::DOUBLE,     "PO_CE_Mass_Accr_Min",                       "Msol",      24, 15}},
     { PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION,              { TYPENAME::INT,        "PO_CE_Mass_Accr_Prscrptn",                  "-",          4, 1 }},
     { PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY,             { TYPENAME::DOUBLE,     "PO_CE_Recomb_Enrgy_Dnsty",                  "erg g^-1",  24, 15}},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_BETA,                        { TYPENAME::DOUBLE,     "PO_CE_Second_Stage_Beta",                   "-",         24, 15}},
+    { PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION,          { TYPENAME::INT,        "PO_CE_Second_Stage_Gamma_Prescription",     "-",         24, 15}},
     { PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW,                            { TYPENAME::DOUBLE,     "PO_CE_Slope_Kruckow",                       "-",         24, 15}},
 
     { PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER,                           { TYPENAME::DOUBLE,     "PO_Cool_WindMassLoss_Multipl",              "-",         24, 15}},
@@ -1570,7 +1715,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                    { TYPENAME::INT,        "PO_Initial_Mass_Function",                  "-",          4, 1 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Max",                  "Msol",      24, 15}},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Min",                  "Msol",      24, 15}},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                               { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                              { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,        "PO_Kick_Direction_Dstrbtn",                 "-",          4, 1 }},
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,     "PO_Kick_Direction_Power",                   "-",         24, 15}},
@@ -1603,6 +1748,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
 
     { PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,               { TYPENAME::DOUBLE,     "PO_Magnetic_Field_Amp_Fact",                "-",         24, 15}},
 
+    { PROGRAM_OPTION::MALTSEV_FALLBACK,                                         { TYPENAME::DOUBLE,     "PO_Maltsev_Fallback",                       "-",         24, 15}},
+    { PROGRAM_OPTION::MALTSEV_MODE,                                             { TYPENAME::INT,        "PO_Maltsev_Mode",                           "-",          4, 1 }},
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_RATIO,                                               { TYPENAME::DOUBLE,     "PO_Mass_Ratio",                             "-",         24, 15}},
@@ -1622,7 +1769,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Max",                "-",         24, 15}},
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Min",                "-",         24, 15}},
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                                   { TYPENAME::DOUBLE,     "PO_Min_Secondary_Mass",                     "Msol",      24, 15}},
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                           { TYPENAME::DOUBLE,     "PO_Min_Sampled_Secondary_Mass",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                     { TYPENAME::INT,        "PO_MT_Acc_Efficiency_Prscrptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION,                             { TYPENAME::INT,        "PO_MT_AngMom_Loss_Prscrptn",                "-",          4, 1 }},
@@ -1648,18 +1795,20 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                     { TYPENAME::DOUBLE,     "PO_MT_Fraction_Accreted",                   "-",         24, 15}},
     { PROGRAM_OPTION::MT_JLOSS,                                                 { TYPENAME::DOUBLE,     "PO_MT_JLoss",                               "-",         24, 15}},
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,                   { TYPENAME::DOUBLE,     "PO_MT_JLoss_Macleod_Linear_Frac_Degen",     "-",         24, 15}},
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,               { TYPENAME::DOUBLE,     "PO_MT_JLoss_Macleod_Linear_Frac_Non_Degen", "-",         24, 15}},
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_DEGEN,                           { TYPENAME::DOUBLE,     "PO_MT_JLoss_Linear_Frac_Degen",             "-",         24, 15}},
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_NON_DEGEN,                       { TYPENAME::DOUBLE,     "PO_MT_JLoss_Linear_Frac_Non_Degen",         "-",         24, 15}},
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                             { TYPENAME::INT,        "PO_MT_Rejuvenation_Prscrptn",               "-",          4, 1 }},
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                           { TYPENAME::INT,        "PO_MT_Thermally_Lmtd_Variation",            "-",          4, 1 }},
 
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_BH",                  "-",         24, 15}},
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_NS",                  "-",         24, 15}},
-    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK,                                 { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick",                          "-",         24, 15}},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_BH",                          "-",         24, 15}},
+    { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_NS",                          "-",         24, 15}},
     
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "PO_Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "PO_Neutrino_Mass_Loss_Value",               "-",         24, 15}},
 
+    { PROGRAM_OPTION::NS_ACCRETION_IN_CE,                                       { TYPENAME::INT,        "PO_NS_ACCRETION_IN_CE",                     "-",          4, 1 }},
     { PROGRAM_OPTION::NS_EOS,                                                   { TYPENAME::INT,        "PO_NS_EOS",                                 "-",          4, 1 }},
 
     { PROGRAM_OPTION::ORBITAL_PERIOD,                                           { TYPENAME::DOUBLE,     "PO_Orbital_Period",                         "days",      24, 15}},
@@ -1697,6 +1846,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                      { TYPENAME::ULONGINT,   "PO_SEED(CMDLINE)",                          "-",         12, 1 }},
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Remnant_Mass_Prscrptn",                  "-",          4, 1 }},
+    
+    { PROGRAM_OPTION::RESPONSE_TO_SPIN_UP,                                { TYPENAME::INT,        "PO_Response_To_Spin_Up",                           "-",          4, 1 }},
 
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(1)",               "kms^-1",    24, 15}},
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(2)",               "kms^-1",    24, 15}},
@@ -1727,6 +1878,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,             { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_High_Std", "-",        24, 15 }},
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_Tides_Prscrptn",                         "-",          4, 1 }},
+    
+    { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                        { TYPENAME::BOOL,       "PO_USSN_Kicks_Override_Mandel_Muller",  "flag",       0,  0}},
 
     { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "PO_WR_Factor",                              "-",         24, 15}},
 
@@ -1751,12 +1904,14 @@ enum class LOGFILE: int {
     BSE_RLOF_PARAMETERS,
     BSE_SUPERNOVAE,
     BSE_SWITCH_LOG,
+    BSE_SYSTEM_SNAPSHOT_LOG,
     BSE_SYSTEM_PARAMETERS,
 
     SSE_DETAILED_OUTPUT,
     SSE_PULSAR_EVOLUTION,
     SSE_SUPERNOVAE,
     SSE_SWITCH_LOG,
+    SSE_SYSTEM_SNAPSHOT_LOG,
     SSE_SYSTEM_PARAMETERS
 };
 
@@ -1774,7 +1929,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class BSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default BSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     POST_BINARY_TIMESTEP                                                                                            // 3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
@@ -1811,7 +1966,7 @@ enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                             
 };
 
 enum class SSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // SSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default SSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     TIMESTEP_COMPLETED                                                                                              // 3 - record was logged immediately following the completion of the timestep (after all changes to the star)
 };
@@ -1830,6 +1985,14 @@ enum class BSE_SYSPARMS_RECORD_TYPE: unsigned int {                             
 
 enum class SSE_SYSPARMS_RECORD_TYPE: unsigned int {                                                                 // SSE_SYSTEM_PARAMETERS file record type
     DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_PARAMETERS file record type
+};
+
+enum class BSE_SYSTEM_SNAPSHOT_RECORD_TYPE: unsigned int {                                                          // BSE_SYSTEM_SNAPSHOT_LOG file record type
+    DEFAULT = 1                                                                                                     // 1 - default BSE_SYSTEM_SNAPSHOT_LOG file record type
+};
+
+enum class SSE_SYSTEM_SNAPSHOT_RECORD_TYPE: unsigned int {                                                          // SSE_SYSTEM_SNAPSHOT_LOG file record type
+    DEFAULT = 1                                                                                                     // 1 - default SSE_SYSTEM_SNAPSHOT_LOG file record type
 };
 
 
@@ -1878,6 +2041,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::ECCENTRICITY_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_COMMON_ENVELOPE,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_POST_STAGE_1_CE,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2_PRE_COMMON_ENVELOPE,
@@ -1889,6 +2053,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::STELLAR_TYPE_1_PRE_COMMON_ENVELOPE,
     STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,
     STAR_1_PROPERTY::LAMBDA_FIXED,
     STAR_1_PROPERTY::LAMBDA_NANJING,
     STAR_1_PROPERTY::LAMBDA_LOVERIDGE,
@@ -1899,6 +2064,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_1_PROPERTY::BINDING_ENERGY_LOVERIDGE,
     STAR_1_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,
     STAR_1_PROPERTY::BINDING_ENERGY_KRUCKOW,
+    STAR_1_PROPERTY::CONVECTIVE_ENV_MASS,
     BINARY_PROPERTY::MASS_2_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::MASS_2_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::MASS_ENV_2,
@@ -1906,6 +2072,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     BINARY_PROPERTY::RADIUS_2_POST_COMMON_ENVELOPE,
     BINARY_PROPERTY::STELLAR_TYPE_2_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::LAMBDA_CONVECTIVE_ENVELOPE,
     STAR_2_PROPERTY::LAMBDA_FIXED,
     STAR_2_PROPERTY::LAMBDA_NANJING,
     STAR_2_PROPERTY::LAMBDA_LOVERIDGE,
@@ -1916,6 +2083,7 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_2_PROPERTY::BINDING_ENERGY_LOVERIDGE,
     STAR_2_PROPERTY::BINDING_ENERGY_LOVERIDGE_WINDS,
     STAR_2_PROPERTY::BINDING_ENERGY_KRUCKOW,
+    STAR_2_PROPERTY::CONVECTIVE_ENV_MASS,
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
     BINARY_PROPERTY::STELLAR_MERGER,
     BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,
@@ -1933,7 +2101,8 @@ const ANY_PROPERTY_VECTOR BSE_COMMON_ENVELOPES_REC = {
     STAR_2_PROPERTY::THERMAL_TIMESCALE_PRE_COMMON_ENVELOPE,
     BINARY_PROPERTY::ZETA_STAR,
     BINARY_PROPERTY::ZETA_LOBE,
-    BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE,
+    BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_1,
+    BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_2,
     BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,
     STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,
@@ -2016,8 +2185,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_2_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD,
     STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
-    STAR_1_PROPERTY::PULSAR_SPIN_FREQUENCY,
-    STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_2_PROPERTY::PULSAR_SPIN_PERIOD,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
@@ -2027,6 +2196,7 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
     STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
     BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,
+    BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,
     BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY
 };
 
@@ -2067,8 +2237,8 @@ const ANY_PROPERTY_VECTOR BSE_PULSAR_EVOLUTION_REC = {
     STAR_2_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD,
     STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
-    STAR_1_PROPERTY::PULSAR_SPIN_FREQUENCY,
-    STAR_2_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_2_PROPERTY::PULSAR_SPIN_PERIOD,
     STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
@@ -2155,9 +2325,11 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::STELLAR_TYPE_PREV,
     COMPANION_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
+    SUPERNOVA_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    SUPERNOVA_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     SUPERNOVA_PROPERTY::MASS,
     SUPERNOVA_PROPERTY::EXPERIENCED_RLOF,
     SUPERNOVA_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,
@@ -2166,6 +2338,12 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     BINARY_PROPERTY::SYSTEMIC_SPEED,
     SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR,
     BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE, 
+    BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,
+    BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,
+    BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,
+    BINARY_PROPERTY::SYSTEMIC_VELOCITY_X,
+    BINARY_PROPERTY::SYSTEMIC_VELOCITY_Y,
+    BINARY_PROPERTY::SYSTEMIC_VELOCITY_Z,
 };
 
 
@@ -2175,7 +2353,16 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
 //
 const ANY_PROPERTY_VECTOR BSE_SWITCH_LOG_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
-    BINARY_PROPERTY::TIME
+    BINARY_PROPERTY::TIME,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
+    BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,
+    BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,
+    STAR_1_PROPERTY::MASS,
+    STAR_2_PROPERTY::MASS,
+    STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::RADIUS,
+    STAR_2_PROPERTY::RADIUS
 };
 
 
@@ -2202,6 +2389,7 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     PROGRAM_OPTION::LBV_FACTOR,
     PROGRAM_OPTION::WR_FACTOR,
     PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,
+    PROGRAM_OPTION::COMMON_ENVELOPE_FORMALISM,
     STAR_1_PROPERTY::METALLICITY,
     STAR_2_PROPERTY::METALLICITY,
     BINARY_PROPERTY::UNBOUND,
@@ -2219,6 +2407,94 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::EVOL_STATUS,
     BINARY_PROPERTY::ERROR,
     PROGRAM_OPTION::NOTES
+};
+
+
+// BSE_SYSTEM_SNAPSHOT_LOG_REC
+//
+// Default record definition for the BSE System Snapshot logfile
+//
+const ANY_PROPERTY_VECTOR BSE_SYSTEM_SNAPSHOT_LOG_REC = {
+    BINARY_PROPERTY::RANDOM_SEED,
+    BINARY_PROPERTY::DT,
+    BINARY_PROPERTY::TIME,
+    BINARY_PROPERTY::UNBOUND,
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
+    BINARY_PROPERTY::ECCENTRICITY,
+    STAR_1_PROPERTY::MZAMS,
+    STAR_2_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::MASS_0,
+    STAR_2_PROPERTY::MASS_0,
+    STAR_1_PROPERTY::MASS,
+    STAR_2_PROPERTY::MASS,
+    STAR_1_PROPERTY::ENV_MASS,
+    STAR_2_PROPERTY::ENV_MASS,
+    STAR_1_PROPERTY::CORE_MASS,
+    STAR_2_PROPERTY::CORE_MASS,
+    STAR_1_PROPERTY::HE_CORE_MASS,
+    STAR_2_PROPERTY::HE_CORE_MASS,
+    STAR_1_PROPERTY::CO_CORE_MASS,
+    STAR_2_PROPERTY::CO_CORE_MASS,
+    STAR_1_PROPERTY::RADIUS,
+    STAR_2_PROPERTY::RADIUS,
+    BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1,
+    BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2,
+    STAR_1_PROPERTY::OMEGA,
+    STAR_2_PROPERTY::OMEGA,
+    STAR_1_PROPERTY::OMEGA_BREAK,
+    STAR_2_PROPERTY::OMEGA_BREAK,
+    STAR_1_PROPERTY::INITIAL_STELLAR_TYPE,
+    STAR_2_PROPERTY::INITIAL_STELLAR_TYPE,
+    STAR_1_PROPERTY::STELLAR_TYPE,
+    STAR_2_PROPERTY::STELLAR_TYPE,
+    STAR_1_PROPERTY::AGE,
+    STAR_2_PROPERTY::AGE,
+    STAR_1_PROPERTY::LUMINOSITY,
+    STAR_2_PROPERTY::LUMINOSITY,
+    STAR_1_PROPERTY::TEMPERATURE,
+    STAR_2_PROPERTY::TEMPERATURE,
+    STAR_1_PROPERTY::ANGULAR_MOMENTUM,
+    STAR_2_PROPERTY::ANGULAR_MOMENTUM,
+    STAR_1_PROPERTY::DYNAMICAL_TIMESCALE,
+    STAR_2_PROPERTY::DYNAMICAL_TIMESCALE,
+    STAR_1_PROPERTY::THERMAL_TIMESCALE,
+    STAR_2_PROPERTY::THERMAL_TIMESCALE,
+    STAR_1_PROPERTY::ZETA_SOBERMAN,
+    STAR_2_PROPERTY::ZETA_SOBERMAN,
+    STAR_1_PROPERTY::ZETA_SOBERMAN_HE,
+    STAR_2_PROPERTY::ZETA_SOBERMAN_HE,
+    STAR_1_PROPERTY::ZETA_HURLEY,
+    STAR_2_PROPERTY::ZETA_HURLEY,
+    STAR_1_PROPERTY::ZETA_HURLEY_HE,
+    STAR_2_PROPERTY::ZETA_HURLEY_HE,
+    STAR_1_PROPERTY::MASS_LOSS_DIFF,
+    STAR_2_PROPERTY::MASS_LOSS_DIFF,
+    STAR_1_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_2_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_1_PROPERTY::MASS_TRANSFER_DIFF,
+    STAR_2_PROPERTY::MASS_TRANSFER_DIFF,
+    STAR_1_PROPERTY::MDOT,
+    STAR_2_PROPERTY::MDOT,
+    BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,
+    BINARY_PROPERTY::TOTAL_ENERGY,
+    STAR_1_PROPERTY::METALLICITY,
+    STAR_2_PROPERTY::METALLICITY,
+    BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
+    STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
+    STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
+    STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_2_PROPERTY::PULSAR_SPIN_PERIOD,
+    STAR_1_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_PERIOD,
+    STAR_1_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_2_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
+    STAR_1_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
+    STAR_2_PROPERTY::RADIAL_EXPANSION_TIMESCALE,
+    BINARY_PROPERTY::RLOF_MASS_LOSS_RATE,
+    BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,
+    BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY
 };
 
 
@@ -2245,7 +2521,9 @@ const ANY_PROPERTY_VECTOR SSE_DETAILED_OUTPUT_REC = {
     STAR_PROPERTY::HE_CORE_MASS,
     STAR_PROPERTY::MDOT,
     STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
-    STAR_PROPERTY::TIMESCALE_MS
+    STAR_PROPERTY::TIMESCALE_MS,
+    STAR_PROPERTY::OMEGA,
+    STAR_PROPERTY::OMEGA_BREAK
 };
 
 // SSE_PULSAR_EVOLUTION_REC
@@ -2257,7 +2535,7 @@ const ANY_PROPERTY_VECTOR SSE_PULSAR_EVOLUTION_REC = {
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::STELLAR_TYPE,
     STAR_PROPERTY::PULSAR_MAGNETIC_FIELD,
-    STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,
+    STAR_PROPERTY::PULSAR_SPIN_PERIOD,
     STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE,
     STAR_PROPERTY::PULSAR_BIRTH_PERIOD,
     STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,
@@ -2277,11 +2555,13 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
     STAR_PROPERTY::MEAN_ANOMALY,				
     STAR_PROPERTY::SN_TYPE,
     STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::CO_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::STELLAR_TYPE,
     STAR_PROPERTY::STELLAR_TYPE_PREV,
     STAR_PROPERTY::CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
+    STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::HE_CORE_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::TIME,
     STAR_PROPERTY::IS_HYDROGEN_POOR
@@ -2294,7 +2574,10 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
 //
 const ANY_PROPERTY_VECTOR SSE_SWITCH_LOG_REC = {
     STAR_PROPERTY::RANDOM_SEED,
-    STAR_PROPERTY::TIME
+    STAR_PROPERTY::TIME,
+    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::STELLAR_TYPE,
+    STAR_PROPERTY::RADIUS
 };
 
 
@@ -2325,6 +2608,34 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     PROGRAM_OPTION::NOTES
 };
 
+
+// SSE_SYSTEM_SNAPSHOT_LOG_REC
+//
+// Default record definition for the SSE System Snapshot logfile
+//
+const ANY_PROPERTY_VECTOR SSE_SYSTEM_SNAPSHOT_LOG_REC = {
+    STAR_PROPERTY::AGE,
+    STAR_PROPERTY::DT,
+    STAR_PROPERTY::TIME,
+    STAR_PROPERTY::STELLAR_TYPE,
+    STAR_PROPERTY::METALLICITY,
+    STAR_PROPERTY::MASS_0,
+    STAR_PROPERTY::MASS,
+    STAR_PROPERTY::RADIUS,
+    STAR_PROPERTY::RZAMS,
+    STAR_PROPERTY::LUMINOSITY,
+    STAR_PROPERTY::TEMPERATURE,
+    STAR_PROPERTY::CORE_MASS,
+    STAR_PROPERTY::CO_CORE_MASS,
+    STAR_PROPERTY::HE_CORE_MASS,
+    STAR_PROPERTY::MDOT,
+    STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
+    STAR_PROPERTY::TIMESCALE_MS,
+    STAR_PROPERTY::OMEGA,
+    STAR_PROPERTY::OMEGA_BREAK
+};
+
+
 // enum class LOGFILE_CLASS
 // Symbolic names for logfile types
 enum class LOGFILE_CLASS: int { NONE, STELLAR, BINARY };
@@ -2335,25 +2646,27 @@ enum class LOGFILE_CLASS: int { NONE, STELLAR, BINARY };
 // (the short names are for logfile definitions file parsing)
 typedef std::tuple<std::string, ANY_PROPERTY_VECTOR, std::string, std::string, LOGFILE_CLASS> LOGFILE_DESCRIPTOR_T;
 const std::map<LOGFILE, LOGFILE_DESCRIPTOR_T> LOGFILE_DESCRIPTOR = {
-    { LOGFILE::NONE,                       { "" ,                              {},                             "",                "",                    LOGFILE_CLASS::NONE}},
+    { LOGFILE::NONE,                       { "" ,                          {},                             "",                 "",                     LOGFILE_CLASS::NONE}},
 
-    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
-    { LOGFILE::ERROR_LOG,                  { "Error_Log",                      {},                             "",                "",                    LOGFILE_CLASS::NONE }},
+    { LOGFILE::DEBUG_LOG,                  { "Debug_Log",                  {},                             "",                 "",                     LOGFILE_CLASS::NONE }},
+    { LOGFILE::ERROR_LOG,                  { "Error_Log",                  {},                             "",                 "",                     LOGFILE_CLASS::NONE }},
 
-    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",           BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",         "BSE_CEE_REC",         LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",            BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",    "BSE_DETAILED_REC",    LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects",     BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",         "BSE_DCO_REC",         LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",           BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",     "BSE_PULSARS_REC",     LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                       BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",        "BSE_RLOF_REC",        LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",                 BSE_SUPERNOVAE_REC,             "BSE_SNE",         "BSE_SNE_REC",         LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",                 BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",  "BSE_SWITCH_REC",      LOGFILE_CLASS::BINARY }},
-    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",          BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",    "BSE_SYSPARMS_REC",    LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_COMMON_ENVELOPES,       { "BSE_Common_Envelopes",       BSE_COMMON_ENVELOPES_REC,       "BSE_CEE",          "BSE_CEE_REC",          LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_DETAILED_OUTPUT,        { "BSE_Detailed_Output",        BSE_DETAILED_OUTPUT_REC,        "BSE_DETAILED",     "BSE_DETAILED_REC",     LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, { "BSE_Double_Compact_Objects", BSE_DOUBLE_COMPACT_OBJECTS_REC, "BSE_DCO",          "BSE_DCO_REC",          LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_PULSAR_EVOLUTION,       { "BSE_Pulsar_Evolution",       BSE_PULSAR_EVOLUTION_REC,       "BSE_PULSARS",      "BSE_PULSARS_REC",      LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_RLOF_PARAMETERS,        { "BSE_RLOF",                   BSE_RLOF_PARAMETERS_REC,        "BSE_RLOF",         "BSE_RLOF_REC",         LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SUPERNOVAE,             { "BSE_Supernovae",             BSE_SUPERNOVAE_REC,             "BSE_SNE",          "BSE_SNE_REC",          LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SWITCH_LOG,             { "BSE_Switch_Log",             BSE_SWITCH_LOG_REC,             "BSE_SWITCH_LOG",   "BSE_SWITCH_REC",       LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SYSTEM_PARAMETERS,      { "BSE_System_Parameters",      BSE_SYSTEM_PARAMETERS_REC,      "BSE_SYSPARMS",     "BSE_SYSPARMS_REC",     LOGFILE_CLASS::BINARY }},
+    { LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG,    { "BSE_System_Snapshot_Log",    BSE_SYSTEM_SNAPSHOT_LOG_REC,    "BSE_SYS_SNAPSHOT", "BSE_SYS_SNAPSHOT_REC", LOGFILE_CLASS::BINARY }},
 
-    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",            SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",    "SSE_DETAILED_REC",    LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_PULSAR_EVOLUTION,       { "SSE_Pulsar_Evolution",           SSE_PULSAR_EVOLUTION_REC,       "SSE_PULSARS",     "SSE_PULSARS_REC",     LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",                 SSE_SUPERNOVAE_REC,             "SSE_SNE",         "SSE_SNE_REC",         LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",                 SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",  "SSE_SWITCH_REC",      LOGFILE_CLASS::STELLAR }},
-    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",          SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",    "SSE_SYSPARMS_REC",    LOGFILE_CLASS::STELLAR }}
+    { LOGFILE::SSE_DETAILED_OUTPUT,        { "SSE_Detailed_Output",        SSE_DETAILED_OUTPUT_REC,        "SSE_DETAILED",     "SSE_DETAILED_REC",     LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_PULSAR_EVOLUTION,       { "SSE_Pulsar_Evolution",       SSE_PULSAR_EVOLUTION_REC,       "SSE_PULSARS",      "SSE_PULSARS_REC",      LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SUPERNOVAE,             { "SSE_Supernovae",             SSE_SUPERNOVAE_REC,             "SSE_SNE",          "SSE_SNE_REC",          LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SWITCH_LOG,             { "SSE_Switch_Log",             SSE_SWITCH_LOG_REC,             "SSE_SWITCH_LOG",   "SSE_SWITCH_REC",       LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SYSTEM_PARAMETERS,      { "SSE_System_Parameters",      SSE_SYSTEM_PARAMETERS_REC,      "SSE_SYSPARMS",     "SSE_SYSPARMS_REC",     LOGFILE_CLASS::STELLAR }},
+    { LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG,    { "SSE_System_Snapshot_Log",    SSE_SYSTEM_SNAPSHOT_LOG_REC,    "SSE_SYS_SNAPSHOT", "SSE_SYS_SNAPSHOT_REC", LOGFILE_CLASS::STELLAR }}
 };
 
 #endif // __LogTypedefs_h__

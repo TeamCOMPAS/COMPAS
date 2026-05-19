@@ -108,7 +108,7 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 double CHeB::CalculateLambdaDewi() const {
 
-    double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
+    double lambda3 = std::min(0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                           // (A.4) Claeys+2014 with corrected typo (see e.g. Appendix E.1 in Marchant+2021)
     double lambda1 = std::min(lambda3, std::min(0.8, 1.25 - (0.15 * log10(m_Luminosity))));                                 // (A.5) Top, Claeys+2014
 	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;
@@ -1453,9 +1453,16 @@ ENVELOPE CHeB::DetermineEnvelopeType() const {
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             // envelope is radiative if temperature exceeds fixed threshold, otherwise convective
-            envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
+            envelope = utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
             break;
 
+        case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
+            // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
+            double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+            std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+            envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
+            break;
+            
         default:                                                                                    // unknown prescription
             // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

@@ -76,7 +76,7 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Tau) const;
     double          CalculateCoreMassOnPhase() const                            { return CalculateCoreMassOnPhase(m_Mass0, m_Tau); }                            // Use class member variables
 
-    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const    { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+    double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const    { return HURLEY_HJELLMING_WEBBINK_QCRIT_MS_GT_07; }
 
     double          CalculateHeCoreMassAtPhaseEnd() const                       { return m_CoreMass; }
 
@@ -114,6 +114,7 @@ protected:
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_Luminosity) const;
     double          CalculateRadiusAtPhaseEnd() const                           { return CalculateRadiusAtPhaseEnd(m_Mass, m_Luminosity); }
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity, const double p_Tau) const;
+    double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }
     double          CalculateRadiusOnPhase() const                              { return CalculateRadiusOnPhase(m_Mass, m_Luminosity, m_Tau); }
 
     double          CalculateRadiusRho(const double p_Mass, const double p_Tau) const;

@@ -57,13 +57,13 @@
 /*    Boost when the options were parsed (also see SetCalculatedOptionDefaults(); viz.    */
 /*    m_KickPhi1 etc.).                                                                   */
 /*                                                                                        */
-/* 9. If the option is a string option with multiple-choices - in that the user can       */
+/* 9. If the option is a string option with multiple choices - in that the user can       */
 /*    select from a list of possible values recorded in typedefs.h or LogTypedefs.h in    */
 /*    an ENUM CLASS and corresponding COMPASUnorderedMap labels map - then add the option */
 /*    to the function AllowedOptionValues() here so that we can easily extract the        */
 /*    allowed values for that option.                                                     */
 /*                                                                                        */
-/* 10. Add the new option to one or more of the following vectors in Options.h, as        */
+/* 10. Add the new option to the following vectors in Options.h, as                       */
 /*     required:                                                                          */
 /*                                                                                        */
 /*         m_ShorthandAllowed: options for which shorthand notation is allowed            */
@@ -96,6 +96,30 @@
 /*                                                                                        */
 /******************************************************************************************/
 
+#include <string_view>
+
+template <typename T>
+constexpr auto type_name() {
+  std::string_view name, prefix, suffix;
+#ifdef __clang__
+  name = __PRETTY_FUNCTION__;
+  prefix = "auto type_name() [T = ";
+  suffix = "]";
+#elif defined(__GNUC__)
+  name = __PRETTY_FUNCTION__;
+  prefix = "constexpr auto type_name() [with T = ";
+  suffix = "]";
+#elif defined(_MSC_VER)
+  name = __FUNCSIG__;
+  prefix = "auto __cdecl type_name<";
+  suffix = ">(void)";
+#endif
+  name.remove_prefix(prefix.size());
+  name.remove_suffix(suffix.size());
+  return name;
+}
+
+
 #include "Options.h"
 #include "changelog.h"
 
@@ -105,14 +129,25 @@ namespace po  = boost::program_options;
 namespace cls = po::command_line_style;
 namespace fs  = boost::filesystem;
 
-// this is required to set default value for boost program options of type vector<std::string>
-namespace std
-{
-  std::ostream& operator<<(std::ostream &os, const std::vector<std::string> &vec) {    
-    for (auto item : vec) os << item << " ";
-    return os; 
-  }
+namespace std {
+    // this is required to set default value for boost program options of type STR_VECTOR (std::vector<std::string>)
+    std::ostream& operator<<(std::ostream &os, const STR_VECTOR &vec) {    
+        for (auto item : vec) os << item << " ";
+        return os; 
+    }
+
+    // this is required to set default value for boost program options of type DBL_VECTOR (std::vector<double>)
+    std::ostream& operator<<(std::ostream &os, const DBL_VECTOR &vec) {    
+        for (auto item : vec) os << item << " "; 
+        return os; 
+    }
 } 
+
+
+#define OPT_VALUE1(optName, optValue, fallback)  ((m_GridLine.optionValues.m_Populated && \
+    (!m_GridLine.optionValues.m_VM[optName].defaulted() || !fallback)) \
+       ? m_GridLine.optionValues.optValue \
+       : m_CmdLine.optionValues.optValue)
 
 
 Options* Options::Instance() {
@@ -180,6 +215,9 @@ void Options::OptionValues::Initialise() {
     m_Quiet                                                         = false;
     m_RlofPrinting                                                  = true;
 
+    m_SystemSnapshotAgeThresholds.clear();
+    m_SystemSnapshotTimeThresholds.clear();
+
     m_ShortHelp                                                     = true;
 
     m_StoreInputFiles                                               = true;
@@ -203,13 +241,16 @@ void Options::OptionValues::Initialise() {
     m_RandomSeed                                                    = 0;
 
     // Specify how long to evolve for
-    m_MaxEvolutionTime                                              = 13700.0;
+    m_MaxEvolutionTime                                              = HUBBLE_TIME / SECONDS_IN_MYR; //13700.0;
     m_MaxNumberOfTimestepIterations                                 = 99999;
     m_TimestepsFileName                                             = "";
 
+    m_MassChangeFraction                                            = MAXIMUM_MASS_LOSS_FRACTION;
+    m_RadialChangeFraction                                          = MAXIMUM_RADIAL_CHANGE;
+
     m_TimestepMultiplier                                            = 1.0;
-    m_RadialChangeFraction                                          = 0.0;
-    m_MassChangeFraction                                            = 0.0;
+    m_TimestepMultipliers.clear();
+
     
     // Initial mass options
     m_InitialMass                                                   = 5.0;
@@ -230,7 +271,7 @@ void Options::OptionValues::Initialise() {
     m_MassRatioDistributionMin                                      = 0.01;
     m_MassRatioDistributionMax                                      = 1.0;
 
-    m_MinimumMassSecondary                                          = 0.1;
+    m_MinimumSampledSecondaryMass                                   = 0.1;
 
 
     // Initial orbit options
@@ -275,12 +316,13 @@ void Options::OptionValues::Initialise() {
     // Kick options
     m_KickMagnitudeDistribution.type                                = KICK_MAGNITUDE_DISTRIBUTION::MULLERMANDEL;
     m_KickMagnitudeDistribution.typeString                          = KICK_MAGNITUDE_DISTRIBUTION_LABEL.at(m_KickMagnitudeDistribution.type);
-    m_KickMagnitudeDistributionSigmaCCSN_NS                         = 265;
-    m_KickMagnitudeDistributionSigmaCCSN_BH                         = 265;
-    m_KickMagnitudeDistributionMaximum                              = -1.0; 
+    m_KickMagnitudeDistributionSigmaCCSN_NS                         = HOBBS_CORRECTED_SIGMA;      // Best fit Maxwellian sigma for 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
+    m_KickMagnitudeDistributionSigmaCCSN_BH                         = HOBBS_CORRECTED_SIGMA;
+    m_KickMagnitudeDistributionMaximum                              = -1.0;
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
 	m_KickScalingFactor						                        = 1.0;
+    m_USSNKicksOverrideMandelMuller                                 = false;                      // Default from Mandel&Mueller 2020 is to treat USSNe as normal CCSNe for kicks
 
     // Kick direction option
     m_KickDirectionDistribution.type                                = KICK_DIRECTION_DISTRIBUTION::ISOTROPIC;
@@ -294,7 +336,8 @@ void Options::OptionValues::Initialise() {
 
     m_MullerMandelKickBH                                            = MULLERMANDEL_KICKBH;
     m_MullerMandelKickNS                                            = MULLERMANDEL_KICKNS;
-    m_MullerMandelSigmaKick                                         = MULLERMANDEL_SIGMAKICK;
+    m_MullerMandelSigmaKickNS                                       = MULLERMANDEL_SIGMAKICKNS;
+    m_MullerMandelSigmaKickBH                                       = MULLERMANDEL_SIGMAKICKBH;
 
     // Kick magnitude random number (used to draw kick magnitude if necessary)
     m_KickMagnitudeRandom                                           = 0.0;                                                  // actual value set later
@@ -317,6 +360,10 @@ void Options::OptionValues::Initialise() {
     m_BlackHoleKicksMode.type                                       = BLACK_HOLE_KICKS_MODE::FALLBACK;
     m_BlackHoleKicksMode.typeString                                 = BLACK_HOLE_KICKS_MODE_LABEL.at(m_BlackHoleKicksMode.type);
 
+    m_MaltsevFallback                                               = 0.5;
+    m_MaltsevMode.type                                              = MALTSEV_MODE::BALANCED;
+    m_MaltsevMode.typeString                                        = MALTSEV_MODE_LABEL.at(m_MaltsevMode.type);
+
     // Rocket kicks
     m_RocketKickMagnitude1                                          = 0.0;
     m_RocketKickMagnitude2                                          = 0.0;
@@ -328,8 +375,8 @@ void Options::OptionValues::Initialise() {
     // Chemically Homogeneous Evolution Mode
     m_CheMode.type                                                  = CHE_MODE::PESSIMISTIC;
     m_CheMode.typeString                                            = CHE_MODE_LABEL.at(m_CheMode.type);
-    m_EnhanceCHELifetimesLuminosities                               = false;                                                // default is don't enhance, as in Riley et al.
-    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = false;                                                // default is don't scale the mass loss, as in Riley et al.
+    m_EnhanceCHELifetimesLuminosities                               = true;                                                // default is to enhance
+    m_ScaleCHEMassLossWithSurfaceHeliumAbundance                    = true;                                                // default is to scale the CHE mass loss
 
     // Supernova remnant mass prescription options
     m_RemnantMassPrescription.type                                  = REMNANT_MASS_PRESCRIPTION::MULLERMANDEL;
@@ -376,14 +423,13 @@ void Options::OptionValues::Initialise() {
     
 
     // Mass loss options
-    m_UseMassLoss                                                   = true;
     m_CheckPhotonTiringLimit                                        = false;
     
     m_EnableRotationallyEnhancedMassLoss                            = false;
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
     m_LuminosityToMassThreshold                                     = 4.2;      // Podsiadlowski, private communication
 
-    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::MERRITT2024;
+    m_MassLossPrescription.type                                     = MASS_LOSS_PRESCRIPTION::MERRITT2025;
     m_MassLossPrescription.typeString                               = MASS_LOSS_PRESCRIPTION_LABEL.at(m_MassLossPrescription.type);
 
     m_LBVMassLossPrescription.type                                  = LBV_MASS_LOSS_PRESCRIPTION::HURLEY_ADD;
@@ -417,6 +463,7 @@ void Options::OptionValues::Initialise() {
 	m_CirculariseBinaryDuringMassTransfer         	                = true;
 	m_AngularMomentumConservationDuringCircularisation              = false;
     m_RetainCoreMassDuringCaseAMassTransfer                         = true;
+    m_ConvectiveEnvelopeMassThreshold                               = CONVECTIVE_BOUNDARY_MASS_THRESHOLD_ROMAGNOLO;
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
@@ -437,8 +484,8 @@ void Options::OptionValues::Initialise() {
 
     // Mass transfer angular momentum loss prescription options
     m_MassTransferJloss                                             = 1.0;
-    m_MassTransferJlossMacLeodLinearFractionDegen                   = 0.5;
-    m_MassTransferJlossMacLeodLinearFractionNonDegen                = 0.5;
+    m_MassTransferJlossLinearFractionDegen                          = 0.5;
+    m_MassTransferJlossLinearFractionNonDegen                       = 0.5;
     
     m_MassTransferAngularMomentumLossPrescription.type              = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
     m_MassTransferAngularMomentumLossPrescription.typeString        = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_MassTransferAngularMomentumLossPrescription.type);
@@ -484,10 +531,13 @@ void Options::OptionValues::Initialise() {
 	m_CommonEnvelopeSlopeKruckow                                    = -5.0 / 6.0;
 	m_CommonEnvelopeAlphaThermal                                    = 1.0;
     m_CommonEnvelopeLambdaMultiplier                                = 1.0;
-    m_CommonEnvelopeLambdaNanjingEnhanced                           = false;
-    m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = false;
-    m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = false;
+    m_CommonEnvelopeLambdaNanjingEnhanced                           = true;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMass                  = true;
+    m_CommonEnvelopeLambdaNanjingInterpolateInMetallicity           = true;
     m_CommonEnvelopeLambdaNanjingUseRejuvenatedMass                 = false;
+    m_CommonEnvelopeSecondStageBeta                                 = 0.0;
+    m_CommonEnvelopeSecondStageGammaPrescription.type               = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION;
+    m_CommonEnvelopeSecondStageGammaPrescription.typeString         = MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL.at(m_CommonEnvelopeSecondStageGammaPrescription.type);
     m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope             = false;
     m_AllowMainSequenceStarToSurviveCommonEnvelope                  = true;
     m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope               = false;
@@ -540,9 +590,14 @@ void Options::OptionValues::Initialise() {
     m_MetallicityDistributionMax                                    = MAXIMUM_METALLICITY;
 
 
+    // Neutron star accretion scenario in common envelope
+    m_NeutronStarAccretionInCE.type                                 = NS_ACCRETION_IN_CE::ZERO;
+    m_NeutronStarAccretionInCE.typeString                           = NS_ACCRETION_IN_CE_LABEL.at(m_NeutronStarAccretionInCE.type);
+
+
     // Neutron star equation of state
     m_NeutronStarEquationOfState.type                               = NS_EOS::SSE;
-    m_NeutronStarEquationOfState.typeString                         = NS_EOSLabel.at(m_NeutronStarEquationOfState.type);
+    m_NeutronStarEquationOfState.typeString                         = NS_EOS_LABEL.at(m_NeutronStarEquationOfState.type);
 
     // Magnetic field amplification factor during mergers
     m_MagneticFieldAmplificationFactorMerger                        = MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER;
@@ -559,23 +614,30 @@ void Options::OptionValues::Initialise() {
     // Pulsar birth magnetic field distribution
     m_PulsarBirthMagneticFieldAssumption.type                       = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW;
     m_PulsarBirthMagneticFieldAssumption.typeString                 = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL.at(m_PulsarBirthMagneticFieldAssumption.type);
-    m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
+    m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
     m_PulsarBirthMagneticFieldDistributionMax                       = 13.0;
+    m_PulsarBirthMagneticFieldDistributionMean                      = 12.65;
+    m_PulsarBirthMagneticFieldDistributionSigma                     = 0.55;
 
     // Pulsar birth spin period distribution string
-    m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::ZERO;
+    m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL;
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
     m_PulsarBirthSpinPeriodDistributionMin                          = 10.0;
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
+    m_PulsarBirthSpinPeriodDistributionMean                         = 75.0;
+    m_PulsarBirthSpinPeriodDistributionSigma                        = 25.0;
 
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
     m_PulsarMagneticFieldDecayTimescalePower                        = 0.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
-
+    // Response to super-critical spin-up prescription
+    m_ResponseToSpinUp.type                                         = RESPONSE_TO_SPIN_UP::TRANSFER_TO_ORBIT;
+    m_ResponseToSpinUp.typeString                                   = RESPONSE_TO_SPIN_UP_LABEL.at(m_ResponseToSpinUp.type);
+    
     // Rotational velocity distribution options
     m_RotationalVelocityDistribution.type                           = ROTATIONAL_VELOCITY_DISTRIBUTION::ZERO;
     m_RotationalVelocityDistribution.typeString                     = ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL.at(m_RotationalVelocityDistribution.type);
@@ -608,17 +670,19 @@ void Options::OptionValues::Initialise() {
     m_LogfileCommonEnvelopes                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES));
     m_LogfileCommonEnvelopesRecordTypes                             = -1;                                                                   // all record types
     m_LogfileDetailedOutput                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT));     // assume BSE - get real answer when we know mode
-    m_LogfileDetailedOutputRecordTypes                              = -1;                                                                   // all record types
+    m_LogfileDetailedOutputRecordTypes                              = 25;                                                                   // record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
     m_LogfileDoubleCompactObjects                                   = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS));
     m_LogfileDoubleCompactObjectsRecordTypes                        = -1;                                                                   // all record types
     m_LogfilePulsarEvolution                                        = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION));    // only BSE for now
-    m_LogfilePulsarEvolutionRecordTypes                             = -1;                                                                   // all record types
+    m_LogfilePulsarEvolutionRecordTypes                             = 4;                                                                    // record type 3 ((pulsar) TIMESTEP_COMPLETED)
     m_LogfileRLOFParameters                                         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS));
     m_LogfileRLOFParametersRecordTypes                              = -1;                                                                   // all record types
     m_LogfileSupernovae                                             = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE));          // assume BSE - get real answer when we know mode
     m_LogfileSupernovaeRecordTypes                                  = -1;                                                                   // all record types
     m_LogfileSwitchLog                                              = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG));          // assume BSE - get real answer when we know mode
-    m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));
+    m_LogfileSystemSnapshotLog                                      = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG)); // assume BSE - get real answer when we know mode
+    m_LogfileSystemSnapshotLogRecordTypes                           = -1;                                                                   // all record types
+    m_LogfileSystemParameters                                       = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS));   // assume BSE - get real answer when we know mode
     m_LogfileSystemParametersRecordTypes                            = -1;                                                                   // all record types
 
     m_AddOptionsToSysParms.type                                     = ADD_OPTIONS_TO_SYSPARMS::GRID;
@@ -658,40 +722,77 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
     bool ok = true;                             // status - unless a problem occurs
 
-    // create default strings for std::vector<std::string> types (too hard to do inline)
+    // create default strings for std::vector<type> types (too hard to do inline)
 
     // debug classes
     std::string defaultDebugClasses;
-    std::ostringstream ss1;
-    for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss1 << *debugClass << ",";
-    defaultDebugClasses = ss1.str();
+    {
+        std::ostringstream ss;
+        for (auto debugClass = p_Options->m_DebugClasses.begin(); debugClass != p_Options->m_DebugClasses.end(); ++debugClass) ss << *debugClass << ",";
+        defaultDebugClasses = ss.str();
+    }
     if (defaultDebugClasses.length() > 0) defaultDebugClasses.erase(defaultDebugClasses.length() - 1);
     defaultDebugClasses = "{" + defaultDebugClasses + "}";
 
     // log classes
     std::string defaultLogClasses;
-    std::ostringstream ss2;
-    for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss2 << *logClass << ",";
-    defaultLogClasses = ss2.str();
+    {
+        std::ostringstream ss;
+        for (auto logClass = p_Options->m_LogClasses.begin(); logClass != p_Options->m_LogClasses.end(); ++logClass) ss << *logClass << ",";
+        defaultLogClasses = ss.str();
+    }
     if (defaultLogClasses.length() > 0) defaultLogClasses.erase(defaultLogClasses.length() - 1);
     defaultLogClasses = "{" + defaultLogClasses + "}";
 
     // annotations
     std::string defaultNotes;
-    std::ostringstream ss3;
-    for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss3 << *note << ",";
-    defaultNotes = ss3.str();
+    {
+        std::ostringstream ss;
+        for (auto note = p_Options->m_Notes.begin(); note != p_Options->m_Notes.end(); ++note) ss << *note << ",";
+        defaultNotes = ss.str();
+    }
     if (defaultNotes.length() > 0) defaultNotes.erase(defaultNotes.length() - 1);
     defaultNotes = "{" + defaultNotes + "}";
 
     // annotation headers
     std::string defaultNotesHdrs;
-    std::ostringstream ss4;
-    for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss4 << *noteHdr << ",";
-    defaultNotesHdrs = ss4.str();
+    {
+        std::ostringstream ss;
+        for (auto noteHdr = p_Options->m_NotesHdrs.begin(); noteHdr != p_Options->m_NotesHdrs.end(); ++noteHdr) ss << *noteHdr << ",";
+        defaultNotesHdrs = ss.str();
+    }
     if (defaultNotesHdrs.length() > 0) defaultNotesHdrs.erase(defaultNotesHdrs.length() - 1);
     defaultNotesHdrs = "{" + defaultNotesHdrs + "}";
 
+    // phase-dependent timestep multipliers
+    std::string defaultTimestepMultipliers;
+    {
+        std::ostringstream ss;
+        for (auto multiplier = p_Options->m_TimestepMultipliers.begin(); multiplier != p_Options->m_TimestepMultipliers.end(); ++multiplier) ss << *multiplier << ",";
+        defaultTimestepMultipliers = ss.str();
+    }
+    if (defaultTimestepMultipliers.length() > 0) defaultTimestepMultipliers.erase(defaultTimestepMultipliers.length() - 1);
+    defaultTimestepMultipliers = "{" + defaultTimestepMultipliers + "}";
+
+    // system detailed output age thresholds
+    std::string defaultSystemSnapshotAgeThresholds;
+    {
+        std::ostringstream ss;
+        for (auto threshold = p_Options->m_SystemSnapshotAgeThresholds.begin(); threshold != p_Options->m_SystemSnapshotAgeThresholds.end(); ++threshold) ss << *threshold << ",";
+        defaultSystemSnapshotAgeThresholds = ss.str();
+    }
+    if (defaultSystemSnapshotAgeThresholds.length() > 0) defaultSystemSnapshotAgeThresholds.erase(defaultSystemSnapshotAgeThresholds.length() - 1);
+    defaultSystemSnapshotAgeThresholds = "{" + defaultSystemSnapshotAgeThresholds + "}";
+
+    // system detailed output time thresholds
+    std::string defaultSystemSnapshotTimeThresholds;
+    {
+        std::ostringstream ss;
+        for (auto threshold = p_Options->m_SystemSnapshotTimeThresholds.begin(); threshold != p_Options->m_SystemSnapshotTimeThresholds.end(); ++threshold) ss << *threshold << ",";
+        defaultSystemSnapshotTimeThresholds = ss.str();
+    }
+    if (defaultSystemSnapshotTimeThresholds.length() > 0) defaultSystemSnapshotTimeThresholds.erase(defaultSystemSnapshotTimeThresholds.length() - 1);
+    defaultSystemSnapshotTimeThresholds = "{" + defaultSystemSnapshotTimeThresholds + "}";
 
     // add options
 
@@ -710,7 +811,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "help,h",                                                      
-            po::bool_switch(), "Print this help message"
+            po::bool_switch(), "Print this help message (-h is short form, --help includes more information)"
         )
         (
             "version,v",                                                   
@@ -723,7 +824,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         // Note the "implicit_value()" (in the statements below) for boolean options is not the default option value
         // When specifying boolean options, users can specify just the option name (e.g. '--emit_gravitaional-radiation'),
         // or they can specify the option name, and a value for the option (e.g. '--emit_gravitaional-radiation true', or
-	// '--emit_gravitaional-radiation false')
+	    // '--emit_gravitaional-radiation false')
         // The "implicit_value()" in the statements below specifies what value is assigned to the option if only the option name is
         // specified by the user (e.g. if the user specifies just '--emit_gravitaional-radiation', the implicit_value() for that option
         // will be assigned).
@@ -931,19 +1032,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Print switch log to file (default = " + std::string(p_Options->m_SwitchLog ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "scale-CHE-mass-loss-with-surface-helium-abundance",                                             
-            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(true),                                                                      
-            ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) stars between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "use-mass-loss",                                               
-            po::value<bool>(&p_Options->m_UseMassLoss)->default_value(p_Options->m_UseMassLoss)->implicit_value(true),                                                                            
-            ("Enable mass loss (default = " + std::string(p_Options->m_UseMassLoss ? "TRUE" : "FALSE") + ")").c_str()
+            "scale-CHE-mass-loss-with-surface-helium-abundance",
+            po::value<bool>(&p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->default_value(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance)->implicit_value(true),
+            ("Whether to transition mass loss rates for chemically homogeneously evolving (CHE) between OB mass loss rates and Wolf-Rayet (WR) mass loss rates as a function of the surface helium abundance (Ys) as described by Yoon et al. 2006 (default = " + std::string(p_Options->m_ScaleCHEMassLossWithSurfaceHeliumAbundance ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "use-mass-transfer",                                                
             po::value<bool>(&p_Options->m_UseMassTransfer)->default_value(p_Options->m_UseMassTransfer)->implicit_value(true),                                                                    
             ("Enable mass transfer (default = " + std::string(p_Options->m_UseMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "USSN-kicks-override-mandel-muller",
+            po::value<bool>(&p_Options->m_USSNKicksOverrideMandelMuller)->default_value(p_Options->m_USSNKicksOverrideMandelMuller)->implicit_value(true),
+            ("Whether to use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe (default = " + std::string(p_Options->m_USSNKicksOverrideMandelMuller ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         // numerical options - alphabetically grouped by type 
@@ -996,7 +1097,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "logfile-detailed-output-record-types",                                 
             po::value<int>(&p_Options->m_LogfileDetailedOutputRecordTypes)->default_value(p_Options->m_LogfileDetailedOutputRecordTypes),                                                                      
-            ("Enabled record types for BSE Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileDetailedOutputRecordTypes) + ")").c_str()
+            ("Enabled record types for Detailed Output logfile (default = " + std::to_string(p_Options->m_LogfileDetailedOutputRecordTypes) + ")").c_str()
         )
         (
             "logfile-double-compact-objects-record-types",                          
@@ -1017,6 +1118,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "logfile-supernovae-record-types",                                      
             po::value<int>(&p_Options->m_LogfileSupernovaeRecordTypes)->default_value(p_Options->m_LogfileSupernovaeRecordTypes),                                                                              
             ("Enabled record types for Supernovae logfile (default = " + std::to_string(p_Options->m_LogfileSupernovaeRecordTypes) + ")").c_str()
+        )
+        (
+            "logfile-system-snapshot-log-record-types",                               
+            po::value<int>(&p_Options->m_LogfileSystemSnapshotLogRecordTypes)->default_value(p_Options->m_LogfileSystemSnapshotLogRecordTypes),                                                                  
+            ("Enabled record types for System Snapshot logfile (default = " + std::to_string(p_Options->m_LogfileSystemSnapshotLogRecordTypes) + ")").c_str()
         )
         (
             "logfile-system-parameters-record-types",                               
@@ -1088,6 +1194,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-slope-kruckow",                               
             po::value<double>(&p_Options->m_CommonEnvelopeSlopeKruckow)->default_value(p_Options->m_CommonEnvelopeSlopeKruckow),                                                                  
             ("Common Envelope slope for Kruckow lambda (default = " + std::to_string(p_Options->m_CommonEnvelopeSlopeKruckow) + ")").c_str()
+        )
+        (
+            "common-envelope-second-stage-beta",
+            po::value<double>(&p_Options->m_CommonEnvelopeSecondStageBeta)->default_value(p_Options->m_CommonEnvelopeSecondStageBeta),
+            ("Beta for second stage of 2-stage Common Envelope (default = " + std::to_string(p_Options->m_CommonEnvelopeSecondStageBeta) + ")").c_str()
+        )
+        (
+            "convective-envelope-mass-threshold",
+            po::value<double>(&p_Options->m_ConvectiveEnvelopeMassThreshold)->default_value(p_Options->m_ConvectiveEnvelopeMassThreshold),
+            ("Fractional threshold of envelope mass that above which the envelopes of giants are labeled convective. Only used for --envelope-state-prescription = CONVECTIVE_MASS_THRESHOLD, ignored otherwise. (default = " + std::to_string(p_Options->m_ConvectiveEnvelopeMassThreshold) + ")").c_str()
         )
         (
             "convective-envelope-temperature-threshold",                               
@@ -1233,19 +1349,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Initial mass (in Msol) for the secondary star (BSE) (default = " + std::to_string(p_Options->m_InitialMass2) + ")").c_str()
         )
         (
-            "initial-mass-max",                                            
+            "initial-mass-function-max",                                            
             po::value<double>(&p_Options->m_InitialMassFunctionMax)->default_value(p_Options->m_InitialMassFunctionMax),                                                                          
-            ("Maximum mass (in Msol) to generate using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionMax) + ")").c_str()
+            ("The maximum mass (in Msol) to sample from the initial mass function (IMF), (only used when sampling initial mass, default = " + std::to_string(p_Options->m_InitialMassFunctionMax) + ")").c_str()
         )
         (
-            "initial-mass-min",                                            
+            "initial-mass-function-min",                                            
             po::value<double>(&p_Options->m_InitialMassFunctionMin)->default_value(p_Options->m_InitialMassFunctionMin),                                                                          
-            ("Minimum mass (in Msol) to generate using given IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionMin) + ")").c_str()
+            ("The minimum mass (in Msol) to sample from the initial mass function (IMF), (only used when sampling initial mass, default = " + std::to_string(p_Options->m_InitialMassFunctionMin) + ")").c_str()
         )
         (
-            "initial-mass-power",                                          
+            "initial-mass-function-power",                                          
             po::value<double>(&p_Options->m_InitialMassFunctionPower)->default_value(p_Options->m_InitialMassFunctionPower),                                                                      
-            ("Single power law power to generate primary mass using POWERLAW IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
+            ("The power to use when using the POWERLAW IMF (default = " + std::to_string(p_Options->m_InitialMassFunctionPower) + ")").c_str()
         )
 
         (
@@ -1362,6 +1478,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Factor by which magnetic fields are assumed to be amplified during stellar merger (default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
         )
         (
+            "maltsev-fallback",
+            po::value<double>(&p_Options->m_MaltsevFallback)->default_value(p_Options->m_MaltsevFallback),
+            ("Fallback fraction for Maltsev black holes (ignored otherwise) (default = " + std::to_string(p_Options->m_MaltsevFallback) + ")").c_str()
+        )
+
+        (
             "mass-change-fraction",
             po::value<double>(&p_Options->m_MassChangeFraction)->default_value(p_Options->m_MassChangeFraction),
             ("Approximate goal for fractional mass change per timestep for SSE and BSE (default = " + std::to_string(p_Options->m_MassChangeFraction) + ")").c_str()
@@ -1393,14 +1515,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Fraction of specific angular momentum which non-accreted matter removes from the system (default = " + std::to_string(p_Options->m_MassTransferJloss) + ")").c_str()
         )
         (
-            "mass-transfer-jloss-macleod-linear-fraction-degen",
-            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen),                                                                                    
-            ("Interpolation fraction for jloss prescription for degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionDegen) + ")").c_str()
+            "mass-transfer-jloss-linear-fraction-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossLinearFractionDegen)->default_value(p_Options->m_MassTransferJlossLinearFractionDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR or KLENCKI_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossLinearFractionDegen) + ")").c_str()
         )
         (
-            "mass-transfer-jloss-macleod-linear-fraction-non-degen",
-            po::value<double>(&p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen)->default_value(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen),                                                                                    
-            ("Interpolation fraction for jloss prescription for non-degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossMacLeodLinearFractionNonDegen) + ")").c_str()
+            "mass-transfer-jloss-linear-fraction-non-degen",
+            po::value<double>(&p_Options->m_MassTransferJlossLinearFractionNonDegen)->default_value(p_Options->m_MassTransferJlossLinearFractionNonDegen),                                                                                    
+            ("Interpolation fraction for jloss prescription for non-degenerate accretors, requires --mass-transfer-angular-momentum-loss-prescription=MACLEOD_LINEAR or KLENCKI_LINEAR. 0 is gamma_acc, 1 is gamma_L2 (default = " + std::to_string(p_Options->m_MassTransferJlossLinearFractionNonDegen) + ")").c_str()
         )
         (
             "mass-transfer-thermal-limit-C",                               
@@ -1443,9 +1565,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Minimum metallicity to generate (default = " + std::to_string(p_Options->m_MetallicityDistributionMin) + ")").c_str()
         )
         (
-            "minimum-secondary-mass",                                      
-            po::value<double>(&p_Options->m_MinimumMassSecondary)->default_value(p_Options->m_MinimumMassSecondary),                                                                              
-            ("Minimum mass of secondary to generate, in Msol (default = " + std::to_string(p_Options->m_MinimumMassSecondary) + ")").c_str()
+            "minimum-sampled-secondary-mass",                                      
+            po::value<double>(&p_Options->m_MinimumSampledSecondaryMass)->default_value(p_Options->m_MinimumSampledSecondaryMass),                                                                              
+            ("Minimum sampled mass of secondary star, in Msol (default = " + std::to_string(p_Options->m_MinimumSampledSecondaryMass) + ")").c_str()
         )
         (
             "muller-mandel-kick-multiplier-BH",                                        
@@ -1458,9 +1580,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Scaling prefactor for NS kicks when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelKickNS) + ")").c_str()
         )
         (
-            "muller-mandel-sigma-kick",                                        
-            po::value<double>(&p_Options->m_MullerMandelSigmaKick)->default_value(p_Options->m_MullerMandelSigmaKick),                                                                                  
-            ("Kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKick) + ")").c_str()
+            "muller-mandel-sigma-kick-NS",
+            po::value<double>(&p_Options->m_MullerMandelSigmaKickNS)->default_value(p_Options->m_MullerMandelSigmaKickNS),
+            ("NS kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKickNS) + ")").c_str()
+        )
+        (
+            "muller-mandel-sigma-kick-BH",
+            po::value<double>(&p_Options->m_MullerMandelSigmaKickBH)->default_value(p_Options->m_MullerMandelSigmaKickBH),
+            ("BH kick scatter when using the 'MULLERMANDEL' kick magnitude distribution (default = " + std::to_string(p_Options->m_MullerMandelSigmaKickBH) + ")").c_str()
         )
 
         (
@@ -1524,6 +1651,15 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-magnetic-field-distribution-min",                
             po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMin)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMin),                                        
             ("Minimum pulsar birth magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMin) + ")").c_str()
+        )(
+            "pulsar-birth-magnetic-field-distribution-mean",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionMean)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionMean),                                        
+            ("Mean of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "pulsar-birth-magnetic-field-distribution-sigma",                
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFieldDistributionSigma)->default_value(p_Options->m_PulsarBirthMagneticFieldDistributionSigma),                                        
+            ("Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G) (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFieldDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-birth-spin-period-distribution-max",                   
@@ -1534,6 +1670,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-spin-period-distribution-min",                   
             po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMin)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMin),                                              
             ("Minimum pulsar birth spin period, in ms (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMin) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-mean",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionMean)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionMean),                                              
+            ("Mean of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionMax) + ")").c_str()
+        )
+        (
+            "pulsar-birth-spin-period-distribution-sigma",                   
+            po::value<double>(&p_Options->m_PulsarBirthSpinPeriodDistributionSigma)->default_value(p_Options->m_PulsarBirthSpinPeriodDistributionSigma),                                              
+            ("Standard deviation of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionSigma) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-massscale",                       
@@ -1629,6 +1775,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<double>(&p_Options->m_SemiMajorAxisDistributionMin)->default_value(p_Options->m_SemiMajorAxisDistributionMin),                                                              
             ("Minimum semi-major axis, in AU, to generate (default = " + std::to_string(p_Options->m_SemiMajorAxisDistributionMin) + ")").c_str()
         )
+        (
+            "system-snapshot-age-thresholds",                                         
+            po::value<DBL_VECTOR>(&p_Options->m_SystemSnapshotAgeThresholds)->multitoken()->default_value(p_Options->m_SystemSnapshotAgeThresholds),                                                              
+            ("System detailed output logging system age thresholds (default = " + defaultSystemSnapshotAgeThresholds + ")").c_str()
+        )
+        (
+            "system-snapshot-time-thresholds",                                         
+            po::value<DBL_VECTOR>(&p_Options->m_SystemSnapshotTimeThresholds)->multitoken()->default_value(p_Options->m_SystemSnapshotTimeThresholds),                                                              
+            ("System detailed output logging simulation time thresholds (default = " + defaultSystemSnapshotTimeThresholds + ")").c_str()
+        )
 
         (
             "surface-magnetic-field-distribution-flow",                    
@@ -1659,7 +1815,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "timestep-multiplier",
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
-            ("Timestep multiplier for SSE and BSE (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
+            ("Timestep multiplier for SSE and BSE on top of other choices, for use in debugging (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
+        )
+        (
+            "timestep-multipliers",
+            po::value<DBL_VECTOR>(&p_Options->m_TimestepMultipliers)->multitoken()->default_value(p_Options->m_TimestepMultipliers),
+            ("Phase-dependent timestep multipliers for SSE and BSE on top of other choices, for use in debugging (default = " + defaultTimestepMultipliers + ")").c_str()
         )
 
         (
@@ -1723,6 +1884,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "common-envelope-mass-accretion-prescription",                 
             po::value<std::string>(&p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString),                            
             ("Assumption about whether NS/BHs can accrete mass during common envelope evolution (" + AllowedOptionValuesFormatted("common-envelope-mass-accretion-prescription") + ", default = '" + p_Options->m_CommonEnvelopeMassAccretionPrescription.typeString + "')").c_str()
+        )
+        (
+            "common-envelope-second-stage-gamma-prescription",
+            po::value<std::string>(&p_Options->m_CommonEnvelopeSecondStageGammaPrescription.typeString)->default_value(p_Options->m_CommonEnvelopeSecondStageGammaPrescription.typeString),
+            ("Second stage of 2-stage CE gamma prescription (" + AllowedOptionValuesFormatted("common-envelope-second-stage-gamma-prescription") + ", default = '" + p_Options->m_CommonEnvelopeSecondStageGammaPrescription.typeString + "')").c_str()
         )
         (
             "create-YAML-file",                           
@@ -1811,6 +1977,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Filename for Supernovae logfile (default = " + p_Options->m_LogfileSupernovae + ")").c_str()
         )
         (
+            "logfile-system-snapshot-log",                               
+            po::value<std::string>(&p_Options->m_LogfileSystemSnapshotLog)->default_value(p_Options->m_LogfileSystemSnapshotLog),                                                                  
+            ("Filename for System Snapshot logfile (default = " + p_Options->m_LogfileSystemSnapshotLog + ")").c_str()
+        )
+        (
             "logfile-system-parameters",                               
             po::value<std::string>(&p_Options->m_LogfileSystemParameters)->default_value(p_Options->m_LogfileSystemParameters),                                                                  
             ("Filename for System Parameters logfile (default = " + p_Options->m_LogfileSystemParameters + ")").c_str()
@@ -1845,6 +2016,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             po::value<std::string>(&p_Options->m_MainSequenceCoreMassPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreMassPrescription.typeString),
             
             ("Main Sequence core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-mass-prescription") + ", default = '" + p_Options->m_MainSequenceCoreMassPrescription.typeString + "')").c_str()
+        )
+        (
+            "maltsev-mode",
+            po::value<std::string>(&p_Options->m_MaltsevMode.typeString)->default_value(p_Options->m_MaltsevMode.typeString),                                                                  
+            ("Maltsev mode (" + AllowedOptionValuesFormatted("maltsev-mode") + ", default = '" + p_Options->m_MaltsevMode.typeString + "')").c_str()
         )
         (
             "mass-loss-prescription",
@@ -1891,6 +2067,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "neutrino-mass-loss-BH-formation",                             
             po::value<std::string>(&p_Options->m_NeutrinoMassLossAssumptionBH.typeString)->default_value(p_Options->m_NeutrinoMassLossAssumptionBH.typeString),                                                  
             ("Assumption about neutrino mass loss during BH formation (" + AllowedOptionValuesFormatted("neutrino-mass-loss-BH-formation") + ", default = '" + p_Options->m_NeutrinoMassLossAssumptionBH.typeString + "')").c_str()
+        )
+        (
+            "neutron-star-accretion-in-ce",                              
+            po::value<std::string>(&p_Options->m_NeutronStarAccretionInCE.typeString)->default_value(p_Options->m_NeutronStarAccretionInCE.typeString),                                                      
+            ("Neutron star accretion in common envelope to use (" + AllowedOptionValuesFormatted("neutron-star-accretion-in-ce") + ", default = '" + p_Options->m_NeutronStarAccretionInCE.typeString + "')").c_str()
         )
         (
             "neutron-star-equation-of-state",                              
@@ -1944,6 +2125,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "remnant-mass-prescription",                                   
             po::value<std::string>(&p_Options->m_RemnantMassPrescription.typeString)->default_value(p_Options->m_RemnantMassPrescription.typeString),                                                            
             ("Choose remnant mass prescription (" + AllowedOptionValuesFormatted("remnant-mass-prescription") + ", default = '" + p_Options->m_RemnantMassPrescription.typeString + "')").c_str()
+        )
+        (
+            "response-to-spin-up",
+            po::value<std::string>(&p_Options->m_ResponseToSpinUp.typeString)->default_value(p_Options->m_ResponseToSpinUp.typeString),
+            ("Response to spin-up prescription (" + AllowedOptionValuesFormatted("response-to-spin-up") + ", default = '" + p_Options->m_ResponseToSpinUp.typeString + "')").c_str()
         )
         (
             "rotational-velocity-distribution",                            
@@ -2002,24 +2188,24 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         (
             "debug-classes",                                               
-            po::value<std::vector<std::string>>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
+            po::value<STR_VECTOR>(&p_Options->m_DebugClasses)->multitoken()->default_value(p_Options->m_DebugClasses),                                                                        
             ("Debug classes enabled (default = " + defaultDebugClasses + ")").c_str()
         )
 
         (
             "log-classes",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_LogClasses)->multitoken()->default_value(p_Options->m_LogClasses),                                                                            
             ("Logging classes enabled (default = " + defaultLogClasses + ")").c_str()
         )
 
         (
             "notes",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_Notes)->multitoken()->default_value(p_Options->m_Notes),                                                                            
             ("User-specified annotations (default = " + defaultNotes + ")").c_str()
         )
         (
             "notes-hdrs",                                                 
-            po::value<std::vector<std::string>>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
+            po::value<STR_VECTOR>(&p_Options->m_NotesHdrs)->multitoken()->default_value(p_Options->m_NotesHdrs),                                                                            
             ("User-specified annotation header strings (default = " + defaultNotesHdrs + ")").c_str()
         )
     
@@ -2114,7 +2300,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const BOOST_MAP p
 
         if (phi1Defaulted || theta1Defaulted) {
             double phi1, theta1;
-            std::tie(phi1, theta1) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
+            std::tie(theta1, phi1) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi1Defaulted) {
                 m_KickPhi1 = phi1;
                 if (p_UpdateMap == BOOST_MAP::UPDATE) {
@@ -2137,7 +2323,7 @@ std::string Options::OptionValues::SetCalculatedOptionDefaults(const BOOST_MAP p
 
         if (phi2Defaulted || theta2Defaulted) {
             double phi2, theta2;
-            std::tie(phi2, theta2) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
+            std::tie(theta2, phi2) = utils::DrawKickDirection(m_KickDirectionDistribution.type, m_KickDirectionPower);
             if (phi2Defaulted) {
                 m_KickPhi2 = phi2;
                 if (p_UpdateMap == BOOST_MAP::UPDATE) {
@@ -2243,6 +2429,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_CommonEnvelopeMassAccretionPrescription.type) = utils::GetMapKey(m_CommonEnvelopeMassAccretionPrescription.typeString, CE_ACCRETION_PRESCRIPTION_LABEL, m_CommonEnvelopeMassAccretionPrescription.type);
             COMPLAIN_IF(!found, "Unknown CE Mass Accretion Prescription");
         }
+        
+        if (!DEFAULTED("common-envelope-second-stage-gamma-prescription")) { // second stagge of CE angular momentum loss prescription
+            std::tie(found, m_CommonEnvelopeSecondStageGammaPrescription.type) = utils::GetMapKey(m_CommonEnvelopeSecondStageGammaPrescription.typeString, MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL, m_CommonEnvelopeSecondStageGammaPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription for 2-stage CE");
+        }
 
         if (!DEFAULTED("critical-mass-ratio-prescription")) {                                                                       // critical mass ratio prescription
             std::tie(found, m_QCritPrescription.type) = utils::GetMapKey(m_QCritPrescription.typeString, QCRIT_PRESCRIPTION_LABEL, m_QCritPrescription.type);
@@ -2299,6 +2490,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
         }
         
+        if (!DEFAULTED("maltsev-mode")) {                                                                                 // mass loss prescription
+            std::tie(found, m_MaltsevMode.type) = utils::GetMapKey(m_MaltsevMode.typeString, MALTSEV_MODE_LABEL, m_MaltsevMode.type);
+            COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
+        }
+
         if (!DEFAULTED("mass-loss-prescription")) {                                                                                 // mass loss prescription
             std::tie(found, m_MassLossPrescription.type) = utils::GetMapKey(m_MassLossPrescription.typeString, MASS_LOSS_PRESCRIPTION_LABEL, m_MassLossPrescription.type);
             COMPLAIN_IF(!found, "Unknown Mass Loss Prescription");
@@ -2311,7 +2507,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         if (m_UseMassTransfer && !DEFAULTED("mass-transfer-accretion-efficiency-prescription")) {                                   // mass transfer accretion efficiency prescription
             std::tie(found, m_MassTransferAccretionEfficiencyPrescription.type) = utils::GetMapKey(m_MassTransferAccretionEfficiencyPrescription.typeString, MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL, m_MassTransferAccretionEfficiencyPrescription.type);
-            COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription");
+            COMPLAIN_IF(!found, "Unknown Mass Transfer Efficiency Prescription");
         }
 
         if (m_UseMassTransfer && !DEFAULTED("mass-transfer-angular-momentum-loss-prescription")) {                                  // mass transfer angular momentum loss prescription
@@ -2352,8 +2548,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Neutrino Mass Loss Assumption");
         }
 
+        if (!DEFAULTED("neutron-star-accretion-in-ce")) {                                                                         // neutron star accretion in common envelope
+            std::tie(found, m_NeutronStarAccretionInCE.type) = utils::GetMapKey(m_NeutronStarAccretionInCE.typeString, NS_ACCRETION_IN_CE_LABEL, m_NeutronStarAccretionInCE.type);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Accretion in Common Envelope");
+        }
+
         if (!DEFAULTED("neutron-star-equation-of-state")) {                                                                         // neutron star equation of state
-            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOSLabel, m_NeutronStarEquationOfState.type);
+            std::tie(found, m_NeutronStarEquationOfState.type) = utils::GetMapKey(m_NeutronStarEquationOfState.typeString, NS_EOS_LABEL, m_NeutronStarEquationOfState.type);
             COMPLAIN_IF(!found, "Unknown Neutron Star Equation of State");
         }
 
@@ -2385,6 +2586,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         if (!DEFAULTED("remnant-mass-prescription")) {                                                                              // remnant mass prescription
             std::tie(found, m_RemnantMassPrescription.type) = utils::GetMapKey(m_RemnantMassPrescription.typeString, REMNANT_MASS_PRESCRIPTION_LABEL, m_RemnantMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Remnant Mass Prescription");
+        }
+        
+        if (!DEFAULTED("response-to-spin-up")) {                                                                              // prescription for response to super-critical spin-up
+            std::tie(found, m_ResponseToSpinUp.type) = utils::GetMapKey(m_ResponseToSpinUp.typeString, RESPONSE_TO_SPIN_UP_LABEL, m_ResponseToSpinUp.type);
+            COMPLAIN_IF(!found, "Unknown Response-to-spin-up Prescription");
         }
 
         if (!DEFAULTED("rotational-velocity-distribution")) {                                                                       // rotational velocity distribution
@@ -2435,7 +2641,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionConstant < 0.0, "CE mass accretion constant (--common-envelope-mass-accretion-constant) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMax < 0.0, "Maximum accreted mass (--common-envelope-mass-accretion-max) < 0");
         COMPLAIN_IF(m_CommonEnvelopeMassAccretionMin < 0.0, "Minimum accreted mass (--common-envelope-mass-accretion-min) < 0");
-
+        COMPLAIN_IF(m_CommonEnvelopeSecondStageBeta < 0.0 || m_CommonEnvelopeSecondStageBeta > 0.0, "Mass transfer efficiency for second stage of 2-stage CE (--common-envelope-second-stage-beta) not in [0,1]");
+        
         COMPLAIN_IF(m_CoolWindMassLossMultiplier < 0.0, "Wind mass loss multiplier for cool stars (--cool-wind-mass-loss-multiplier) < 0.0");
 
         COMPLAIN_IF(m_DebugLevel < 0, "Debug level (--debug-level) < 0");
@@ -2453,13 +2660,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_HDF5BufferSize < 1, "HDF5 IO buffer size (--hdf5-buffer-size) must be >= 1");
         COMPLAIN_IF(m_HDF5ChunkSize < HDF5_MINIMUM_CHUNK_SIZE, "HDF5 file dataset chunk size (--hdf5-chunk-size) must be >= minimum chunk size of " + std::to_string(HDF5_MINIMUM_CHUNK_SIZE));
 
-        COMPLAIN_IF(m_InitialMass < MINIMUM_INITIAL_MASS || m_InitialMass > MAXIMUM_INITIAL_MASS, "Initial mass (--initial-mass) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMass  < MINIMUM_INITIAL_MASS || m_InitialMass  > MAXIMUM_INITIAL_MASS, "Initial mass (--initial-mass) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMass1 < MINIMUM_INITIAL_MASS || m_InitialMass1 > MAXIMUM_INITIAL_MASS, "Primary initial mass (--initial-mass-1) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
         COMPLAIN_IF(m_InitialMass2 < MINIMUM_INITIAL_MASS || m_InitialMass2 > MAXIMUM_INITIAL_MASS, "Secondary initial mass (--initial-mass-2) must be between " + std::to_string(MINIMUM_INITIAL_MASS) + " and " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
 
-        COMPLAIN_IF(m_InitialMassFunctionMin < MINIMUM_INITIAL_MASS, "Minimum initial mass (--initial-mass-min) must be >= " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
-        COMPLAIN_IF(m_InitialMassFunctionMax > MAXIMUM_INITIAL_MASS, "Maximum initial mass (--initial-mass-max) must be <= " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
-        COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum initial mass (--initial-mass-max) must be > Minimum initial mass (--initial-mass-min)");
+        COMPLAIN_IF(m_InitialMassFunctionMin < MINIMUM_INITIAL_MASS, "Minimum mass to be sampled from the IMF (--initial-mass-function-min) must be >= " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMassFunctionMax > MAXIMUM_INITIAL_MASS, "Maximum mass to be sampled from the IMF (--initial-mass-function-max) must be <= " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_InitialMassFunctionMax <= m_InitialMassFunctionMin, "Maximum mass to be sampled from the IMF (--initial-mass-function-max) must be > Minimum mass to be sampled from the IMF (--initial-mass-function-min)");
 
         if (m_KickMagnitudeDistribution.type == KICK_MAGNITUDE_DISTRIBUTION::FLAT) {
             COMPLAIN_IF(m_KickMagnitudeDistributionMaximum <= 0.0, "User specified --kick-magnitude-distribution = FLAT with Maximum kick magnitude (--kick-magnitude-max) <= 0.0");
@@ -2473,6 +2680,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
         
+        COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
+
+        COMPLAIN_IF(m_MassChangeFraction <= 0.0, "Mass change fraction per timestep (--mass-change-fraction) <= 0");
+
         COMPLAIN_IF(m_MassRatio <= 0.0 || m_MassRatio > 1.0, "Mass ratio (--mass-ratio) must be greater than 0 and less than or equal to 1");
 
         COMPLAIN_IF(m_MassRatioDistributionMin <= 0.0 || m_MassRatioDistributionMin > 1.0, "Minimum mass ratio (--mass-ratio-min) must be greater than 0 and less than or equal to 1");
@@ -2480,14 +2691,15 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MassRatioDistributionMax <= m_MassRatioDistributionMin, "Maximum mass ratio (--mass-ratio-max) must be > Minimum mass ratio (--mass-ratio-min)");
 
         COMPLAIN_IF(m_MaxEvolutionTime <= 0.0, "Maximum evolution time in Myr (--maxEvolutionTime) must be > 0");
+        COMPLAIN_IF(m_MaxEvolutionTime > HUBBLE_TIME / SECONDS_IN_MYR, "Maximum evolution time in Myr (--maxEvolutionTime) must be <= " + std::to_string(HUBBLE_TIME / SECONDS_IN_MYR) + " Myr");
 
         COMPLAIN_IF(m_Metallicity < MINIMUM_METALLICITY || m_Metallicity > MAXIMUM_METALLICITY, "Metallicity (--metallicity) should be absolute metallicity and must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
         COMPLAIN_IF(m_MetallicityDistributionMin < MINIMUM_METALLICITY || m_MetallicityDistributionMin > MAXIMUM_METALLICITY, "Minimum metallicity (--metallicity-min) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
         COMPLAIN_IF(m_MetallicityDistributionMax < MINIMUM_METALLICITY || m_MetallicityDistributionMax > MAXIMUM_METALLICITY, "Maximum metallicity (--metallicity-max) must be between " + std::to_string(MINIMUM_METALLICITY) + " and " + std::to_string(MAXIMUM_METALLICITY));
         COMPLAIN_IF(m_MetallicityDistributionMax <= m_MetallicityDistributionMin, "Maximum metallicity (--metallicity-max) must be > Minimum metallicity (--metallicity-min)");
 
-        COMPLAIN_IF(m_MinimumMassSecondary < MINIMUM_INITIAL_MASS, "Secondary minimum mass (--minimum-secondary-mass) must be >= minimum initial mass of " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
-        COMPLAIN_IF(m_MinimumMassSecondary > MAXIMUM_INITIAL_MASS, "Secondary minimum mass (--minimum-secondary-mass) must be <= maximum initial mass of " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_MinimumSampledSecondaryMass < MINIMUM_INITIAL_MASS, "Minimum sampled secondary mass (--minimum-sampled-secondary-mass) must be >= " + std::to_string(MINIMUM_INITIAL_MASS) + " Msol");
+        COMPLAIN_IF(m_MinimumSampledSecondaryMass > MAXIMUM_INITIAL_MASS, "Minimum sampled secondary mass (--minimum-sampled-secondary-mass) must be <= " + std::to_string(MAXIMUM_INITIAL_MASS) + " Msol");
 
         if (m_NeutrinoMassLossAssumptionBH.type == NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS) {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0, "Neutrino mass loss value < 0");
@@ -2499,9 +2711,14 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(m_NeutrinoMassLossValueBH < 0.0 || m_NeutrinoMassLossValueBH > 1.0, "Neutrino mass loss must be between 0 and 1");
         }
 
-        if (!DEFAULTED("notes")) {                                                                                                  // user specified notes?
-            WARNUSER_IF(m_Notes.size() > Options::Instance()->NotesHdrs().size(), "WARNING: Annotations: more notes than headers - extra notes ignored"); // yes - check counts
+        // check for duplicate notes header strings
+        if (!DEFAULTED("notes-hdrs") && m_NotesHdrs.size() > 1) {
+            STR_VECTOR sortedHdrs(m_NotesHdrs.size());
+            std::partial_sort_copy(begin(m_NotesHdrs), end(m_NotesHdrs), begin(sortedHdrs), end(sortedHdrs));
+            COMPLAIN_IF(std::adjacent_find(std::begin(sortedHdrs), std::end(sortedHdrs)) != std::end(sortedHdrs), "Annotations: duplicate headers");
         }
+
+        COMPLAIN_IF(!DEFAULTED("notes") && m_Notes.size() > Options::Instance()->NotesHdrs().size(), "Annotations: more notes than headers");
 
         COMPLAIN_IF(m_OrbitalPeriodDistributionMin < 0.0, "Minimum orbital period (--orbital-period-min) < 0");
         COMPLAIN_IF(m_OrbitalPeriodDistributionMax < 0.0, "Maximum orbital period (--orbital-period-max) < 0");
@@ -2513,7 +2730,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-timescale-power") && m_PulsarMagneticFieldDecayTimescalePower < 0.0, "Pulsar magnetic field decay timescale power (--pulsar-magnetic-field-decay-timescale-power) < 0"); // Power should be >= 0
         COMPLAIN_IF(!DEFAULTED("pulsar-magnetic-field-decay-massscale") && m_PulsarMagneticFieldDecayMassscale <= 0.0, "Pulsar Magnetic field decay massscale (--pulsar-magnetic-field-decay-massscale) <= 0");
 
-        COMPLAIN_IF(m_RadialChangeFraction < 0.0, "Radial change fraction per timestep (--radial-change-fraction) < 0");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMax <= m_PulsarBirthMagneticFieldDistributionMin, "Pulsar birth magnetic field max (--pulsar-birth-magnetic-field-distribution-max) <= min (--pulsar-birth-magnetic-field-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= m_PulsarLog10MinimumMagneticField, "Pulsar birth magnetic field min (--pulsar-birth-magnetic-field-distribution-min) <= lower limit (--pulsar-minimum-magnetic-field)");
+        
+        COMPLAIN_IF(m_PulsarBirthSpinPeriodDistributionMax <= m_PulsarBirthSpinPeriodDistributionMin, "Pulsar birth spin period max (--pulsar-birth-spin-period-distribution-max) <= min (--pulsar-birth-spin-period-distribution-max)");
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldDistributionMin <= 0.0, "Pulsar birth magnetic field min (--pulsar-birth-spin-period-distribution-min) <= 0");
+
+        COMPLAIN_IF(m_RadialChangeFraction <= 0.0, "Radial change fraction per timestep (--radial-change-fraction) <= 0");
         
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
@@ -2529,13 +2752,26 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
 
+        for (size_t idx = 0; idx < m_SystemSnapshotAgeThresholds.size(); idx++) {
+            COMPLAIN_IF(m_SystemSnapshotAgeThresholds[idx] < 0.0, "System snapshot age threshold (--system-snapshot-age-thresholds) index " + std::to_string(idx) + " < 0");
+            COMPLAIN_IF(m_SystemSnapshotAgeThresholds[idx] > m_MaxEvolutionTime, "System snapshot age threshold (--system-snapshot-age-thresholds) index " + std::to_string(idx) + " > " + std::to_string(m_MaxEvolutionTime));
+        }
+
+        for (size_t idx = 0; idx < m_SystemSnapshotTimeThresholds.size(); idx++) {
+            COMPLAIN_IF(m_SystemSnapshotTimeThresholds[idx] < 0.0, "System detailed output time threshold (--system-snapshot-time-thresholds) index " + std::to_string(idx) + " < 0");
+            COMPLAIN_IF(m_SystemSnapshotTimeThresholds[idx] > m_MaxEvolutionTime, "System snapshot age threshold (--system-snapshot-time-thresholds) index " + std::to_string(idx) + " > " + std::to_string(m_MaxEvolutionTime));
+        }
+
         COMPLAIN_IF(m_TimestepMultiplier <= 0.0, "Timestep multiplier (--timestep-multiplier) <= 0");
+        COMPLAIN_IF(m_TimestepMultiplier > MAXIMUM_TIMESTEP_MULTIPLIER, "Timestep multiplier (--timestep-multiplier) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ")");
+
+        COMPLAIN_IF(!DEFAULTED("timestep-multipliers") && m_TimestepMultipliers.size() > (static_cast<int>(STELLAR_TYPE::COUNT) - 3), "More phase-dependent timestep multipliers than stellar types");
+        for (size_t idx = 0; idx < m_TimestepMultipliers.size(); idx++) {
+            COMPLAIN_IF(m_TimestepMultipliers[idx] <= 0.0, "Phase-dependent timestep multiplier (--timestep-multipliers) <= 0 for stellar type index " + std::to_string(idx));
+            COMPLAIN_IF(m_TimestepMultipliers[idx] > MAXIMUM_TIMESTEP_MULTIPLIER, "Phase-dependent timestep multiplier (--timestep-multipliers) > MAXIMUM (" + std::to_string(MAXIMUM_TIMESTEP_MULTIPLIER) + ") for stellar type index " + std::to_string(idx));
+        }
 
         COMPLAIN_IF(m_WolfRayetFactor < 0.0, "WR multiplier (--wolf-rayet-multiplier) < 0");
-
-        COMPLAIN_IF(!DEFAULTED("initial-mass")   && m_InitialMass  <= 0.0, "Initial mass (--initial-mass) <= 0");                   // initial mass must be > 0.0
-        COMPLAIN_IF(!DEFAULTED("initial-mass-1") && m_InitialMass1 <= 0.0, "Primary initial mass (--initial-mass-1) <= 0");         // primary initial mass must be > 0.0
-        COMPLAIN_IF(!DEFAULTED("initial-mass-2") && m_InitialMass2 <= 0.0, "Secondary initial mass (--initial-mass-2) <= 0");       // secondary initial mass must be > 0.0
 
         COMPLAIN_IF(!DEFAULTED("semi-major-axis") && m_SemiMajorAxis <= 0.0, "Semi-major axis (--semi-major-axis) <= 0");           // semi-major axis must be > 0.0
         COMPLAIN_IF(!DEFAULTED("orbital-period")  && m_OrbitalPeriod <= 0.0, "Orbital period (--orbital-period) <= 0");             // orbital period must be > 0.0
@@ -2597,13 +2833,14 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
     size_t pos  = 0;
     size_t prev = 0;
     while ((pos = descriptions.find('\n', prev)) != std::string::npos) {                                    // extract individual option descriptions (split at newline)
-        std::string rec = descriptions.substr(prev, pos - prev);                                            // this option description
-        rec  = utils::trim(rec);                                                                            // trim whitespace
+        std::string thisRec = descriptions.substr(prev, pos - prev);                                        // this option description
         prev = pos + 1;                                                                                     // set up for next option
-
         // have option description - parse it
-        if (rec.substr(0, 2) == "--" || (rec[0] = '-' && rec.substr(3, 4) == "[ --")) {                     // option description?
+        thisRec.erase(0, 2);                                                                                // remove "  " from start of string
+        if (thisRec.substr(0, 2) == "--" || (thisRec[0] == '-' && thisRec.substr(3, 4) == "[ --")) {        // option description?
                                                                                                             // yes
+            std::string rec = utils::trim(thisRec);                                                         // trim whitespace
+
             // strip the preamble
             if (rec.substr(0, 2) == "--") rec = rec.substr(2, rec.length() - 2);
             else rec = rec.substr(7, rec.length() - 7);
@@ -2644,16 +2881,16 @@ void Options::BuildDefaultsMap(po::options_description *p_OptionsDescription) {
  * labels map.
  * 
  * 
- * std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString)
+ * STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString)
  * 
  * 
  * @param   [IN]    p_OptionString              String containing option name
  * @return                                      Vector containing allowed option value strings
  */
-std::vector<std::string> Options::AllowedOptionValues(const std::string p_OptionString) {
+STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
 #define POPULATE_RET(mapname) for (auto& it: mapname) ret.push_back("'" + it.second + "'")  // for convenience and readability - undefined at end of function
 
-    std::vector<std::string> ret;           // initially empty
+    STR_VECTOR ret;                         // initially empty
 
     switch (_(p_OptionString.c_str())) {    // which option?
 
@@ -2664,6 +2901,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                             break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                   break;
         case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                break;
+        case _("common-envelope-second-stage-gamma-prescription")   : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);    break;
         case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                       break;
         case _("envelope-state-prescription")                       : POPULATE_RET(ENVELOPE_STATE_PRESCRIPTION_LABEL);              break;
         case _("eccentricity-distribution")                         : POPULATE_RET(ECCENTRICITY_DISTRIBUTION_LABEL);                break;
@@ -2675,6 +2913,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                               break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                   break;
+        case _("maltsev-mode")                                      : POPULATE_RET(MALTSEV_MODE_LABEL);                             break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                  break;
         case _("mass-transfer-accretion-efficiency-prescription")   : POPULATE_RET(MT_ACCRETION_EFFICIENCY_PRESCRIPTION_LABEL);     break;
@@ -2684,7 +2923,8 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                 break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);          break;
-        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOSLabel);                                    break;
+        case _("neutron-star-accretion-in-ce")                      : POPULATE_RET(NS_ACCRETION_IN_CE_LABEL);                       break;
+        case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                   break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);              break;
         case _("pulsar-birth-magnetic-field-assumption")            : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL);   break;
@@ -2693,6 +2933,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                         break;
         case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);               break;
         case _("remnant-mass-prescription")                         : POPULATE_RET(REMNANT_MASS_PRESCRIPTION_LABEL);                break;
+        case _("response-to-spin-up")                               : POPULATE_RET(RESPONSE_TO_SPIN_UP_LABEL);                      break;
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);         break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);             break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                        break;
@@ -2731,7 +2972,7 @@ std::vector<std::string> Options::AllowedOptionValues(const std::string p_Option
  */
 std::string Options::AllowedOptionValuesFormatted(const std::string p_OptionString) {
 
-    std::vector<std::string> allowedValues = AllowedOptionValues(p_OptionString);   // get allowed values
+    STR_VECTOR allowedValues = AllowedOptionValues(p_OptionString);                 // get allowed values
     std::string str = "Options: [";                                                 // formatted string
     for (size_t idx = 0; idx < allowedValues.size(); idx++) {                       // for each allowed value
         str += allowedValues[idx];                                                  // show allowed value
@@ -2914,20 +3155,22 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
         valueStr = p_VM[p_IT->first].as<bool>() ? "TRUE" : "FALSE";
     } 
 
-    else {  // Assume std::vector<std::string>
-        try {
+    else {                                                                  // assume VECTOR
+        try {                                                               // try STR_VECTOR (std::vector<std::string>)
             std::ostringstream elemsSS;
             elemsSS << "{ ";
-            std::vector<std::string> tmp = p_VM[p_IT->first].as<std::vector<std::string>>();
-            for (std::vector<std::string>::iterator elem=tmp.begin(); elem != tmp.end(); elem++) {
-                elemsSS << "'" << (*elem) << "', ";
+            STR_VECTOR tmp = p_VM[p_IT->first].as<STR_VECTOR>();
+            for (STR_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
+                std::string selem{*elem};
+                if (selem.length() == 1 && selem == NOT_PROVIDED_STR) elemsSS << ", ";
+                else                                                  elemsSS << "'" << selem << "', ";
             }
             std::string elems = elemsSS.str();
             if (elems.length() > 2) elems.erase(elems.length() - 2);
             else if (elems.length() == 2) elems.erase(elems.length() - 1);
             elems += " }";
 
-            // the following options are declared as std::vector<std::string>>:
+            // the following options are declared as STR_VECTOR:
             //
             //     debug-classes
             //     log-classes
@@ -2943,10 +3186,38 @@ Options::ATTR Options::OptionAttributes(const po::variables_map p_VM, const po::
             typeStr  = "VECTOR<STRING>";
             valueStr = elems;
         }
-        catch (const boost::bad_any_cast &) {
-            dataType = TYPENAME::NONE;                                                  // unknown data type               
-            typeStr  = "<UNKNOWN_DATA_TYPE>";
-            valueStr = "<UNKNOWN_DATA_TYPE>";
+        catch (const boost::bad_any_cast &) {                               // not STR_VECTOR
+            try {                                                           // try DBL_VECTOR (std::vector<double>)
+                std::ostringstream elemsSS;
+                elemsSS << "{ ";
+                DBL_VECTOR tmp = p_VM[p_IT->first].as<DBL_VECTOR>();
+                for (DBL_VECTOR::iterator elem = tmp.begin(); elem != tmp.end(); elem++) {
+                    if (!isinf(*elem)) elemsSS << *elem;
+                    elemsSS << ", ";
+                }
+                std::string elems = elemsSS.str();
+                if (elems.length() > 2) elems.erase(elems.length() - 2);
+                else if (elems.length() == 2) elems.erase(elems.length() - 1);
+                elems += " }";
+
+                // the following options are declared as DBL_VECTOR:
+                //
+                //     timestep-multipliers
+                // 
+                // The vector of doubles is just formatted as a string here - with braces
+                // surrounding comma-separated values.
+                //
+                // We return dateType = TYPENAME::STRING, but typeStr = "VECTOR<DOUBLE>"
+
+                dataType = TYPENAME::STRING;  
+                typeStr  = "VECTOR<DOUBLE>";
+                valueStr = elems;
+            }
+            catch (const boost::bad_any_cast &) {                           // not DBL_VECTOR - unknown data type
+                dataType = TYPENAME::NONE;               
+                typeStr  = "<UNKNOWN_DATA_TYPE>";
+                valueStr = "<UNKNOWN_DATA_TYPE>";
+            }
         }
     }
 
@@ -2982,7 +3253,7 @@ std::vector<OptionDetailsT> Options::OptionDetails(const OptionsDescriptorT &p_O
 
         std::string optionStr = it->first;                                                                                                                      // option string
         std::tie(dataType, defaulted, typeStr, valueStr) = OptionAttributes(p_Options.optionValues.m_VM, it);                                                   // get option attributes
-        std::vector<std::string> allowedValues = AllowedOptionValues(optionStr);                                                                                // get allowed option values if appropriate
+        STR_VECTOR allowedValues = AllowedOptionValues(optionStr);                                                                                              // get allowed option values if appropriate
 
         std::map<std::string, std::string>::iterator mit;                                                                                                       // iterator for defaults map
         std::string defaultStr = "";                                                                                                                            // default string - initially empty
@@ -3100,18 +3371,18 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  * This function will expand this shorthand to the example shown above.  There is no checking for correctness here - we just expand any
  * shorthand necessary and pass the argument vector back - correctness checking is done elsewhere.  
  * 
- * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED (constant define in Options.h).
- * Since at this stage the option names and values are just strings that will be parsed by boost, we don't need to worry about data type - 
- * code processing the options can check for NOT_PROVIDED and deal with it then.  Since we may not know the maximum number of values
- * expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not have that number yet), we leave
- * it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
+ * The value for any omitted option values will be a string of length 1, with the char value NOT_PROVIDED_CHAR (constant defined in Options.h)
+ * as the first character of the string.  Since at this stage the option names and values are just strings that will be parsed by boost, we 
+ * don't need to worry about data type - code processing the options can check for NOT_PROVIDED_CHAR and deal with it then.  Since we may not
+ * know the maximum number of values expected (e.g. the number of notes-hdrs specifies the maximum number of notes expected, and we may not 
+ * have that number yet), we leave it to later to pad out missing values beyond the last one specified here.  e.g. a specification shuch as:
  * 
  * ./compas --notes-hdrs [hdrStr1,hdrStr2,hdrStr3,hdrStr4,hdrStr5] --notes ["note 1",,"this is note 3"] --option-name option-value ...
  * 
- * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED here, and notes 4 & 5 will be added later.
+ * has notes 2, 4 & 5 omitted - we specify note 2 as NOT_PROVIDED_STR (string version of NOT_PROVIDED_CHAR) here, and notes 4 & 5 will be added later.
  * 
  * 
- * std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
+ * std::tuple<std::string, int, STR_VECTOR> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[])
  * 
  * 
  * @param   [IN]    p_ArgCount                  The number of argument strings. (note below for p_ArgStrings)
@@ -3124,11 +3395,11 @@ bool Options::IsSupportedNumericDataType(TYPENAME p_TypeName) {
  *                                                      - an integer indicating the number of arguments (analogous to p_ArgCount)
  *                                                      - a vector of strings containing the arguments (analogous to p_ArgStrings)
  */
-std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
+std::tuple<std::string, int, STR_VECTOR> Options::ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]) {
 
     std::string errStr = "";                                                                                                // for now
 
-    std::vector<std::string> strargs = {std::string(p_ArgStrings[0])};                                                      // new args vector - command name is arg[0]
+    STR_VECTOR strargs = {std::string(p_ArgStrings[0])};                                                                    // new args vector - command name is arg[0]
 
     std::string  argString  = "";                                                                                           // argument string
     std::string  optionName = "";                                                                                           // option name
@@ -3174,7 +3445,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                     // (e.g. 'notes-hdrs' for 'notes').  So for now we just push a single default
                                     // value and deal with it later
 
-                                    strargs.push_back(NOT_PROVIDED);                                                        // "not provided" indicator"
+                                    strargs.push_back(NOT_PROVIDED_STR);                                                    // "not provided" indicator"
                                 }
                                 else {                                                                                      // no - defaults not allowed
                                     errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3193,7 +3464,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
                                     }
                                     else {                                                                                  // empty value
                                         if (defaultAllowed) {                                                               // defaults allowed?
-                                            strargs.push_back(NOT_PROVIDED);                                                // "not provided" indicator"
+                                            strargs.push_back(NOT_PROVIDED_STR);                                            // "not provided" indicator"
                                         }
                                         else {                                                                              // no - defaults not allowed
                                             errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3204,7 +3475,7 @@ std::tuple<std::string, int, std::vector<std::string>> Options::ExpandShorthandO
 
                                 if (argString[argString.length() - 1] == ',') {                                             // trailing comma in shorthand values?
                                     if (defaultAllowed) {                                                                   // defaults allowed?
-                                        strargs.push_back(NOT_PROVIDED);                                                    // "not provided" indicator"
+                                        strargs.push_back(NOT_PROVIDED_STR);                                                // "not provided" indicator"
                                     }
                                     else {                                                                                  // no - defaults not allowed
                                         errStr = ERR_MSG(ERROR::MISSING_VALUE) + std::string(" for option '") + optionName + std::string("'"); // error
@@ -3263,7 +3534,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
     std::string errStr = "";                                                                                                // initially
 
     int argCount;                                                                                                           // number or arg strings
-    std::vector<std::string> sArgStrings;                                                                                   // arg strings - as std::strings
+    STR_VECTOR sArgStrings;                                                                                                 // arg strings - as std::strings
 
     //********************************************************************//
     // first expand any shorthand notation used in the options            //
@@ -3291,9 +3562,9 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
         p_OptionsDescriptor.optionsSpecified    = {};                                                                       // initially
         p_OptionsDescriptor.complexOptionValues = {};                                                                       // initially
 
-        std::string  optionName        = "";                                                                                // option name
-        COMPLEX_TYPE type              = COMPLEX_TYPE::NONE;                                                                // complex arg type (range, set, neither/none)
-        std::vector<std::string> parms = {};                                                                                // the range or set parameters
+        std::string  optionName = "";                                                                                       // option name
+        COMPLEX_TYPE type       = COMPLEX_TYPE::NONE;                                                                       // complex arg type (range, set, neither/none)
+        STR_VECTOR parms        = {};                                                                                       // the range or set parameters
 
         for (size_t iArg = 1; iArg < (size_t)argCount; iArg++) {                                                            // for each arg string
 
@@ -3416,7 +3687,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             // during binary/stellar evolution - helps to reduce the performance impact
             // of deprecated options and option values 
 
-            std::vector<std::string> fixedArgs {};                                                                          // vector args fixed for deprecated string
+            STR_VECTOR fixedArgs {};                                                                                        // vector args fixed for deprecated string
 
             std::string thisArgString = "";                                                                                 // arg string being checked
             std::string prevArgString = "";                                                                                 // previous arg string (for option value checking)   
@@ -3461,15 +3732,60 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
             // in the argument strings that will be passed to boost - so boost will fail
             // and complain about the offending parameter (which is what we want)
 
+            // before we pass the argstrings to parse_command_line() we need to remove the
+            // NOT_PROVIDED_CHAR for shorthand allowed, non-string, options (boost doesn't 
+            // like it...)
+
+
+            bool shorthandOk = false;                                                                                       // flag to indicate if we're processing a shorthand allowed option
+            TYPENAME defaultType = TYPENAME::NONE;                                                                          // type for default value
+            for (size_t iidx = 1; iidx < (size_t)argCount; iidx++) {                                                        // for each arg string
+
+                std::string argStr = std::string(argStrings[iidx]);
+                if (!argStr.empty()) {                                                                                      // null arg? (shouldn't be...)
+                                                                                                                            // no
+                    if (argStr.substr(0, 2) == "--" || argStr[0] == '-' ) {                                                 // option string?
+                                                                                                                            // yes
+                        // strip the preamble
+                        if (argStr.substr(0, 2) == "--") argStr = argStr.substr(2, argStr.length() - 2);
+                        else argStr = argStr.substr(1, argStr.length() - 1);
+
+                        // check if option is on the shorthand allowed list
+                        auto elem = std::find_if(m_ShorthandAllowed.begin(), m_ShorthandAllowed.end(), [&argStr](const SHORTHAND_ENTRY& e) { return std::get<0>(e) == argStr; });
+                        if (elem != m_ShorthandAllowed.end()) {                                                             // option in shorthand allowed list?
+                            shorthandOk = elem != m_ShorthandAllowed.end();                                                 // yes
+                            defaultType = std::get<2>(*elem);                                                               // get type for option default
+                        }
+                        continue;                                                                                           // next arg string
+                    }
+
+                    // processing arguments to options here - skipped over option name
+                    if (shorthandOk) {                                                                                      // shorthand allowed?
+                                                                                                                            // yes
+                        switch (defaultType) {                                                                              // which default value type?
+                            case TYPENAME::STRING: break;                                                                   // STRING - do nothing
+                            case TYPENAME::DOUBLE:                                                                          // DOUBLE - replace NOT_PROVIDED_CHAR with inf
+                                if (*argStrings[iidx] == static_cast<char>(NOT_PROVIDED_CHAR))                              // NOT_PROVIDED_CHAR?
+                                    strcpy(argStrings[iidx], "inf");                                                        // yes - replace with inf
+                                break;
+                            default:                                                                                        // shouldn't happen - for now we only have string and double default values
+                                break;                                                                                      // do nothing - the parse will fail
+                        }
+
+                    }
+                }
+            }
+
+            // pass argstrings to boost parse_command_line()
             po::parsed_options const parsedOptions = po::parse_command_line(argCount, argStrings, p_OptionsDescriptor.optionDescriptions, cls::unix_style|cls::case_insensitive); // parse user-supplied options
-            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                              // store parsed options into variable map
-            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                            // populate the variables with option values
+            po::store(parsedOptions, p_OptionsDescriptor.optionValues.m_VM);                                                // store parsed options into variable map
+            po::notify(p_OptionsDescriptor.optionValues.m_VM);                                                              // populate the variables with option values
 
             // this is our opportunity to distinguish between "-h" and "--help" (if specified)
             for (auto& entry : parsedOptions.options) {
                 po::option_description const& opt = p_OptionsDescriptor.optionDescriptions.find(entry.string_key, false, false, false);
-                std::string originalTok = entry.original_tokens[0];
-                std::string thisTok = utils::ToLower(utils::trim(originalTok));
+                std::string originalTok           = entry.original_tokens[0];
+                std::string thisTok               = utils::ToLower(utils::trim(originalTok));
 
                 if (!thisTok.empty()) {
                     std::string shortOpt = utils::ToLower(opt.canonical_display_name(cls::allow_dash_for_short));
@@ -3863,7 +4179,7 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
 
             // if we've made it this far we've parsed everything, and now is the time to fix up any default values
             // for vector options.  Any vector option values that we know were not provided will have the value
-            // NOT_PROVIDED, so they can just be replaced with whatever the default value should be.  However,
+            // NOT_PROVIDED_STR, so they can just be replaced with whatever the default value should be.  However,
             // we couldn't really know until now how many values we should expect for vector options like 'notes',
             // because (in that case) the number of values expected is the number of 'notes-hdrs' specified by the
             // user, and that we didn't really know until now (and moreover, we didn't know what the command-line
@@ -3876,21 +4192,21 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                 for (auto& elem: m_ShorthandAllowed) {                                                                      // for each option for which shorthand is allowed
                     std::string optionName     = std::get<0>(elem);                                                         // option name
                     bool        defaultAllowed = std::get<1>(elem);                                                         // omissions allowed?
-                    std::string defaultString  = std::get<2>(elem);                                                         // the COMPAS default for omissions
 
                     if (defaultAllowed) {                                                                                   // omission allowed for this option?
                                                                                                                             // yes
                         switch (_(optionName.c_str())) {                                                                    // which option?
 
-                            // '--notes' is the only option affected at the moment
+                            // '--notes' and '--timestep-multipliers' are the only options affected at the moment
 
-                            case _("notes"):                                                                                // notes
+                            case _("notes"): {                                                                              // notes
+                                std::string defaultValue = std::string((std::get<3>(elem)).strVal);                         // the COMPAS default for omissions
                                 for (size_t idx = 0; idx < NotesHdrs().size(); idx++) {                                     // for each specified notes-hdr
                                     if (idx < p_OptionsDescriptor.optionValues.m_Notes.size()) {                            // have parsed value?
-                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED) {                // yes - notes value provided?
+                                        if (p_OptionsDescriptor.optionValues.m_Notes[idx] == NOT_PROVIDED_STR) {            // yes - notes value provided?
                                                                                                                             // no - get default
                                             if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
-                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultString;              // yes - use COMPAS default
+                                                p_OptionsDescriptor.optionValues.m_Notes[idx] = defaultValue;               // yes - use COMPAS default
                                             }
                                             else {                                                                          // no - grid file line
                                                 p_OptionsDescriptor.optionValues.m_Notes[idx] = m_CmdLine.optionValues.m_Notes[idx]; // use command-line value
@@ -3899,15 +4215,39 @@ std::string Options::ParseOptionValues(int p_ArgCount, char *p_ArgStrings[], Opt
                                     }
                                     else {                                                                                  // no parsed value
                                         if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
-                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultString);              // yes - use COMPAS default
+                                            p_OptionsDescriptor.optionValues.m_Notes.push_back(defaultValue);               // yes - use COMPAS default
                                         }
                                         else {                                                                              // no - grid file line
                                             p_OptionsDescriptor.optionValues.m_Notes.push_back(m_CmdLine.optionValues.m_Notes[idx]); // use command-line value
                                         }
                                     }
                                 }
-                                break;
+                                } break;
 
+                            case _("timestep-multipliers"): {                                                               // timestep-multipliers
+                                double defaultValue = (std::get<3>(elem)).dblVal;                                           // the COMPAS default for omissions
+                                for (size_t idx = 0; idx < static_cast<int>(STELLAR_TYPE::COUNT) - 3; idx++) {              // for each stellar type (except STAR, BINARY_STAR, and NONE)
+                                    if (idx < p_OptionsDescriptor.optionValues.m_TimestepMultipliers.size()) {              // have parsed value?
+                                        if (isinf(p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx])) {           // yes - multiplier provided?
+                                                                                                                            // no - get default
+                                            if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {             // from command line?
+                                                p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = defaultValue; // yes - use COMPAS default
+                                            }
+                                            else {                                                                          // no - grid file line
+                                                p_OptionsDescriptor.optionValues.m_TimestepMultipliers[idx] = m_CmdLine.optionValues.m_TimestepMultipliers[idx]; // use command-line value
+                                            }
+                                        }
+                                    }
+                                    else {                                                                                  // no parsed value
+                                        if (p_OptionsDescriptor.optionsOrigin == OPTIONS_ORIGIN::CMDLINE) {                 // from command line?
+                                            p_OptionsDescriptor.optionValues.m_TimestepMultipliers.push_back(defaultValue); // yes - use COMPAS default
+                                        }
+                                        else {                                                                              // no - grid file line
+                                            p_OptionsDescriptor.optionValues.m_TimestepMultipliers.push_back(m_CmdLine.optionValues.m_TimestepMultipliers[idx]); // use command-line value
+                                        }
+                                    }
+                                }
+                                } break;
                             default:                                                                                        // default - shouldn't happen
                                 break;                                                                                      // do nothing - the parse will fail
                         }
@@ -3963,7 +4303,7 @@ bool Options::Initialise(int p_ArgCount, char *p_ArgStrings[]) {
     for (size_t idx = 0; idx < m_BSEOnly.size();          idx++) m_BSEOnly[idx]          = utils::ToLower(utils::trim(m_BSEOnly[idx]));
     for (size_t idx = 0; idx < m_RangeExcluded.size();    idx++) m_RangeExcluded[idx]    = utils::ToLower(utils::trim(m_RangeExcluded[idx]));
     for (size_t idx = 0; idx < m_SetExcluded.size();      idx++) m_SetExcluded[idx]      = utils::ToLower(utils::trim(m_SetExcluded[idx]));
-    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]));
+    for (size_t idx = 0; idx < m_ShorthandAllowed.size(); idx--) m_ShorthandAllowed[idx] = std::make_tuple(utils::ToLower(utils::trim(std::get<0>(m_ShorthandAllowed[idx]))), std::get<1>(m_ShorthandAllowed[idx]), std::get<2>(m_ShorthandAllowed[idx]), std::get<3>(m_ShorthandAllowed[idx]));
 
     try {
 
@@ -4285,10 +4625,10 @@ bool Options::InitialiseEvolvingObject(const std::string p_OptionsString) {
 
         // parse the option string (just as the OS/shell would do)
 
-        std::vector<std::string> parsedStrings;                                                                     // parsed option strings
+        STR_VECTOR parsedStrings;                                                                                   // parsed option strings
 
         size_t start      = 0;                                                                                      // start position of parsed option string
-        size_t end        = 0;                                                                                      // end position of parsed option strinf
+        size_t end        = 0;                                                                                      // end position of parsed option string
         std::string delim = " ";                                                                                    // delimiter
         bool done         = false;
         while (!done && end != std::string::npos) {                                                                 // iterate over input string
@@ -4683,8 +5023,11 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_MIN             : value = CommonEnvelopeMassAccretionMin();                                     break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_MASS_ACCRETION_PRESCRIPTION    : value = static_cast<int>(CommonEnvelopeMassAccretionPrescription());          break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_RECOMBINATION_ENERGY_DENSITY   : value = CommonEnvelopeRecombinationEnergyDensity();                           break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_BETA              : value = CommonEnvelopeSecondStageBeta();                                      break;
+        case PROGRAM_OPTION::COMMON_ENVELOPE_SECOND_STAGE_GAMMA_PRESCRIPTION : value = static_cast<int>(CommonEnvelopeSecondStageGammaPrescription());      break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_SLOPE_KRUCKOW                  : value = CommonEnvelopeSlopeKruckow();                                         break;
 
+        case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_MASS_THRESHOLD             : value = ConvectiveEnvelopeMassThreshold();                                    break;
         case PROGRAM_OPTION::CONVECTIVE_ENVELOPE_TEMPERATURE_THRESHOLD      : value = ConvectiveEnvelopeTemperatureThreshold();                             break;
 
         case PROGRAM_OPTION::COOL_WIND_MASS_LOSS_MULTIPLIER                 : value = CoolWindMassLossMultiplier();                                         break;
@@ -4713,7 +5056,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION                          : value = static_cast<int>(InitialMassFunction());                              break;
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX                      : value = InitialMassFunctionMax();                                             break;
         case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN                      : value = InitialMassFunctionMin();                                             break;
-        case PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER                     : value = InitialMassFunctionPower();                                           break;
+        case PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER                    : value = InitialMassFunctionPower();                                           break;
 
         case PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION                    : value = static_cast<int>(KickDirectionDistribution());                        break;
         case PROGRAM_OPTION::KICK_DIRECTION_POWER                           : value = KickDirectionPower();                                                 break;
@@ -4746,6 +5089,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         
         case PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER     : value = MagneticFieldAmplificationFactorMerger();                             break;
 
+        case PROGRAM_OPTION::MALTSEV_FALLBACK                               : value = MaltsevFallback();                                                    break;                     
+        case PROGRAM_OPTION::MALTSEV_MODE                                   : value = static_cast<int>(MaltsevMode());                                      break;                     
+
         case PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION                         : value = static_cast<int>(MassLossPrescription());                             break;
 
         case PROGRAM_OPTION::MASS_RATIO                                     : value = MassRatio();                                                          break;                     
@@ -4765,7 +5111,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX                   : value = MetallicityDistributionMax();                                         break;
         case PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN                   : value = MetallicityDistributionMin();                                         break;
 
-        case PROGRAM_OPTION::MINIMUM_MASS_SECONDARY                         : value = MinimumMassSecondary();                                               break;
+        case PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS                 : value = MinimumSampledSecondaryMass();                                        break;
 
         case PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION           : value = static_cast<int>(MassTransferAccretionEfficiencyPrescription());      break;
         case PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION                   : value = static_cast<int>(MassTransferAngularMomentumLossPrescription());      break;
@@ -4790,20 +5136,22 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MT_FRACTION_ACCRETED                           : value = MassTransferFractionAccreted();                                       break;
         case PROGRAM_OPTION::MT_JLOSS                                       : value = MassTransferJloss();                                                  break;
-        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN         : value = MassTransferJlossMacLeodLinearFractionDegen();                        break; 
-        case PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN     : value = MassTransferJlossMacLeodLinearFractionNonDegen();                     break; 
+        case PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_DEGEN                 : value = MassTransferJlossLinearFractionDegen();                               break; 
+        case PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_NON_DEGEN             : value = MassTransferJlossLinearFractionNonDegen();                            break; 
         case PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION                   : value = static_cast<int>(MassTransferRejuvenationPrescription());             break;
         case PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION                 : value = static_cast<int>(MassTransferThermallyLimitedVariation());            break;
 
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_BH               : value = MullerMandelKickMultiplierBH();                                       break;
         case PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS               : value = MullerMandelKickMultiplierNS();                                       break;
-        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK                       : value = MullerMandelSigmaKick();                                              break;
+        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH                    : value = MullerMandelSigmaKickBH();                                              break;
+        case PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS                    : value = MullerMandelSigmaKickNS();                                              break;
 
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH               : value = static_cast<int>(NeutrinoMassLossAssumptionBH());                     break;
         case PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH                    : value = NeutrinoMassLossValueBH();                                            break;
 
         case PROGRAM_OPTION::NOTES                                          : value = Notes();                                                              break;
 
+        case PROGRAM_OPTION::NS_ACCRETION_IN_CE                             : value = static_cast<int>(NeutronStarAccretionInCE());                         break;
         case PROGRAM_OPTION::NS_EOS                                         : value = static_cast<int>(NeutronStarEquationOfState());                       break;
 
         case PROGRAM_OPTION::ORBITAL_PERIOD                                 : value = OrbitalPeriod();                                                      break;
@@ -4840,6 +5188,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::RANDOM_SEED_CMDLINE                            : value = RandomSeedCmdLine();                                                  break;
 
         case PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION                      : value = static_cast<int>(RemnantMassPrescription());                          break;
+            
+        case PROGRAM_OPTION::RESPONSE_TO_SPIN_UP                            : value = static_cast<int>(ResponseToSpinUp());                                 break;
 
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1                        : value = RocketKickMagnitude1();                                               break;
         case PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_2                        : value = RocketKickMagnitude2();                                               break;
@@ -4872,6 +5222,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD   : value = SurfaceMagneticFieldDistributionHighStd();                            break;
 
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
+        case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = USSNKicksOverrideMandelMuller();                                      break;
 
         case PROGRAM_OPTION::WR_FACTOR                                      : value = WolfRayetFactor();                                                    break;
 

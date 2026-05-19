@@ -47,7 +47,7 @@ public:
     static double   CalculateLuminosityAtPhaseEnd_Static(const double p_Mass);
 
            double   CalculateMassLossRateBelczynski2010();
-           double   CalculateMassLossRateMerritt2024();
+           double   CalculateMassLossRateMerritt2025();
 
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
@@ -61,6 +61,10 @@ public:
 protected:
 
     void Initialise() {
+        // initialise surface abundances
+        m_HydrogenAbundanceSurface = 0.0;
+        m_HeliumAbundanceSurface   = 1.0 - m_Metallicity;
+        
         CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
@@ -85,7 +89,7 @@ protected:
     static  double          CalculateCoreMass_Luminosity_q_Static(const double p_Mass, const DBL_VECTOR &p_MassCutoffs) { return 3.0; }
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
-            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 0.33; }                                                                // As coded in BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return HURLEY_HJELLMING_WEBBINK_QCRIT_MS_GT_07; }
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                                     // Use class member variables
@@ -111,6 +115,7 @@ protected:
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
 
             double          CalculateLambdaDewi() const                                                             { return 0.5; }
+            double          CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss = false) const { return BaseStar::CalculateLambdaLoveridge(p_EnvMass, p_IsMassLoss); }   // Not supported - use BaseStar
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }                 // Not supported - use BaseStar (0.0 are dummy values)
             double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const                                { return CalculateLuminosityAtPhaseEnd_Static(p_Mass); }
             double          CalculateLuminosityAtPhaseEnd() const                                                   { return CalculateLuminosityAtPhaseEnd(m_Mass); }                               // Use class member variables
@@ -129,8 +134,10 @@ protected:
             double          CalculateRadiusAtPhaseEnd(const double p_Mass) const                                    { return CalculateRadiusAtPhaseEnd_Static(p_Mass); }
             double          CalculateRadiusAtPhaseEnd() const                                                       { return CalculateRadiusAtPhaseEnd(m_Mass); }                                   // Use class member variables
     static  double          CalculateRadiusAtPhaseEnd_Static(const double p_Mass);
+            double          CalculateRadiusOnMassChange(double p_dM)                                                { return CalculateRadiusOnPhaseTau(m_Mass + p_dM, m_Tau); }
             double          CalculateRadiusOnPhaseTau(const double p_Mass, const double p_Tau) const                { return CalculateRadiusOnPhase_Static(p_Mass, p_Tau); }
             double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhaseTau(m_Mass, m_Tau); }                            // Use class member variables
+            double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const                        { return CalculateRadiusOnPhase(); }        // not a meaningful calculation for HeMS star, ignore arguments
 
             double          CalculateTauAtPhaseEnd() const                                                          { return 1.0; }
             double          CalculateTauOnPhase() const                                                             { return m_Age / m_Timescales[static_cast<int>(TIMESCALE::tHeMS)]; }
@@ -143,7 +150,8 @@ protected:
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
     
-            double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return OPTIONS->ZetaMainSequence(); }                                         // A HeMS star is treated as any other MS star for Zeta calculation purposes
+            double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return OPTIONS->ZetaMainSequence(); }                                                                             // A HeMS star is treated as any other MS star for Zeta calculation purposes
+            double          CalculateZetaEquilibrium()                                                              { return MainSequence::CalculateZetaEquilibrium(); }                           // A HeMS star is treated as any other MS star for Zeta calculation purposes
 
             double          ChooseTimestep(const double p_Time) const;
 

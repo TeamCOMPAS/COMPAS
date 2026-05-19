@@ -265,7 +265,7 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(AHe)    = CalculateHeRateConstant_Static();
 
     gbParams(B)      = CalculateCoreMass_Luminosity_B_Static(p_Mass);
-    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXi(), m_MassCutoffs);
+    gbParams(D)      = CalculateCoreMass_Luminosity_D_Static(p_Mass, LogMetallicityXiHurley(), m_MassCutoffs);
 
     gbParams(p)      = CalculateCoreMass_Luminosity_p_Static(p_Mass, m_MassCutoffs);
     gbParams(q)      = CalculateCoreMass_Luminosity_q_Static(p_Mass, m_MassCutoffs);
@@ -276,9 +276,6 @@ void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)
     gbParams(McBAGB) = CalculateCoreMassAtBAGB(p_Mass);
     gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
-
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
-
 #undef gbParams
 }
 
@@ -340,8 +337,6 @@ void GiantBranch::CalculateGBParams_Static(const double      p_Mass,
     gbParams(McDU)   = CalculateCoreMassAt2ndDredgeUp_Static(gbParams(McBAGB));
     gbParams(McBAGB) = CalculateCoreMassAtBAGB_Static(p_Mass, p_BnCoefficients);
     gbParams(McBGB)  = CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
-
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
 
 #undef gbParams
 }
@@ -692,17 +687,8 @@ double GiantBranch::CalculateRemnantRadius() const {
 double GiantBranch::CalculateRadialExtentConvectiveEnvelope() const{
     double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
     std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
-    if (utils::Compare(convectiveEnvelopeMass, 0.0) <= 0 || utils::Compare(convectiveEnvelopeMassMax, 0.0) <= 0 ) return 0.0;   // massless convective envelope has zero radial extent
-    
-    double convectiveCoreMass   = CalculateConvectiveCoreMass();
-    double convectiveCoreRadius = CalculateConvectiveCoreRadius();
-    // assume that the final radiative intershell (if any) would have a density that is a geometric mean of the core density and total density
-    double radiativeIntershellMass           = m_Mass - convectiveCoreMass - convectiveEnvelopeMassMax;
-    double convectiveCoreRadiusCubed         = convectiveCoreRadius * convectiveCoreRadius * convectiveCoreRadius;
-    double radiativeIntershellDensity        = 1.0 / (4.0 /3.0 * M_PI) * std::sqrt(convectiveCoreMass / convectiveCoreRadiusCubed * m_Mass / m_Radius / m_Radius / m_Radius);
-    double outerEdgeRadiativeIntershellCubed = radiativeIntershellMass / (4.0 / 3.0 * M_PI * radiativeIntershellDensity) + convectiveCoreRadiusCubed;
-    
-    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - std::cbrt(outerEdgeRadiativeIntershellCubed));
+    if (utils::Compare(convectiveEnvelopeMass, 0.0) <= 0 || utils::Compare(convectiveEnvelopeMassMax, 0.0) <= 0 ) return 0.0;   // massless convective envelope has zero radial extent        
+    return std::sqrt(convectiveEnvelopeMass/convectiveEnvelopeMassMax) * (m_Radius - CalculateConvectiveCoreRadius());
 }
 
 
@@ -822,16 +808,17 @@ double GiantBranch::CalculateCoreMassAtBGB_Static(const double      p_Mass,
 /*
  * Calculate the core mass at which the Asymptotic Giant Branch phase is terminated in a SN/loss of envelope
  *
- * Hurley et al. 2000, eq 75 -- but note we use MECS rather than MCH
+ * Hurley et al. 2000, eq 75 -- but note we may use MECS rather than MCH as the CO core mass threshold
  *
  *
- * double CalculateCoreMassAtSupernova_Static(const double p_McBAGB)
+ * double CalculateCoreMassAtSupernova_Static(const double p_Mthreshold, const double p_McBAGB)
  *
+ * @param   [IN]    p_Mthreshold                Threshold mass, typically either MECS for stars that may explode in ECSNe or MCH otherwise
  * @param   [IN]    p_McBAGB                    Core mass at the Base of the Asymptotic Giant Branch in Msol
  * @return                                      Maximum core mass before supernova on the Asymptotic Giant Branch
  */
-double GiantBranch::CalculateCoreMassAtSupernova_Static(const double p_McBAGB) {
-    return std::max(MECS, (0.773 * p_McBAGB) - 0.35);
+double GiantBranch::CalculateCoreMassAtSupernova_Static(const double p_Mthreshold, const double p_McBAGB) {
+    return std::max(p_Mthreshold, (0.773 * p_McBAGB) - 0.35);
 }
 
 
@@ -1093,7 +1080,7 @@ DBL_DBL GiantBranch::CalculateConvectiveEnvelopeMass() const {
     
     // Use Eq. 6 of Mandel, Hirai, Picker (2024) rather than Eq. 6 of Picker+ 2024 for Tonset to avoid issues caused by
     // differences between temperatures in MESA models (used in Picker+ fits) and Pols models (used in Hurley+ SSE tracks)
-    double Tonset     = Tmin / std::min(0.0695 - 0.057 * m_Log10Metallicity, 0.95);                                         // eq. (6) of Mandel, Hirai, Picker, 2024
+    double Tonset     = Tmin / std::min(0.695 - 0.057 * m_Log10Metallicity, 0.95);                                          // eq. (6) of Mandel, Hirai, Picker, 2024
     
     double mCoreFinal = CalculateCoreMassAtBAGB(m_Mass0);
     double mConvMax   = std::max(m_Mass - mCoreFinal * (1.0 + MinterfMcoref), 0.0);                                         // eq. (9) of Picker+ 2024
@@ -1310,74 +1297,113 @@ double GiantBranch::CalculateRemnantMassBySchneider2020(const double p_COCoreMas
  */
 double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass, const double p_HeCoreMass) {
 
-    ST_VECTOR mtHist           = MassTransferDonorHistory();                                                            // mass transfer history vector
-    MT_CASE   massTransferCase = MT_CASE::OTHER;
-    double    log10Z           = m_Log10Metallicity - LOG10_ZSOL;                                                       // log_{10} (Z/Zsol), for convenience
-    double    M1, M2, M3;
+    ST_VECTOR mtHist                  = MassTransferDonorHistory();                                                     // mass transfer history vector
+    MT_CASE   massTransferCase        = MT_CASE::OTHER;
+    double    log10Z                  = m_Log10Metallicity - LOG10_ZSOL_ASPLUND;                                        // log_{10} (Z/Zsol), for convenience
+    constexpr double log10_1          = 0;                                                                              // useful for the limits later 
+    constexpr double log10_1_div_10   = -1;                                                                             // useful for the limits later             
+    constexpr double log10_1_div_50   = -1.69897;                                                                       // useful for the limits later                 
+    double    M1, M2, M3;                                                                                               // Z-dependent boundary values for SN outcomes (see Maltsev+ 2025)
+    double    remnantMass;
 
-    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0)                                                             // NS formation regardless of metallicity and MT history
-        return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
-    
-    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0)                                                             // BH formation regardless of metallicity and MT history
-        return p_HeCoreMass;
-    
-    // determine MT history - this will tell us which Schneider MT case prescription should be used
-    if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
-        massTransferCase = MT_CASE::NONE;
+    if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
+        m_SupernovaDetails.fallbackFraction = 0;
+        remnantMass = NEUTRON_STAR_MASS;
     }
-    else {                                                                                                              // star was MT donor at least once
-        // determine MT_CASE of first MT event
-        STELLAR_TYPE mostRecentDonorType = mtHist[0];                                                                   // stellar type at first MT event (as donor)
-        BaseStar* newStar                = stellarUtils::NewStar(mostRecentDonorType);                                  // create new (empty) star of correct stellar type
-        massTransferCase        = newStar->DetermineMassTransferTypeAsDonor();                                          // get MT type as donor
-        delete newStar; newStar = nullptr;                                                                              // return the memory allocated for the new star
+    else if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0) {                                                      // BH formation regardless of metallicity and MT history
+        m_SupernovaDetails.fallbackFraction = 1;
+        remnantMass = p_HeCoreMass;
     }
+    else {                                                                                                              // Determine MT history - this will tell us which Schneider MT case prescription should be used
 
-    // apply the appropriate remnant mass prescription for the chosen MT case
-    switch (massTransferCase) {                                                                                         // which MT_CASE?
+        double log10Z_bounded; // This is really log10(Z/Zsol), so it is 0 for Z=Zsol, -1 for Z=Zsol/10 and log10(1/50) for ...                                                                      
+        switch (OPTIONS->MaltsevMode()) {                                                                                  
 
-        case MT_CASE::NONE:                                                                                             // no history of MT
-        case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
-            M1 = MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z;
-            M2 = MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z;
-            M3 = MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z;
-            break;
+            case MALTSEV_MODE::OPTIMISTIC:                                                                                   
+                log10Z_bounded = log10Z;
+                break;
+            case MALTSEV_MODE::BALANCED:                                                                                     
+                log10Z_bounded = std::min(std::max(log10Z, log10_1_div_50), log10_1);
+                break;
+            case MALTSEV_MODE::PESSIMISTIC:                                                                                  
+                log10Z_bounded = std::min(std::max(log10Z, log10_1_div_10), log10_1);
+                break;
+            default:                                                                                                        
+                // Unrecognized MALTSEV_MODE. Only possible if a new one is added but an
+                // extra flag is not created here. 
+                THROW_ERROR(ERROR::UNKNOWN_MALTSEV_MODE);                                                                   // throw error
+        }
 
-        case MT_CASE::A:                                                                                                // case A MT
-            M1 = MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z;
-            M2 = MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z;
-            M3 = MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z;
-            break;
+        if (mtHist.size() == 0) {                                                                                           // no history of MT - effectively single star
+            massTransferCase = MT_CASE::NONE;
+        }
+        else {                                                                                                              // star was MT donor at least once
+            // determine MT_CASE of first MT event
+            STELLAR_TYPE stellarTypeAtFirstDonation = mtHist[0];                                                            // stellar type at first MT event (as donor)
+            BaseStar* newStar                       = stellarUtils::NewStar(stellarTypeAtFirstDonation);                    // create new (empty) star of correct stellar type
+            massTransferCase                        = newStar->DetermineMassTransferTypeAsDonor();                          // get MT type as donor
+            delete newStar; newStar                 = nullptr;                                                              // return the memory allocated for the new star
+        }
+        
+        // If self-stripped, re-classify as Case B
+        if (massTransferCase == MT_CASE::NONE && HydrogenAbundanceSurface() == 0.0) massTransferCase = MT_CASE::B;			// if a star was stripped by winds, treat it as if it experienced Case B mass transfer
 
-        case MT_CASE::B:                                                                                                // case B MT
-            M1 = MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z;
-            M2 = MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z;
-            M3 = MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z;
-            break;
+        // apply the appropriate remnant mass prescription for the chosen MT case
+        switch (massTransferCase) {                                                                                         // which MT_CASE?
 
-        case MT_CASE::C:                                                                                                // case C MT
-            M1 = MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z;
-            M2 = MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z;
-            M3 = MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z;
-            break;
+            case MT_CASE::NONE:                                                                                             // no history of MT
+            case MT_CASE::OTHER:                                                                                            // if MT happens from naked He stars, WDs, etc., assume that the core properties are not affected
+                M1 = MALTSEV2024_M1S + (MALTSEV2024_M1S - MALTSEV2024_M1SZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2S + (MALTSEV2024_M2S - MALTSEV2024_M2SZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3S + (MALTSEV2024_M3S - MALTSEV2024_M3SZ01) * log10Z_bounded;
+                break;
 
-        default:                                                                                                        // unknown MT_CASE
-            // the only way this can happen is if someone added an MT_CASE
-            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-            // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
-            // account for, and that should be flagged as an error and result in termination of the evolution
-            // of the star or binary.
-            // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
-            // incorrect/superfluous, remove it from the possible MT_CASE values.
+            case MT_CASE::A:                                                                                             // case A MT
+                M1 = MALTSEV2024_M1A + (MALTSEV2024_M1A - MALTSEV2024_M1AZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2A + (MALTSEV2024_M2A - MALTSEV2024_M2AZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3A + (MALTSEV2024_M3A - MALTSEV2024_M3AZ01) * log10Z_bounded;
+                break;
 
-            THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error
+            case MT_CASE::B:                                                                                             // case B MT
+                M1 = MALTSEV2024_M1B + (MALTSEV2024_M1B - MALTSEV2024_M1BZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2B + (MALTSEV2024_M2B - MALTSEV2024_M2BZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3B + (MALTSEV2024_M3B - MALTSEV2024_M3BZ01) * log10Z_bounded;
+                break;
+
+            case MT_CASE::C:                                                                                             // case C MT
+                M1 = MALTSEV2024_M1C + (MALTSEV2024_M1C - MALTSEV2024_M1CZ01) * log10Z_bounded;
+                M2 = MALTSEV2024_M2C + (MALTSEV2024_M2C - MALTSEV2024_M2CZ01) * log10Z_bounded;
+                M3 = MALTSEV2024_M3C + (MALTSEV2024_M3C - MALTSEV2024_M3CZ01) * log10Z_bounded;
+                break;
+
+            default:                                                                                                        // unknown MT_CASE
+                // the only way this can happen is if someone added an MT_CASE
+                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+                // We are here because DetermineMassTransferTypeAsDonor() returned an MT_CASE this code doesn't
+                // account for, and that should be flagged as an error and result in termination of the evolution
+                // of the star or binary.
+                // The correct fix for this is to add code for the missing MT_CASE or, if the missing MT_CASE is
+                // incorrect/superfluous, remove it from the possible MT_CASE values.
+
+                THROW_ERROR(ERROR::UNKNOWN_MT_CASE);                                                                        // throw error
+        }
+        
+
+        if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) ) {            // Complete fallback into BH
+            m_SupernovaDetails.fallbackFraction = 1;
+            remnantMass = p_HeCoreMass;
+        }
+        else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 ) {  // Partial fallback BH formation
+            // add fallback back on
+            m_SupernovaDetails.fallbackFraction = OPTIONS->MaltsevFallback();
+            remnantMass = (p_HeCoreMass - NEUTRON_STAR_MASS)*m_SupernovaDetails.fallbackFraction + NEUTRON_STAR_MASS;
+        }
+        else {
+            m_SupernovaDetails.fallbackFraction = 0;
+            remnantMass = NEUTRON_STAR_MASS;
+        }
     }
-    
-    if( utils::Compare(p_COCoreMass, M3) >=0 || (utils::Compare(p_COCoreMass, M1) >= 0 && utils::Compare(p_COCoreMass, M2) <= 0) )              // Complete fallback into BH
-        return p_HeCoreMass;
-    else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 )    // Partial fallback BH formation
-        return CalculateFallbackBHMassMullerMandel(p_COCoreMass, p_HeCoreMass);
-    return CalculateRemnantNSMassMullerMandel(p_COCoreMass, p_HeCoreMass);
+    return remnantMass;
 }
 
 
@@ -1445,31 +1471,31 @@ double GiantBranch::CalculateRemnantNSMassMullerMandel(const double p_COCoreMass
         while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
                (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
                 utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                utils::Compare(remnantMass, p_COCoreMass) > 0)) {
             remnantMass = MULLERMANDEL_MU1 + RAND->RandomGaussian(MULLERMANDEL_SIGMA1);
         }
         if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_COCoreMass) + MULLERMANDEL_MINNS) / 2.0;
     }
     else if (utils::Compare(p_COCoreMass, MULLERMANDEL_M2) < 0) {
         while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
                (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
                 utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                utils::Compare(remnantMass, p_COCoreMass) > 0)) {
             remnantMass = MULLERMANDEL_MU2A + MULLERMANDEL_MU2B / (MULLERMANDEL_M2 - MULLERMANDEL_M1) * (p_COCoreMass - MULLERMANDEL_M1) + RAND->RandomGaussian(MULLERMANDEL_SIGMA2);
         }
         if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_COCoreMass) + MULLERMANDEL_MINNS) / 2.0;
     }
     else {
         while (iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS            &&
                (utils::Compare(remnantMass, MULLERMANDEL_MINNS) < 0                ||
                 utils::Compare(remnantMass, OPTIONS->MaximumNeutronStarMass()) > 0 ||
-                utils::Compare(remnantMass, p_HeCoreMass) > 0)) {
+                utils::Compare(remnantMass, p_COCoreMass) > 0)) {
             remnantMass = MULLERMANDEL_MU3A + MULLERMANDEL_MU3B / (MULLERMANDEL_M3 - MULLERMANDEL_M2) * (p_COCoreMass - MULLERMANDEL_M2) + RAND->RandomGaussian(MULLERMANDEL_SIGMA3);
         }
         if (iterations >= MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) // failure to find a solution implies a narrow range; just pick a midpoint in this case
-            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_HeCoreMass) + MULLERMANDEL_MINNS) / 2.0;
+            remnantMass = (std::min(OPTIONS->MaximumNeutronStarMass(), p_COCoreMass) + MULLERMANDEL_MINNS) / 2.0;
     }
     return remnantMass;
 }
@@ -1927,19 +1953,18 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020:                                                      // Schneider 2020
 
             m_Mass                              = CalculateRemnantMassBySchneider2020(m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;		// fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
             break;
 
         case REMNANT_MASS_PRESCRIPTION::SCHNEIDER2020ALT:                                                   // Schneider 2020, alternative
 
             m_Mass                              = CalculateRemnantMassBySchneider2020Alt(m_COCoreMass);
-            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;                                                                   // Fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
+            m_SupernovaDetails.fallbackFraction = utils::Compare(m_Mass, OPTIONS->MaximumNeutronStarMass() ) > 0 ? (m_Mass - NEUTRON_STAR_MASS) / (mass - NEUTRON_STAR_MASS) : 0.0;		// fallback fraction of mass beyond proto-neutron-star for BH formation and kicks
             break;
         
         case REMNANT_MASS_PRESCRIPTION::MALTSEV2024:                                                        // Maltsev+ 2024
 
-            m_SupernovaDetails.fallbackFraction = 0.0;                                                      // no subsequent kick adjustment by fallback fraction needed; MULLERMANDEL kick prescription should be used
-            m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);
+            m_Mass                              = CalculateRemnantMassByMaltsev2024(m_COCoreMass, m_HeCoreMass);																		// fallback fraction determined internally
             break;
             
     
@@ -2210,9 +2235,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
                                                                                                     // yes - resolve new supernova event
         // squirrel away some attributes before they get changed...
         m_SupernovaDetails.totalMassAtCOFormation  = m_Mass;
+        m_SupernovaDetails.totalRadiusAtCOFormation= m_Radius;
         m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
         m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
         m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
+        m_SupernovaDetails.coreRadiusAtCOFormation = CalculateConvectiveCoreRadius();
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
         
@@ -2246,14 +2273,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             if (!utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR }))
                 m_SupernovaDetails.rocketKickMagnitude = 0;                                         // only NSs can get rocket kicks
 
-            // Stash SN details for later printing to the SSE Supernova log.
+            // Print SN details to the SSE Supernova log.
             // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
-            // Can't print it now because we may revert state (in Star::EvolveOneTimestep()).
-            // Will be printed in Star::EvolveOneTimestep() after timestep is accepted (i.e. we don't revert state).
-            // Need to record the stellar type to which the star will switch if we don't revert state.
-
-            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT)
-                StashSupernovaDetails(stellarType);
+            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
+                PrintSupernovaDetails();
+            }
        }
     }
 

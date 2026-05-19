@@ -164,15 +164,15 @@ Default = 1.0
 
 **--common-envelope-lambda-nanjing-enhanced** |br|
 Continuous extrapolation beyond maximum radius range in Nanjing lambda's as implemented in StarTrack. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-mass** |br|
-Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``.  Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-metallicity** |br|
-Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
-Default = FALSE
+Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Default = TRUE
 
 **--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
 Use rejuvenated or effective ZAMS mass instead of true birth mass when computing Nanjing lambda parameters. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. |br|
@@ -210,6 +210,11 @@ Default = :math:`1.5 \times 10^{13}`
 **--common-envelope-slope-kruckow** |br|
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
+
+**--convective-envelope-mass-threshold** |br|
+Mass threshold of envelope which should be convective, above which the envelopes of giants are labelled convective. |br|
+Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
+Default = 0.1
 
 **--convective-envelope-temperature-threshold** |br|
 Temperature [K] threshold, below which the envelopes of giants are convective. 
@@ -338,6 +343,7 @@ Default = 0.0
 
 **--debug-classes** |br|
 Developer-defined debug classes to enable (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--debug-level** |br|
@@ -392,14 +398,16 @@ Default = FALSE
 
 **--enhance-CHE-lifetimes-luminosities** |br|
 Enhance lifetimes and luminosities of CH stars using a fit to detailed models from Szecsi et al. (2015)
-Default = FALSE
+Default = TRUE
 
 **--envelope-state-prescription** |br|
 Prescription for determining whether the envelope of the star is convective or radiative. |br|
-Options: { LEGACY, HURLEY, FIXED_TEMPERATURE } |br|
+Options: { LEGACY, HURLEY, FIXED_TEMPERATURE, CONVECTIVE_MASS_FRACTION } |br|
 ``LEGACY`` refers to the model used in Stevenson et al., 2017 |br|
 ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002 |br|
 ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
+``CONVECTIVE_MASS_FRACTION`` means that whether the envelope is labelled convective is determined by the fraction of the envelope's mass which is convective; 
+that threshold can be changed from its default value with the additional option ``--convective-envelope-mass-threshold`` |br|
 Default = LEGACY
 
 **--errors-to-file** |br|
@@ -507,26 +515,26 @@ Default = Sampled from IMF
 
 **--initial-mass-2** |br|
 Initial mass for the secondary star when evolving in BSE mode (:math:`M_\odot`). |br|
-Default = Sampled from IMF
+Default = Sampled from the mass ratio distribution specified by ``--mass-ratio-distribution`` (see also ``--mass-ratio-max``, ``-mass-ratio-min``, ``--minimum-sampled-secondary-mass``)
 
 **--initial-mass-function [ -i ]** |br|
 Initial mass function. |br|
 Options: { SALPETER, POWERLAW, UNIFORM, KROUPA } |br|
-``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001 |br|
-``POWERLAW`` samples from a single power law with slope ``--initial-mass-power`` |br|
-``UNIFORM`` samples uniformly between ``--initial-mass-min`` and ``--initial-mass-min`` |br|
+``SALPETER`` and ``KROUPA`` use the IMFs of Salpeter 1955 and Kroupa 2001, bounded by ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
+``POWERLAW`` is a single power law with slope ``--initial-mass-function-power`` |br|
+``UNIFORM`` is a uniform distribution between ``--initial-mass-function-min`` and ``--initial-mass-function-max`` |br|
 Default = KROUPA
 
-**--initial-mass-max** |br|
-Maximum mass to generate using given IMF (:math:`M_\odot`). |br|
+**--initial-mass-function-max** |br|
+The maximum mass (in Msol) to sample from the initial mass function (IMF), (only used when sampling initial mass) (:math:`M_\odot`). |br|
 Default = 150.0
 
-**--initial-mass-min** |br|
-Minimum mass to generate using given IMF (:math:`M_\odot`). |br|
+**--initial-mass-function-min** |br|
+The minimum mass (in Msol) to sample from the initial mass function (IMF), (only used when sampling initial mass) (:math:`M_\odot`). |br|
 Default = 5.0
 
-**--initial-mass-power** |br|
-Single power law power to generate primary mass using ``POWERLAW`` IMF. |br|
+**--initial-mass-function-power** |br|
+The power to use when using the ``POWERLAW`` IMF. |br|
 Default = 0.0
 
 .. _options-props-J:
@@ -580,16 +588,18 @@ Default = 0.0
 
 **--kick-magnitude-distribution** |br|
 Natal kick magnitude distribution. |br|
-Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL } |br|
+Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MAXWELLIAN, MULLERMANDEL, LOGNORMAL } |br|
 ``ZERO`` assigns kick magnitudes of 0.0. |br|
 ``FIXED`` always sets the magnitude to a fixed value based on supernova type. |br|
 ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively. |br|
 ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
-``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
-(reduced by a factor of sqrt(3) in the latter case). |br|
 Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br| 
 kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
-as well as with the ``MALTSEV2024`` remnant mass prescription. |br|
+as well as with the ``MALTSEV2024`` remnant mass prescription (e.g., if used with other remnant mass prescriptions, 
+inconsistent black hole kicks may be applied rescaled by fallback fractions). |br|
+``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
+(reduced by a factor of sqrt(3) in the latter case). |br|
+``LOGNORMAL`` applies kicks drawn from the Disberg & Mandel 2025 log-normal distribution. |br|
 Default = MULLERMANDEL
 
 **--kick-magnitude-max** |br|
@@ -621,12 +631,12 @@ Default = Random number drawn uniformly from :math:`[0.0, 1.0)`
 **--kick-magnitude-sigma-CCSN-BH** |br|
 Sigma for chosen kick magnitude distribution for black holes (:math:`km s^{−1}`). |br|
 Ignored if not needed for the chosen kick magnitude distribution. |br|
-Default = 265.0
+Default = 217.0
 
 **--kick-magnitude-sigma-CCSN-NS** |br|
 Sigma for chosen kick magnitude distribution for neutron stars (:math:`km s^{−1}`). |br|
 Ignored if not needed for the chosen kick magnitude distribution. |br|
-Default = 265.0
+Default = 217.0
 
 **--kick-magnitude-sigma-ECSN** |br|
 Sigma for chosen kick magnitude distribution for ECSN (:math:`km s^{−1}`). |br|
@@ -680,17 +690,16 @@ Default = Drawn according to specified ``--kick-direction`` distribution
 
 **--LBV-mass-loss-prescription** |br|
 Luminous blue variable mass loss prescription. |br|
-Options: { NONE, ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
-``NONE``       : No LBV winds |br|
+Options: { ZERO, HURLEY, HURLEY_ADD, BELCZYNSKI } |br|
 ``ZERO``       : No LBV winds |br|
 ``HURLEY``     : Hurley, Pols, Tout (2000) |br|
 ``HURLEY_ADD`` : ``HURLEY`` in addition to other winds |br|
 ``BELCZYNSKI`` : Belzcynski et al. 2010 |br|
 Default = HURLEY_ADD |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--log-classes** |br|
 Logging classes to be enabled (vector). |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
 Default = `All debug classes enabled (e.g. no filtering)`
 
 **--logfile-common-envelopes** |br|
@@ -706,12 +715,12 @@ Filename for logfile record definitions file. |br|
 Default = ’’ (None)
 
 **--logfile-detailed-output** |br|
-Filename for the Detailed Output logfile. |br|
+Filename for the BSE/SSE Detailed Output logfile. |br|
 Default = ’SSE_Detailed_Output’ for SSE mode; ’BSE_Detailed_Output’ for BSE mode |br|
 
 **--logfile-detailed-output-record-types** |br|
-Enabled record types for the Detailed Output logfile. |br|
-Default = -1 (all record types) |br|
+Enabled record types for the BSE/SSE Detailed Output logfile. |br|
+Default = 25 (record types 1, 4, and 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)) |br|
 
 **--logfile-double-compact-objects** |br|
 Filename for the Double Compact Objects logfile (BSE mode). |br|
@@ -730,8 +739,8 @@ Filename for the Pulsar Evolution logfile (BSE mode). |br|
 Default = ’BSE_Pulsar_Evolution’
 
 **--logfile-pulsar-evolution-record-types** |br|
-Enabled record types for the Pulsar Evolution logfile (BSE mode). |br|
-Default = -1 (all record types) |br|
+Enabled record types for the BSE/SSE Pulsar Evolution logfile. |br|
+Default = 4 (record types 3 ((Pulsar) TIMESTEP_COMPLETED)) |br|
 
 **--logfile-rlof-parameters** |br|
 Filename for the RLOF Printing logfile (BSE mode). |br|
@@ -752,6 +761,14 @@ Default = -1 (all record types) |br|
 **--logfile-switch-log** |br|
 Filename for the Switch Log logfile. |br|
 Default = ’SSE_Switch_Log’ for SSE mode; ’BSE_Switch_Log’ for BSE mode |br|
+
+**--logfile-system-snapshot-log** |br|
+Filename for the System Snapshot logfile. |br|
+Default = ’SSE_System_Snapshot_Log’ for SSE mode; ’BSE_System_Snapshot_Log’ for BSE mode |br|
+
+**--logfile-system-snapshot-log-record-types** |br|
+Enabled record types for the System Snapshot logfile. |br|
+Default = -1 (all record types) |br|
 
 **--logfile-system-parameters** |br|
 Filename for the System Parameters logfile (BSE mode). |br|
@@ -797,12 +814,25 @@ Default = 4.2
 
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
-Options: {ZERO, MANDEL, SHIKAUCHI} |br|
-``ZERO``      : No core mass treatment, set to zero |br|
-``MANDEL``    : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star
- with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
-``SHIKAUCHI`` : Core mass according to Shikauchi et al. (2024) |br|
-Default = MANDEL |br|
+Options: {HURLEY, MANDEL, BRCEK} |br|
+``HURLEY`` : Treatment from Hurley et al. (2000), in which MS stars do not have a distinct core and core evolution is not tracked |br|
+``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
+``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
+Default = MANDEL
+
+**--maltsev-fallback** |br|
+Fixed fallback fraction when using MALTSEV2024 remnant mass prescription (must be between 0 and 1). |br|
+A value of 0.0 means that fallback BHs get no fallback, only the mass of the proto-NS remnant (and will get flagged as NSs). |br|
+A value of 1.0 means that fallback BHs get total fallback, taking the mass of the progenitor up to and including the He core (but not the H envelope). |br|
+Default = 0.5
+
+**--maltsev-mode** |br|
+Choice of which variant for the MALTSEV remnant mass prescription. Variants pertain to the treatment of extrapolation at low metallicities, and are described in detail in Willcox+ 2025. |br|
+Options: {OPTIMISTIC, BALANCED, PESSIMISTIC} |br|
+``OPTIMISTIC``  : Compactness-peak BHs formed from the lowest CO-mass progenitors for a given metallicity.                               |br|
+``PESSIMISTIC`` : Compactness-peak BHs only formed from the highest CO-mass progenitors for a given metallicity.                         |br|
+``BALANCED``    : Compactness-peak BHs formed from CO-mass progenitors with masses between the two previous extremes for a given metallicity. |br|
+Default = BALANCED
 
 **--mass-change-fraction** |br|
 Approximate desired fractional change in stellar mass on phase when setting SSE and BSE timesteps (applied before ``--timestep--multiplier``). |br|
@@ -812,14 +842,26 @@ Default = 0.0
 
 **--mass-loss-prescription** |br|
 Mass loss prescription. |br|
-Options: { ZERO, NONE, HURLEY, BELCZYNSKI2010, MERRITT2024 } |br|
-``ZERO/NONE``     : No wind mass loss |br|
+Options: { ZERO, HURLEY, BELCZYNSKI2010, MERRITT2025 } |br|
+``ZERO``          : No wind mass loss |br|
 ``HURLEY``        : Mass loss according to Hurley (2000) |br|
 ``BELCZYNSKI2010``: Mass loss as per Belczynski (2010), and the default prior to 2023 |br|
-``MERRITT2024``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
-Default = MERRITT2024 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
-
+``MERRITT2025``   : Flexible mass loss with phase specific options: (OB, RSG, WR, VMS) |br|
+Default = MERRITT2025 |br|
+|br|
+Note that setting this option to ``ZERO`` can have unexpected consequences, e.g., TPAGB stars that are prevented from losing
+mass cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is
+not recommended for production. It is better to use specific wind prescription controls, such as: |br|
+|br|
+``--cool-wind-mass-loss-multiplier`` |br|
+``--overall-wind-mass-loss-multiplier`` |br|
+``--wolf-rayet-multiplier`` |br|
+``--luminous-blue-variable-multiplier`` |br|
+``--LBV-mass-loss-prescription`` |br|
+``--OB-mass-loss-prescription`` |br|
+``--RSG-mass-loss-prescription`` |br|
+``--VMS-mass-loss-prescription`` |br|
+``--WR-mass-loss-prescription`` |br|
 
 **--mass-ratio [ -q ]** |br|
 Mass ratio :math:`\frac{m2}{m1}` used to determine secondary mass if not specified via ``--initial-mass-2``. |br|
@@ -847,12 +889,12 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--mass-transfer-accretion-efficiency-prescription** |br|
 Mass transfer accretion efficiency prescription. |br|
-Options: { THERMAL, FIXED } |br|
+Options: { THERMAL, FIXED, HAMSTARS } |br|
 Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, MACLEOD_LINEAR, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, KLENCKI_LINEAR, MACLEOD_LINEAR, ARBITRARY } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -865,14 +907,14 @@ Specific angular momentum with which the non-accreted system leaves the system. 
 Used when ``--mass-transfer-angular-momentum-loss-prescription = ARBITRARY``, ignored otherwise. |br|
 Default = 1.0
 
-**--mass-transfer-jloss-macleod-linear-fraction-degen** |br|
+**--mass-transfer-jloss-linear-fraction-degen** |br|
 Specific angular momentum interpolation fraction for degenerate accretors, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
-Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = KLENCKI_LINEAR`` or ``MACLEOD_LINEAR``, ignored otherwise. |br|
 Default = 0.5
 
-**--mass-transfer-jloss-macleod-linear-fraction-non-degen** |br|
+**--mass-transfer-jloss-linear-fraction-non-degen** |br|
 Specific angular momentum interpolation fraction for non-degenerate accretors, linear between 0 and 1 corresponding to the accretor and L2 point. |br|
-Used when ``--mass-transfer-angular-momentum-loss-prescription = MACLEOD_LINEAR``, ignored otherwise. |br|
+Used when ``--mass-transfer-angular-momentum-loss-prescription = KLENCKI_LINEAR`` or ``MACLEOD_LINEAR``, ignored otherwise. |br|
 Default = 0.5
 
 **--mass-transfer-rejuvenation-prescription** |br|
@@ -938,9 +980,9 @@ Default = 0.03
 Minimum metallicity to generate. |br|
 Default = 0.0001
 
-**--minimum-secondary-mass** |br|
-Minimum mass of secondary to generate (:math:`M_\odot`). |br|
-Defaults to 0.1 if ``--initial-mass-2`` is specified, otherwise value of ``--initial-mass-min``.
+**--minimum-sampled-secondary-mass** |br|
+Minimum mass value that can be sampled from the IMF when sampling the mass of the secondary star (:math:`M_\odot`). |br|
+Default = 0.1
 
 **--mode** |br|
 The mode of evolution. |br|
@@ -953,11 +995,15 @@ Default = 200.0
 
 **--muller-mandel-kick-multiplier-NS** |br|
 Scaling prefactor for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
-Default = 520.0
+Default = 630.0
 
-**--muller-mandel-sigma-kick** |br|
-Scatter width for NS and BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
-Default = 0.3
+**--muller-mandel-sigma-kick-BH** |br|
+Scatter width for BH kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
+Default = 0.45
+
+**--muller-mandel-sigma-kick-NS** |br|
+Scatter width for NS kicks when using the `MULLERMANDEL` kick magnitude distribution |br|
+Default = 0.45
 
 .. _options-props-N:
 
@@ -977,6 +1023,14 @@ Default = FIXED_MASS
 Amount of mass lost in neutrinos during BH formation (either as fraction or in solar masses, depending on the value of ``--neutrino-mass-loss-bh-formation``). |br|
 Default = 0.1
 
+**--neutron-star-accretion-in-ce** |br|
+Assumption about neutron star accretion in CE. |br|
+ZERO indicates no accretion onto NS in CE. |br|
+DISK indicates a RLOF like disk accretion onto NS at Alfven radius. |br|
+SURFACE indicates mass is directly accreted onto the surface of the NS. |br|
+Options: { ZERO, DISK, SURFACE } |br|
+Default = ZERO
+
 **--neutron-star-equation-of-state** |br|
 Neutron star equation of state. |br|
 Options: { SSE, ARP3 } |br|
@@ -984,11 +1038,13 @@ Default = SSE
 
 **--notes** |br|
 Annotation strings (vector). |br|
-Default = ""
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = "" for each annotation
 
 **--notes-hdrs** |br|
 Annotations header strings (vector). |br|
-Default = `No annotations`
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+Default = `No annotation headers (no annotations)`
 
 **--number-of-systems [ -n ]** |br|
 The number of systems to simulate. |br|
@@ -1015,10 +1071,9 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--OB-mass-loss-prescription** |br|
 Main sequence mass loss prescription. |br|
-Options: { NONE, ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
-NONE/ZERO turns off mass loss for main sequence stars.|br|
+Options: { ZERO, VINK2001, VINK2021, BJORKLUND2022, KRTICKA2018 } |br|
+ZERO turns off mass loss for main sequence stars.|br|
 Default = VINK2021 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 **--orbital-period** |br|
 Initial orbital period for a binary star when evolving in BSE mode (days). |br|
@@ -1090,6 +1145,7 @@ Default = FALSE
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
+<<<<<<< HEAD
 Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL, FLUX_CONSERVATION } |br|
 ``ZERO`` initialises all fields to zero. |br|
 ``FLATINLOG`` uses a log uniform distribution between `--pulsar-birth-magnetic-field-distribution-min` and `--pulsar-birth-magnetic-field-distribution-max`. |br|
@@ -1097,6 +1153,10 @@ Options: { ZERO, FLATINLOG, UNIFORM, LOGNORMAL, FLUX_CONSERVATION } |br|
 ``LOGNORMAL`` uses the log normal distribution from Faucher-Giguere & Kaspi 2006. |br|
 ``FLUX_CONSERVATION`` assumes conservation of magnetic flux to calculate the pulsar magnetic field. |br|
 Default = ZERO
+=======
+Options: { FLATINLOG, UNIFORM, LOGNORMAL } |br|
+Default = LOGNORMAL
+>>>>>>> dev
 
 **--pulsar-birth-magnetic-field-distribution-max** |br|
 Maximum (:math:`log_{10}`) pulsar birth magnetic field. |br|
@@ -1106,13 +1166,18 @@ Default = 13.0
 Minimum (:math:`log_{10}`) pulsar birth magnetic field. |br|
 Default = 11.0
 
+**--pulsar-birth-magnetic-field-distribution-mean** |br|
+Mean of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
+Default = 12.65
+
+**--pulsar-birth-magnetic-field-distribution-sigma** |br|
+Sigma of lognormal (:math:`log_{10}`) pulsar birth magnetic field. |br|
+Default = 0.55
+
 **--pulsar-birth-spin-period-distribution** |br|
 Pulsar birth spin period distribution. |br|
-Options: { ZERO, UNIFORM, NORMAL } |br|
-``ZERO`` initialises all spins to zero. |br|
-``UNIFORM`` uses a uniform distribution between `--pulsar-birth-spin-period-distribution-min` and `--pulsar-birth-spin-period-distribution-max` |br|
-``NORMAL`` uses a normal distribution with parameters from Faucher-Giguere and Kaspi (2006) |br|
-Default = ZERO
+Options: { UNIFORM, NORMAL } |br|
+Default = NORMAL
 
 **--pulsar-birth-spin-period-distribution-max** |br|
 Maximum pulsar birth spin period (ms). |br|
@@ -1121,6 +1186,14 @@ Default = 100.0
 **--pulsar-birth-spin-period-distribution-min** |br|
 Minimum pulsar birth spin period (ms). |br|
 Default = 10.0
+
+**--pulsar-birth-spin-period-distribution-mean** |br|
+Mean of normal pulsar birth spin period (ms) distribution. |br|
+Default = 75.0
+
+**--pulsar-birth-spin-period-distribution-sigma** |br|
+Sigma of normal pulsar birth spin period (ms) distribution. |br|
+Default = 25.0
 
 **--pulsar-magnetic-field-decay-massscale** |br|
 Mass scale on which magnetic field decays during accretion (:math:`M_\odot`). |br|
@@ -1173,6 +1246,14 @@ Default = 0
 Remnant mass prescription. |br|
 Options: { HURLEY2000, BELCZYNSKI2002, FRYER2012, FRYER2022, MULLER2016, MULLERMANDEL, SCHNEIDER2020, SCHNEIDER2020ALT, MALTSEV2024 } |br|
 Default = MULLERMANDEL
+
+**--response-to-spin-up** |br|
+Response of the star to super-critical accretion-induced spin-up |br|
+Options: { TRANSFER_TO_ORBIT, KEPLERIAN_LIMIT, NO_LIMIT} |br|
+KEPLERIAN_LIMIT forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation |br|
+Under TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit |br|
+NO_LIMIT allows arbitrary super-critical accretion, to match legacy choices |br|
+Default = TRANSFER_TO_ORBIT
 
 **--retain-core-mass-during-caseA-mass-transfer** |br|
 If TRUE, preserve a larger donor core mass following case A mass transfer. |br|
@@ -1242,10 +1323,9 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--RSG-mass-loss-prescription** |br|
 Red supergiant mass loss prescription. |br|
-Options: { NONE, ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
-NONE/ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
+Options: { ZERO, VINKSABHAHIT2023, BEASOR2020, DECIN2023, YANG2023, KEE2021, NJ90 } |br|
+ZERO turns off mass loss for giant stars (stellar types CHeB, FGB, EAGB, TPAGB) below the ``RSG_MAXIMUM_TEMP``. |br|
 Default = DECIN2023 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-S:
 
@@ -1254,7 +1334,7 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 **--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
 Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
 Transition from OB to WR mass loss towards the end of the main sequence.
-Default = False
+Default = TRUE
 
 **--scale-terminal-wind-velocity-with-metallicity-power** |br|
 Scale terminal wind velocity with metallicity to this power
@@ -1302,16 +1382,36 @@ default = ZERO
 Enables printing of the Switch Log logfile. |br|
 Default = FALSE
 
+**--system-snapshot-age-thresholds** |br|
+Age thresholds for the System Snapshot logfile. This is a vector option: one or more age threshold values may be specified. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br| |br|
+In SSE mode, writing to the System Snapshot logfile is triggered when the age of the star exceeds any of the age thresholds set.
+A record is written to the System Snapshot logfile on the first timestep at which the age threshold is exceeded. |br| |br|
+In BSE mode, writing to the System Snapshot logfile is triggered when the age of either of the constituent stars exceeds any of the age thresholds set.
+A record is written to the System Snapshot logfile on the first timestep at which the age threshold is exceeded.  It is possible for two records to be
+logged for each age threshold if the constiuent stars exceed the threshold on different timesteps. |br| |br|
+Note that the age of stars may be reduced for various reasons (phase change, rejuvenation, winds/mass transfer, etc.), and if the age of a star drops below an
+age threshold, another record will be logged if the star then ages beyond the same threshold (so several records might be logged for the same star crossing the
+same threshold if the age of the star oscillates around the threshold).
+
+**--system-snapshot-time-thresholds** |br|
+Time thresholds for the System Snapshot logfile. This is a vector option: one or more time threshold values may be specified. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br| |br|
+In SSE and BSE mode, writing to the System Snapshot logfile is triggered when the simulation time exceeds any of the time thresholds set.
+A record is written to the System Snapshot logfile on the first timestep at which the simulation time threshold is exceeded.
+
+
 .. _options-props-T:
 
 :ref:`Back to Top <options-props-top>`
 
 **--tides-prescription** |br|
 Prescription for tidal evolution of the binary. |br|
-Options: { NONE, PERFECT, KAPIL2024 } |br|
+Options: { NONE, PERFECT, KAPIL2026, ZAHN1977 } |br|
 ``NONE`` disables tidal interactions. |br|
 ``PERFECT`` evolves the binary assuming instantaneous synchronization and circularization. |br|
-``KAPIL2024`` uses the prescription from Kapil+ (2024). When using this prescription, set ``--chemically-homogeneous-evolution-mode NONE`` to avoid conflicts with stellar spins. |br|
+``KAPIL2026`` uses the prescription from Kapil+ (2026). |br|
+``ZAHN1977`` is based on Zahn (1977) and Hurley+ (2002). |br|
 Default = NONE
 
 **--timestep-filename** |br|
@@ -1319,29 +1419,41 @@ User-defined timesteps filename. (See :doc:`Timestep files <../timestep-files>`)
 Default = ’’ (None)
 
 **--timestep-multiplier** |br|
-Multiplicative factor for timestep duration. |br|
-Default = 1.0
+Multiplicative factor for timestep duration.  |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` 
+and ``--mass-change-fraction``, and will therefore override expected behaviour.  |br|
+This option can be used in conjunction with ``--timestep-multipliers``, in which case this multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
+**--timestep-multipliers** |br|
+Phase-dependent multiplicative factors for timestep duration. This is a vector option: one or more timestep multiplier values may be specified. |br|
+See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
+A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the 
+option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+:doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
+|br|
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 
+``--mass-change-fraction``, and will therefore override expected behaviour. |br|
+This option can be used in conjunction with ``--timestep-multiplier``, in which case that multiplier, and the appropriate
+phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
+Default = 1.0 for each phase (stellar type) |br| |br|
+This option is primarily intended for debugging/testing of convergence issues rather than for production runs. |br|
+
 
 .. _options-props-U:
 
 :ref:`Back to Top <options-props-top>`
 
-**--use-mass-loss** |br|
-Enable mass loss through winds. |br|
-Default = TRUE
-Note that setting this option to FALSE can have unexpected consequences, e.g., TPAGB stars that are prevented from losing mass 
-cannot become white dwarfs, so will become massless remnants.  This is a useful option for testing, but this setting is not recommended
-for production. It is better to use specific wind prescription controls, such as: |br|
-``--cool-wind-mass-loss-multiplier`` |br|
-``--LBV-mass-loss-prescription`` |br|
-``--luminous-blue-variable-multiplier`` |br|
-``--mass-loss-prescription`` |br|
-``--overall-wind-mass-loss-multiplier`` |br|
-``--wolf-rayet-multiplier`` |br|
-
 **--use-mass-transfer** |br|
 Enable mass transfer. |br|
 Default = TRUE
+
+**--USSN-kicks-override-mandel-muller** |br|
+Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe. |br|
+Default = FALSE
 
 .. _options-props-V:
 
@@ -1361,11 +1473,10 @@ DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated an
 
 **--VMS-mass-loss-prescription** |br|
 Very massive main sequence mass loss prescription. |br|
-Options: { NONE, ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
+Options: { ZERO, VINK2011, SABHAHIT2023, BESTENLEHNER2020 } |br|
 Applied above the VMS_MASS_THRESHOLD (:math:`100 M_\odot`) by default. |br|
-NONE/ZERO turns off VMS mass loss. |br|
+ZERO turns off VMS mass loss. |br|
 Default = SABHAHIT2023 |br|
-DEPRECATION NOTICE: the value of ``NONE`` for this option has been deprecated and will soon be removed. Please use ``ZERO`` in future.
 
 .. _options-props-W:
 
@@ -1384,7 +1495,7 @@ DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Pl
 
 **--WR-mass-loss-prescription** |br|
 Wolf-Rayet mass loss prescription. |br|
-Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019 } |br|
+Options: { BELCZYNSKI2010, SANDERVINK2023, SHENAR2019, ZERO } |br|
 Default = SANDERVINK2023
 
 .. _options-props-X:
@@ -1423,9 +1534,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Initial conditions**
 
---initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-min, --initial-mass-max, --initial-mass-power
+--initial-mass-function, --initial-mass, --initial-mass-1, --initial-mass-2, --initial-mass-function-min, --initial-mass-function-max, --initial-mass-function-power
 
---mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-secondary-mass
+--mass-ratio-distribution, --mass-ratio, --mass-ratio-min, --mass-ratio-max, --minimum-sampled-secondary-mass
 
 --eccentricity-distribution, --eccentricity, --eccentricity-min, --eccentricity-max
 
@@ -1442,9 +1553,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Stellar evolution and winds**
 
---use-mass-loss, --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
+--check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
 --luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
---expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold,
+--expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
 --chemically-homogeneous-evolution, --chemically-homogeneous-evolution-mode
@@ -1455,18 +1566,20 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---case-bb-stability-prescription, --convective-envelope-temperature-threshold, --critical-mass-ratio-prescription,
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
+--convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
 --critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor, 
 --critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
 --critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
---mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-macleod-linear-fraction-degen, --mass-transfer-jloss-macleod-linear-fraction-non-degen, 
+--mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-linear-fraction-degen, --mass-transfer-jloss-linear-fraction-non-degen, 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
 --common-envelope-lambda-prescription, --common-envelope-lambda, 
@@ -1494,8 +1607,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
---muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick
-
+--muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller, 
 --kick-direction, --kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
 :ref:`Back to Top <options-props-top>`
@@ -1508,19 +1620,21 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, 
 --include-WD-binaries-as-DCO,
 --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
---radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename
+--radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename,
+--system-snapshot-age-thresholds, --system-snapshot-time-thresholds
 
 --fp-error-mode
 
 --grid, --grid-start-line, --grid-lines-to-process
 
---add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --detailed-output, --enable-warnings, --errors-to-file, 
+--add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --enable-warnings, --errors-to-file, 
 --help, --notes, --notes-hdrs, --population-data-printing, --print-bool-as-string, --quiet, --version
 
 --log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-common-envelopes-record-types, 
 --logfile-detailed-output, --logfile-detailed-output-record-types, --logfile-double-compact-objects, --logfile-double-compact-objects-record-types, 
 --logfile-pulsar-evolution, --logfile-pulsar-evolution-record-type, --logfile-rlof-parameters, --logfile-rlof-parameters-record-types, --logfile-supernovae, 
---logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --output-container, 
+--logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --logfile-system-snapshot-log,
+--logfile-system-snapshot-log-record-types, --output-container, 
 --output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
 
 --create-YAML-file, YAML-template

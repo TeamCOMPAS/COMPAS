@@ -1,10 +1,10 @@
 import numpy as np
 import os
-from typing import Dict
+from typing import Dict, List
 import h5py as h5
 from tqdm.auto import trange
 
-from .bbh_population import BBHPopulation
+from .binary_population import BinaryPopulation
 from .cosmological_model import CosmologicalModel
 from .snr_grid import SNRGrid
 from .gpu_utils import xp
@@ -23,8 +23,10 @@ class DetectionMatrix:
             chirp_mass_bins: np.array,
             redshift_bins: np.array,
             n_systems: int,
-            n_bbh: int,
+            n_dcos: int,
             outdir: str = None,
+            sens: str = 'O1',
+            dcos_included: List[str] = ["BBH"],
             bootstrapped_rate_matrices: np.ndarray = None
     ):
         self.compas_path = compas_path
@@ -35,7 +37,9 @@ class DetectionMatrix:
         self.outdir = outdir
         self.bootstrapped_rate_matrices = bootstrapped_rate_matrices
         self.n_systems = n_systems
-        self.n_bbh = n_bbh
+        self.n_dcos = n_dcos
+        self.dcos_included = dcos_included
+        self.sens = sens
 
     @property
     def outdir(self):
@@ -60,17 +64,19 @@ class DetectionMatrix:
             outdir: str = None,
             save_plots: bool = False,
             n_bootstrapped_matrices: int = 0,
+            sens: str = 'O1',
+            dcos_included: List[str] = ["BBH"],
     ) -> "DetectionMatrix":
 
-        bbh_population = BBHPopulation.from_compas_h5(compas_path)
+        dco_population = BinaryPopulation.from_compas_h5(compas_path, dcos_included=dcos_included)
         cosmological_model = CosmologicalModel(**cosmological_parameters)
-        snr_grid = SNRGrid()
+        snr_grid = SNRGrid(sensitivity=sens)
 
-        sorted_idx = xp.argsort(bbh_population.chirp_mass)
+        sorted_idx = xp.argsort(dco_population.chirp_mass)
         redshift = cosmological_model.redshift
 
         if chirp_mass_bins is None:
-            chirp_mass_bins = bbh_population.chirp_mass[sorted_idx]
+            chirp_mass_bins = dco_population.chirp_mass[sorted_idx]
         elif isinstance(chirp_mass_bins, int):
             chirp_mass_bins = xp.linspace(3, 40, chirp_mass_bins)
 
@@ -80,7 +86,7 @@ class DetectionMatrix:
             redshift_bins = xp.linspace(0, max_detectable_redshift, redshift_bins)
 
         rate_matrix = compute_binned_detection_rates(
-            bbh_population, cosmological_model, snr_grid,
+            dco_population, cosmological_model, snr_grid,
             max_detectable_redshift=max_detectable_redshift,
             chirp_mass_bins=chirp_mass_bins,
             redshift_bins=redshift_bins,
@@ -93,13 +99,13 @@ class DetectionMatrix:
             chirp_mass_bins=chirp_mass_bins,
             redshift_bins=redshift_bins,
             outdir=outdir,
-            n_systems=bbh_population.n_systems,
-            n_bbh=bbh_population.n_bbh,
+            n_systems=dco_population.n_systems,
+            n_dcos=dco_population.n_dcos,
         )
 
         if n_bootstrapped_matrices > 0:
             mycls.compute_bootstrapped_rate_matrices(
-                bbh_population, cosmological_model, snr_grid,
+                dco_population, cosmological_model, snr_grid,
                 n_bootstrapped_matrices
             )
 
@@ -107,7 +113,7 @@ class DetectionMatrix:
             mycls.plot().savefig(f"{outdir}/plot_{mycls.label}.png")
             cosmological_model.plot().savefig(f"{outdir}/plot_{cosmological_model.label}.png")
             snr_grid.plot().savefig(f"{outdir}/plot_{snr_grid.label}.png")
-            bbh_population.plot().savefig(f"{outdir}/plot_{bbh_population.label}.png")
+            dco_population.plot().savefig(f"{outdir}/plot_{dco_population.label}.png")
         return mycls
 
     @classmethod
@@ -129,7 +135,7 @@ class DetectionMatrix:
             chirp_mass_bins=self.chirp_mass_bins,
             redshift_bins=self.redshift_bins,
             n_systems=self.n_systems,
-            n_bbh=self.n_bbh,
+            n_dcos=self.n_dcos,
         )
 
     @property
@@ -143,7 +149,7 @@ class DetectionMatrix:
 
     def plot(self):
         fig = plot_detection_rate_matrix(self.rate_matrix, self.chirp_mass_bins, self.redshift_bins)
-        title = f"N BBH / N systems: {self.n_bbh:,}/{self.n_systems:,}"
+        title = f"N DCOs / N systems: {self.n_dcos:,}/{self.n_systems:,}"
         fig.suptitle(title)
         return fig
 
@@ -188,14 +194,14 @@ class DetectionMatrix:
         self.redshift_bins = z_bins
 
     def compute_bootstrapped_rate_matrices(
-            self, bbh_population: BBHPopulation, cosmological_model: CosmologicalModel,
+            self, dco_population: BinaryPopulation, cosmological_model: CosmologicalModel,
             snr_grid: SNRGrid, n_bootstraps=10):
         """Computes bootstrapped rate matrices"""
         self.bootstrapped_rate_matrices = np.zeros((n_bootstraps, *self.rate_matrix.shape))
         for i in trange(n_bootstraps, desc="Bootstrapping rate matrices"):
-            boostrap_bbh = bbh_population.bootstrap_population()
+            boostrap_bbh = dco_population.bootstrap_population()
             self.bootstrapped_rate_matrices[i] = compute_binned_detection_rates(
-                bbh_population=boostrap_bbh, cosmological_model=cosmological_model, snr_grid=snr_grid,
+                dco_population=boostrap_bbh, cosmological_model=cosmological_model, snr_grid=snr_grid,
                 chirp_mass_bins=self.chirp_mass_bins,
                 redshift_bins=self.redshift_bins,
                 verbose=False

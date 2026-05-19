@@ -16,6 +16,7 @@
 #include <typeinfo>
 #include <typeindex>
 #include <iterator>
+#include <limits>
 
 #include "constants.h"
 
@@ -34,8 +35,8 @@
 
 namespace po = boost::program_options;
 
-
-const std::string NOT_PROVIDED = std::to_string(255);
+const unsigned char NOT_PROVIDED_CHAR = 128;
+const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 
 
 // OPT_VALUE macro
@@ -44,14 +45,14 @@ const std::string NOT_PROVIDED = std::to_string(255);
 // member variable is set to a value depending upon the value of the corresponding
 // option entered by the user.
 // 
-// Since users now specify grid line values using options, getter functions need to
+// Since users specify grid line values using options, getter functions need to
 // know which option value to return - the one specified on the commandline (if in
 // fact the option was specified on the commandline), or the one specified on the
 // grid line (if in fact the option was specified on the grid line).
 //
 // The general idea is to use the value specified by the user on the grid line (if
-// the use actually specified the option on the grid line) in preference to the
-// value specified by the the use on the commandline (if the use actually specified
+// the user actually specified the option on the grid line) in preference to the
+// value specified by the user on the commandline (if the user actually specified
 // the option on the commandline).  That's what the OPT_VALUE macro defined below
 // does - if the grid line exists (i.e. if a grid file is being used), the macro will
 // check whether the user specified the option on the grid line, and if they did return
@@ -69,12 +70,18 @@ const std::string NOT_PROVIDED = std::to_string(255);
 //       grid line
 //
 //    2. if 'fallback' is 'true':
-//           the value specified on the commandline IFF the user did not specify the 
-//           option on the grid line but did specify the option on the commandline
+//           the value specified on the commandline if the user did not specify the 
+//           option on the grid line (regardless of whether they specified the option
+//           on the commandline).  In this case, if the user did not speify a value on
+//           the commandline, the commandline value is set according to the default
+//           behaviour for the option, and the grid line value is set from that.  Note
+//           that for options whose default behaviours is to draw a random number, this
+//           will only be done once for the commandline value, and each grid line that
+//           falls back to the commandline will take the same value as the commandline.
+//           Consider using 'fallback' = 'false' for those cases.
+//
 //       else if 'fallback' is 'false':
 //           the default value for the option
-//
-//    3. the default value for the option
 //
 // For most options we will use
 //
@@ -185,6 +192,9 @@ private:
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that
     //       option is shown the first time in a COMPAS run (a deprecation notice for a deprecated option
     //       is only shown once per COMPAS run).
+    //     - datestring indicating the date the option string was deprecated.  Deprecated option strings
+    //       should be manually removed from the "deprecatedOptionStrings" vector 12 months (too long?)
+    //       after the deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
     // 
     //
     // "deprecatedOptionValues" vector
@@ -209,41 +219,45 @@ private:
     //       be "false" in the vector, and will be set true if and when the deprecation notice for that option
     //       value is shown the first time in a COMPAS run (a deprecation notice for a deprecated option value
     //       is only shown once per COMPAS run).
+    //     - datestring indicating the date the option string was deprecated.  Deprecated option values should
+    //       be manually removed from the "deprecatedOptionValues" vector 12 months (too long?) after the
+    //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
-    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionStrings = {
-        { "black-hole-kicks",                            "black-hole-kicks-mode",                           false },
-        { "chemically-homogeneous-evolution",            "chemically-homogeneous-evolution-mode",           false },
-        { "kick-direction",                              "kick-direction-distribution",                     false },
-        { "luminous-blue-variable-prescription",         "LBV-mass-loss-prescription",                      false },
-        { "mass-transfer",                               "use-mass-transfer",                               false },
-        { "mass-transfer-thermal-limit-accretor",        "mass-transfer-thermal-limit-accretor-multiplier", false },
-        { "OB-mass-loss",                                "OB-mass-loss-prescription",                       false },
-        { "retain-core-mass-during-caseA-mass-transfer", "",                                                false },
-        { "RSG-mass-loss",                               "RSG-mass-loss-prescription",                      false },
-        { "VMS-mass-loss",                               "VMS-mass-loss-prescription",                      false },
-        { "WR-mass-loss",                                "WR-mass-loss-prescription",                       false }
+    std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
+        { "retain-core-mass-during-caseA-mass-transfer",           "",                                                  false, "20250116" },
+        { "minimum-secondary-mass",                                "minimum-sampled-secondary-mass",                    false, "20250808" },
+        { "initial-mass-max",                                      "initial-mass-function-max",                         false, "20250808" },
+        { "initial-mass-min",                                      "initial-mass-function-min",                         false, "20250808" },
+        { "initial-mass-power",                                    "initial-mass-function-power",                       false, "20250808" },
+        { "use-mass-loss",                                         "mass-loss-prescription",                            false, "20250809" },
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",         false, "20250819" }, 
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen",     false, "20250819" },   
+        { "scale-mass-loss-with-surface-helium-abundance",         "scale-CHE-mass-loss-with-surface-helium-abundance", false, "20251209" },    
     };
 
-    std::vector<std::tuple<std::string, std::string, std::string, bool>> deprecatedOptionValues = {
-        { "critical-mass-ratio-prescription",    "GE20", "GE", false },
-        { "critical-mass-ratio-prescription",    "GE20_IC", "GE_IC", false },
-        { "LBV-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "luminous-blue-variable-prescription", "NONE", "ZERO", false },
-        { "pulsational-pair-instability-prescription", "COMPAS", "WOOSLEY", false},
-        { "OB-mass-loss",                        "NONE", "ZERO", false },
-        { "OB-mass-loss-prescription",           "NONE", "ZERO", false },
-        { "RSG-mass-loss",                       "NONE", "ZERO", false },
-        { "RSG-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "VMS-mass-loss",                       "NONE", "ZERO", false },
-        { "VMS-mass-loss-prescription",          "NONE", "ZERO", false },
-        { "WR-mass-loss",                        "NONE", "ZERO", false },
-        { "WR-mass-loss-prescription",           "NONE", "ZERO", false }
+    std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
+        { "critical-mass-ratio-prescription",          "GE20",        "GE",          false, "20241118" },
+        { "critical-mass-ratio-prescription",          "GE20_IC",     "GE_IC",       false, "20241118" },
+        { "pulsational-pair-instability-prescription", "COMPAS",      "WOOSLEY",     false, "20250208" },
+	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
+        { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
+        { "tides-prescription",                        "KAPIL2025",   "KAPIL2026",   false, "20260130" },
+        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" },
+        { "use-mass-loss",                             "TRUE",        "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "ON",          "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "YES",         "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "1",           "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "FALSE",       "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "OFF",         "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "NO",          "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "0",           "ZERO",        true,  "20250809" },
+        { "main-sequence-core-mass-prescription",      "ZERO",        "HURLEY",      false, "20251024" }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
-    std::vector<std::tuple<std::string, std::string, bool>> deprecatedOptionProperties = {
-        { "black_hole_kicks", "black_hole_kicks_mode",      false },
-        { "lbv_prescription", "LBV-mass-loss-prescription", false }
+    std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionProperties = {
+        { "black_hole_kicks", "black_hole_kicks_mode",      false, "20241030" },
+        { "lbv_prescription", "LBV_mass_loss_prescription", false, "20241030" }
     };
 
 
@@ -282,18 +296,34 @@ private:
     // complain (boost will only complain if the option/value pair is malformed or unknown,
     // which would almost certainly be the case - but it isn't guaranteed to be). 
 
-    typedef std::tuple<std::string, bool, std::string> SHORTHAND_ENTRY;         // option name, default allowed (i.e. can be omitted), default string
+    
+    union ShorthandDefault_t {
+        char*  strVal = nullptr;
+        double dblVal;
+        ShorthandDefault_t() {}
+        ShorthandDefault_t(const std::string v) { strVal = new char[v.length() + 1]; strncpy(strVal, v.c_str(), v.length()); strVal[v.length()] = '\0'; }
+        ShorthandDefault_t(const double v) { dblVal = v; }
+        ~ShorthandDefault_t() {}
+    };
+
+    typedef std::tuple<std::string, bool, TYPENAME, ShorthandDefault_t> SHORTHAND_ENTRY;                                        // option name, default allowed (i.e. can be omitted), default string
+
     std::vector<SHORTHAND_ENTRY> m_ShorthandAllowed = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
-        // option name          default allowed     default string
-        { "debug-classes",      false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+        // option name                       default allowed   default value type   default value
+        { "debug-classes",                   false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many classes to specify
 
-        { "log-classes",        false,              "" },                       // don't allow defaults - we don't know how many classes to specify
+        { "log-classes",                     false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many classes to specify
 
-        { "notes",              true,               "" },                       // allow defaults - number of notes is 0..#notes-hdrs
-        { "notes-hdrs",         false,              "" }                        // don't allow defaults - we don't know how many headers to specify
+        { "notes",                           true,             TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // allow defaults - number of notes is 0..#notes-hdrs
+        { "notes-hdrs",                      false,            TYPENAME::STRING,    ShorthandDefault_t(std::string()) }, // don't allow defaults - we don't know how many headers to specify
+
+        { "timestep-multipliers",            true,             TYPENAME::DOUBLE,    ShorthandDefault_t(1.0) },           // allow defaults - number of multipliers is the number of stellar types
+
+        { "system-snapshot-age-thresholds",  false,            TYPENAME::DOUBLE,    ShorthandDefault_t(-1.0) },         // don't allow defaults - no need
+        { "system-snapshot-time-thresholds", false,            TYPENAME::DOUBLE,    ShorthandDefault_t(-1.0) }          // don't allow defaults - no need
     };
 
 
@@ -310,7 +340,7 @@ private:
     // the commandline and gridfile, but in the end I decided this way was actually
     // easier, cleaner, and gives us a bit more control.
 
-    std::vector<std::string> m_GridLineExcluded = {
+    STR_VECTOR m_GridLineExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -355,6 +385,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -376,8 +408,6 @@ private:
 
         "store-input-files",
         "switch-log",
-
-        "timestep-multiplier",
 
         "version", "v",
 
@@ -417,7 +447,7 @@ private:
     // vectors is helping the user avoid duplicating stars/binaries if they specify
     // inconsistent options.
 
-    std::vector<std::string> m_SSEOnly = {
+    STR_VECTOR m_SSEOnly = {
 
         // trying to keep enties alphabetical so easier to find specific entries
 
@@ -429,7 +459,7 @@ private:
         "rotational-frequency"
     };
 
-    std::vector<std::string> m_BSEOnly = {
+    STR_VECTOR m_BSEOnly = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -452,6 +482,8 @@ private:
         "common-envelope-mass-accretion-prescription",
         "common-envelope-recombination-energy-density",
         "common-envelope-slope-kruckow",
+        "common-envelope-second-stage-beta",
+        "common-envelope-second-stage-gamma-prescription",
 
         "eccentricity", "e",
         "eccentricity-distribution",
@@ -487,6 +519,7 @@ private:
         "logfile-rlof-parameters",
         "logfile-rlof-parameters-record-types",
 
+        "maltsev-fallback",
         "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
@@ -494,15 +527,17 @@ private:
         "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
-        "mass-transfer-jloss-macleod-linear-fraction-degen",
-        "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+        "mass-transfer-jloss-linear-fraction-degen",
+        "mass-transfer-jloss-linear-fraction-non-degen",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor-multiplier",
         "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
-        "minimum-secondary-mass",
+        "minimum-sampled-secondary-mass",
+
+        "neutron-star-accretion-in-ce",
 
         "orbital-period",
         "orbital-period-distribution",
@@ -520,7 +555,6 @@ private:
         "rocket-kick-theta-1",
         "rocket-kick-theta-2",
 
-        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -538,8 +572,7 @@ private:
     // but sets (and ranges) don't make sense for some options (things like "help",
     // "quiet", logfile names etc....)
   
-
-    std::vector<std::string> m_RangeExcluded = {
+    STR_VECTOR m_RangeExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -616,11 +649,14 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
 
         "main-sequence-core-mass-prescription",
+        "maltsev-mode",
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
@@ -669,13 +705,17 @@ private:
         "surface-magnetic-field-distribution",
 
         "switch-log",
+        "system-snapshot-age-thresholds",
+        "system-snapshot-time-thresholds",
 
         "tides-prescription",
 
         "timesteps-filename",
+        "timestep-multipliers",
 
         "use-mass-loss",
         "use-mass-transfer",
+        "USSN-kicks-override-mandel-muller",
 
         "VMW-mass-loss-prescription",
         "version", "v",
@@ -685,7 +725,7 @@ private:
         "yaml-template"
     };
     
-    std::vector<std::string> m_SetExcluded = {
+    STR_VECTOR m_SetExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
 
@@ -730,6 +770,8 @@ private:
         "logfile-supernovae",
         "logfile-supernovae-record-types",
         "logfile-switch-log",
+        "logfile-system-snapshot-log",
+        "logfile-system-snapshot-log-record-types",
         "logfile-system-parameters",
         "logfile-system-parameters-record-types",
         "logfile-type",
@@ -755,8 +797,11 @@ private:
 
         "store-input-files",
         "switch-log",
+        "system-snapshot-age-thresholds",
+        "system-snapshot-time-thresholds",
 
         "timesteps-filename",
+        "timestep-multipliers",
 
         "version", "v",
 
@@ -799,8 +844,8 @@ public:
             bool                                                m_EnableWarnings;                                               // Flag used to determine if warnings (via SHOW_WARN macros) should be displayed
             ENUM_OPT<FP_ERROR_MODE>                             m_FPErrorMode;                                                  // Specifies the mode for floating-point error handling
 
-            std::vector<std::string>                            m_Notes;                                                        // Notes contents - for user-defined annotations
-            std::vector<std::string>                            m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
+            STR_VECTOR                                          m_Notes;                                                        // Notes contents - for user-defined annotations
+            STR_VECTOR                                          m_NotesHdrs;                                                    // Notes header strings - for user-defined annotations
 
             bool                                                m_EvolveDoubleWhiteDwarfs;                                      // Whether to evolve double white dwarfs or not
             bool                                                m_EvolveMainSequenceMergers;                                    // Option to evolve binaries in which two stars merged on the main sequence
@@ -820,6 +865,9 @@ public:
             bool                                                m_Quiet;                                                        // Suppress some output
             bool                                                m_RlofPrinting;                                                 // RLOF printing
 
+            DBL_VECTOR                                          m_SystemSnapshotAgeThresholds;                                  // System age thresholds for logging to system snapshot file
+            DBL_VECTOR                                          m_SystemSnapshotTimeThresholds;                                 // Simulation time thresholds for logging to system snapshot file
+
             bool                                                m_ShortHelp;                                                    // Flag to indicate whether user wants short help ('-h', just option names) or long help ('--help', plus descriptions)
 
             bool                                                m_StoreInputFiles;                                              // Store input files in output container (default = true)
@@ -838,6 +886,7 @@ public:
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
+            DBL_VECTOR                                          m_TimestepMultipliers;                                          // Phase-dependent multipliers for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
    
             double m_MassChangeFraction;                                                                                        // Approximate goal for fractional radial change per timestep
             double m_RadialChangeFraction;                                                                                      // Approximate goal for fractional radial change per timestep
@@ -858,13 +907,17 @@ public:
             double                                              m_InitialMassFunctionMax;                                       // Maximum mass to generate in Msol
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
 
+            // Maltsev remnant mass model
+            double                                              m_MaltsevFallback;                                              // fallback fraction for Maltsev fallback black holes
+            ENUM_OPT<MALTSEV_MODE>                              m_MaltsevMode;                                                  // Maltsev remnant mass mode (which variant of the prescription)
+
             // Mass ratio
             double                                              m_MassRatio;                                                    // Mass ratio for BSE
             ENUM_OPT<MASS_RATIO_DISTRIBUTION>                   m_MassRatioDistribution;                                        // Which mass ratio distribution
             double                                              m_MassRatioDistributionMin;                                     // Minimum initial mass ratio when using a distribution
             double                                              m_MassRatioDistributionMax;                                     // Maximum initial mass ratio when using a distribution
 
-            double                                              m_MinimumMassSecondary;                                         // Minimum mass of secondary to draw (in Msol)
+            double                                              m_MinimumSampledSecondaryMass;                                  // Minimum mass of secondary to draw when sampling (in Msol)
 
             // Semi major axis
             double                                              m_SemiMajorAxis;                                                // Semi-major axis
@@ -892,11 +945,11 @@ public:
 
             // Kick options
             ENUM_OPT<KICK_MAGNITUDE_DISTRIBUTION>               m_KickMagnitudeDistribution;                                    // Which kick magnitude distribution
-            double                                              m_KickMagnitudeDistributionSigmaCCSN_NS;                        // Kick magnitude sigma in km s^-1 for neutron stars (default = "250" )
-            double                                              m_KickMagnitudeDistributionSigmaCCSN_BH;                        // Kick magnitude sigma in km s^-1 for black holes (default = "250" )
+            double                                              m_KickMagnitudeDistributionSigmaCCSN_NS;                        // Kick magnitude sigma in km s^-1 for neutron stars
+            double                                              m_KickMagnitudeDistributionSigmaCCSN_BH;                        // Kick magnitude sigma in km s^-1 for black holes
             double                                              m_KickMagnitudeDistributionMaximum;                             // Maximum kick magnitude to draw. If negative, no maximum
-	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1 (default = "0" )
-	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1 (default = "20" )
+	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1
+	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1
 	        double                                              m_KickScalingFactor;								            // Arbitrary factor for scaling kicks
 
             // Kick direction options
@@ -919,7 +972,10 @@ public:
 
             double                                              m_MullerMandelKickBH;                                           // Multiplier for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
-            double                                              m_MullerMandelSigmaKick;                                        // Scatter for kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickBH;                                      // Scatter for BH kicks per Mandel and Mueller, 2020
+            double                                              m_MullerMandelSigmaKickNS;                                      // Scatter for NS kicks per Mandel and Mueller, 2020
+            bool                                                m_USSNKicksOverrideMandelMuller;                                // Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+        
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
@@ -973,7 +1029,6 @@ public:
             std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
-            bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
             bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
 
             // Can also have options for modifying strength of winds etc here
@@ -994,6 +1049,7 @@ public:
             bool                                                m_UseMassTransfer;                                              // Whether to use mass transfer (default = true)
 	        bool                                                m_CirculariseBinaryDuringMassTransfer;						    // Whether to circularise binary when it starts (default = true)
 	        bool                                                m_AngularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
+            double                                              m_ConvectiveEnvelopeMassThreshold;                              // The mass fraction of envelope that should be convective for the envelope to be labeled convective
             double                                              m_ConvectiveEnvelopeTemperatureThreshold;                       // The boundary between convective and radiative envelopes for HG and Giant stars
         
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
@@ -1017,8 +1073,8 @@ public:
 	        ENUM_OPT<MT_THERMALLY_LIMITED_VARIATION>            m_MassTransferThermallyLimitedVariation;                        // Choose how to deal with mass transfer if it is set as thermally limited.
 
             double                                              m_MassTransferJloss;                                            // Specific angular momentum of the material leaving the system (not accreted)
-            double                                              m_MassTransferJlossMacLeodLinearFractionDegen;                  // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position 
-            double                                              m_MassTransferJlossMacLeodLinearFractionNonDegen;               // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position 
+            double                                              m_MassTransferJlossLinearFractionDegen;                         // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
+            double                                              m_MassTransferJlossLinearFractionNonDegen;                      // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
             ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_MassTransferAngularMomentumLossPrescription;                  // Which mass transfer angular momentum loss prescription
 
             // Mass transfer rejuvenation prescription
@@ -1051,8 +1107,10 @@ public:
             double                                              m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor;    // Critical mass ratio for MT from a white dwarf on to a degenerate accretor
 
             // Common Envelope options
-            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter (default = X)
-            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter (default = X)
+            double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter
+            double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter
+            double                                              m_CommonEnvelopeSecondStageBeta;                                // Mass transfer efficiency for second stage of 2-stage common envelope
+            ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_CommonEnvelopeSecondStageGammaPrescription;                   // Angular momentum loss prescription for second stage of 2-stage common envelope
 	        double                                              m_CommonEnvelopeSlopeKruckow;									// Common envelope power factor for Kruckow fit normalized according to Kruckow+2016, Fig. 1
             double                                              m_CommonEnvelopeAlphaThermal;                                   // lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
             double                                              m_CommonEnvelopeLambdaMultiplier;                               // Multiply common envelope lambda by some constant
@@ -1084,9 +1142,10 @@ public:
 	        double                                              m_MaximumMassDonorNandezIvanova;								// Maximum mass allowed to use the revised energy formalism in Msol (default = 2.0)
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
-
+            ENUM_OPT<RESPONSE_TO_SPIN_UP>                       m_ResponseToSpinUp;                                             // Response to super-critical spin-up prescription
+        
             // Tides
-            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                             // Which tides prescription (default = NONE)
+            ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
 
             // Zetas
@@ -1105,6 +1164,8 @@ public:
 
             double                                              m_mCBUR1;                                                       // Minimum core mass at base of the AGB to avoid fully degenerate CO core formation
 
+            // Neutron star accretion in common envelope
+            ENUM_OPT<NS_ACCRETION_IN_CE>                        m_NeutronStarAccretionInCE;                                     // NS accretion in common envelope
 
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
@@ -1125,11 +1186,15 @@ public:
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>  m_PulsarBirthMagneticFieldDistribution;                         // Birth magnetic field distribution for pulsars
             double                                              m_PulsarBirthMagneticFieldDistributionMin;                      // Minimum birth magnetic field (log10 B/G)
             double                                              m_PulsarBirthMagneticFieldDistributionMax;                      // Maximum birth magnetic field (log10 B/G)
+            double                                              m_PulsarBirthMagneticFieldDistributionMean;                     // Mean of normal or lognormal distribution for birth magnetic field (log10 B/G)
+            double                                              m_PulsarBirthMagneticFieldDistributionSigma;                    // Standard deviation of normal or lognormal distribution for birth magnetic field (log10 B/G)
 
             // Pulsar birth spin period distribution
             ENUM_OPT<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION>     m_PulsarBirthSpinPeriodDistribution;                            // Birth spin period distribution for pulsars
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
+            double                                              m_PulsarBirthSpinPeriodDistributionMean;                        // Mean of normal or lognormal distribution for birth spin period (ms)
+            double                                              m_PulsarBirthSpinPeriodDistributionSigma;                       // Standard deviation of normal or lognormal distribution for birth spin period (ms)
 
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayTimescalePower;                       // Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays
@@ -1151,10 +1216,10 @@ public:
             // Debug and logging options
 
             int                                                 m_DebugLevel;                                                   // Debug level - used to determine which debug statements are actually written
-            std::vector<std::string>                            m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
+            STR_VECTOR                                          m_DebugClasses;                                                 // Debug classes - used to determine which debug statements are actually written
 
             int                                                 m_LogLevel;                                                     // Logging level - used to determine which logging statements are actually written
-            std::vector<std::string>                            m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
+            STR_VECTOR                                          m_LogClasses;                                                   // Logging classes - used to determine which logging statements are actually written
 
 
             // Logfiles
@@ -1163,6 +1228,7 @@ public:
             ENUM_OPT<LOGFILETYPE>                               m_LogfileType;                                                  // File type log files
 
             std::string                                         m_LogfileSystemParameters;                                      // output file name: system parameters
+            std::string                                         m_LogfileSystemSnapshotLog;                                     // output file name: system snapshot
             std::string                                         m_LogfileDetailedOutput;                                        // output file name: detailed output
             std::string                                         m_LogfileDoubleCompactObjects;                                  // output file name: double compact objects
             std::string                                         m_LogfileSupernovae;                                            // output file name: supernovae
@@ -1172,6 +1238,7 @@ public:
             std::string                                         m_LogfileSwitchLog;                                             // output file name: switch log
 
             int                                                 m_LogfileSystemParametersRecordTypes;                           // enabled record types: system parameters
+            int                                                 m_LogfileSystemSnapshotLogRecordTypes;                          // enabled record types: system snapshot
             int                                                 m_LogfileDetailedOutputRecordTypes;                             // enabled record types: detailed output
             int                                                 m_LogfileDoubleCompactObjectsRecordTypes;                       // enabled record types: double compact objects
             int                                                 m_LogfileSupernovaeRecordTypes;                                 // enabled record types: supernovae
@@ -1229,7 +1296,7 @@ public:
     //
     //     type         (INT)                           type indicates whether the entry refers to a RANGE (type 0) or SET (type 1)
     //     dataType     (TYPENAME)                      the data type of the option to which the RangeOrSetDescriptorT pertaines
-    //     parameters   (std::vector<std::string>)      a vector of strings that hold the parameters as they were supplied by the user
+    //     parameters   (STR_VECTOR)                    a vector of strings that hold the parameters as they were supplied by the user
     //                                                  for a RANGE there must be exactly 3 parameters: start, count, increment
     //                                                  a SET must have at least one parameter (element); there is no maximum number of elements
     //     rangeParms   (std::vector<RangeParameterT>)  numerical values for range parameters (see RangeParameter struct)
@@ -1250,7 +1317,7 @@ public:
     typedef struct RangeOrSetDescriptor {
         COMPLEX_TYPE                 type;                                              // RANGE or SET
         TYPENAME                     dataType;                                          // the option datatype
-        std::vector<std::string>     parameters;                                        // the range or set parameters
+        STR_VECTOR                   parameters;                                        // the range or set parameters
         std::vector<RangeParameterT> rangeParms;                                        // range parameters numerical values
         int                          currPos;                                           // current position of iterator - count for RANGE, pos for SET                                             
     } RangeOrSetDescriptorT;
@@ -1306,13 +1373,13 @@ private:
     // member functions
 
     bool                        AddOptions(OptionValues *p_Options, po::options_description *p_OptionsDescription);
-    std::vector<std::string>    AllowedOptionValues(const std::string p_OptionString);
+    STR_VECTOR                  AllowedOptionValues(const std::string p_OptionString);
     std::string                 AllowedOptionValuesFormatted(const std::string p_OptionString);
     int                         AdvanceOptionVariation(OptionsDescriptorT &p_OptionsDescriptor);
 
     void                        BuildDefaultsMap(po::options_description *p_OptionsDescription);
 
-    std::tuple<std::string, int, std::vector<std::string>> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
+    std::tuple<std::string, int, STR_VECTOR> ExpandShorthandOptionValues(int p_ArgCount, char *p_ArgStrings[]);
 
     bool                        IsSupportedNumericDataType(TYPENAME p_TypeName);
 
@@ -1396,13 +1463,16 @@ public:
     double                                      CommonEnvelopeMassAccretionMin() const                                  { return OPT_VALUE("common-envelope-mass-accretion-min", m_CommonEnvelopeMassAccretionMin, true); }
     CE_ACCRETION_PRESCRIPTION                   CommonEnvelopeMassAccretionPrescription() const                         { return OPT_VALUE("common-envelope-mass-accretion-prescription", m_CommonEnvelopeMassAccretionPrescription.type, true); }
     double                                      CommonEnvelopeRecombinationEnergyDensity() const                        { return OPT_VALUE("common-envelope-recombination-energy-density", m_CommonEnvelopeRecombinationEnergyDensity, true); }
+    double                                      CommonEnvelopeSecondStageBeta() const                                   { return OPT_VALUE("common-envelope-second-stage-beta", m_CommonEnvelopeSecondStageBeta, true); }
+    MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION       CommonEnvelopeSecondStageGammaPrescription() const                      { return OPT_VALUE("common-envelope-second-stage-gamma-prescription", m_CommonEnvelopeSecondStageGammaPrescription.type, true); }
     double                                      CommonEnvelopeSlopeKruckow() const                                      { return OPT_VALUE("common-envelope-slope-kruckow", m_CommonEnvelopeSlopeKruckow, true); }
 
+    double                                      ConvectiveEnvelopeMassThreshold() const                                 { return OPT_VALUE("convective-envelope-mass-threshold", m_ConvectiveEnvelopeMassThreshold, true); }
     double                                      ConvectiveEnvelopeTemperatureThreshold() const                          { return OPT_VALUE("convective-envelope-temperature-threshold", m_ConvectiveEnvelopeTemperatureThreshold, true); }
 
     double                                      CoolWindMassLossMultiplier() const                                      { return OPT_VALUE("cool-wind-mass-loss-multiplier", m_CoolWindMassLossMultiplier, true); }
 
-    std::vector<std::string>                    DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
+    STR_VECTOR                                  DebugClasses() const                                                    { return m_CmdLine.optionValues.m_DebugClasses; }
     int                                         DebugLevel() const                                                      { return m_CmdLine.optionValues.m_DebugLevel; }
     bool                                        DebugToFile() const                                                     { return m_CmdLine.optionValues.m_DebugToFile; }
     bool                                        DetailedOutput() const                                                  { return m_CmdLine.optionValues.m_DetailedOutput; }
@@ -1448,9 +1518,9 @@ public:
     double                                      InitialMass2() const                                                    { return OPT_VALUE("initial-mass-2", m_InitialMass2, true); }
 
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return OPT_VALUE("initial-mass-function", m_InitialMassFunction.type, true); }
-    double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-max", m_InitialMassFunctionMax, true); }
-    double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
-    double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
+    double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-function-max", m_InitialMassFunctionMax, true); }
+    double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-function-min", m_InitialMassFunctionMin, true); }
+    double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-function-power", m_InitialMassFunctionPower, true); }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction-distribution", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
@@ -1468,11 +1538,11 @@ public:
     double                                      KickMagnitude1() const                                                  { return OPT_VALUE("kick-magnitude-1", m_KickMagnitude1, true); }
     double                                      KickMagnitude2() const                                                  { return OPT_VALUE("kick-magnitude-2", m_KickMagnitude2, true); }
 
-    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, true); }
-    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, true); }
-    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, true); }
+    double                                      KickMagnitudeRandom() const                                             { return OPT_VALUE("kick-magnitude-random", m_KickMagnitudeRandom, false); }
+    double                                      KickMagnitudeRandom1() const                                            { return OPT_VALUE("kick-magnitude-random-1", m_KickMagnitudeRandom1, false); }
+    double                                      KickMagnitudeRandom2() const                                            { return OPT_VALUE("kick-magnitude-random-2", m_KickMagnitudeRandom2, false); }
 
-    std::vector<std::string>                    LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
+    STR_VECTOR                                  LogClasses() const                                                      { return m_CmdLine.optionValues.m_LogClasses; }
     std::string                                 LogfileCommonEnvelopes() const                                          { return m_CmdLine.optionValues.m_LogfileCommonEnvelopes; }
     int                                         LogfileCommonEnvelopesRecordTypes() const                               { return m_CmdLine.optionValues.m_LogfileCommonEnvelopesRecordTypes; }
     std::string                                 LogfileDefinitionsFilename() const                                      { return m_CmdLine.optionValues.m_LogfileDefinitionsFilename; }
@@ -1512,6 +1582,14 @@ public:
                                                                                                                                         : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG))
                                                                                                                                       );
                                                                                                                         }
+    std::string                                 LogfileSystemSnapshotLog() const                                        { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-snapshot-log"].defaulted()
+                                                                                                                                    ? m_CmdLine.optionValues.m_LogfileSystemSnapshotLog
+                                                                                                                                    : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
+                                                                                                                                        ? std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG))
+                                                                                                                                        : std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG))
+                                                                                                                                      );
+                                                                                                                        }
+    int                                         LogfileSystemSnapshotLogRecordTypes() const                             { return m_CmdLine.optionValues.m_LogfileSystemSnapshotLogRecordTypes; }
     std::string                                 LogfileSystemParameters() const                                         { return m_CmdLine.optionValues.m_Populated && !m_CmdLine.optionValues.m_VM["logfile-system-parameters"].defaulted()
                                                                                                                                     ? m_CmdLine.optionValues.m_LogfileSystemParameters
                                                                                                                                     : (m_CmdLine.optionValues.m_EvolutionMode.type == EVOLUTION_MODE::SSE
@@ -1520,6 +1598,7 @@ public:
                                                                                                                                       );
                                                                                                                         }
     int                                         LogfileSystemParametersRecordTypes() const                              { return m_CmdLine.optionValues.m_LogfileSystemParametersRecordTypes; }
+
     LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
     std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
@@ -1530,6 +1609,9 @@ public:
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
+
+    double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
+    MALTSEV_MODE                                MaltsevMode() const                                                     { return OPT_VALUE("maltsev-mode", m_MaltsevMode.type, true); }
     
     double                                      MagneticFieldAmplificationFactorMerger() const                          { return OPT_VALUE("magnetic-field-amplification-factor-merger", m_MagneticFieldAmplificationFactorMerger, true); }
 
@@ -1565,8 +1647,8 @@ public:
 
     double                                      MassTransferFractionAccreted() const                                    { return OPT_VALUE("mass-transfer-fa", m_MassTransferFractionAccreted, true); }
     double                                      MassTransferJloss() const                                               { return OPT_VALUE("mass-transfer-jloss", m_MassTransferJloss, true); }
-    double                                      MassTransferJlossMacLeodLinearFractionDegen() const                     { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-degen", m_MassTransferJlossMacLeodLinearFractionDegen, true); }
-    double                                      MassTransferJlossMacLeodLinearFractionNonDegen() const                  { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-non-degen", m_MassTransferJlossMacLeodLinearFractionNonDegen, true); }
+    double                                      MassTransferJlossLinearFractionDegen() const                            { return OPT_VALUE("mass-transfer-jloss-linear-fraction-degen", m_MassTransferJlossLinearFractionDegen, true); }
+    double                                      MassTransferJlossLinearFractionNonDegen() const                         { return OPT_VALUE("mass-transfer-jloss-linear-fraction-non-degen", m_MassTransferJlossLinearFractionNonDegen, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor-multiplier", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
@@ -1580,22 +1662,24 @@ public:
     double                                      MetallicityDistributionMax() const                                      { return OPT_VALUE("metallicity-distribution-max", m_MetallicityDistributionMax, true); }
     double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
-    double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
+    double                                      MinimumSampledSecondaryMass() const                                     { return OPT_VALUE("minimum-sampled-secondary-mass", m_MinimumSampledSecondaryMass, true); }
 
     double                                      MullerMandelKickMultiplierBH() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-BH", m_MullerMandelKickBH, true); }
     double                                      MullerMandelKickMultiplierNS() const                                    { return OPT_VALUE("muller-mandel-kick-multiplier-NS", m_MullerMandelKickNS, true); }
-    double                                      MullerMandelSigmaKick() const                                           { return OPT_VALUE("muller-mandel-sigma-kick", m_MullerMandelSigmaKick, true); }
+    double                                      MullerMandelSigmaKickBH() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-BH", m_MullerMandelSigmaKickBH, true); }
+    double                                      MullerMandelSigmaKickNS() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-NS", m_MullerMandelSigmaKickNS, true); }
 
     bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }
 
+    NS_ACCRETION_IN_CE                          NeutronStarAccretionInCE() const                                        { return OPT_VALUE("neutron-star-accretion-in-ce", m_NeutronStarAccretionInCE.type, true); }
     NS_EOS                                      NeutronStarEquationOfState() const                                      { return OPT_VALUE("neutron-star-equation-of-state", m_NeutronStarEquationOfState.type, true); }
 
     std::string                                 Notes(const size_t p_Idx) const                                         { return OPT_VALUE("notes", m_Notes[p_Idx], true); }
-    std::vector<std::string>                    Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
+    STR_VECTOR                                  Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
     std::string                                 NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }
-    std::vector<std::string>                    NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
+    STR_VECTOR                                  NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
  
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true); }
@@ -1621,10 +1705,14 @@ public:
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return OPT_VALUE("pulsar-birth-magnetic-field-distribution", m_PulsarBirthMagneticFieldDistribution.type, true); }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-max", m_PulsarBirthMagneticFieldDistributionMax, true); }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-min", m_PulsarBirthMagneticFieldDistributionMin, true); }
+    double                                      PulsarBirthMagneticFieldDistributionMean() const                        { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-mean", m_PulsarBirthMagneticFieldDistributionMean, true); }
+    double                                      PulsarBirthMagneticFieldDistributionSigma() const                       { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-sigma", m_PulsarBirthMagneticFieldDistributionSigma, true); }
 
     PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       PulsarBirthSpinPeriodDistribution() const                               { return OPT_VALUE("pulsar-birth-spin-period-distribution", m_PulsarBirthSpinPeriodDistribution.type, true); }
     double                                      PulsarBirthSpinPeriodDistributionMax() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-max", m_PulsarBirthSpinPeriodDistributionMax, true); }
     double                                      PulsarBirthSpinPeriodDistributionMin() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-min", m_PulsarBirthSpinPeriodDistributionMin, true); }
+    double                                      PulsarBirthSpinPeriodDistributionMean() const                           { return OPT_VALUE("pulsar-birth-spin-period-distribution-mean", m_PulsarBirthSpinPeriodDistributionMean, true); }
+    double                                      PulsarBirthSpinPeriodDistributionSigma() const                          { return OPT_VALUE("pulsar-birth-spin-period-distribution-sigma", m_PulsarBirthSpinPeriodDistributionSigma, true); }
 
     double                                      PulsarLog10MinimumMagneticField() const                                 { return OPT_VALUE("pulsar-minimum-magnetic-field", m_PulsarLog10MinimumMagneticField, true); }
 
@@ -1652,6 +1740,8 @@ public:
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
     
+    RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
+    
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
@@ -1669,7 +1759,7 @@ public:
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
 
-    bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, false); }
+    bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, true); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
@@ -1687,6 +1777,7 @@ public:
     
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
 
+    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     
     SURFACE_MAGNETIC_FIELD_DISTRIBUTION         SurfaceMagneticFieldDistribution() const                                { return OPT_VALUE("surface-magnetic-field-distribution",           m_SurfaceMagneticFieldDistribution.type,    true); }
@@ -1698,16 +1789,23 @@ public:
     
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 
+    double                                      SystemSnapshotAgeThresholds(const size_t p_Idx) const                   { return OPT_VALUE("system-snapshot-age-thresholds", m_SystemSnapshotAgeThresholds[p_Idx], true); }
+    DBL_VECTOR                                  SystemSnapshotAgeThresholds() const                                     { return OPT_VALUE("system-snapshot-age-thresholds", m_SystemSnapshotAgeThresholds, true); }
+    double                                      SystemSnapshotTimeThresholds(const size_t p_Idx) const                  { return OPT_VALUE("system-snapshot-time-thresholds", m_SystemSnapshotTimeThresholds[p_Idx], true); }
+    DBL_VECTOR                                  SystemSnapshotTimeThresholds() const                                    { return OPT_VALUE("system-snapshot-time-thresholds", m_SystemSnapshotTimeThresholds, true); }
+    
     TIDES_PRESCRIPTION                          TidesPrescription() const                                               { return OPT_VALUE("tides-prescription", m_TidesPrescription.type, true); }
 
     std::string                                 TimestepsFileName() const                                               { return OPT_VALUE("timesteps-filename", m_TimestepsFileName, true); }
-    double                                      TimestepMultiplier() const                                              { return m_CmdLine.optionValues.m_TimestepMultiplier; }
+    double                                      TimestepMultiplier() const                                              { return OPT_VALUE("timestep-multiplier", m_TimestepMultiplier, true); }
+    double                                      TimestepMultipliers(const size_t p_Idx) const                           { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers[p_Idx], true); }
+    DBL_VECTOR                                  TimestepMultipliers() const                                             { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers, true); }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
-    bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss, true); }
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
+    bool                                        USSNKicksOverrideMandelMuller() const                                   { return OPT_VALUE("USSN-kicks-override-mandel-muller", m_USSNKicksOverrideMandelMuller, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }

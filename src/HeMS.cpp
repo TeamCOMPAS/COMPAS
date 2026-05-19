@@ -399,17 +399,21 @@ double HeMS::CalculateMassLossRateWolfRayetShenar2019() const {
  * Calculate the mass loss rate for helium stars in the updated prescription
  * Uses Sander & Vink 2020 for Wolf--Rayet stars
  * 
- * double CalculateMassLossRateMerritt2024()
+ * double CalculateMassLossRateMerritt2025()
  *
  * @return                                      Mass loss rate in Msol per year
  */
-double HeMS::CalculateMassLossRateMerritt2024() {
+double HeMS::CalculateMassLossRateMerritt2025() {
 
     double MdotWR = 0.0;
 
     m_DominantMassLossRate = MASS_LOSS_TYPE::WR;                                                                // set dominant mass loss rate
 
     switch (OPTIONS->WRMassLossPrescription()) {                                                                // which WR mass loss prescription?
+
+        case WR_MASS_LOSS_PRESCRIPTION::ZERO: {
+            MdotWR = 0.0;   // No mass loss for WR stars
+        } break;
 
         case WR_MASS_LOSS_PRESCRIPTION::SANDERVINK2023: {
             // calculate Sander & Vink 2020 mass-loss rate

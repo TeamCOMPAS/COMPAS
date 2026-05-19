@@ -396,12 +396,14 @@ public:
     string operator()(const STELLAR_TYPE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE                v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING            v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MASS_TRANSFER_TIMESCALE v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TIMESCALE           v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_EVENT               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const STR_VECTOR             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
     string operator()(const STR_VECTOR             v, const string fmtStr, const size_t idx) const { string fmt = fmtStr; fmt = "%-" + fmt + "s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
+    string operator()(const DBL_VECTOR             v, const string fmtStr) const { string fmt = fmtStr; fmt = "%"  + fmt + "f"; return utils::vFormat(fmt.c_str(), v[0]); }
+    string operator()(const DBL_VECTOR             v, const string fmtStr, const size_t idx) const { string fmt = fmtStr; fmt = "%"  + fmt + "f"; return utils::vFormat(fmt.c_str(), v[idx]); }
 };
 
 
@@ -439,12 +441,14 @@ public:
     string operator()(const STELLAR_TYPE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_CASE                v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const MT_TRACKING            v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
-    string operator()(const MASS_TRANSFER_TIMESCALE v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
+    string operator()(const MT_TIMESCALE           v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_EVENT               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const SN_STATE               v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const EVOLUTION_STATUS       v) const { string fmt = "%14.1d"; return utils::vFormat(fmt.c_str(), static_cast<int>(v)); }
     string operator()(const STR_VECTOR             v) const { string fmt = "%-30s"; return utils::vFormat(fmt.c_str(), v[0].c_str()); }
     string operator()(const STR_VECTOR             v, const size_t idx) const { string fmt ="%-30s"; return utils::vFormat(fmt.c_str(), v[idx].c_str()); }
+    string operator()(const DBL_VECTOR             v) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v[0]); }
+    string operator()(const DBL_VECTOR             v, const size_t idx) const { string fmt = "%16.8e"; return utils::vFormat(fmt.c_str(), v[idx]); }
 };
 
 
@@ -480,12 +484,14 @@ private:
         m_PrimarySwitching            = false;                                      // Star switching is primary star of binary - default false
         m_SwitchIsMerger              = false;                                      // Switchlog record records a merger (rather than a simple switch)
 
+/*
         m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
         m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
         m_SSESupernovae_DelayedWrite.logRecordValues     = {};                      // delayed log record (property values) for SSE_Supernovae file - initially empty
         m_SSESupernovae_DelayedWrite.logRecordProperties = {};                      // SSE Supernovae logfile record properties - initially empty
         m_SSESupernovae_DelayedWrite.logRecordFmtVector  = {};                      // SSE Supernovae logfile format vector - initially empty
         m_SSESupernovae_DelayedWrite.logFileAnnotations  = {};                      // SSE Supernovae annotations vector - initially empty
+*/
 
         m_OptionDetails = {};                                                       // option details retrieved from commandline - initially empty
     };
@@ -563,21 +569,23 @@ private:
 
     // logfile record specifications
     // BSE
-    ANY_PROPERTY_VECTOR m_BSE_CEE_Rec         = BSE_COMMON_ENVELOPES_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_DCO_Rec         = BSE_DOUBLE_COMPACT_OBJECTS_REC;     // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec    = BSE_DETAILED_OUTPUT_REC;            // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec     = BSE_PULSAR_EVOLUTION_REC;           // default specification
-    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec        = BSE_RLOF_PARAMETERS_REC;            // default specification
-    ANY_PROPERTY_VECTOR m_BSE_SNE_Rec         = BSE_SUPERNOVAE_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_BSE_Switch_Rec      = BSE_SWITCH_LOG_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec    = BSE_SYSTEM_PARAMETERS_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_BSE_CEE_Rec          = BSE_COMMON_ENVELOPES_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_BSE_DCO_Rec          = BSE_DOUBLE_COMPACT_OBJECTS_REC;    // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec     = BSE_DETAILED_OUTPUT_REC;           // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec      = BSE_PULSAR_EVOLUTION_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_BSE_RLOF_Rec         = BSE_RLOF_PARAMETERS_REC;           // default specification
+    ANY_PROPERTY_VECTOR m_BSE_SNE_Rec          = BSE_SUPERNOVAE_REC;                // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Switch_Rec       = BSE_SWITCH_LOG_REC;                // default specification
+    ANY_PROPERTY_VECTOR m_BSE_SysParms_Rec     = BSE_SYSTEM_PARAMETERS_REC;         // default specification
+    ANY_PROPERTY_VECTOR m_BSE_Sys_Snapshot_Rec = BSE_SYSTEM_SNAPSHOT_LOG_REC;       // default specification
 
     // SSE
-    ANY_PROPERTY_VECTOR m_SSE_Detailed_Rec    = SSE_DETAILED_OUTPUT_REC;            // default specification
-    ANY_PROPERTY_VECTOR m_SSE_SNE_Rec         = SSE_SUPERNOVAE_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_SSE_Switch_Rec      = SSE_SWITCH_LOG_REC;                 // default specification
-    ANY_PROPERTY_VECTOR m_SSE_SysParms_Rec    = SSE_SYSTEM_PARAMETERS_REC;          // default specification
-    ANY_PROPERTY_VECTOR m_SSE_Pulsars_Rec     = SSE_PULSAR_EVOLUTION_REC;                    // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Detailed_Rec     = SSE_DETAILED_OUTPUT_REC;           // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Pulsars_Rec      = SSE_PULSAR_EVOLUTION_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_SSE_SNE_Rec          = SSE_SUPERNOVAE_REC;                // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Switch_Rec       = SSE_SWITCH_LOG_REC;                // default specification
+    ANY_PROPERTY_VECTOR m_SSE_SysParms_Rec     = SSE_SYSTEM_PARAMETERS_REC;         // default specification
+    ANY_PROPERTY_VECTOR m_SSE_Sys_Snapshot_Rec = SSE_SYSTEM_SNAPSHOT_LOG_REC;       // default specification
 
     // logfile annotation specifications
     //
@@ -594,21 +602,23 @@ private:
     // has the right defaults when processing any log definitions file.
 
     // BSE
-    BOOL_VECTOR m_BSE_CEE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_DCO_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_Detailed_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_Pulsars_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_RLOF_Notes        = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_BSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_CEE_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_DCO_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Detailed_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Pulsars_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_RLOF_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_SNE_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Switch_Notes       = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_SysParms_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_Sys_Snapshot_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // SSE
-    BOOL_VECTOR m_SSE_Detailed_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_SSE_SNE_Notes         = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_SSE_Switch_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_SSE_SysParms_Notes    = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
-    BOOL_VECTOR m_SSE_Pulsars_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Detailed_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Pulsars_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_SNE_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Switch_Notes       = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_SysParms_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_SSE_Sys_Snapshot_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // the following block of variables support the BSE Switch Log file
     
@@ -628,7 +638,7 @@ private:
     // the discussion in the description of Log::GetStandardLogFileRecordDetails() in Log.cpp.
     // This functionality probably shouldn't be extended to allow queueing/delaying multiple records for later writing
     // (I don't think we need it, it would probably soak up too much memory if over-used, and it might just cause confusion)
-
+/*
     struct delayedWriteDetailsT {                                                   // attributes of delayed writes
         LOGRECORDTYPE          logRecordType;                                       // log record type
         string                 logRecordString;                                     // log record to be written to log file in delayed write
@@ -639,7 +649,7 @@ private:
     };
 
     delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write details    
-    
+*/    
   
     // the following block of variables support the run details file
 
@@ -1209,11 +1219,11 @@ public:
 
     template <class T>
     bool LogBSEPulsarEvolutionParameters(const T* const p_Binary,
-                                         const BSE_PULSAR_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                                         const BSE_PULSAR_RECORD_TYPE p_RecordType)     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_PULSAR_EVOLUTION)), 0, LOGFILE::BSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogBSESupernovaDetails(const T* const p_Binary,
-                                const BSE_SN_RECORD_TYPE p_RecordType)              { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                                const BSE_SN_RECORD_TYPE p_RecordType)                  { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
     
     template <class T>
     bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching, const bool p_IsMerger) {
@@ -1224,96 +1234,47 @@ public:
 
     template <class T>
     bool LogBSESystemParameters(const T* const p_Binary,
-                                const BSE_SYSPARMS_RECORD_TYPE p_RecordType)        { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                                const BSE_SYSPARMS_RECORD_TYPE p_RecordType)            { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
+    bool LogBSESystemSnapshotLog(const T* const p_Binary, 
+                                    const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG)), 0, LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                            
+    template <class T>
     bool LogCommonEnvelope(const T* const p_Binary,
-                           const CE_RECORD_TYPE p_RecordType)                       { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                           const CE_RECORD_TYPE p_RecordType)                           { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogDoubleCompactObject(const T* const p_Binary,
-                                const DCO_RECORD_TYPE p_RecordType)                 { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                                const DCO_RECORD_TYPE p_RecordType)                     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS)), 0, LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogRLOFParameters(const T* const p_Binary,
-                           const RLOF_RECORD_TYPE p_RecordType)                     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+                           const RLOF_RECORD_TYPE p_RecordType)                         { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_RLOF_PARAMETERS)), 0, LOGFILE::BSE_RLOF_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
     bool LogSSEDetailedOutput(const T* const p_Star, const int p_Id,
-                              const SSE_DETAILED_RECORD_TYPE p_RecordType)          { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star, "_" + std::to_string(abs(p_Id))); }
+                              const SSE_DETAILED_RECORD_TYPE p_RecordType)              { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_DETAILED_OUTPUT)), 0, LOGFILE::SSE_DETAILED_OUTPUT, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star, "_" + std::to_string(abs(p_Id))); }
 
     template <class T>
     bool LogSSESupernovaDetails(const T* const p_Star,
-                                const SSE_SN_RECORD_TYPE p_RecordType)              { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+                                const SSE_SN_RECORD_TYPE p_RecordType)                  { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
     template <class T>
-    bool LogSSESwitchLog(const T* const p_Star)                                     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, 1U, p_Star); }
+    bool LogSSESwitchLog(const T* const p_Star)                                         { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SWITCH_LOG)), 0, LOGFILE::SSE_SWITCH_LOG, 1U, p_Star); }
 
     template <class T>
     bool LogSSESystemParameters(const T* const p_Star,
-                                const SSE_SYSPARMS_RECORD_TYPE p_RecordType)        { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+                                const SSE_SYSPARMS_RECORD_TYPE p_RecordType)            { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
+    template <class T>
+    bool LogSSESystemSnapshotLog(const T* const p_Star, 
+                                    const SSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG)), 0, LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+                                     
     template <class T>
     bool LogSSEPulsarEvolutionParameters(const T* const p_Star,
-                                         const SSE_PULSAR_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION)), 0, LOGFILE::SSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
+                                         const SSE_PULSAR_RECORD_TYPE p_RecordType)     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION)), 0, LOGFILE::SSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
-    void ClearSSESupernovaStash() {
-        m_SSESupernovae_DelayedWrite.logRecordType       = 0;                       // delayed log record type for SSE_Supernovae file - initially 0 (set later)
-        m_SSESupernovae_DelayedWrite.logRecordString     = "";                      // delayed log record (string) for SSE_Supernovae file - initially empty
-        m_SSESupernovae_DelayedWrite.logRecordValues     = {};                      // delayed log record (property values) for SSE_Supernovae file - initially empty
-    }
-
-    template <class T>
-    void StashSSESupernovaDetails(const T* const p_Star, const STELLAR_TYPE p_StellarType, const SSE_SN_RECORD_TYPE p_RecordType) {
-
-        m_SSESupernovae_DelayedWrite.logRecordType = static_cast<LOGRECORDTYPE>(p_RecordType);
-
-        // if we don't already have the SSE Supernova log record properties that we need, get them
-        // this will only need to be done once per run, so not a big overhead
-        if (m_SSESupernovae_DelayedWrite.logRecordProperties.empty() || 
-            m_SSESupernovae_DelayedWrite.logRecordFmtVector.empty()  || 
-            m_SSESupernovae_DelayedWrite.logFileAnnotations.empty()) {
-
-            std::tie(m_SSESupernovae_DelayedWrite.logRecordProperties, 
-                     m_SSESupernovae_DelayedWrite.logRecordFmtVector, 
-                     m_SSESupernovae_DelayedWrite.logFileAnnotations) = LOGGING->GetStandardLogFileRecordDetails(LOGFILE::SSE_SUPERNOVAE);
-        }
-
-        // get a formatted record with current data
-        // this will replace any existing stashed record - no queue here
-        std::tie(m_SSESupernovae_DelayedWrite.logRecordString, 
-                 m_SSESupernovae_DelayedWrite.logRecordValues) = GetLogStandardRecord(LOGFILE::SSE_SUPERNOVAE,
-                                                                                      m_SSESupernovae_DelayedWrite.logRecordType, 
-                                                                                      p_Star, 
-                                                                                      m_SSESupernovae_DelayedWrite.logRecordProperties, 
-                                                                                      m_SSESupernovae_DelayedWrite.logRecordFmtVector,
-                                                                                      m_SSESupernovae_DelayedWrite.logFileAnnotations, 
-                                                                                      true, 
-                                                                                      (ANY_STAR_PROPERTY)STAR_PROPERTY::STELLAR_TYPE, 
-                                                                                      p_StellarType);
-    }
-
-    template <class T>
-    bool LogStashedSSESupernovaDetails(const T* const p_Star) { 
-        bool result = true;
-
-        // if the stashed SSE Supernova record is non-empty, print it, then clear it - otherwise do nothing
-
-        if (OPTIONS->LogfileType() == LOGFILETYPE::HDF5) {                  // logging to HDF5 file?
-            if (!m_SSESupernovae_DelayedWrite.logRecordValues.empty()) {    // yes - need to log?
-                result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, m_SSESupernovae_DelayedWrite.logRecordType, p_Star, "", m_SSESupernovae_DelayedWrite.logRecordValues);
-                m_SSESupernovae_DelayedWrite.logRecordValues = {};          // clear record
-            }
-        }
-        else {                                                              // no - not HDF5
-            if (!m_SSESupernovae_DelayedWrite.logRecordString.empty()) {    // need to log?
-                result = LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SUPERNOVAE)), 0, LOGFILE::SSE_SUPERNOVAE, m_SSESupernovae_DelayedWrite.logRecordType, p_Star, "", m_SSESupernovae_DelayedWrite.logRecordString);
-                m_SSESupernovae_DelayedWrite.logRecordString = "";          // clear record
-            }
-        }
-
-        return result;
-    }
 };
 
 #endif // __Log_h__

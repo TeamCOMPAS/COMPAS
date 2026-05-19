@@ -97,10 +97,11 @@ public:
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
 
-        m_SynchronizationTimescale         = p_Star.m_SynchronizationTimescale;
+        m_SynchronizationTimescale1        = p_Star.m_SynchronizationTimescale1;
+        m_SynchronizationTimescale2        = p_Star.m_SynchronizationTimescale2;
 
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
-        m_NormalizedOrbitalAngularMomentumVector     = p_Star.m_NormalizedOrbitalAngularMomentumVector;
+        m_NormalizedOrbitalAngularMomentumVector = p_Star.m_NormalizedOrbitalAngularMomentumVector;
         m_ThetaE                           = p_Star.m_ThetaE;
         m_PhiE                             = p_Star.m_PhiE;  
         m_PsiE                             = p_Star.m_PsiE;  
@@ -179,6 +180,12 @@ public:
     bool                HasStarsTouching() const                    { return (utils::Compare(m_SemiMajorAxis, 0.0) > 0) && (m_SemiMajorAxis <= RSOL_TO_AU * (m_Star1->Radius() + m_Star2->Radius())); }
     bool                HasTwoOf(STELLAR_TYPE_LIST p_List) const;
     bool                ImmediateRLOFPostCEE() const                { return m_RLOFDetails.immediateRLOFPostCEE; }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal() const                        { return m_Star1->CalculateImKnmTidal(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal() const                        { return m_Star2->CalculateImKnmTidal(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass());}
+    DBL_DBL_DBL_DBL     ImKnm1_tidal_eq() const                     { return m_Star1->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal_eq() const                     { return m_Star2->CalculateImKnmEquilibrium(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm1_tidal_dyn() const                    { return m_Star1->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star2->Mass()); }
+    DBL_DBL_DBL_DBL     ImKnm2_tidal_dyn() const                    { return m_Star2->CalculateImKnmDynamical(OrbitalAngularVelocity(), m_SemiMajorAxis, m_Star1->Mass()); }
     STELLAR_TYPE        InitialStellarType1() const                 { return m_Star1->InitialStellarType(); }
     STELLAR_TYPE        InitialStellarType2() const                 { return m_Star2->InitialStellarType(); }
     bool                IsHMXRBinary() const;
@@ -204,6 +211,9 @@ public:
     MT_TRACKING         MassTransferTrackerHistory() const          { return m_MassTransferTrackerHistory; }
     bool                MergesInHubbleTime() const                  { return m_Flags.mergesInHubbleTime; }
     bool                OptimisticCommonEnvelope() const            { return m_CEDetails.optimisticCE; }
+    double              OrbitalAngularMomentumVectorX() const       { return m_NormalizedOrbitalAngularMomentumVector.xValue(); }
+    double              OrbitalAngularMomentumVectorY() const       { return m_NormalizedOrbitalAngularMomentumVector.yValue(); }
+    double              OrbitalAngularMomentumVectorZ() const       { return m_NormalizedOrbitalAngularMomentumVector.zValue(); }
     double              OrbitalAngularVelocity() const              { return std::sqrt(G_AU_Msol_yr * (m_Star1->Mass() + m_Star2->Mass()) / (m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis)); }      // rads/year
     double              OrbitalVelocityPreSN() const                { return m_OrbitalVelocityPreSN; }
     double              Periastron() const                          { return m_SemiMajorAxis * (1.0 - m_Eccentricity); }
@@ -223,6 +233,7 @@ public:
     double              RocheLobeRadius2() const                    { return CalculateRocheLobeRadius_Static(m_Star2->Mass(), m_Star1->Mass()) * SemiMajorAxisRsol() * (1-Eccentricity()); }
     double              StarToRocheLobeRadiusRatio1() const         { return m_Star1->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
     double              StarToRocheLobeRadiusRatio2() const         { return m_Star2->StarToRocheLobeRadiusRatio(m_SemiMajorAxis, m_Eccentricity); }
+    double              SemiMajorAxisAfterStage1CEE() const         { return m_CEDetails.postCEE.semiMajorAxisAfterStage1; }
     double              SemiMajorAxisAtDCOFormation() const         { return m_SemiMajorAxisAtDCOFormation; }
     double              SemiMajorAxisInitial() const                { return m_SemiMajorAxisInitial; }
     double              SemiMajorAxisPostCEE() const                { return m_CEDetails.postCEE.semiMajorAxis; }
@@ -241,11 +252,9 @@ public:
     STELLAR_TYPE        StellarType2PostCEE() const                 { return m_Star2->StellarTypePostCEE(); }
     STELLAR_TYPE        StellarType2PreCEE() const                  { return m_Star2->StellarTypePreCEE(); }
     double              SN_OrbitInclinationAngle() const            { return m_ThetaE; }
-    double              SN_OrbitInclinationVectorX() const          { return m_NormalizedOrbitalAngularMomentumVector.xValue(); }
-    double              SN_OrbitInclinationVectorY() const          { return m_NormalizedOrbitalAngularMomentumVector.yValue(); }
-    double              SN_OrbitInclinationVectorZ() const          { return m_NormalizedOrbitalAngularMomentumVector.zValue(); }
     SN_STATE            SN_State() const                            { return m_SupernovaState; }
-    double              SynchronizationTimescale() const            { return m_SynchronizationTimescale; }
+    double              SynchronizationTimescale1() const           { return m_SynchronizationTimescale1; }
+    double              SynchronizationTimescale2() const           { return m_SynchronizationTimescale2; }
     double              SystemicSpeed() const                       { return m_SystemicVelocity.Magnitude(); }
     double              SystemicVelocityX() const                   { return m_SystemicVelocity.xValue(); }
     double              SystemicVelocityY() const                   { return m_SystemicVelocity.yValue(); }
@@ -301,7 +310,7 @@ private:
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
     double              m_CircularizationTimescale;
-
+   
     bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
@@ -327,7 +336,7 @@ private:
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
-    double              m_IPrime;
+    double              m_IPrime;  
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
@@ -344,7 +353,7 @@ private:
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
     
-    MASS_TRANSFER_TIMESCALE m_MassTransferTimescale;
+    MT_TIMESCALE        m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 
@@ -360,7 +369,8 @@ private:
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
 
-    double              m_SynchronizationTimescale;
+    double              m_SynchronizationTimescale1;
+    double              m_SynchronizationTimescale2;
 
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
     Vector3d            m_NormalizedOrbitalAngularMomentumVector;                           // Orbital AM vector postSN, in preSN frame
@@ -390,6 +400,10 @@ private:
     double              m_ZetaLobe;
     double              m_ZetaStar;
 
+    // thresholds flags for system detailed output file
+    DBL_VECTOR          m_SystemSnapshotAgeFlags1;
+    DBL_VECTOR          m_SystemSnapshotAgeFlags2;
+    BOOL_VECTOR         m_SystemSnapshotTimeFlags;
 
     // Binaries contain two stars
     BinaryConstituentStar *m_Star1;                                                         // Initially more massive star - the primary
@@ -418,16 +432,16 @@ private:
     void    CalculateGravitationalRadiation();
     void    EmitGravitationalWave(const double p_Dt);
 
-    double  ChooseTimestep(const double p_Multiplier);
+    double  ChooseTimestep(const double p_Factor = 1.0);
 
     void    CalculateEnergyAndAngularMomentum();
 
-    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
-    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
-    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKlm, const BinaryConstituentStar* p_Star);
+    double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
+    double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
+    double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     
-    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate);
-    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate()); }
+    static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate, const bool p_IsCommonEnvelope);
+    double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate(), false); }
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
 
 
@@ -437,17 +451,19 @@ private:
                                        const double                 p_DeltaMassDonor,
                                        const double                 p_AccretorMass,
                                        const bool                   p_IsAccretorDegenerate,
-                                       const double                 p_FractionAccreted);
+                                       const double                 p_FractionAccreted,
+                                       const bool                   p_IsCommonEnvelope);
 
     
     double  CalculateMassTransferOrbit(const double                 p_DonorMass,
                                        const double                 p_DeltaMassDonor, 
                                              BinaryConstituentStar& p_Accretor, 
-                                       const double                 p_FractionAccreted)     { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted); }
+                                       const double                 p_FractionAccreted,
+                                       const bool                   p_IsCommonEnvelope) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted, p_IsCommonEnvelope); }
 
     
     
-    void    CalculateWindsMassLoss();
+    void    CalculateWindsMassLoss(double p_Dt);
     void    InitialiseMassTransfer();
 
     double  CalculateOrbitalAngularMomentum(const double p_Star1Mass,
@@ -482,15 +498,21 @@ private:
 
     void    ProcessTides(const double p_Dt);
 
+    double  ResolveAccretionAngularMomentumGain(BinaryConstituentStar *p_Accretor, BinaryConstituentStar *p_Donor, double p_MassChange);
     void    ResolveCoalescence();
     void    ResolveCommonEnvelopeEvent();
+    void    ResolveMainSequenceMerger();
     void    ResolveMassChanges();
     void    ResolveSupernova();
+    
+    
+
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
     void    SetRemainingValues();
 
     void    SetPostCEEValues(const double p_SemiMajorAxis,
+                             const double p_SemiMajorAxisAfterStage1,
                              const double p_Eccentricity,
                              const double p_RocheLobe1to2,
                              const double p_RocheLobe2to1);
@@ -500,6 +522,8 @@ private:
                             const double p_RocheLobe1to2,
                             const double p_RocheLobe2to1);
 
+    bool    ShouldResolveNeutrinoRocketMechanism() const                        { return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0); }
+    
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
     void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
@@ -520,8 +544,12 @@ private:
 
     bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
     
-    bool PrintBinarySystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+    bool PrintSystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
+    }
+    
+    bool PrintSystemSnapshotLog(const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType = BSE_SYSTEM_SNAPSHOT_RECORD_TYPE::DEFAULT) const { 
+        return LOGGING->LogBSESystemSnapshotLog(this, p_RecordType);
     }
     
     bool PrintDetailedOutput(const long int p_Id, const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
@@ -536,7 +564,7 @@ private:
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
     }
     
-    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType = BSE_PULSAR_RECORD_TYPE::DEFAULT) const {
+    bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType) const {
         return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
     }
     
@@ -544,24 +572,18 @@ private:
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
     }
     
-    void ResolveMainSequenceMerger();
-
-    bool ShouldResolveNeutrinoRocketMechanism() const { 
-        return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0);
-    }
-    
     /*
      * Functor for MassLossToFitInsideRocheLobe()
      *
      *
      * Constructor: initialise the class
-     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass, ERROR *p_Error)
+     * template <class T> RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_Dt, ERROR *p_Error)
      *
      * @param   [IN]    p_Binary                    (Pointer to) The binary star under examination
      * @param   [IN]    p_Donor                     (Pointer to) The star donating mass
      * @param   [IN]    p_Accretor                  (Pointer to) The star accreting mass
-     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (for thermal timescale accretion)
-     * @param   [IN]    p_MaximumAccretedMass       The total amount of mass that can be accreted (for nuclear timescale accretion, p_FractionAccreted should be negative for this to be used)
+     * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (if known in advance, otherwise zero)
+     * @param   [IN]    p_Dt                        Time step duration (relevant for nuclear timescale mass transfer)
      * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
      * 
      * Function: calculate radius difference after mass loss
@@ -572,34 +594,40 @@ private:
      */    
     template <class T>
     struct RadiusEqualsRocheLobeFunctor {
-        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass, ERROR *p_Error) {
+        RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_Dt, ERROR *p_Error) {
             m_Binary           = p_Binary;
             m_Donor            = p_Donor;
             m_Accretor         = p_Accretor;
             m_Error            = p_Error;
             m_FractionAccreted = p_FractionAccreted;
-            m_MaximumAccretedMass = p_MaximumAccretedMass;
+            m_Dt               = p_Dt;
         }
         T operator()(double const& p_dM) {
 
-            if (p_dM >= m_Donor->Mass()) {                  // Can't remove more than the donor's mass
+            if (p_dM >= m_Donor->Mass()) {                  // can't remove more than the donor's mass
                 *m_Error = ERROR::TOO_MANY_RLOF_ITERATIONS; // set error
                 return 1000.0 * ROOT_ABS_TOLERANCE;         // arbitrary value to indicate no (sensible) solution found
             }
 
             double donorMass     = m_Donor->Mass();
             double accretorMass  = m_Accretor->Mass();
+            // use stale value of accretor RL radius -- this is only relevant for nuclear timescale MT, when the change in accretor RL radius should be small
+            double accretorRLradius = CalculateRocheLobeRadius_Static(accretorMass, donorMass) * AU_TO_RSOL * m_Binary->SemiMajorAxis() * (1.0 - m_Binary->Eccentricity());
             
             // beta is the actual accretion efficiency; if p_FractionAccreted is negative (placeholder
             // for nuclear timescale accretion efficiency, for which the total accretion mass over the
-            // duration of the timestep is known), then the ratio of the maximum allowed accreted
-            // mass / donated mass is used
-            double beta = (utils::Compare(m_FractionAccreted, 0.0) >=0 ) ? m_FractionAccreted : std::min(m_MaximumAccretedMass/p_dM, 1.0);
+            // duration of the timestep is known), then must estimate it on the fly for consistency
+            double beta = m_FractionAccreted;
+            if (utils::Compare(beta, 0.0) < 0) {
+                std::tie(std::ignore, beta) = m_Accretor->CalculateMassAcceptanceRate(p_dM / m_Dt,
+                                              m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), 
+                                              m_Donor->IsOneOf(He_RICH_TYPES));
+            }
             
-            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta);
+            double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta, false);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
             
-            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnPhaseTau(donorMass-p_dM, m_Donor->Tau());
+            double radiusAfterMassLoss = m_Donor->CalculateRadiusOnMassChange(-p_dM);
             
             return (RLRadius - radiusAfterMassLoss);
         }
@@ -609,7 +637,7 @@ private:
         BinaryConstituentStar *m_Accretor;
         ERROR                 *m_Error;
         double                 m_FractionAccreted;
-        double                 m_MaximumAccretedMass;
+        double                 m_Dt;
     };
 
 

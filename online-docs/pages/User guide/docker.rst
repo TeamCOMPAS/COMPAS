@@ -140,7 +140,7 @@ Bonus Info
 ----------
 
 Dockerfile
-^^^^^^^^^^
+~~~~~~~~~~
 
 The `Dockerfile <https://docs.docker.com/engine/reference/builder/>`__ defines how the docker image is constructed.
 
@@ -159,7 +159,7 @@ The Dockerfile for COMPAS consists of 8 layers:
 Dockerfiles usually end with a `CMD` directive specifying the command to run when the container starts. COMPAS does not have a `CMD` directive because some users will run the executable directly, while others will use `runSubmit.py`.
 
 Makefile.docker
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
 
 A separate makefile is required for Docker to:
     1. Separate compiled files from source files.

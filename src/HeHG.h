@@ -69,13 +69,19 @@ protected:
             double          CalculateCoreMassOnPhase() const                                                        { return m_COCoreMass; }                                                // Mc(HeMS) = McCOMass
 
             double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
-            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return 1.28; }                                                        // From BSE. Using the inverse owing to how qCrit is defined in COMPAS. See Hurley et al. 2002 sect. 2.6.1 for additional details.
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                { return HURLEY_HJELLMING_WEBBINK_QCRIT_HE_GIANT; }
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                                     { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
             double          CalculateHeCoreMassAtPhaseEnd() const                                                   { return CalculateHeCoreMassOnPhase(); }                                // Same as on phase
             double          CalculateHeCoreMassOnPhase() const                                                      { return m_Mass; }                                                      // NO-OP
+    
+            double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                                          { return 0.0; }
+            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 0.0; }
+            
+            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return 0.0; }
+            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; }
 
             double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const;
             double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }        // 0.0 are dummy values that are not used
@@ -91,7 +97,11 @@ protected:
             double          CalculatePerturbationMuAtPhaseEnd() const                                               { return m_Mu; }                                                        // NO-OP
 
             double          CalculateRadiusAtPhaseEnd() const                                                       { return m_Radius; }                                                    // NO-OP
-            double          CalculateRadiusOnPhase() const;
+   
+            double          CalculateRadiusOnMassChange(double p_dM)                                                { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Luminosity); }
+            double          CalculateRadiusOnPhase() const                                                          { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
+            double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const;
+
 
             std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
             std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                          { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
@@ -108,6 +118,8 @@ protected:
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
     
             double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return GiantBranch::CalculateZetaConstantsByEnvelope(p_ZetaPrescription); } // Calculate Zetas as for other giant stars (HeMS stars were an exception)
+    
+            double          CalculateZetaEquilibrium()                                                              { return -std::numeric_limits<double>::infinity(); }                     // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale
 
             double          ChooseTimestep(const double p_Time) const;
 

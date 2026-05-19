@@ -39,6 +39,7 @@ enum class ERROR_SCOPE: int { NEVER, ALWAYS, FIRST, FIRST_IN_FUNCTION, FIRST_IN_
 // Listed alphabetically (except for 'NONE' - first so ERROR = 0 = NONE)
 enum class ERROR: int {
     NONE,                                                           // no error
+    ADDED_EXCESS_AM_TO_STARS,                                       // attempted to add more angular momentum to stars than was available in a binary
     AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                            // remnant mass unclear from available parameters
     ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                            // expected an unsigned long integer for range count for option
     ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option 
@@ -128,9 +129,12 @@ enum class ERROR: int {
     TOO_MANY_OMEGA_ITERATIONS,                                      // too many iterations in OMEGA root finder
     TOO_MANY_OMEGA_TRIES,                                           // too many tries in OMEGA root finder
     TOO_MANY_PULSAR_SPIN_ITERATIONS,                                // too many iterations calculating the pulsar birth spin period
+    TOO_MANY_PULSAR_MAG_ITERATIONS,                                 // too many iterations calculating the pulsar birth magnetic field
     TOO_MANY_RETRIES,                                               // generic too many retries
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     TOO_MANY_RLOF_TRIES,                                            // too many tries in RLOF root finder
+    TOO_MANY_RV_ITERATIONS,                                         // too many iterations in rotational velocity root finder
+    TOO_MANY_RV_TRIES,                                              // too many tries in rotational velocity root finder
     TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                           // too many timesteps in timesteps file (exceeds maximum)
     UNABLE_TO_CREATE_DIRECTORY,                                     // unable to create directory
     UNABLE_TO_REMOVE_DIRECTORY,                                     // unable to remove directory
@@ -164,6 +168,7 @@ enum class ERROR: int {
     UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                            // unknown kick magnitude distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                             // unknown LBV mass loss prescription
+    UNKNOWN_MALTSEV_MODE,                                           // unknown maltsev mode 
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
     UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,                  // unknown mass transfer angular momentum loss prescription
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription
@@ -171,6 +176,7 @@ enum class ERROR: int {
     UNKNOWN_MT_REJUVENATION_PRESCRIPTION,                           // unknown mass transfer rejuvenation prescription
     UNKNOWN_MT_THERMALLY_LIMITED_VARIATION,                         // unknown mass transfer thermally limited variation
     UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,                        // unknown neutrino mass loss prescription
+    UNKNOWN_NS_ACCRETION_IN_CE,                                     // unknown NS accretion in common envelope
     UNKNOWN_NS_EOS,                                                 // unknown NS equation-of-state
     UNKNOWN_OB_MASS_LOSS_PRESCRIPTION,                              // unknown OB mass loss prescription
     UNKNOWN_PPI_PRESCRIPTION,                                       // unknown pulsational pair instability prescription
@@ -182,6 +188,7 @@ enum class ERROR: int {
     UNKNOWN_Q_DISTRIBUTION,                                         // unknown q-distribution
     UNKNOWN_QCRIT_PRESCRIPTION,                                     // Unknown QCRIT prescription
     UNKNOWN_REMNANT_MASS_PRESCRIPTION,                              // unknown remnant mass prescriptrion
+    UNKNOWN_RESPONSE_TO_SPIN_UP,                                    // unknown common prescription for responding to excessive spin-up
     UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION,                             // unknown RSG mass loss prescription
     UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION,                           // unknown sem-major axis distribution
     UNKNOWN_SN_ENGINE,                                              // unknown supernova engine
@@ -212,6 +219,7 @@ enum class ERROR: int {
 // listed alphabetically
 
 const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATALOG = {
+    { ERROR::ADDED_EXCESS_AM_TO_STARS,                              { ERROR_SCOPE::ALWAYS,              "Attempted to add more angular momentum to stars than was available in the binary" }},
     { ERROR::AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                   { ERROR_SCOPE::ALWAYS,              "Insufficient information to prescribe remnant mass" }},
     { ERROR::ARGUMENT_RANGE_PARMS_EXPECTED_FP,                      { ERROR_SCOPE::ALWAYS,              "Expected a floating point number for range start and increment for option" }},
     { ERROR::ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                   { ERROR_SCOPE::ALWAYS,              "Expected an unsigned long integer for range count for option" }},
@@ -306,6 +314,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_RETRIES,                                      { ERROR_SCOPE::ALWAYS,              "Too many retries" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_RLOF_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when fitting star inside Roche Lobe in RLOF" }},
+    { ERROR::TOO_MANY_RV_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocitiesF" }},
+    { ERROR::TOO_MANY_RV_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocities" }},
     { ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                  { ERROR_SCOPE::ALWAYS,              "Number of timesteps in timestpes file exceeds maximum timesteps" }},
     { ERROR::UNABLE_TO_CREATE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to create directory" }},
     { ERROR::UNABLE_TO_REMOVE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to remove directory" }},
@@ -339,6 +349,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick magnitude distribution" }},
     { ERROR::UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown LBV mass loss prescription" }},
     { ERROR::UNKNOWN_LOGFILE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown log file" }},
+    { ERROR::UNKNOWN_MALTSEV_MODE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown Maltsev remnant mass mode" }},
     { ERROR::UNKNOWN_MT_CASE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer case" }},
     { ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,          { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer accretion efficiency prescription" }},
     { ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,         { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer angular momentum loss prescription" }},
@@ -346,6 +357,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_MT_THERMALLY_LIMITED_VARIATION,                { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer thermally limited variation" }},
     { ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown mass loss prescription" }},
     { ERROR::UNKNOWN_NEUTRINO_MASS_LOSS_PRESCRIPTION,               { ERROR_SCOPE::ALWAYS,              "Unknown neutrino mass loss prescription" }},
+    { ERROR::UNKNOWN_NS_ACCRETION_IN_CE,                            { ERROR_SCOPE::ALWAYS,              "Unknown NS accretion in common envelope" }},
     { ERROR::UNKNOWN_NS_EOS,                                        { ERROR_SCOPE::ALWAYS,              "Unknown NS equation-of-state" }},
     { ERROR::UNKNOWN_OB_MASS_LOSS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown OB mass loss prescription" }},
     { ERROR::UNKNOWN_PPI_PRESCRIPTION,                              { ERROR_SCOPE::ALWAYS,              "Unknown pulsational pair instability prescription" }},
@@ -357,6 +369,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_Q_DISTRIBUTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown q-distribution" }},
     { ERROR::UNKNOWN_QCRIT_PRESCRIPTION,                            { ERROR_SCOPE::ALWAYS,              "Unknown QCRIT prescription" }},
     { ERROR::UNKNOWN_REMNANT_MASS_PRESCRIPTION,                     { ERROR_SCOPE::ALWAYS,              "Unknown remnant mass prescription" }},
+    { ERROR::UNKNOWN_RESPONSE_TO_SPIN_UP,                           { ERROR_SCOPE::ALWAYS,              "Unknown response-to-spin-up prescription" }},
     { ERROR::UNKNOWN_RSG_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown RSG mass loss prescription" }},
     { ERROR::UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown semi-major axis distribution" }},
     { ERROR::UNKNOWN_SN_ENGINE,                                     { ERROR_SCOPE::ALWAYS,              "Unknown supernova engine" }},

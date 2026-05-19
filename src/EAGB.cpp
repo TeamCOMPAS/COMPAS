@@ -1046,7 +1046,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_Force) {
 
         m_Age = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
 
-        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXi(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams); 
+        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXiHurley(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams); 
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
         double R1, R2;
@@ -1078,14 +1078,12 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_Force) {
  */
 bool EAGB::ShouldSkipPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
-    double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why? **Ilya**
+    double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                       // hack from Hurley fortran code, doesn't seem to be in the paper
 
     return (utils::Compare(McSN, m_COCoreMass) < 0);                                            // skip phase if core is heavy enough to go supernova
 
-#undef gbParams
 #undef timescales
 }
 
@@ -1121,14 +1119,12 @@ bool EAGB::ShouldEvolveOnPhase() const {
  */
 bool EAGB::IsSupernova() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
 
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
-    double McSN     = std::max(gbParams(McSN), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why? **Ilya**
+    double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                                // hack from Hurley fortran code, doesn't seem to be in the paper   JR: do we know why? **Ilya**
 
     return (utils::Compare(McSN, m_COCoreMass) <= 0);                                           // core is heavy enough to go Supernova
 
-#undef gbParams
 #undef timescales
 }
 

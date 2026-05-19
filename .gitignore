@@ -21,10 +21,12 @@ Thumbs.db
 # Others
 .ipynb_checkpoints/
 __pycache__/
+.ccache/
 COMPAS_Output*/
 output*/
 *.coverage
 test_artifacts/
+build/
 
 COMPAS
 *.log
@@ -39,6 +41,8 @@ COMPAS
 *.synctex(busy)
 *.synctex.gz
 *.synctex.gz(busy)
+dist/
+compas_python_utils/bundled/COMPAS-linux-x86_64/
 
 # docs html
 *_build

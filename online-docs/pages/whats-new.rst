@@ -3,6 +3,185 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.29.00 January 30, 2026**
+* Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.
+* Renamed the ``KAPIL2025`` tides prescription to ``KAPIL2026`` to match paper date.
+
+**03.28.00 January 28, 2026**
+
+* Updated the default values for the Mandel-Müller kick prescription to a magnitude of 630 km/s and a sigma of 0.45, as calibrated by Disberg et al. (2026) to the results of Disberg & Mandel (2025).
+
+**03.27.02 December 16, 2025**
+
+* Fixed a bug in the assignment of kick direction angles
+* Undid replacement of --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (see 03.26.02)
+
+**03.26.02 October 27, 2025**
+
+* Added option --USSN-kicks-override-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+* Replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (applies to all MS stars, not just CHE stars)
+
+**03.26.00 September 2, 2025**
+
+* Added HAMSTARS mass transfer efficiency prescription
+
+**03.25.00 August 19, 2025**
+
+* Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR).
+
+This is based on the variations explored in Klencki+ 2025, and is very similar in construction to the MACLEOD_LINEAR option, 
+with both requiring an interpolation fraction f set by the user. Therefore, the following options are deprecated:
+
+    * ``--mass-transfer-jloss-macleod-linear-fraction-degen``     in favor of ``--mass-transfer-jloss-linear-fraction-degen``     
+    * ``--mass-transfer-jloss-macleod-linear-fraction-non-degen`` in favor of ``--mass-transfer-jloss-linear-fraction-non-degen`` 
+
+and the replacement options apply for both MACLEOD_LINEAR and KLENCKI_LINEAR.
+
+**03.24.00 August 19, 2025**
+
+* Updated Maltsev remnant mass prescription to include the 3 variants described in Willcox+ 2025 (bimodality paper). 
+* New related options `--maltsev-fallback` which takes a float between 0 and 1 to specify the fallback fraction, and
+  `--maltsev-mode` with choices `'OPTIMISTIC','PESSIMISTIC','BALANCED'` for the extrapolation prescription (see Willcox+ 2025b)
+
+**03.23.00 August 09, 2025**
+
+* The following option is now deprecated, and will be removed in 1 year:
+
+  * ``--use-mass-loss`` in favour of ``--mass-loss-prescription``
+
+Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss prescription to be used with
+``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription`` with any valid prescription (that is not ``zero``), and
+disabled with ``--mass-loss-prescription zero`` instead of ``use-mass-loss false``.
+
+**03.22.02 August 08, 2025**
+
+* The following options are now deprecated, and will be removed in 1 year:
+
+  * ``--initial-mass-min`` in favour of ``--initial-mass-function-min``
+  * ``--initial-mass-max`` in favour of ``--initial-mass-function-max``
+  * ``--initial-mass-power`` in favour of ``--initial-mass-function-power``
+  * ``--minimum-mass-secondary`` in favour of ``--minimum-sampled-secondary-mass``
+
+* The user supplied value for ``--minimum-sampled-secondary-mass`` now checked against the COMPAS values for minimum initial mass (0.00007 :math:`M_\odot`) and maximum initial mass (150.0 :math:`M_\odot`)
+* The secondary mass (for BSE), whether input by user, sampled, or calculated from the primary mass and mass ratio, now checked against the COMPAS value for minimum initial mass (0.00007 :math:`M_\odot`)
+* The default record types written to the SSE and BSE detailed output files now include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
+* The default record types written to the SSE and BSE pulsar evolution files now includes only record type 3 ((Pulsar) TIMESTEP_COMPLETED)
+
+**03.22.00 July 18, 2025**
+
+* Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
+* Added options to set beta and gamma prescription for second stage of 2-stage CE (``--common-envelope-second-stage-beta``, ``--common-envelope-second-stage-gamma-prescription``)
+* Fixed a bug in the calculation of zeta_equilibrium, which impacts when mass transfer is declared to proceed on a nuclear timescale (and hence how conservative it is)
+* Fixed the calculation of Mandel & Muller kicks; split ``--muller-mandel-sigma-kick`` into ``--muller-mandel-sigma-kick-NS`` and ``--muller-mandel-sigma-kick-BH``
+
+**03.21.00 July 17, 2025**
+
+* Deprecated mass loss prescription MERRITT2024 in favour of MERRITT2025
+* Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen
+
+**03.20.06 June 25, 2025**
+
+* The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
+* Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+
+**03.20.03 June 18, 2025**
+
+* Resolved an issue that appeared in 03.10.02 with some TPAGB stars in the ECSN range (but not satisfying ECSN conditions) exploding as core-collapse supernovae
+
+**03.20.01 May 26, 2025**
+
+* Updates to mass accretion for massive ONe WD 
+* Changed white dwarf mass-radius relation to use expression from Eggleton 1986, suitable for extremely low-mass white dwarfs.
+
+**03.20.00 May 25, 2025**
+
+* Replaced the name of the ``KAPIL2024`` tides prescription with ``KAPIL2025``.
+* Updated the equilibrium and dynamical tides equations to match the paper.
+* New outputs for BSE_DETAILED_OUTPUT from tidal evolution, including ``CIRCULARIZATION_TIMESCALE``, ``SYNCHRONIZATION_TIMESCALE_1``, ``SYNCHRONIZATION_TIMESCALE_2``, ``TIDAL_POTENTIAL_LOVE_NUMBER_22_1``, ``TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1``, and ``TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2``
+
+**03.19.00 May 22, 2025**
+
+* Added functionality to create new System Snapshot logfile |br|
+  Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set by new program options (see below).  |br|
+  New program options added: |br|
+  ``--logfile-system-snapshot-log``: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log") |br|
+  ``--logfile-system-snapshot-log-record-types``: specifies the enabled record types for System Snapshot logfile (default is all types) |br|
+  ``--system-snapshot-age-thresholds``: specifies the age thresholds for System Snapshot logfile |br|
+  ``--system-snapshot-time-thresholds``: specifies the time thresholds for System Snapshot logfile
+
+**03.18.02 May 1, 2025**
+
+* Changed default for Nanjing lambdas to use enhanced lambdas and interpolate in mass and metallicity
+
+**03.18.00 Apr 14, 2025**
+
+New command line option:
+
+* ``--timestep-multipliers`` to enable more granular, phase-dependent, timestep multipliers
+
+**03.17.03 Apr 14, 2025**
+
+* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``). 
+* Removed output option ``RLOF_ONTO_NS`` as it can be retrieved from existing RLOF output info. 
+
+**03.17.00 Mar 22, 2025**
+
+* Added ``ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION`` (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with ``--convective-envelope-mass-threshold``)
+* Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars
+* Imposed Keplerian rotation limit on mass-gaining stars: response depends on the new ``--response-to-spin-up`` option, with possible values:
+   * ``TRANSFER_TO_ORBIT`` (default) allows the star to accrete, but excess angular momentum is deposited in the orbit
+   * ``KEPLERIAN_LIMIT`` forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+   * ``NO_LIMIT`` allows arbitrary super-critical accretion, to match legacy choices
+
+**03.16.02 Mar 19, 2025**
+
+New output options for supernova, which allow for full characterization of the binary orientation post-SN:
+
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_X
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y
+* ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z
+* SYSTEMIC_VELOCITY_X
+* SYSTEMIC_VELOCITY_Y
+* SYSTEMIC_VELOCITY_Z
+
+**03.15.00 Mar 5, 2025**
+
+Changes to the treatment of Neutron Star evolution.
+
+New command line options:
+
+* ``--neutron-star-accretion-in-ce`` to determine how a NS accretes mass in a common envelope
+* ``--pulsar-birth-magnetic-field-distribution-mean`` and ``--pulsar-birth-magnetic-field-distribution-sigma`` to determine the birth distribution of the pulsar magnetic field (only relevant when the ``--pulsar-birth-magnetic-field-distribution`` option value is ``NORMAL`` or ``LOGNORMAL``) 
+* ``--pulsar-birth-spin-period-distribution-mean`` and ``--pulsar-birth-spin-period-distribution-sigma`` to determine the birth distribution of the pulsar period (only relevant when the ``--pulsar-birth-spin-period-distribution`` option value is ```NORMAL`` or ``LOGNORMAL``)
+
+Changed command line option values and defaults:
+
+* ``--pulsar-birth-spin-period-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-magnetic-field-distribution`` option value ``ZERO`` is now deprecated.
+* ``--pulsar-birth-spin-period-distribution`` default option value is now ``NORMAL`` (was ``ZERO``)
+* ``--pulsar-birth-magnetic-field-distribution`` default option value is now ``LOGNORMAL`` (was ``ZERO``)
+
+Changes to the NS-related values in log files:
+
+* The pulsar magnetic field strength is now recorded in ``Gauss`` (was ``Tesla``) 
+* The pulsar spin down rate now tracks the pulsar spin period derivative (was spin frequency derivative).
+* The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the ``logfile-definitions`` option
+* The period of non-spinning neutron stars is now reported as infinity instead of zero
+
+**03.14.00 Mar 3, 2025**
+
+* Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
+* Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+* Changed order of calls in SSE evolution to better match BSE evolution
+
+**03.13.02 Feb 19, 2025**
+
+* Replaced name of ``SHIKAUCHI`` main sequence core mass prescription with ``BRCEK``.
+
+**03.13.01 Feb 13, 2025**
+
+* Enabled nuclear timescale mass transfer from evolved donors
+
 **03.13.00 Feb 13, 2025**
 
 * Added pulsar evolution and output (SSE_Pulsar_Evolution) for SSE mode
@@ -17,7 +196,7 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 * Added convective core mass prescription for main sequence stars from Shikauchi+ (2024), describing how the core mass evolves under mass loss and mass gain.
 * New command line option ``--main-sequence-core-mass-prescription`` with arguments ``SHIKAUCHI`` (new prescription), ``MANDEL`` (replaces the functionality of ``--retain-core-mass-during-caseA-mass-transfer``), and ``ZERO`` (core mass set to zero, no treatment).
-* Added new luminosity prescription for main sequence stars from Shikauchi+ (2024).
+* Updated stellar tracks with added luminosity prescription for main sequence stars from Shikauchi+ (2024).
 * Added treatment for rejuvenation of main sequence accretors when the new prescription is used.
 
 **03.10.00 Nov 29, 2024**

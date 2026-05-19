@@ -69,12 +69,12 @@ protected:
     double          CalculateLuminosityAtPhaseEnd() const               { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                                                          // Use class member variables
 
     double          CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const;
-    double          CalculateLuminosityOnPhase() const                  { return m_Luminosity; }    
+    double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase(m_Age, m_Mass0, m_LZAMS0); }    
 
     // Mass loss rate
     double          CalculateMassLossRateBelczynski2010();
-    double          CalculateMassLossRateMerritt2024();
-    double          CalculateMassLossRateWeightOB(const double p_HeliumAbundanceSurface);
+    double          CalculateMassLossRateMerritt2025();
+    double          CalculateMassLossFractionOB(const double p_HeAbundanceSurface) const;
     
     // Radius
     double          CalculateRadiusOnPhase() const                      { return m_RZAMS; }                                                                                         // Constant from birth
@@ -89,6 +89,8 @@ protected:
     bool            ShouldEvolveOnPhase() const                         { return m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)] && (OPTIONS->OptimisticCHE() || Omega() >= m_OmegaCHE); } // Evolve on CHE phase if age in MS timescale and spinning at least as fast as CHE threshold
 
     void            UpdateAgeAfterMassLoss();
+    
+    void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate)    { };                                                                         // Do not use core mass calculations during CHE phase
 
 };
 

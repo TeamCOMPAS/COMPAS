@@ -944,10 +944,10 @@
 //                                      - Cleaned up stability check functions in BaseBinaryStar.cpp for clarity, and to allow for critical mass ratios to be checked correctly
 // 02.33.01     RTW - Sep 26, 2022   - Defect repair:
 //                                      - Fixed interpolation of MACLEOD_LINEAR gamma for specific angular momentum. Previously interpolated on the gamma value, now interpolates in orbital separation
-// 02.33.02      IM - Nov 27, 2022   - Defect repair:
+// 02.33.02     IM - Nov 27, 2022    - Defect repair:
 //                                      - Fixed ignored value of input radius when computing the thermal timescale, relevant if using Roche lobe radius instead (issue #853)
 //                                      - Cleaned code and comments around the use of MT_THERMALLY_LIMITED_VARIATION::RADIUS_TO_ROCHELOBE vs. C_FACTOR (issue #850)
-// 02.34.00      IM - Nov 28, 2022   - Enhancement:
+// 02.34.00     IM - Nov 28, 2022    - Enhancement:
 //                                      - Adding framework for Hirai & Mandel 2-stage common envelope formalism
 //                                          (placeholders for now -- will have identical results to default version)
 //                                      - Placed Dewi CE prescription on parity with others
@@ -1456,8 +1456,265 @@
 //                                      - Added SSE_Pulsar_Evolution output to address issue #1333. Prepended BSE_ to PULSAR_RECORD_TYPE and associated variables
 //                                      - Changed stopping condition for single stars to continue evolving neutron stars (as pulsars) if EvolvePulsars is True
 //                                      - Added a call to SpinDownIsolatedPulsar to Star::EvolveOneTimestep to update pulsar attributes (spin period, magnetic field etc) for single stars
+// 03.13.01   IM - Feb 13, 2025    - Enhancement:
+//                                      - Allowed nuclear timescale mass transfer for evolved donors (issue #1327)
+// 03.13.02   AB - Feb 19, 2025    - Enhancement:
+//                                      - Option SHIKAUCHI for main sequence core mass renamed to BRCEK
+//                                      - Allowed main sequence core mass calculations for lower mass stars
+//                                      - Always update Mass0 in HG.h when BRCEK prescription is used
+// 03.13.03   IM - Feb 20, 2025    - Defect Repairs, Enhancement:
+//                                      - Fixed typo in implementation of Tonset for convective envelope mass calculation (cf. Mandel, Hirai, Picker, 2024)
+//                                      - Corrected radial estimates for mass losing Giant Branch stars
+//                                      - Added new functionality, CalculateRadiusOnMassChange(), to streamline code
+//                                      - Fixed typo in calculation of binding energy of secondary's envelope in the 2-stage CE prescription
+// 03.13.04   IM - Feb 28, 2025    - Defect Repair:
+//                                      - Fix to issue #1327: partial envelope removal on nuclear timescale MT from giants now enabled
+// 03.14.00   IM - Mar 3, 2025     - Defect Repairs, Enhancements:
+//                                      - Updates to improve convergence without sacrificing computational speed, including updates to default mass and radial change fractions per time step and their usage
+//                                      - Capped total wind mass loss rate at MAXIMUM_WIND_MASS_LOSS_RATE (set to 0.1 Msol/yr) for all prescriptions
+//                                      - Changed order of calls to stellar evolution and wind mass loss in SSE to match BSE
+// 03.14.01   IM - Mar 9, 2025     - Defect Repair:
+//                                      - Added a check to prevent a divide-by-zero error from the previous PR (resolves issue #1345)
+// 03.15.00   YS/JR - Mar 03, 2025 - Defect repairs, Enhancement:
+//                                      - Fixed the issue that during mass transfer, the spin-up of a neutron star sometimes created a negative spin period
+//                                      - Updated NS::UpdateMagneticFieldAndSpin() for spin-up/recycling: added Boost integration of angular momentum of neutron star during mass transfer 
+//                                      - Fix for issue #1002
+//                                      - Fix for issue #1257
+//                                      - Updated references to pulsar calculations. 
+//                                      - Added safeguards to make sure the inputs of birth spin period and magnetic field inputs are valid. If not, raise error messages and stop run. 
+//                                      - Consider neutron star not spinning when spin period is infinity, spin frequency is 0 or magnetic field is 0, and all subsequent pulsar parameters are set to 0.
+//                                      - Changes in program options:
+//                                        1). Added program option "--neutron-star-accretion-in-ce" to account for how a neutron star accretes mass during a common envelope event
+//                                        2). Default pulsar birth spin period distribution is set to NORMAL instead of ZERO; ZERO is now deprecated, and non-spinning pulsars are no longer allowed when evolving pulsars. 
+//                                        3). Added program options "--pulsar-birth-spin-period-distribution-mean" (default 75ms) and "--"pulsar-birth-spin-period-distribution-sigma" (default 25ms) to determine the birth distribution of pulsar period when it's normal or lognormal. 
+//                                        4). Default pulsar birth magnetic field distribution is set to LOGNORMAL instead of ZERO; ZERO is now deprecated, and pulsars with zero magnetic field are no longer allowed when evolving pulsars. 
+//                                        5). New command line options "--pulsar-birth-magnetic-field-distribution-mean" (default 12.65)  and "--"pulsar-birth-magnetic-field-distribution-sigma" (default 0.55) to determine the birth distribution of pulsar magnetic field when it's normal or lognormal. 
+//                                      - Changes to SSE/BSE_Pulsar_Evolution file:
+//                                        1). Pulsar magnetic field strength is now recorded in Gauss instead of Tesla 
+//                                        2). Spin of pulsar is now by default recorded with period (s) instead of frequency (Hz). Spin frequency is still tracked and can be added as an output in the logfiles.
+//                                        3). Spin-down of pulsar (m_PulsarDetails.spinDownRate) is now tracking period derivative (p-dot, s/s) instead of frequency derivative (omega-dot, rad/s^2)
+//                                      - Fixed incorrect declarations of BaseStar::CalculateLambdaLoveridgeEnergyFormalism()
+//  03.15.01    IM - Mar 14, 2025   - Defect repair, Enhancement
+//                                      - Fix to issue #1348
+//                                      - Modified suggested timescales for compact objects
+//  03.16.00    VK - Mar 15, 2025   - Defect repairs, Enhancements:
+//                                      - Placed a maximum limit on how much the KAPIL2024 Tides prescription can change spins and orbital parameters in a single timestep. 
+//                                        If too large of a timestep is taken for any reason, tides will only take an effeective timestep such that the change is within the TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC limit.
+//                                      - Updated BaseStar::CalculateImKlmDynamical() to allow for GW dissiopation from a radiative core + convective envelope as long as the convective core radius is negligible, regardless of convective core mass. Required for expected behavior for massive stars on the MS.
+//                                      - Added STAR_PROPERTY::CORE_RADIUS_AT_COMPACT_OBJECT_FORMATION and STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION to the default log files, stored pre supernova.
+//                                      - Fixed a small typo in the TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME constant for tides.
+//  03.16.01    JR - Mar 17, 2025   - Defect repair
+//                                      - Added prototype for CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) to NS.h to reinstate proper inheritance (compiler warning -Woverloaded-virtual; introduced in v03.15.01)
+//                                      - Removed call to CalculateTimescales() from both NS::Initialise() and BH::Initialise() (superfluous since v03.15.01)
+//  03.16.02    SS - Mar 19, 2025   - Defect repair:
+//                                      - Removed deprecated wind mass-loss options
+//                                      - Added ZERO as a new option for WR-mass-loss-prescription
+//  03.16.03    RTW - Mar 21, 2025  - Enhancement:
+//                                      - Added orbital AM vector and system velocity vector to SN output
+//  03.17.00    IM - Mar 22, 2025   - Enhancements, defect repairs:
+//                                      - Changed CalculateLambdaLoveridge() to return 1.0 for non-giant-branch stars to avoid meaningless results where the formalism is ill defined (resolves issue #1354)
+//                                      - All binding energies and lambdas are now computed on request, not stored  in memory
+//                                      - Added ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION (default threshold of convective envelope by mass to label envelope convective is 0.1, can be set with --convective-envelope-mass-threshold), resolves issue #1253
+//                                      - Stable mass transfer now conserves angular momentum after accounting for the rotational angular momentum lost or gained by the stars (resolves issue #1308)
+//                                      - Imposed Keplerian rotation limit on mass-gaining stars (issue #1311):
+//                                      - Response depends on new --response-to-spin-up option; default (KEPLERIAN_LIMIT) forces mass transfer to become non-conservative once star (approximately) reaches super-critical rotation
+//                                        alternatively, with TRANSFER_TO_ORBIT variation, the star continues to accrete, but excess angular momentum is deposited in the orbit
+//                                      - Fixed problem in options code where including "--option-name" in option descriptions sometimes caused YAML file defaults to be parsed incorrectly
+//                                      - Added OMEGA and OMEGA_BREAK to SSE detailed output (to address #243)
+//  03.17.01    VK - Apr 7, 2025    - Defect Repair:
+//                                      - Fix for issue #1365 - Converted user-specified initial rotational frequency from cycles/yr to rad/yr.
+//  03.17.02    JR - Apr 11, 2025   - Defect Repair:
+//                                      - Remove extraneous debug print statement in MainSequence.h (inavertently added by me in v03.17.00)
+//                                      - fix description of return value for BaseStar::CalculateOmegaCHE()
+//  03.17.03    YS - Apr 14, 2025   - Enhancement:
+//                                      - Fix to issue #1366
+//                                      - Removed "RLOF_ONTO_NS" output option as it can be retrieved from RLOF Output info.
+//  03.17.04    AB - Apr 14, 2025   - Defect repair, Enhancement:
+//                                      - Fixes and enhancements to BRCEK core mass prescription: core mass now never reaches the total mass, radius correctly follows the RL radius
+//                                        during nuclear timescale mass transfer, and added functionality to track surface helium abundance on the MS
+//                                      - MainSequence::CalculateRadiusOnPhase() and CalculateRadiusOnPhaseTau() were combined into one function
+//                                      - Limit time step during nuclear timescale mass transfer
+//  03.18.00    JR - Apr 14, 2025   - Enhancement:
+//                                      - Add option "--timestep-multipliers" to enable more granular, phase-dependent, timestep multipliers (see documentation for use)
+//                                      - Added maximum allowed value for options `--timestep-multiplier` and `--timestep-multipliers`
+//  03.18.01    AB - Apr 28, 2025   - Defect repair:
+//                                      - Updated coefficients from Shikauchi et al. (2024) for main-sequence core mass calculations
+//                                      - Fixed behaviour of surface helium abundance for HeMS stars and core helium abundance for HeHG stars
+//  03.18.02    IM - May 1, 2025    - Enhancement:
+//                                      - Added several outputs to the BSE and SSE Switch logs necessary for inter-run post-processing comparisons
+//                                      - Changed the default behaviour to use enhanced Nanjing lambdas (for common envelope calculations), interpolating in mass and metallicity
+//  03.18.03    IM - May 2, 2025    - Defect repair:
+//                                      - Fix for issue #1380, which appears when the Loveridge binding energy is so high that lambda is rounded off to zero
+//  03.18.04    IM - May 4, 2025    - Defect repair:
+//                                      - Added a check to avoid Loveridge lambda becoming zero when the envelope mass is positive but very small
+//  03.18.05    JR - May 8, 2025    - Defect repair:
+//                                      - Fix for issue #1378: reinstate "false" fallback option for `kick-magnitude-random*` options (mistakenly changed to "true" in v03.00.00)
+//  03.18.06    IM - May 9, 2025    - Enhancement, defect repair:
+//                                      - Added several outputs to provide more information and aid code testing: SEMI_MAJOR_AXIS_POST_STAGE_1_CE (for the 2-stage CE); BINDING_ENERGY_CONVECTIVE_ENVELOPE, CONVECTIVE_ENV_MASS, LAMBDA_CONVECTIVE_ENVELOPE (convective envelope binding energy,  mass, and lambda, respectively, Picker prescription)
+//                                      - Ensure that the MANDEL main sequence core mass prescription never provides a core mass exceeding the total mass
+//                                      - Corrected several erroneous comments, cleaned up a few function definitions
+//  03.18.07    IM - May 11, 2025   - Defect repair:
+//                                      - Corrected and simplified GiantBranch::CalculateRadialExtentConvectiveEnvelope()
+//  03.19.00    JR - May 21, 2025   - Enhancement:
+//                                      - Added functionality to create new System Snapshot logfile
+//                                        Writing to the System Snapshot logfile is triggered by system age and/or simulation time passing thresholds set
+//                                        by new program options (see below).  New program options added:
+//                                           --logfile-system-snapshot-log: specifies the name of the System Snapshot logfile (default is "[BSE/SSE]_System_Snapshot_Log")
+//                                           --logfile-system-snapshot-log-record-types: specifies the enabled record types for System Snapshot logfile (default is all types)
+//                                           --system-snapshot-age-thresholds: specifies the age thresholds for System Snapshot logfile
+//                                           --system-snapshot-time-thresholds: specifies the time thresholds for System Snapshot logfile
+//                                      - Removed stashing to SSE SNe file - printing is now done directly (stashing no longer required since we now don't save/revert).
+//                                        I was going to remove the save/revert state functions - we don't need them (we have clone functions), but I left them in for now (just in case we find a need...).
+//  03.20.00    VK - May 25, 2025   - Enhancement, Defect repair:
+//                                      - Replaced the name of the KAPIL2024 tides presctiption with KAPIL2025 to match the reference.
+//                                      - Updated equilibrium and dynamical tides to be consistent with paper. Most notably, corrected all tidal terms to have l=2, and updated the other indices to n and m.
+//                                      - Added variables for circularization timescale, synchronization timescales (for both stars), and all the tidal ImKnm potential Love numbers to BSE output.
+//  03.20.01    SS/NRS - May 26, 2025   - Enhancement:
+//                                      - Improvements to mass accretion for massive ONe WDs
+//                                          - Added ONe::CalculateMassAcceptanceRate
+//                                          - Fix units of logMassTransferRate in WhiteDwarfs::CalculateEtaHe and WhiteDwarfs::CalculateEtaH 
+//                                          - Update white dwarf mass-radius relation (WhiteDwarfs::CalculateRadiusOnPhase_Static)
+//                                          - Moved white dwarf related constants to constants.h (resolves issue #1351)
+//                                          - Set merger on unstable RLOF from WD
+//  03.20.02   IM - May 30, 2025        - Defect repair, enhancement:
+//                                          - Included unit conversion in WhiteDwarfs::CalculateEtaPTY()
+//                                          - All critical mass ratios now return the HURLEY_HJELLMING_WEBBINK_QCRIT_WD for white dwarfs and 0 for other remnant donors (only stable mass transfer) as fix for issue #1385
+//  03.20.03   IM - June 18, 2025       - Defect repair, enhancement:
+//                                          - TPAGB stars should no longer experience supernovae if SN conditions are not satisfied, rather than defaulting to CCSN (corrects the partial fix in 03.10.02)
+//                                          - Added new parameter (threshold mass, generally expected to be MCH or MECS) to CalculateCoreMassAtSupernova_Static()
+//                                          - Removed McSN from GBParams, instead computed on the fly when needed
+//  03.20.04   AB - Jun 23, 2025        - Defect repair, enhancement:
+//                                          - Fixes to MS mergers and CHE when BRCEK core mass prescription is used -- MS core mass is now correctly initialised after full mixing in MS
+//                                            mergers and CH stars that spun down
+//  03.20.05   IM - June 24, 2025       - Defect repair:
+//                                          - Fixed typo in implementation of CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE_ONTO_NSBH (issue #1403)
+//  03.20.06   IM - June 25, 2025       - Enhancements:
+//                                          - The MAXWELLIAN NS CCSN kick changed from the Hobbs value of 265 km/s to 217 km/s based on 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
+//                                          - Implemented a LOGNORMAL NS CCSN kick magnitude distribution based on Disberg & Mandel, 2025
+//  03.20.07   IM - June 25, 2025       - Enhancement:
+//                                          - Added a maximum threshold of 1000 km/s for Disberg & Mandel (2025) LOGNORMAL kicks, matching paper
+//  03.20.08   AB - Jun 26, 2025        - Defect repair:
+//                                          - Fix for issue #400; correct Zsol values are now used in stellar wind prescriptions
+//                                          - To avoid ambiguous ZSOL, we now use ZSOL_HURLEY = 0.02, ZSOL_ANDERS = 0.019, and ZSOL_ASPLUND = 0.0142
+//                                          - Fixed error in MainSequence::CalculateInitialMainSequenceCoreMass()
+//  03.20.09  RTW - Jun 30, 2025        - Enhancement:
+//                                          - Added individual velocity components for stars to the LogTypedefs file so they can be included in the output (as ANY_STAR_PROPERTY::VELOCITY_X, or Y, Z)
+//  03.21.00   JR - Jul 17, 2025        - Enhancement:
+//                                          - Changed mass loss prescription MERRITT2024 to MERRIT2025; deprecated MERRIT2024
+//                                          - Added datestrings to vectors supporting deprecation in Options.h to allow timely removal
+//                                          - Added version strings for gsl, boost, and HDF5 to COMPAS splashscreen (for now, gsl & hdf5 are installed versions, boost is version compiled with COMPAS)
+//  03.22.00   IM - July 17, 2025        - Enhancements, defect repair:
+//                                          - Changed default values of --enhance-CHE-lifetimes-luminosities and --scale-CHE-mass-loss-with-surface-helium-abundance to true
+//                                          - Added options to set beta and gamma prescription for second stage of 2-stage CE (--common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription)
+//                                          - Fixed a bug in CalculateZetaEquilibrium(), which impacted when mass transfer is declared nuclear (and how conservative it is)
+//                                          - Added missing virtual declaration to ShouldEnvelopeBeExpelledByPulsations
+//                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step
+//                                          - Fixed random draws of SN kicks to avoid artificial pile-up at boundaries of distribution
+//					                        - Split --muller-mandel-sigma-kick into --muller-mandel-sigma-kick-NS and --muller-mandel-sigma-kick-BH
+//  03.22.01  IM - July 20, 2025        - Defect repair:
+//                                          - Fixed random kick draw for MULLERMANDEL prescription
+//  03.22.02  JR - August 08, 2025      - Defect repair/enhancement (~cleanups for consistency):
+//                                          - Changes for issue 1413:
+//                                             - Deprecated options
+//                                                  . "--minimum-mass-secondary" in favour of "--minimum-sampled-secondary-mass"
+//                                                  . "--initial-mass-min"       in favour of "--initial-mass-function-min"
+//                                                  . "--initial-mass-max"       in favour of "--initial-mass-function-max"
+//                                                  . "--initial-mass-power"     in favour of "--initial-mass-function-power"
+//                                             - Default value for "--initial-mass-function-min" remains at 5.0 Msol
+//                                             - Default value for "--initial-mass-function-max" remains at 150.0 Msol
+//                                             - Default value for "--initial-mass-function-power" remains at 0.0
+//                                             - Default value for "--minimum-sampled-secondary-mass" remains at 0.1 Msol
+//                                             - User supplied value for "--minimum-sampled-secondary-mass" checked against values of constants MINIMUM_INITIAL_MASS and MINIMUM_INITIAL_MASS
+//                                             - Secondary mass, whether input by user, sampled, or calculated from M1 & q, checked against constant MINIMUM-INITIAL-MASS
+//                                             - Online docs "program-options-list-defaults" and "standard-logfiles-record-specification-options" pages updated
+//                                             - Whatsnew page updated
+//                                          - Changes for issue 1414:
+//                                             - Changed [SSE/BSE]_PULSAR_RECORDTYPE::DEFAULT to [SSE/BSE]_PULSAR_RECORDTYPE::PRE_SN
+//                                                  - don't want DEFAULT anymore, but wanted to preserve numbering.  Neither PRE_SN nor POST_SN are currently used (POST_SN was), so we could rename them one day.
+//                                             - Removed default parameter from BaseStar::PrintPulsarEvolutionParameters() and BaseBinaryStar::PrintPulsarEvolutionParameters()
+//                                             - Changed default record types for:
+//                                                  - SSE and BSE detailed output files to include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
+//                                                  - SSE and BSE pulsar evolution files to include only record type 3 ((pulsar) TIMESTEP_COMPLETED)
+//  03.23.00  JR - August 09, 2025      - Enhancement:
+//                                          - Deprecated option
+//                                               - "--use-mass-loss" in favour of "--mass-loss-prescription"
 //
+//                                                 Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss
+//                                                 prescription to be used with ``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription``
+//                                                 with any valid prescription (that is not ``zero``), and disabled with ``--mass-loss-prescription zero`` instead of 
+//                                                 ``use-mass-loss false``.
+//                                          - Added compiler flag "-Wno-vla-cxx-extension" to "CXXFLAGS" in Makefile to suppress compiler extension warning
+//                                          - Fixed online docs for omissions in v03.22.02:
+//                                               - fixed description for "--initial-mass-function" in "program-options-list-defaults.rst", and
+//                                               - changed "--initial-mass-power" to "--initial-mass-function-power" in "program-options-list-defaults.rst"
+//  03.23.01  IM - August 18, 2025      - Enhancement, defect repair:
+//                                          - In the MALTSEV SN prescription, treat wind-stripped stars as if they experienced case B mass transfer
+//                                          - Limit the output of CalculateEtaPTY() [Helium accretion efficiency onto WDs from Piersanti+ 2014, A3] to be in [0,1]
+//  03.24.00 RTW - August 18, 2025      - Enhancement:
+//                                          - Updated Maltsev SN prescription, to include Maltsev mode (extrapolation variant outside of Z bounds), 
+//                                            fallback option, fixed remnant mass, and added lum and teff as attributes of RLOFProperties
+//  03.25.00 RTW - August 18, 2025      - Enhancement:
+//                                          - Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR)
+//  03.25.01  JR - August 20, 2025      - Defect repairs:
+//                                          - Corrected calculations for Hurley A(n) and B(n) coefficients (see Hurley et al. 2000, appendix)
+//                                          - Changed utils::GetGSLVersion() to avoid compiler warning "warning: ignoring attributes on template argument ‘int (*)(FILE*)’ [-Wignored-attributes]"
+//                                          - Reverted Makefile line "SOURCES := $(wildcard *.cpp)" to listing actual source files
+//  03.25.02  JR - August 20, 2025      - Defect repairs:
+//                                          - Clamped B_GAMMA to [0.0, B_GAMMA] (per discussion just after eq 23 - confirmed in BSE Fortran source)
+//                                          - Corrected calculation for Hurley Gamma constant C (C_GAMMA - see Hurley et al. 2000, just after eq 23, should use a(75) <= 1.0, not a(75) == 1.0 - confirmed in BSE Fortran source)
+//                                          - Added abs() to gamma calculation in Mainsequence.cpp::CalculateGamma() (per BSE Fortran source)
+//                                          - Clamped gamma to [0.0, gamma] in Mainsequence.cpp::CalculateGamma() (per discussion just after eq 23 - confirmed in BSE Fortran source)
+//  03.26.00  IM - September 2, 2025    - Enhancement, defect repairs:
+//                                          - First (simplified) implementation of the Lau+ (2024) Hamstars thermally limited accretion prescription
+//                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010(), CalculateMassLossRateMerritt2025() and CH::CalculateMassLossFractionOB() [previously CalculateMassLossRateWeightOB()]
+//  03.26.01  AB - October 24, 2025     - Option name change:
+//                                          - Main sequence core mass prescription ZERO renamed to HURLEY; deprecated ZERO
+//  03.26.02  IM - October 27, 2025     - Enhancements
+//                                          - Added option --USSN-kicks-override-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+//                                          - Replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (applies to all MS stars, not just CHE stars)
+//                                          - Updated rotational velocity solver to use boost root finder
+//  03.27.01  JR - October 27, 2025     - Defect repairs:
+//                                          - changed Options::OptionValue() to return correct value for option --USSN-kicks-override-mandel-muller
+//                                          - deprecated --scale-CHE-mass-loss-with-surface-helium-abundance in favour of --scale-mass-loss-with-surface-helium-abundance
+//                                          - removed option --scale-CHE-mass-loss-with-surface-helium-abundance from "BSEonly" vector in Options.h
+//                                          - changed "scale-CHE-mass-loss-with-surface-helium-abundance" to "--scale-mass-loss-with-surface-helium-abundance" in "RangeExcluded" vector in Options.h
+//                                          - version should have been "v03.27.00" instead of "v03.26.02" - change included new functionality.  This version is "v03.27.01" to compensate.
+//  03.27.02  AB - December 9, 2025     - Defect repairs:
+//                                          - Reverted a change from PR #1437: --scale-mass-loss-with-surface-helium-abundance is changed back to 
+//                                            --scale-CHE-mass-loss-with-surface-helium-abundance and applies only to CHE stars
+//                                          - Corrected behaviour of MS stars that stopped ageing after mass transfer when mass loss is disabled (issue #1444)
+//                                          - Corrected luminosity evolution for CH stars (issue #1443)
+//  03.27.03  IM - December 16, 2025    - Defect repair:
+//                                          - Fix issue #1446: Theta and phi variables are flipped when assigning kicks, potentially giving unintended kick distributions
+//  03.28.00  PD - January 28, 2026     - Enhancement:
+//                                          - Updated default MullerMandel kick parameters in constants.h to the values from Disberg+2026, previous values were from Kapil+2023
+//  03.29.00  VK - January 30, 2026     - Enhancements:
+//                                          - Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called '--tides-prescription ZAHN1977'.
+//                                          - Renamed KAPIL2025 tides prescription to KAPIL2026 to match publication.
+//                                          - Updated the spin limit in 'BaseBinaryStar::CalculateDOmegaTidalDt()' to allow pseudo-synchronization based on Hut (1981), which affects the maximum spin with KAPIL2026 and ZAHN1977 options.
+//                                          - Added a limit to rotation change per time step in KAPIL2026 to ensure angular momentum conservation.
+//                                          - Updated dynamical tides equations in KAPIL2026 to match paper.
+//  03.29.01  JR - March 15, 2026       - Defect repair:
+//                                          - Fix for issue 1441: vector out-of-bounds access in Log.cpp, which is known to cause COMPAS to terminate on at least one Linux
+//                                            distribution (Manjaro), possibly C++ version specific.  See issue 1441 for description of defect and repair details.
+//  03.29.02  AB - March 16, 2026       - Defect repair:
+//                                          - Fix for issue 1463: sign error in the Claeys+2014 common-envelope lambda prescription
+//  03.29.03 NRS - April  3, 2026       - Defect repair:
+//                                          - Fixed HeSDs not being recorded in the Supernovae logs (mentioned in issue 1350).
+//  03.29.04  IM - April 19, 2026       - Enhancement:
+//                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
+//
+//
+// Version string format is MM.mm.rr, where
+//
+// MM is the MAJOR release number: this should be incremented whenever major new functionality is introduced
+// mm is the MINOR release number: this should be incremented whenever minor new functionality (e.g. small enhancemet) is introduced
+// rr is the fix RELEASE number:   this should be incremented whenever a defect repair is made
+//
+// if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
+// if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.13.00";
+const std::string VERSION_STRING = "03.29.04";
+
 
 # endif // __changelog_h__

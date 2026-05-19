@@ -5,7 +5,10 @@ Default record definition for the SSE SwitchLog log file::
 
     const ANY_PROPERTY_VECTOR SSE_SWITCH_LOG_REC = {
         STAR_PROPERTY::RANDOM_SEED,
-        STAR_PROPERTY::TIME
+        STAR_PROPERTY::TIME,
+    	STAR_PROPERTY::MASS,
+    	STAR_PROPERTY::STELLAR_TYPE,
+    	STAR_PROPERTY::RADIUS
     };
 
 

@@ -65,8 +65,6 @@ void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 	gbParams(McBAGB) = CalculateCoreMassAtBAGB();
 	gbParams(McBGB)  = CalculateCoreMassAtBGB(p_Mass, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
-
 #undef gbParams
 }
 
@@ -134,8 +132,6 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
 
-    gbParams(McSN)   = CalculateCoreMassAtSupernova_Static(gbParams(McBAGB));
-
 #undef gbParams
 }
 
@@ -157,20 +153,24 @@ double HeHG::CalculateLuminosityOnPhase() const {
 }
 
 
+
 /*
  * Calculate radius of a Helium HertzSprung Gap star
  *
  * Uses Helium Giant Branch radius
  *
  *
- * double CalculateRadiusOnPhase()
+ * double CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) 
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
  *
  * @return                                      Radius of a Helium HertzSprung Gap star
  */
-double HeHG::CalculateRadiusOnPhase() const {
+double HeHG::CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const {
 
     double R1, R2;
-    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(m_Mass, m_Luminosity);
+    std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
     return std::min(R1, R2);
 }
@@ -270,7 +270,7 @@ double HeHG::CalculateRemnantRadius() const {
  *
  * This implementation adapted from the STARTRACK implementation (STARTRACK courtesy Chris Belczynski)
  *
- * This function good for HeHG and HeGB stars (for Helium stars: always use Natasha's fit)
+ * This function is for HeHG and HeGB stars (for Helium stars: always use Natasha Ivanova's fit)
  *
  *
  * double CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity)
@@ -282,11 +282,11 @@ double HeHG::CalculateRemnantRadius() const {
  */
 double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
 
-    double rMin = 0.25;                              // minimum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
-	double rMax = 120.0;                             // maximum considered radius: Natasha       JR: should this be in constants.h? Maybe not... Who is Natasha?  **Ilya**
+    double rMin = 0.25;                              // minimum considered radius: Natasha
+	double rMax = 120.0;                             // maximum considered radius: Natasha
 
-	double rMinLambda = 0.3 * PPOW(rMin, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
-	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);       // JR: todo: should this be in constants.h?       JR: should this be in constants.h? Maybe not...  **Ilya**
+	double rMinLambda = 0.3 * PPOW(rMin, -0.8);
+	double rMaxLambda = 0.3 * PPOW(rMax, -0.8);
 
 	return m_Radius < rMin ? rMinLambda : (m_Radius > rMax ? rMaxLambda : 0.3 * PPOW(m_Radius, -0.8));
 }
@@ -325,6 +325,13 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
+            break;
+            
+        case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
+            // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
+            double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
+            std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
+            envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
             break;
 
         default:                                                                                    // unknown prescription
@@ -401,12 +408,10 @@ double HeHG::ChooseTimestep(const double p_Time) const {
  * @return                                      Boolean flag: true if evolution on this phase should continue, false if not
  */
 bool HeHG::ShouldEvolveOnPhase() const {
-#define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, gbParams(McSN)) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
-
-#undef gbParams
+    double McSN  = CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)]);
+    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, McSN) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
 }
 
 
@@ -473,7 +478,7 @@ bool HeHG::IsSupernova() const {
         return (utils::Compare(m_Mass, MECS) > 0);
     }
         
-    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
+    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
 }
 
 /*
