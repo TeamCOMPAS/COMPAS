@@ -72,7 +72,7 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //    2. if 'fallback' is 'true':
 //           the value specified on the commandline if the user did not specify the 
 //           option on the grid line (regardless of whether they specified the option
-//           on the commandline).  In this case, if the user did not speify a value on
+//           on the commandline).  In this case, if the user did not specify a value on
 //           the commandline, the commandline value is set according to the default
 //           behaviour for the option, and the grid line value is set from that.  Note
 //           that for options whose default behaviours is to draw a random number, this
