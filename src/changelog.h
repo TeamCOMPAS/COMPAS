@@ -1703,7 +1703,8 @@
 //                                          - Fixed HeSDs not being recorded in the Supernovae logs (mentioned in issue 1350).
 //  03.29.04  IM - April 19, 2026       - Enhancement:
 //                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
-//
+//  03.29.05  AG - May 26, 2026          - Defect repair:
+//                                       - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1714,7 +1715,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.29.04";
+const std::string VERSION_STRING = "03.29.05";
 
 
 # endif // __changelog_h__
