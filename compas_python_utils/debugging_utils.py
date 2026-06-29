@@ -4,8 +4,7 @@ import pandas as pd
 from numpy.dtypes import StringDType
 from typing import NewType
 
-""
-# New Types
+### New Types
 MaskNdarray = NewType('MaskNdarray', np.ndarray[bool])
 H5File = NewType('H5File', h5._hl.files.File)
 H5Group = NewType('H5Group', h5._hl.group.Group)
@@ -24,8 +23,7 @@ SnEventTuple = NewType('SnEventTuple',
 EventHistoryString = NewType('EventHistoryString', np.array(np.str_))
 
 
-########################################################################
-# ## Function to print the data from a given COMPAS HDF5 group in a readable pandas template
+### Function to print the data from a given COMPAS HDF5 group in a readable pandas template
 
 def convert_bytes_array_to_strings(param_array):
     """Check and convert np.bytes_ array to strings.
@@ -124,8 +122,7 @@ def print_compas_details_dataframe(data: H5Group,
     return df
 
 
-########################################################################
-# ## Get event histories of MT data, SN data, and combined MT, SN data
+### Get event histories of MT data, SN data, and combined MT, SN data
 
 def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
     """Calculates the EventTuple for the BSE_RLOF output H5Group.
@@ -544,5 +541,8 @@ def get_event_strings(
         event_strings[ii] = event_string
     return event_strings
 
+def main():
+    return
 
-""
+if __name__ == "__main__":
+    main()
