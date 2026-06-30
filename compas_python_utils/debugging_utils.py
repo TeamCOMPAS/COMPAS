@@ -140,7 +140,7 @@ def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
         a list of sublists, one sublist per seed, where each sublist
         contains all the MtEventTuples for the given seed
     returned_times : list
-        a list of sublists of times of each of the mt_data events.
+        a list of sublists of times of each of the mt_data events
 
     Notes
     -----
@@ -150,7 +150,6 @@ def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
     it is just a feeder for get_event_history below.
     """
     mt_seeds = mt_data['SEED'][()]
-
     mt_times = mt_data['Time<MT'][()]
     mt_primary_stype = mt_data['Stellar_Type(1)<MT'][()]
     mt_secondary_stype = mt_data['Stellar_Type(2)<MT'][()]
@@ -235,12 +234,12 @@ def get_sn_data_tuple(sn_data: H5Group) -> tuple[list, list, list]:
     Returns
     -------
     returned_seeds : list
-        an ordered list of the unique seeds in the sn_data file,
+        an ordered list of the unique seeds in the sn_data file
     returned_events : list
         a list of sublists, one sublist per seed, where each sublist
         contains all the SnEventTuples for the given seed
     returned_times : list
-        a list of sublists of times of each of the sn_data events.
+        a list of sublists of times of each of the sn_data events
 
     Notes
     -----
