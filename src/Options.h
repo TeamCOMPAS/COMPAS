@@ -1776,8 +1776,6 @@ public:
     double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, true); }
     
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
-
-    ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
     
     SURFACE_MAGNETIC_FIELD_DISTRIBUTION         SurfaceMagneticFieldDistribution() const                                { return OPT_VALUE("surface-magnetic-field-distribution",           m_SurfaceMagneticFieldDistribution.type,    true); }

@@ -237,7 +237,7 @@ double NS::DrawBirthMagneticField_Static() {
             // add a guard to make sure magnetic field is always larger than the value set by --pulsar-minimum-magnetic-field
             std::size_t iterations = 0;
             do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
-            if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
+            if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR_STATIC(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
             } break;
 
         default:                                                                                                // unknown prescription
@@ -480,14 +480,14 @@ double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initia
     
     std::cout << "CalculateSpinPeriodOnPhase" << std::endl;
     std::cout << "p_Time " << p_Time << std::endl;
-
+    
     // Initialise variables for results
     double spinPeriodSquared = 0.0;
     double spinPeriod        = 0.0;
     double brackets          = 0.0;
     
     // Get user specified options
-    double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA; 
+    // double magFieldLowerLimit = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField()) * GAUSS_TO_TESLA; 
     double tau                = CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
     const double alpha        = OPTIONS->PulsarMagneticFieldDecayTimescalePower();     
 
