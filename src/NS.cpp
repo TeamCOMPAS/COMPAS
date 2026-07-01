@@ -404,27 +404,27 @@ void NS::CalculateAndSetPulsarParameters() {
  * */
 double NS::CalculateMagneticFieldDecayTimescale(){
 
-    std::cout << "CalculateMagneticFieldDecayTimescale" << std::endl;
+    //std::cout << "CalculateMagneticFieldDecayTimescale" << std::endl;
 
     double taud                 = 0.0;                                                          // Initialise variable to hold magnetic field decay timescale
     double Bref                 = 1E11;                                                         // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
     double initialMagField_G    = m_PulsarDetails.magneticField * TESLA_TO_GAUSS;               // Convert T to G 
 
-    std::cout << "Bref = " << Bref << std::endl;
-    std::cout << "initialMagField_G = " << initialMagField_G << std::endl;
+    //std::cout << "Bref = " << Bref << std::endl;
+    //std::cout << "initialMagField_G = " << initialMagField_G << std::endl;
 
     if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){                              // No scaling with magnetic field
-        std::cout << "alpha = 0" << std::endl;
+        //std::cout << "alpha = 0" << std::endl;
         taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                                    // Decay timescale is just a constant
     }
     else{
-        std::cout << "alpha != 0" << std::endl;
-        std::cout << "B = " << m_PulsarDetails.magneticField << std::endl;
+        //std::cout << "alpha != 0" << std::endl;
+        //std::cout << "B = " << m_PulsarDetails.magneticField << std::endl;
         taud = OPTIONS->PulsarMagneticFieldDecayTimescale() * PPOW(Bref/initialMagField_G, OPTIONS->PulsarMagneticFieldDecayTimescalePower());
     }
     
-    std::cout << "tauconst = " << OPTIONS->PulsarMagneticFieldDecayTimescale() << std::endl;
-    std::cout << "taud = " << taud << std::endl;
+    //std::cout << "tauconst = " << OPTIONS->PulsarMagneticFieldDecayTimescale() << std::endl;
+    //std::cout << "taud = " << taud << std::endl;
 
     return taud;
 }
