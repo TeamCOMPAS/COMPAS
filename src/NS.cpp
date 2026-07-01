@@ -441,8 +441,8 @@ double NS::CalculateMagneticFieldDecayTimescale(){
  */
 double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField){
 
-    std::cout << "CalculateMagneticFieldStrengthOnPhase" << std::endl;
-    std::cout << "p_Time " << p_Time << std::endl;
+    //std::cout << "CalculateMagneticFieldStrengthOnPhase" << std::endl;
+    //std::cout << "p_Time " << p_Time << std::endl;
 
     double magneticFieldStrength = 0.0;
 
@@ -451,13 +451,13 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
     const double alpha           = OPTIONS->PulsarMagneticFieldDecayTimescalePower();                                
 
     if (alpha == 0.0){              // see Equation 6 in  arXiv:0903.3538v2    
-        std::cout << "alpha == 0" << std::endl;
+        //std::cout << "alpha == 0" << std::endl;
         magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * exp(-p_Time / tau);   // update pulsar magnetic field in SI. 
     }
     else{                   // Equation 8 in Dall'Osso et al. 2012 (https://ui.adsabs.harvard.edu/abs/2012MNRAS.422.2878D/abstract) but with a minimum magnetic field
-        std::cout << "alpha != 0" << std::endl;
+        //std::cout << "alpha != 0" << std::endl;
         magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * PPOW(1.0 + alpha*(p_Time/tau), -1.0/alpha);
-        std::cout << "p_initialMagField, magneticFieldStrength = " << p_initialMagField << " " << magneticFieldStrength << std::endl;
+        //std::cout << "p_initialMagField, magneticFieldStrength = " << p_initialMagField << " " << magneticFieldStrength << std::endl;
     }
 
     return magneticFieldStrength;
@@ -478,8 +478,8 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
  */
 double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod){
     
-    std::cout << "CalculateSpinPeriodOnPhase" << std::endl;
-    std::cout << "p_Time " << p_Time << std::endl;
+    // std::cout << "CalculateSpinPeriodOnPhase" << std::endl;
+    // std::cout << "p_Time " << p_Time << std::endl;
     
     // Initialise variables for results
     double spinPeriodSquared = 0.0;
@@ -553,9 +553,9 @@ double NS::CalculateSpinPeriodOnPhase(const double p_Time, const double p_initia
  */
 void NS::SpinDownIsolatedPulsar(const double p_Stepsize) {
     
-    std::cout << std::endl;
-    std::cout << "SpinDownIsolatedPulsar" << std::endl;
-    std::cout << "p_Stepsize " << p_Stepsize << std::endl;
+    //std::cout << std::endl;
+    //std::cout << "SpinDownIsolatedPulsar" << std::endl;
+    //std::cout << "p_Stepsize " << p_Stepsize << std::endl;
 
     // Get initial state
     double initialMagField        = m_PulsarDetails.magneticField;                                                          // (in T)
