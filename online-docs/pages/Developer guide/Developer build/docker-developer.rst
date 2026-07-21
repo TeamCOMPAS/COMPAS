@@ -2,16 +2,29 @@ Creating a Docker image
 =======================
 
 
+Overview
+--------
+
+Docker simplifies COMPAS deployment by containerizing all dependencies and build tools, 
+eliminating manual environment configuration across different operating systems and platforms. 
+This enables reliable deployment on cloud platforms and consistent development environments.
+
+For information on how to use Docker to run COMPAS, see the :doc:`../../User guide/docker` page.
+
+
 GitHub CI/CD
 ------------
  
-``Docker`` images of all versions of COMPAS (``dev`` branch) are available at the 
-`TeamCOMPAS dockerHub page <https://hub.docker.com/u/teamcompas>`__. Building of these images is performed automatically by the 
-``GitHub`` CI/CD process.
+``Docker`` images of all versions of COMPAS (``dev`` branch) are available at:
+
+    - `TeamCOMPAS dockerHub page <https://hub.docker.com/u/teamcompas>`__
+    - `GitHub Container Registry <https://github.com/TeamCOMPAS/COMPAS/pkgs/container/compas>`__
+
+Building of these images is performed automatically by the ``GitHub`` CI/CD process.
 
 Whenever a push to `TeamCOMPAS/dev <https://github.com/TeamCOMPAS/COMPAS/tree/dev>`__ occurs, a continuous deployment process 
 automatically
-builds\ [#f1]_ a new image and deploys it to ``dockerHub`` with a `tag`\ [#f2]_ that corresponds to the value of ``VERSION_STRING`` 
+builds\ [#f1]_ a new image and deploys it to both ``dockerHub`` and the ``GitHub Container Registry`` with a `tag`\ [#f2]_ that corresponds to the value of ``VERSION_STRING`` 
 in ``changelog.h`` (see :doc:`../changelog` for detailed information regarding ``changelog.h``).
 
 At time of writing, `GitHub Actions`\ [#f3]_ facilitates the above process. While this is convenient (because it's free and well 
@@ -22,6 +35,25 @@ The Github Actions configuration is in ``/.github/workflows/dockerhub-ci.yml``.
 
 See the `Atlassian CI/CD <https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment>`__ 
 documentation for detailed information regarding the ``GitHub`` CI/CD process.
+
+
+Using GitHub Container Images
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``GitHub Container Registry`` makes COMPAS images available without requiring a dockerHub account. You can use the GitHub image in the same way as a dockerHub image:
+
+.. code-block:: bash
+
+    # Pull the latest development image
+    docker pull ghcr.io/teamcompas/compas:latest
+
+    # Pull a specific version
+    docker pull ghcr.io/teamcompas/compas:v02.43.01
+
+    # Run a container
+    docker run -it ghcr.io/teamcompas/compas:latest /bin/bash
+
+For more information, see the `GitHub Container Registry <https://github.com/TeamCOMPAS/COMPAS/pkgs/container/compas>`__.
 
 
 Dockerfile

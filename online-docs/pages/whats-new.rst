@@ -3,7 +3,7 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**03.23.00 July 31, 2025**
+**03.30.00 July 21, 2026**
 
 * Updates relevant to formation of millisecond pulsars:
   - Added more flexible function, CalculateMagneticFieldDecayAccretion_Static, for dealing with magnetic field decay due to accretion
@@ -11,6 +11,70 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
   - Added new option ``--neutron-star-accretion-efficiency-parameter`` to allow for inefficient sub-Eddington accretion on to neutron stars
   - Added birth distributions for the pulsar properties of MSPs born in AIC (``msp-birth-magnetic-field-distribution`` and ``msp-birth-spin-period-distribution``)
   - Added new option ``--pulsar-magnetic-field-decay-timescale-power`` and correspondingly changed how the magnetic field decay timescale is calculated in ``NS::CalculateMagneticFieldDecayTimescale``
+
+**03.29.00 January 30, 2026**
+* Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.
+* Renamed the ``KAPIL2025`` tides prescription to ``KAPIL2026`` to match paper date.
+
+**03.28.00 January 28, 2026**
+
+* Updated the default values for the Mandel-Müller kick prescription to a magnitude of 630 km/s and a sigma of 0.45, as calibrated by Disberg et al. (2026) to the results of Disberg & Mandel (2025).
+
+**03.27.02 December 16, 2025**
+
+* Fixed a bug in the assignment of kick direction angles
+* Undid replacement of --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (see 03.26.02)
+
+**03.26.02 October 27, 2025**
+
+* Added option --USSN-kicks-override-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+* Replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (applies to all MS stars, not just CHE stars)
+
+**03.26.00 September 2, 2025**
+
+* Added HAMSTARS mass transfer efficiency prescription
+
+**03.25.00 August 19, 2025**
+
+* Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR).
+
+This is based on the variations explored in Klencki+ 2025, and is very similar in construction to the MACLEOD_LINEAR option, 
+with both requiring an interpolation fraction f set by the user. Therefore, the following options are deprecated:
+
+    * ``--mass-transfer-jloss-macleod-linear-fraction-degen``     in favor of ``--mass-transfer-jloss-linear-fraction-degen``     
+    * ``--mass-transfer-jloss-macleod-linear-fraction-non-degen`` in favor of ``--mass-transfer-jloss-linear-fraction-non-degen`` 
+
+and the replacement options apply for both MACLEOD_LINEAR and KLENCKI_LINEAR.
+
+**03.24.00 August 19, 2025**
+
+* Updated Maltsev remnant mass prescription to include the 3 variants described in Willcox+ 2025 (bimodality paper). 
+* New related options `--maltsev-fallback` which takes a float between 0 and 1 to specify the fallback fraction, and
+  `--maltsev-mode` with choices `'OPTIMISTIC','PESSIMISTIC','BALANCED'` for the extrapolation prescription (see Willcox+ 2025b)
+
+**03.23.00 August 09, 2025**
+
+* The following option is now deprecated, and will be removed in 1 year:
+
+  * ``--use-mass-loss`` in favour of ``--mass-loss-prescription``
+
+Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss prescription to be used with
+``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription`` with any valid prescription (that is not ``zero``), and
+disabled with ``--mass-loss-prescription zero`` instead of ``use-mass-loss false``.
+
+**03.22.02 August 08, 2025**
+
+* The following options are now deprecated, and will be removed in 1 year:
+
+  * ``--initial-mass-min`` in favour of ``--initial-mass-function-min``
+  * ``--initial-mass-max`` in favour of ``--initial-mass-function-max``
+  * ``--initial-mass-power`` in favour of ``--initial-mass-function-power``
+  * ``--minimum-mass-secondary`` in favour of ``--minimum-sampled-secondary-mass``
+
+* The user supplied value for ``--minimum-sampled-secondary-mass`` now checked against the COMPAS values for minimum initial mass (0.00007 :math:`M_\odot`) and maximum initial mass (150.0 :math:`M_\odot`)
+* The secondary mass (for BSE), whether input by user, sampled, or calculated from the primary mass and mass ratio, now checked against the COMPAS value for minimum initial mass (0.00007 :math:`M_\odot`)
+* The default record types written to the SSE and BSE detailed output files now include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
+* The default record types written to the SSE and BSE pulsar evolution files now includes only record type 3 ((Pulsar) TIMESTEP_COMPLETED)
 
 **03.22.00 July 18, 2025**
 

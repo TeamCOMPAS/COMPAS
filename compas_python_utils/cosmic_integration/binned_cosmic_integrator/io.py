@@ -25,14 +25,14 @@ def recursively_save_dict_contents_to_group(h5file: h5py.File, group: str, dic: 
 
 
 def encode_for_hdf5(key, item):
-    if isinstance(item, np.int_):
-        item = int(item)
-    elif isinstance(item, np.float_):
-        item = float(item)
-    elif isinstance(item, np.complex_):
-        item = complex(item)
+    if isinstance(item, (np.generic, int, float, complex)):
+        if isinstance(item, np.integer):
+            item = int(item)
+        elif isinstance(item, np.floating):
+            item = float(item)
+        elif isinstance(item, np.complexfloating):
+            item = complex(item)
     if isinstance(item, np.ndarray):
-        # Numpy's wide unicode strings are not supported by hdf5
         if item.dtype.kind == 'U':
             item = np.array(item, dtype='S')
     if isinstance(item, (np.ndarray, int, float, complex, str, bytes)):
@@ -43,7 +43,7 @@ def encode_for_hdf5(key, item):
         if len(item) == 0:
             output = item
         elif isinstance(item[0], (str, bytes)) or item[0] is None:
-            output = list()
+            output = []
             for value in item:
                 if isinstance(value, str):
                     output.append(value.encode("utf-8"))
@@ -68,15 +68,16 @@ def decode_from_hdf5(item):
     elif isinstance(item, bytes) and item == b"__none__":
         output = None
     elif isinstance(item, (bytes, bytearray)):
-        output = item.decode()
+        output = item.decode("utf-8")
     elif isinstance(item, np.ndarray):
         if item.size == 0:
             output = item
-        elif "|S" in str(item.dtype) or isinstance(item[0], bytes):
-            output = [it.decode() for it in item]
+        elif "|S" in str(item.dtype) or (item.dtype.kind == 'S') or \
+                (item.size > 0 and isinstance(item.flat[0], bytes)):
+            output = [it.decode("utf-8") for it in item]
         else:
             output = item
-    elif isinstance(item, np.bool_):
+    elif isinstance(item, (np.bool_, bool)):
         output = bool(item)
     else:
         output = item

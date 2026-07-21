@@ -22,13 +22,20 @@
   vertical-align: text-top !important;
 }
   
-/* This takes puts borders on tables with class 'bordered' - at least it does for list-table, but doesn't seem to work for flat-table */
+/* This puts borders on tables with class 'bordered' - at least it does for list-table, but doesn't seem to work for flat-table */
 .rst-content table.docutils.bordered, .wy-table-bordered-all.bordered, .bordered table, .bordered thead, .bordered tbody, .bordered tr, .bordered td, .bordered th {
     border-width: 1px !important;
     border-style: solid !important;
     border-color: black !important;
     padding: 5px !important;
 }
+
+/* left align tables (default seems to be centred) */
+/* disable for now - until I work out the best fix for issue #1424
+table {
+    float: left;
+}
+*/
 
 .boldtext {
     font-weight: bold !important;

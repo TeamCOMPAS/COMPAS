@@ -1611,9 +1611,101 @@
 //                                          - Now calculate mass accretion rate for nuclear timescale mass transfer on the fly to match with donor mass loss rate set by donor mass loss (required to fit into Roche lobe) divided by time step
 //                                          - Fixed random draws of SN kicks to avoid artificial pile-up at boundaries of distribution
 //					                        - Split --muller-mandel-sigma-kick into --muller-mandel-sigma-kick-NS and --muller-mandel-sigma-kick-BH
-//  03.22.01  IM - July 20, 2025        - Defect repair
+//  03.22.01  IM - July 20, 2025        - Defect repair:
 //                                          - Fixed random kick draw for MULLERMANDEL prescription
-
+//  03.22.02  JR - August 08, 2025      - Defect repair/enhancement (~cleanups for consistency):
+//                                          - Changes for issue 1413:
+//                                             - Deprecated options
+//                                                  . "--minimum-mass-secondary" in favour of "--minimum-sampled-secondary-mass"
+//                                                  . "--initial-mass-min"       in favour of "--initial-mass-function-min"
+//                                                  . "--initial-mass-max"       in favour of "--initial-mass-function-max"
+//                                                  . "--initial-mass-power"     in favour of "--initial-mass-function-power"
+//                                             - Default value for "--initial-mass-function-min" remains at 5.0 Msol
+//                                             - Default value for "--initial-mass-function-max" remains at 150.0 Msol
+//                                             - Default value for "--initial-mass-function-power" remains at 0.0
+//                                             - Default value for "--minimum-sampled-secondary-mass" remains at 0.1 Msol
+//                                             - User supplied value for "--minimum-sampled-secondary-mass" checked against values of constants MINIMUM_INITIAL_MASS and MINIMUM_INITIAL_MASS
+//                                             - Secondary mass, whether input by user, sampled, or calculated from M1 & q, checked against constant MINIMUM-INITIAL-MASS
+//                                             - Online docs "program-options-list-defaults" and "standard-logfiles-record-specification-options" pages updated
+//                                             - Whatsnew page updated
+//                                          - Changes for issue 1414:
+//                                             - Changed [SSE/BSE]_PULSAR_RECORDTYPE::DEFAULT to [SSE/BSE]_PULSAR_RECORDTYPE::PRE_SN
+//                                                  - don't want DEFAULT anymore, but wanted to preserve numbering.  Neither PRE_SN nor POST_SN are currently used (POST_SN was), so we could rename them one day.
+//                                             - Removed default parameter from BaseStar::PrintPulsarEvolutionParameters() and BaseBinaryStar::PrintPulsarEvolutionParameters()
+//                                             - Changed default record types for:
+//                                                  - SSE and BSE detailed output files to include only record types 1, 4, & 5 (INITIAL_STATE, TIMESTEP_COMPLETED, and FINAL_STATE)
+//                                                  - SSE and BSE pulsar evolution files to include only record type 3 ((pulsar) TIMESTEP_COMPLETED)
+//  03.23.00  JR - August 09, 2025      - Enhancement:
+//                                          - Deprecated option
+//                                               - "--use-mass-loss" in favour of "--mass-loss-prescription"
+//
+//                                                 Instead of using ``--use-mass-loss`` or ``--use-mass-loss true`` to enable mass loss, then specifying the mass loss
+//                                                 prescription to be used with ``--mass-loss-prescription``, mass loss can be enabled using ``--mass-loss-prescription``
+//                                                 with any valid prescription (that is not ``zero``), and disabled with ``--mass-loss-prescription zero`` instead of 
+//                                                 ``use-mass-loss false``.
+//                                          - Added compiler flag "-Wno-vla-cxx-extension" to "CXXFLAGS" in Makefile to suppress compiler extension warning
+//                                          - Fixed online docs for omissions in v03.22.02:
+//                                               - fixed description for "--initial-mass-function" in "program-options-list-defaults.rst", and
+//                                               - changed "--initial-mass-power" to "--initial-mass-function-power" in "program-options-list-defaults.rst"
+//  03.23.01  IM - August 18, 2025      - Enhancement, defect repair:
+//                                          - In the MALTSEV SN prescription, treat wind-stripped stars as if they experienced case B mass transfer
+//                                          - Limit the output of CalculateEtaPTY() [Helium accretion efficiency onto WDs from Piersanti+ 2014, A3] to be in [0,1]
+//  03.24.00 RTW - August 18, 2025      - Enhancement:
+//                                          - Updated Maltsev SN prescription, to include Maltsev mode (extrapolation variant outside of Z bounds), 
+//                                            fallback option, fixed remnant mass, and added lum and teff as attributes of RLOFProperties
+//  03.25.00 RTW - August 18, 2025      - Enhancement:
+//                                          - Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR)
+//  03.25.01  JR - August 20, 2025      - Defect repairs:
+//                                          - Corrected calculations for Hurley A(n) and B(n) coefficients (see Hurley et al. 2000, appendix)
+//                                          - Changed utils::GetGSLVersion() to avoid compiler warning "warning: ignoring attributes on template argument ‘int (*)(FILE*)’ [-Wignored-attributes]"
+//                                          - Reverted Makefile line "SOURCES := $(wildcard *.cpp)" to listing actual source files
+//  03.25.02  JR - August 20, 2025      - Defect repairs:
+//                                          - Clamped B_GAMMA to [0.0, B_GAMMA] (per discussion just after eq 23 - confirmed in BSE Fortran source)
+//                                          - Corrected calculation for Hurley Gamma constant C (C_GAMMA - see Hurley et al. 2000, just after eq 23, should use a(75) <= 1.0, not a(75) == 1.0 - confirmed in BSE Fortran source)
+//                                          - Added abs() to gamma calculation in Mainsequence.cpp::CalculateGamma() (per BSE Fortran source)
+//                                          - Clamped gamma to [0.0, gamma] in Mainsequence.cpp::CalculateGamma() (per discussion just after eq 23 - confirmed in BSE Fortran source)
+//  03.26.00  IM - September 2, 2025    - Enhancement, defect repairs:
+//                                          - First (simplified) implementation of the Lau+ (2024) Hamstars thermally limited accretion prescription
+//                                          - Corrected errors in combining OB and WR winds in CH::CalculateMassLossRateBelczynski2010(), CalculateMassLossRateMerritt2025() and CH::CalculateMassLossFractionOB() [previously CalculateMassLossRateWeightOB()]
+//  03.26.01  AB - October 24, 2025     - Option name change:
+//                                          - Main sequence core mass prescription ZERO renamed to HURLEY; deprecated ZERO
+//  03.26.02  IM - October 27, 2025     - Enhancements
+//                                          - Added option --USSN-kicks-override-mandel-muller ; if set to true, use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+//                                          - Replaced --scale-CHE-mass-loss-with-surface-helium-abundance with the more general --scale-mass-loss-with-surface-helium-abundance (applies to all MS stars, not just CHE stars)
+//                                          - Updated rotational velocity solver to use boost root finder
+//  03.27.01  JR - October 27, 2025     - Defect repairs:
+//                                          - changed Options::OptionValue() to return correct value for option --USSN-kicks-override-mandel-muller
+//                                          - deprecated --scale-CHE-mass-loss-with-surface-helium-abundance in favour of --scale-mass-loss-with-surface-helium-abundance
+//                                          - removed option --scale-CHE-mass-loss-with-surface-helium-abundance from "BSEonly" vector in Options.h
+//                                          - changed "scale-CHE-mass-loss-with-surface-helium-abundance" to "--scale-mass-loss-with-surface-helium-abundance" in "RangeExcluded" vector in Options.h
+//                                          - version should have been "v03.27.00" instead of "v03.26.02" - change included new functionality.  This version is "v03.27.01" to compensate.
+//  03.27.02  AB - December 9, 2025     - Defect repairs:
+//                                          - Reverted a change from PR #1437: --scale-mass-loss-with-surface-helium-abundance is changed back to 
+//                                            --scale-CHE-mass-loss-with-surface-helium-abundance and applies only to CHE stars
+//                                          - Corrected behaviour of MS stars that stopped ageing after mass transfer when mass loss is disabled (issue #1444)
+//                                          - Corrected luminosity evolution for CH stars (issue #1443)
+//  03.27.03  IM - December 16, 2025    - Defect repair:
+//                                          - Fix issue #1446: Theta and phi variables are flipped when assigning kicks, potentially giving unintended kick distributions
+//  03.28.00  PD - January 28, 2026     - Enhancement:
+//                                          - Updated default MullerMandel kick parameters in constants.h to the values from Disberg+2026, previous values were from Kapil+2023
+//  03.29.00  VK - January 30, 2026     - Enhancements:
+//                                          - Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called '--tides-prescription ZAHN1977'.
+//                                          - Renamed KAPIL2025 tides prescription to KAPIL2026 to match publication.
+//                                          - Updated the spin limit in 'BaseBinaryStar::CalculateDOmegaTidalDt()' to allow pseudo-synchronization based on Hut (1981), which affects the maximum spin with KAPIL2026 and ZAHN1977 options.
+//                                          - Added a limit to rotation change per time step in KAPIL2026 to ensure angular momentum conservation.
+//                                          - Updated dynamical tides equations in KAPIL2026 to match paper.
+//  03.29.01  JR - March 15, 2026       - Defect repair:
+//                                          - Fix for issue 1441: vector out-of-bounds access in Log.cpp, which is known to cause COMPAS to terminate on at least one Linux
+//                                            distribution (Manjaro), possibly C++ version specific.  See issue 1441 for description of defect and repair details.
+//  03.29.02  AB - March 16, 2026       - Defect repair:
+//                                          - Fix for issue 1463: sign error in the Claeys+2014 common-envelope lambda prescription
+//  03.29.03 NRS - April  3, 2026       - Defect repair:
+//                                          - Fixed HeSDs not being recorded in the Supernovae logs (mentioned in issue 1350).
+//  03.29.04  IM - April 19, 2026       - Enhancement:
+//                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
+//  03.29.05  AG - May 26, 2026          - Defect repair:
+//                                       - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
+//
 
 // Version string format is MM.mm.rr, where
 //
@@ -1624,6 +1716,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.22.01";
+const std::string VERSION_STRING = "03.29.05";
+
 
 # endif // __changelog_h__

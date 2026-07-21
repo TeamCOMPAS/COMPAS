@@ -580,13 +580,13 @@ def main():
                 outHDF5file = h5.h5f.open(fullOutFpath.encode('utf-8'), fapl = h5FileAccessPropertyList)                        # open it
             except Exception as e:                                                                                              # error opening file
                 print('Error occurred while disabling HDF5 dataset cache:', str(e))                                             # announce error
-                ok = false                                                                                                      # fail
+                ok = False                                                                                                      # fail
         else:                                                                                                                   # output file does not exist
             try:
                 outHDF5file = h5.h5f.create(fullOutFpath.encode('utf-8'), fapl = h5FileAccessPropertyList)                      # create it
             except Exception as e:                                                                                              # error creating file
                 print('Error occurred while disabling HDF5 dataset cache:', str(e))                                             # announce error
-                ok = false                                                                                                      # fail
+                ok = False                                                                                                      # fail
 
         if ok:
             try:

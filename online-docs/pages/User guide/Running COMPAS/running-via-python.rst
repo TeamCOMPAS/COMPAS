@@ -4,6 +4,26 @@ Running COMPAS via Python
 A convenient method of managing the many program options provided by COMPAS is to run COMPAS via Python, using a script to manage and 
 specify the values of the program options.
 
+Bundled PyPI executable
+-----------------------
+
+On supported platforms, the PyPI package can include the native COMPAS
+executable directly. After installing::
+
+    pip install compas-popsynth
+
+you can run the packaged executable with::
+
+    compas_run -v
+
+and a minimal smoke test with::
+
+    compas_run -n 1 --initial-mass-1 35 --initial-mass-2 31 -a 3.5 --random-seed 0 --metallicity 0.001 --quiet -o compas-smoke-output
+
+``compas_run`` resolves to the bundled native executable when a supported wheel
+is installed. If you want to point the Python launcher at a separate local build
+or an extracted bundle, set ``COMPAS_EXECUTABLE_PATH`` or ``COMPAS_BUNDLE_ROOT``.
+
 An example Python script is provided in the COMPAS suite on github: ``runSubmit.py``. Additionally, the default COMPAS options are specified on ``compasConfigDefault.yaml``. Users should copy the ``runSubmit.py`` and ``runSubmit.py`` scripts and modify the ``compasConfigDefault.yaml`` copy to match their experimental requirements. Refer to the :doc:`Getting started guide <../../Getting started/getting-started>` for more details.
 
 To run COMPAS via Python using the ``runSubmit.py`` script provided, set the shell environment variable ``COMPAS_ROOT_DIR``

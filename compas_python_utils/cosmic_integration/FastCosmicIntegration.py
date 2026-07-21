@@ -1,18 +1,31 @@
 import numpy as np
 import h5py  as h5
 import os
+import sys
 import time
 import matplotlib.pyplot as plt
 import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
-from compas_python_utils.cosmic_integration import ClassCOMPAS
-from compas_python_utils.cosmic_integration import selection_effects
 import warnings
 import astropy.units as u
 import argparse
 import importlib
-from compas_python_utils.cosmic_integration.cosmology import get_cosmology
+
+try:
+    from . import ClassCOMPAS
+    from .cosmology import get_cosmology
+    from . import selection_effects
+except ImportError as exc:
+    raise ImportError(
+        "Failed to import COMPAS cosmic_integration package modules.\n"
+        "Environment/setup appears incorrect.\n\n"
+        "Please install COMPAS in editable mode from the repository root:\n"
+        "  python -m pip install -e '.[dev]'\n\n"
+        "Then run via package/module entry points (not by executing this file directly).\n"
+        "Note: this setup guidance message is temporary and will be removed in a future release."
+    ) from exc
+
 
 def calculate_redshift_related_params(max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10.0, cosmology=None):
     """ 
@@ -212,7 +225,7 @@ def find_formation_and_merger_rates(n_binaries, redshifts, times, time_first_SF,
             merger_rate[i, :first_too_early_index - 1] = formation_rate[i, z_of_formation_index]
     return formation_rate, merger_rate
 
-def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=300.0, Mc_step=0.1,
+def compute_snr_and_detection_grids(dco_type, sensitivity="O1", snr_threshold=8.0, Mc_max=300.0, Mc_step=0.1,
                                     eta_max=0.25, eta_step=0.01, snr_max=1000.0, snr_step=0.1):
     """
         Compute a grid of SNRs and detection probabilities for a range of masses and SNRs
@@ -238,6 +251,10 @@ def compute_snr_and_detection_grids(sensitivity="O1", snr_threshold=8.0, Mc_max=
             snr_grid_at_1Mpc               --> [2D float array] The snr of a binary with masses (Mc, eta) at a distance of 1 Mpc
             detection_probability_from_snr --> [list of floats] A list of detection probabilities for different SNRs
     """
+    # If DCO type includes a WD, return empty arrays since we currently only support LVK sensitivity
+    if dco_type in ["WDWD", "NSWD", "WDBH"]:
+        warnings.warn("!! Detected rate is not computed since DCO type {} doesn't work with LVK sensitivity {}".format(dco_type, sensitivity))
+
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
 
@@ -310,7 +327,7 @@ def find_detection_probability(Mc, eta, redshifts, distances, n_redshifts_detect
 
     return detection_probability
 
-def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weight_column=None,
+def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weight_column=None,
                         merges_hubble_time=True, pessimistic_CEE=True, no_RLOF_after_CEE=True,
                         max_redshift=10.0, max_redshift_detection=1.0, redshift_step=0.001, z_first_SF = 10,
                         use_sampled_mass_ranges=True, m1_min=5 * u.Msun, m1_max=150 * u.Msun, m2_min=0.1 * u.Msun, fbin=0.7,
@@ -332,7 +349,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
             == Arguments for finding and masking COMPAS file ==
             ===================================================
             path                   --> [string] Path to the COMPAS data file that contains the output
-            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BBH", "BHNS", "BNS"]
+            dco_type               --> [string] Which DCO type to calculate rates for: one of ["all", "BHBH", "NSNS", "WDWD", "BHNS", "NSWD", "WDBH"]
             merger_output_filename --> [string] Optional name of output file to store merging DCOs (do not create the extra output if None)
             weight_column          --> [string] Name of column in "DoubleCompactObjects" file that contains adaptive sampling weights
                                                     (Leave this as None if you have unweighted samples)
@@ -393,7 +410,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
     # assert that input will not produce errors
     assert max_redshift_detection <= max_redshift, "Maximum detection redshift cannot be below maximum redshift"
     assert m1_min <= m1_max, "Minimum sampled primary mass cannot be above maximum sampled primary mass"
-    assert np.logical_and(fbin >= 0.0, fbin <= 1.0), "Binary fraction must be between 0 and 1"
+    assert fbin is None or (0.0 <= fbin <= 1.0), "Binary fraction must be between 0 and 1, or if None will vary with mass"
     assert Mc_step < Mc_max, "Chirp mass step size must be less than maximum chirp mass"
     assert eta_step < eta_max, "Symmetric mass ratio step size must be less than maximum symmetric mass ratio"
     assert snr_step < snr_max, "SNR step size must be less than maximum SNR"
@@ -425,9 +442,22 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
     m1=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(1)");
     m2=COMPAS.get_COMPAS_variables("BSE_System_Parameters","Mass@ZAMS(2)");
     if use_sampled_mass_ranges:
-        COMPAS.Mlower=min(m1[m1!=m2])*u.Msun    # the m1!=m2 ensures we don't include masses set equal through RLOF at ZAMS
-        COMPAS.Mupper=max(m1)*u.Msun
-        COMPAS.m2_min=min(m2)*u.Msun
+        sampled_m1 = m1[m1 != m2]  # avoid equalized ZAMS masses after immediate interactions
+        sampled_m1_min = np.min(sampled_m1) if sampled_m1.size > 0 else np.min(m1)
+        sampled_m1_max = np.max(m1)
+        sampled_m2_min = np.min(m2)
+
+        # Degenerate sampled ranges can happen in tiny fixed-mass test runs (e.g. m1_min == m1_max).
+        # In that case fall back to user-provided/default bounds.
+        if sampled_m1_min < sampled_m1_max and sampled_m2_min < sampled_m1_max:
+            COMPAS.Mlower = sampled_m1_min * u.Msun
+            COMPAS.Mupper = sampled_m1_max * u.Msun
+            COMPAS.m2_min = sampled_m2_min * u.Msun
+        else:
+            warnings.warn(
+                "Sampled mass range is degenerate; falling back to supplied mass bounds.",
+                stacklevel=2,
+            )
     COMPAS.find_star_forming_mass_per_binary_sampling()
 
 
@@ -469,7 +499,7 @@ def find_detection_rate(path, dco_type="BBH", merger_output_filename=None, weigh
                                                                     COMPAS.delayTimes, COMPAS.sw_weights)
 
     # create lookup tables for the SNR at 1Mpc as a function of the masses and the probability of detection as a function of SNR
-    snr_grid_at_1Mpc, detection_probability_from_snr = compute_snr_and_detection_grids(sensitivity, snr_threshold, Mc_max, Mc_step,
+    snr_grid_at_1Mpc, detection_probability_from_snr = compute_snr_and_detection_grids(dco_type, sensitivity, snr_threshold, Mc_max, Mc_step,
                                                                                     eta_max, eta_step, snr_max, snr_step)
 
     # use lookup tables to find the probability of detecting each binary at each redshift
@@ -529,6 +559,8 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
     print('shape redshifts', np.shape(redshifts))
     print('shape COMPAS.sw_weights', np.shape(COMPAS.sw_weights) )
     print('COMPAS.DCOmask', COMPAS.DCOmask, ' was set for dco_type', dco_type)
+    if dco_type=='all':
+        print('Note that rates are calculated for ALL systems in the DCO table, this could include WDWD')
     print('shape COMPAS COMPAS.DCOmask', np.shape(COMPAS.DCOmask) )
 
     #################################################
@@ -549,7 +581,6 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             h_new.create_group(new_rate_group)
         else:
             print(new_rate_group, 'exists, we will overrwrite the data')
-
 
         #################################################
         # Bin rates by redshifts
@@ -579,7 +610,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             N_dco_in_z_bin      = (merger_rate[:,:] * fine_shell_volumes[:])
             print('fine_shell_volumes', fine_shell_volumes)
 
-            # The number of merging BBHs that need a weight
+            # The number of merging DCO systems that need a weight
             N_dco  = len(merger_rate[:,0])
             
             ####################
@@ -609,7 +640,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             detection_index = z_index if z_index < n_redshifts_detection else n_redshifts_detection
 
             print('You will only save data up to redshift ', maxz, ', i.e. index', z_index)
-            save_redshifts        = redshifts
+            save_redshifts        = redshifts[:z_index]
             save_merger_rate      = merger_rate[:,:z_index]
             save_detection_rate   = detection_rate[:,:detection_index]
 
@@ -619,7 +650,8 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
         # Write the rates as a separate dataset
         # re-arrange your list of rate parameters
         DCO_to_rate_mask     = COMPAS.DCOmask #save this bool for easy conversion between BSE_Double_Compact_Objects, and CI weights
-        rate_data_list       = [DCO['SEED'][DCO_to_rate_mask], DCO_to_rate_mask , save_redshifts,  save_merger_rate, merger_rate[:,0], save_detection_rate]
+        DCO_seeds            = h_new['BSE_Double_Compact_Objects']['SEED'][DCO_to_rate_mask] # Get DCO seed
+        rate_data_list       = [DCO_seeds, DCO_to_rate_mask , save_redshifts,  save_merger_rate, merger_rate[:,0], save_detection_rate]
         rate_list_names      = ['SEED', 'DCOmask', 'redshifts',  'merger_rate','merger_rate_z0', 'detection_rate'+sensitivity]
         for i, data in enumerate(rate_data_list):
             print('Adding rate info of shape', np.shape(data))
@@ -760,20 +792,29 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
     else:
         plt.close()
 
-
+# To allow f_binary to be None or Float
+def none_or_float(value):
+    return None if value.lower() == "none" else float(value)
 
 def parse_cli_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", dest='path', help="Path to the COMPAS file that contains the output", type=str,
                         default="COMPAS_Output.h5")
-    # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS
+    
+    # For what DCO would you like the rate?  options: ALL, BHBH, BHNS NSNS, WDWD
     parser.add_argument("--dco_type", dest='dco_type',
-                        help="Which DCO type you used to calculate rates, one of: ['all', 'BBH', 'BHNS', 'BNS'] ",
-                        type=str, default="BBH")
+                        help="Which DCO type you used to calculate rates, one of: ['all', 'BHBH', 'NSNS', 'WDWD', 'BHNS', 'NSWD', 'WDBH'] ",
+                        type=str, default="BHBH")
     parser.add_argument("--weight", dest='weight_column',
                         help="Name of column w AIS sampling weights, i.e. 'mixture_weight'(leave as None for unweighted samples) ",
                         type=str, default=None)
-
+    parser.add_argument("--keep_pessimistic_CEE", dest='remove_pessimistic_CEE',
+                    help="keep_pessimistic_CEE will set remove_pessimistic_CEE to false. The default behaviour (remove_pessimistic_CEE == True), will mask binaries that experience a CEE while on the HG", 
+                    action='store_false', default=True)
+    parser.add_argument("--keepRLOF_postCE", dest='remove_RLOF_after_CEE',
+                        help="keepRLOF_postCE will set remove_RLOF_after_CEE to false. The default behaviour (remove_RLOF_after_CEE == True), will mask binaries that have immediate RLOF after a CCE", 
+                        action='store_false', default=True)
+    
     # Options for the redshift evolution and detector sensitivity
     parser.add_argument("--maxz", dest='max_redshift', help="Maximum redshift to use in array", type=float, default=10)
     parser.add_argument("--zSF", dest='z_first_SF', help="redshift of first star formation", type=float, default=10)
@@ -792,7 +833,7 @@ def parse_cli_args():
                         default=150.)
     parser.add_argument("--m2min", dest='m2_min', help="Minimum secondary mass sampled by COMPAS", type=float,
                         default=0.1)
-    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS", type=float, default=0.7)
+    parser.add_argument("--fbin", dest='fbin', help="Binary fraction used by COMPAS, if None f_bin will be changing with mass", type=none_or_float, default=0.7)
 
     # Parameters determining dP/dZ and SFR(z), default options from Neijssel 2019
     parser.add_argument("--mu0", dest='mu0', help="mean metallicity at redshhift 0", type=float, default=0.035)
@@ -847,6 +888,8 @@ def main():
         args.path,
         dco_type=args.dco_type,
         weight_column=args.weight_column,
+        pessimistic_CEE=args.remove_pessimistic_CEE,
+        no_RLOF_after_CEE=args.remove_RLOF_after_CEE,
         max_redshift=args.max_redshift,
         max_redshift_detection=args.max_redshift_detection,
         redshift_step=args.redshift_step,
@@ -907,4 +950,3 @@ def main():
 ##################################################################
 if __name__ == "__main__":
     main()
-

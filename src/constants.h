@@ -259,8 +259,6 @@ constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.001;                
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.1;                                                      // Maximum allowable radial change - 10% (of radius) expressed as a fraction
 constexpr double MAXIMUM_WIND_MASS_LOSS_RATE            = 0.1;                                                      // Maximum wind mass loss rates (in solar masses per year) to avoid convergence issues
 
-constexpr double MINIMUM_MASS_SECONDARY                 = 4.0;                                                      // Minimum mass of secondary to evolve
-
 constexpr double LAMBDA_NANJING_ZLIMIT                  = 0.0105;                                                   // Metallicity cutoff for Nanjing lambda calculations
 constexpr double LAMBDA_NANJING_POPI_Z                  = 0.02;                                                     // Population I metallicity in Xu & Li (2010)
 constexpr double LAMBDA_NANJING_POPII_Z                 = 0.001;                                                    // Population II metallicity in Xu & Li (2010)
@@ -281,6 +279,10 @@ constexpr int    ADAPTIVE_RLOF_MAX_TRIES                = 30;                   
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of root finder iterations in BaseBinaryStar::MassLossToFitInsideRocheLobe()
 constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR_FRAC       = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::MassLossToFitInsideRocheLobe() (added to 1.0)
 
+constexpr int    ADAPTIVE_RV_MAX_TRIES                = 30;                                                       // Maximum number of tries in BaseStar::CalculateOStarRotationalVelocity_Static()
+constexpr int    ADAPTIVE_RV_MAX_ITERATIONS           = 50;                                                       // Maximum number of root finder iterations in BaseStar::CalculateOStarRotationalVelocity_Static()
+constexpr double ADAPTIVE_RV_SEARCH_FACTOR_FRAC       = 1.0;                                                      // Search size factor (fractional part) in BaseStar::CalculateOStarRotationalVelocity_Static() (added to 1.0)
+
 constexpr int    ADAPTIVE_MASS0_MAX_TRIES               = 30;                                                       // Maximum number of tries in HG::Mass0ToMatchDesiredCoreMass()
 constexpr int    ADAPTIVE_MASS0_MAX_ITERATIONS          = 50;                                                       // Maximum number of iterations in HG::Mass0ToMatchDesiredCoreMass()
 constexpr double ADAPTIVE_MASS0_SEARCH_FACTOR_FRAC      = 1.0;                                                      // Search size factor (fractional part) in HG::Mass0ToMatchDesiredCoreMass() (added to 1.0)
@@ -296,7 +298,7 @@ constexpr int    TIDES_OMEGA_MAX_TRIES                  = 30;                   
 constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 50;                                                       // Maximum number of root finder iterations in BaseBinaryStar::OmegaAfterCircularisation()
 constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 constexpr double TIDES_MINIMUM_FRACTIONAL_EXTENT        = 1.0E-4;                                                   // Minimum fractional radius or mass of the stellar core or envelope, above which a given tidal dissipation mechanism is considered applicable
-constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2025 tides in a single timestep - 1% expressed as a fraction
+constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2026 tides in a single timestep - 1% expressed as a fraction
 constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME  = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
 
 constexpr double FARMER_PPISN_UPP_LIM_LIN_REGIME        = 38.0;                                                     // Maximum CO core mass to result in the linear remnant mass regime of the FARMER PPISN prescription
@@ -322,9 +324,9 @@ const std::string DEFAULT_HDF5_FILE_NAME                = "COMPAS_Output";      
 const std::string DETAILED_OUTPUT_DIRECTORY_NAME        = "Detailed_Output";                                        // Name for detailed output directory within output container
 const std::string RUN_DETAILS_FILE_NAME                 = "Run_Details";                                            // Name for run details output file within output container
 
-constexpr int    HDF5_DEFAULT_CHUNK_SIZE                = 100000;                                                   // default HDF5 chunk size (number of dataset entries)
-constexpr int    HDF5_DEFAULT_IO_BUFFER_SIZE            = 1;                                                        // number of HDF5 chunks to buffer for IO (per open dataset)
-constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                                                     // minimum HDF5 chunk size (number of dataset entries)
+constexpr int    HDF5_DEFAULT_CHUNK_SIZE                = 100000;                                                   // Default HDF5 chunk size (number of dataset entries)
+constexpr int    HDF5_DEFAULT_IO_BUFFER_SIZE            = 1;                                                        // Number of HDF5 chunks to buffer for IO (per open dataset)
+constexpr int    HDF5_MINIMUM_CHUNK_SIZE                = 1000;                                                     // Minimum HDF5 chunk size (number of dataset entries)
 
 // option constraints
 // Use these constant to specify constraints that should be applied to program option values
@@ -390,10 +392,10 @@ constexpr double MULLERMANDEL_SIGMA3                    = 0.05;
 constexpr double MULLERMANDEL_MUBH                    	= 0.8;
 constexpr double MULLERMANDEL_SIGMABH                   = 0.5;
 constexpr double MULLERMANDEL_MINNS                     = 1.13;
-constexpr double MULLERMANDEL_KICKNS                    = 520.0;                                                    // As calibrated by Kapil+ 2023
+constexpr double MULLERMANDEL_KICKNS                    = 630.0;                                                    // As calibrated by Disberg+ 2026
 constexpr double MULLERMANDEL_KICKBH                    = 200.0;
-constexpr double MULLERMANDEL_SIGMAKICKBH               = 0.3;
-constexpr double MULLERMANDEL_SIGMAKICKNS               = 0.3;
+constexpr double MULLERMANDEL_SIGMAKICKBH               = 0.45;
+constexpr double MULLERMANDEL_SIGMAKICKNS               = 0.45;
 
 // Constants for Disberg & Mandel (2025) SN kick prescription
 constexpr double DISBERG_MANDEL_MU                      = 5.60;
@@ -413,7 +415,7 @@ constexpr double MALTSEV2024_M2S                        = 7.2;
 constexpr double MALTSEV2024_M2C                        = 7.1;
 constexpr double MALTSEV2024_M2B                        = 8.3;
 constexpr double MALTSEV2024_M2A                        = 8.4;
-constexpr double MALTSEV2024_M3S                        = 12.9;
+constexpr double MALTSEV2024_M3S                        = 13.0;
 constexpr double MALTSEV2024_M3C                        = 13.2;
 constexpr double MALTSEV2024_M3B                        = 15.2;
 constexpr double MALTSEV2024_M3A                        = 15.4;

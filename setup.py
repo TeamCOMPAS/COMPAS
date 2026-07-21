@@ -3,44 +3,62 @@ import os
 import re
 import sys
 
-from setuptools import find_packages, setup
+from setuptools import Distribution, find_packages, setup
+
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+except ImportError:
+    _bdist_wheel = None
 
 python_version = sys.version_info
 if python_version < (3, 8):
     sys.exit("Python < 3.8 is not supported, aborting setup")
 
 NAME = "compas_python_utils"
+DIST_NAME = "compas-popsynth"
 PACKAGES = find_packages()
 HERE = os.path.dirname(os.path.realpath(__file__))
 META_PATH = os.path.join(NAME, "__init__.py")
 CPP_VERSION_FILE = os.path.join("src", "changelog.h")
+BUILD_BINARY_WHEEL = os.environ.get("COMPAS_BINARY_WHEEL") == "1"
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
-INSTALL_REQUIRES = [
+CORE_RUNTIME_REQUIRES = [
     "numpy>=1.16",
+    "PyYAML",
+]
+ANALYSIS_REQUIRES = [
     "h5py",
-    "argparse",
     "stroopwafel",
-    "pytest>=3.6",
-    "pre-commit",
-    "flake8",
-    "black==22.10.0",
-    "isort",
     "matplotlib>=3.3.2",
     "pandas",
     "astropy>=4.0",
     "scipy>=1.5.0",
-    "latex",
-    "PyYAML",
     "tqdm",
-    "corner"
+    "corner",
+]
+DEV_ONLY_REQUIRES = [
+    "pytest>=3.6",
+    "pytest-cov",
+    "pre-commit",
+    "flake8",
+    "black==22.10.0",
+    "isort",
+    "coverage-badge",
+    "deepdiff",
+    "jupytext",
+    "jupyter-autotime",
+    "memory_profiler",
+    "nbconvert",
+    "ipykernel",
 ]
 EXTRA_REQUIRE = dict(
     docs=[
@@ -58,22 +76,29 @@ EXTRA_REQUIRE = dict(
         "sphinx-togglebutton",
         "linuxdoc>=20210324"
     ],
-    dev=[
-        "pytest-cov",
-        "pre-commit",
-        "flake8",
-        "black==22.10.0",
-        "isort",
-        "coverage-badge",
-        "deepdiff",
-        "jupytext",
-        "jupyter-autotime",
-        "memory_profiler",
-        "nbconvert",
-        "ipykernel",
-    ],
+    full=[],
+    dev=DEV_ONLY_REQUIRES,
     gpu=["cupy"],
 )
+
+
+class COMPASDistribution(Distribution):
+    def has_ext_modules(self):
+        return BUILD_BINARY_WHEEL
+
+
+cmdclass = {}
+if BUILD_BINARY_WHEEL and _bdist_wheel is not None:
+    class COMPASBdistWheel(_bdist_wheel):
+        def finalize_options(self):
+            super().finalize_options()
+            self.root_is_pure = False
+
+        def get_tag(self):
+            _, _, platform_tag = super().get_tag()
+            return "py3", "none", platform_tag
+
+    cmdclass["bdist_wheel"] = COMPASBdistWheel
 
 
 def read(*parts):
@@ -95,14 +120,16 @@ def find_version(version_file=read(CPP_VERSION_FILE)):
         r"VERSION_STRING = ['\"]([^'\"]*)['\"]", version_file, re.M
     )
     if version_match:
-        return version_match.group(1)
+        raw_version = version_match.group(1)
+        normalized_parts = [str(int(part)) for part in raw_version.split(".")]
+        return ".".join(normalized_parts)
     raise RuntimeError("Unable to find version string.")
 
 
 if __name__ == "__main__":
     setup(
-        name=NAME,
-        version=find_meta("version"),
+        name=DIST_NAME,
+        version=find_version(),
         author=find_meta("author"),
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
@@ -113,22 +140,32 @@ if __name__ == "__main__":
         long_description=read("README.md"),
         long_description_content_type="text/markdown",
         packages=PACKAGES,
+        python_requires=">=3.8",
         package_data={
+            NAME: [
+                "bundled/*",
+                "bundled/*/*.sh",
+                "bundled/*/bin/*",
+                "bundled/*/lib/*",
+            ],
             f"{NAME}.preprocessing": ["*.txt", "*.yaml"],
             f"{NAME}.detailed_evolution_plotter": ["van_den_heuvel_figures/*"],
             f"{NAME}.cosmic_integration": ["SNR_Grid*"],
         },
         include_package_data=True,
-        install_requires=INSTALL_REQUIRES,
+        install_requires=CORE_RUNTIME_REQUIRES + ANALYSIS_REQUIRES,
         extras_require=EXTRA_REQUIRE,
         classifiers=CLASSIFIERS,
-        zip_safe=True,
+        zip_safe=not BUILD_BINARY_WHEEL,
+        distclass=COMPASDistribution,
+        cmdclass=cmdclass,
         entry_points={
             "console_scripts": [
                 f"compas_h5view= {NAME}.h5view:main",
                 f"compas_h5copy= {NAME}.h5copy:main",
                 f"compas_h5sample= {NAME}.h5sample:main",
                 f"compas_plot_detailed_evolution={NAME}.detailed_evolution_plotter.plot_detailed_evolution:main",
+                f"compas_run={NAME}.compas_runner:main",
                 f"compas_run_submit={NAME}.preprocessing.runSubmit:main",
                 f"compas_sample_stroopwafel={NAME}.preprocessing.stroopwafelInterface:main",
                 f"compas_sample_moe_di_stefano={NAME}.preprocessing.sampleMoeDiStefano:main",

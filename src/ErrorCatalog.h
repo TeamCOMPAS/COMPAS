@@ -133,6 +133,8 @@ enum class ERROR: int {
     TOO_MANY_RETRIES,                                               // generic too many retries
     TOO_MANY_RLOF_ITERATIONS,                                       // too many iterations in RLOF root finder
     TOO_MANY_RLOF_TRIES,                                            // too many tries in RLOF root finder
+    TOO_MANY_RV_ITERATIONS,                                         // too many iterations in rotational velocity root finder
+    TOO_MANY_RV_TRIES,                                              // too many tries in rotational velocity root finder
     TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                           // too many timesteps in timesteps file (exceeds maximum)
     UNABLE_TO_CREATE_DIRECTORY,                                     // unable to create directory
     UNABLE_TO_REMOVE_DIRECTORY,                                     // unable to remove directory
@@ -166,6 +168,7 @@ enum class ERROR: int {
     UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                            // unknown kick magnitude distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                             // unknown LBV mass loss prescription
+    UNKNOWN_MALTSEV_MODE,                                           // unknown maltsev mode 
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription
     UNKNOWN_MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                  // unknown MSP birth magnetic field distribution
     UNKNOWN_MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION,                     // unknown MSP birth spin period distribution
@@ -312,6 +315,8 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_RETRIES,                                      { ERROR_SCOPE::ALWAYS,              "Too many retries" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_RLOF_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when fitting star inside Roche Lobe in RLOF" }},
+    { ERROR::TOO_MANY_RV_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocitiesF" }},
+    { ERROR::TOO_MANY_RV_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocities" }},
     { ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                  { ERROR_SCOPE::ALWAYS,              "Number of timesteps in timestpes file exceeds maximum timesteps" }},
     { ERROR::UNABLE_TO_CREATE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to create directory" }},
     { ERROR::UNABLE_TO_REMOVE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to remove directory" }},
@@ -345,6 +350,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                   { ERROR_SCOPE::ALWAYS,              "Unknown kick magnitude distribution" }},
     { ERROR::UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                    { ERROR_SCOPE::ALWAYS,              "Unknown LBV mass loss prescription" }},
     { ERROR::UNKNOWN_LOGFILE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown log file" }},
+    { ERROR::UNKNOWN_MALTSEV_MODE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown Maltsev remnant mass mode" }},
     { ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown mass loss prescription" }},
     { ERROR::UNKNOWN_MT_CASE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer case" }},
     { ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,          { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer accretion efficiency prescription" }},

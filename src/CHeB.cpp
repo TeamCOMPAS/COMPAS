@@ -108,7 +108,7 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  */
 double CHeB::CalculateLambdaDewi() const {
 
-    double lambda3 = std::min(-0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                          // (A.4) Claeys+2014
+    double lambda3 = std::min(0.9, 0.58 + (0.75 * log10(m_Mass))) - (0.08 * log10(m_Luminosity));                           // (A.4) Claeys+2014 with corrected typo (see e.g. Appendix E.1 in Marchant+2021)
     double lambda1 = std::min(lambda3, std::min(0.8, 1.25 - (0.15 * log10(m_Luminosity))));                                 // (A.5) Top, Claeys+2014
 	double lambda2 = 0.42 * PPOW(m_RZAMS / m_Radius, 0.4);                                                                  // (A.2) Claeys+2014
 	double envMass = utils::Compare(m_CoreMass, 0.0) > 0 && utils::Compare(m_Mass, m_CoreMass) > 0 ? m_Mass - m_CoreMass : 0.0;

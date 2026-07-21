@@ -531,6 +531,10 @@ enum class BINARY_PROPERTY: int {
     RLOF_POST_MT_STAR2_MASS,
     RLOF_POST_MT_STAR1_RADIUS,
     RLOF_POST_MT_STAR2_RADIUS,
+    RLOF_POST_MT_STAR1_TEFF, 
+    RLOF_POST_MT_STAR2_TEFF,
+    RLOF_POST_MT_STAR1_LUM, 
+    RLOF_POST_MT_STAR2_LUM,
     RLOF_POST_MT_STAR1_RLOF,
     RLOF_POST_MT_STAR2_RLOF,
     RLOF_POST_MT_STAR1_STELLAR_TYPE,
@@ -545,6 +549,10 @@ enum class BINARY_PROPERTY: int {
     RLOF_PRE_MT_STAR2_MASS,
     RLOF_PRE_MT_STAR1_RADIUS,
     RLOF_PRE_MT_STAR2_RADIUS,
+    RLOF_PRE_MT_STAR1_TEFF, 
+    RLOF_PRE_MT_STAR2_TEFF,
+    RLOF_PRE_MT_STAR1_LUM, 
+    RLOF_PRE_MT_STAR2_LUM,
     RLOF_PRE_MT_STAR1_RLOF,
     RLOF_PRE_MT_STAR2_RLOF,
     RLOF_PRE_MT_STAR1_STELLAR_TYPE,
@@ -681,6 +689,10 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                            "RLOF_POST_MT_STAR2_MASS" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,                          "RLOF_POST_MT_STAR1_RADIUS" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS,                          "RLOF_POST_MT_STAR2_RADIUS" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF,                            "RLOF_POST_MT_STAR1_TEFF" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF,                            "RLOF_POST_MT_STAR2_TEFF" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM,                             "RLOF_POST_MT_STAR1_LUM" },
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM,                             "RLOF_POST_MT_STAR2_LUM" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,                            "RLOF_POST_MT_STAR1_RLOF" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,                            "RLOF_POST_MT_STAR2_RLOF" },
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE,                    "RLOF_POST_MT_STAR1_STELLAR_TYPE" },
@@ -695,6 +707,10 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS,                             "RLOF_PRE_MT_STAR2_MASS" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS,                           "RLOF_PRE_MT_STAR1_RADIUS" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS,                           "RLOF_PRE_MT_STAR2_RADIUS" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF,                             "RLOF_PRE_MT_STAR1_TEFF" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF,                             "RLOF_PRE_MT_STAR2_TEFF" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM,                              "RLOF_PRE_MT_STAR1_LUM" },
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM,                              "RLOF_PRE_MT_STAR2_LUM" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,                             "RLOF_PRE_MT_STAR1_RLOF" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,                             "RLOF_PRE_MT_STAR2_RLOF" },
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE,                     "RLOF_PRE_MT_STAR1_STELLAR_TYPE" },
@@ -848,7 +864,7 @@ enum class PROGRAM_OPTION: int {
     INITIAL_MASS_FUNCTION,
     INITIAL_MASS_FUNCTION_MAX,
     INITIAL_MASS_FUNCTION_MIN,
-    INITIAL_MASS_FUNCTIONPOWER,
+    INITIAL_MASS_FUNCTION_POWER,
 
     KICK_DIRECTION_DISTRIBUTION,
     KICK_DIRECTION_POWER,
@@ -878,6 +894,10 @@ enum class PROGRAM_OPTION: int {
 
     LBV_FACTOR,
     LBV_MASS_LOSS_PRESCRIPTION,
+
+    MALTSEV_FALLBACK,
+    MALTSEV_MODE,
+
     MASS_LOSS_PRESCRIPTION,
 
     MASS_RATIO,
@@ -897,7 +917,7 @@ enum class PROGRAM_OPTION: int {
     METALLICITY_DISTRIBUTION_MAX,
     METALLICITY_DISTRIBUTION_MIN,
 
-    MINIMUM_MASS_SECONDARY,
+    MINIMUM_SAMPLED_SECONDARY_MASS,
 
     MSPS_FROM_AIC,
 
@@ -936,8 +956,8 @@ enum class PROGRAM_OPTION: int {
 
     MT_FRACTION_ACCRETED,
     MT_JLOSS,
-    MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,
-    MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,
+    MT_JLOSS_LINEAR_FRACTION_DEGEN,
+    MT_JLOSS_LINEAR_FRACTION_NON_DEGEN,
     MT_REJUVENATION_PRESCRIPTION,
     MT_THERMALLY_LIMITED_VARIATION,
 
@@ -1020,6 +1040,8 @@ enum class PROGRAM_OPTION: int {
     STELLAR_ZETA_PRESCRIPTION,
 
     TIDES_PRESCRIPTION,
+    
+    USSN_KICKS_OVERRIDE_MANDEL_MULLER,
 
     WR_FACTOR,
 
@@ -1097,7 +1119,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                            "INITIAL_MASS_FUNCTION" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                        "INITIAL_MASS_FUNCTION_MAX" },
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                        "INITIAL_MASS_FUNCTION_MIN" },
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                       "INITIAL_MASS_FUNCTIONPOWER" },
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                      "INITIAL_MASS_FUNCTION_POWER" },
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                      "KICK_DIRECTION_DISTRIBUTION" },
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                             "KICK_DIRECTION_POWER" },
     { PROGRAM_OPTION::KICK_SCALING_FACTOR,                              "KICK_SCALING_FACTOR" },
@@ -1126,6 +1148,9 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::LBV_FACTOR,                                       "LBV_FACTOR" },
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
+
+    { PROGRAM_OPTION::MALTSEV_FALLBACK,                                 "MALTSEV_FALLBACK" },
+    { PROGRAM_OPTION::MALTSEV_MODE,                                     "MALTSEV_MODE" },
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                           "MASS_LOSS_PRESCRIPTION" },
 
     { PROGRAM_OPTION::MASS_RATIO,                                       "MASS_RATIO" },
@@ -1145,7 +1170,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                     "METALLICITY_DISTRIBUTION_MAX" },
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                     "METALLICITY_DISTRIBUTION_MIN" },
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                           "MINIMUM_MASS_SECONDARY" },
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                   "MINIMUM_SAMPLED_SECONDARY_MASS" },
 
     { PROGRAM_OPTION::MSPS_FROM_AIC,                                    "MSPS_FROM_AIC" },
 
@@ -1184,8 +1209,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
 
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                             "MT_FRACTION_ACCRETED" },
     { PROGRAM_OPTION::MT_JLOSS,                                         "MT_JLOSS" },
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,           "MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN" },
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,       "MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN" },
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_DEGEN,                   "MT_JLOSS_LINEAR_FRACTION_DEGEN" },
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_NON_DEGEN,               "MT_JLOSS_LINEAR_FRACTION_NON_DEGEN" },
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                     "MT_REJUVENATION_PRESCRIPTION" },
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                   "MT_THERMALLY_LIMITED_VARIATION" },
 
@@ -1256,8 +1281,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                           "ROTATIONAL_FREQUENCY_1" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                           "ROTATIONAL_FREQUENCY_2" },
    
-    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" }, 
-    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" }, 
+    { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" },
+    { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                  "SEMI_MAJOR_AXIS" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION,                     "SEMI_MAJOR_AXIS_DISTRIBUTION" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MAX,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MAX" },
@@ -1266,6 +1291,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
+    
+    { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                "USSN_KICKS_OVERRIDE_MANDEL_MULLER" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
 
@@ -1534,6 +1561,10 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_MASS,                             { TYPENAME::DOUBLE,           "Mass(2)>MT",                "Msol",             24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RADIUS,                           { TYPENAME::DOUBLE,           "Radius(1)>MT",              "Rsol",             24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RADIUS,                           { TYPENAME::DOUBLE,           "Radius(2)>MT",              "Rsol",             24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_TEFF,                             { TYPENAME::DOUBLE,           "Teff(1)>MT",                "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_TEFF,                             { TYPENAME::DOUBLE,           "Teff(2)>MT",                "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR1_LUM,                              { TYPENAME::DOUBLE,           "Lum(1)>MT",                 "Lsol",             24, 15}},
+    { BINARY_PROPERTY::RLOF_POST_MT_STAR2_LUM,                              { TYPENAME::DOUBLE,           "Lum(2)>MT",                 "Lsol",             24, 15}},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_RLOF,                             { TYPENAME::BOOL,             "RLOF(1)>MT",                "State",             0, 0 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR2_RLOF,                             { TYPENAME::BOOL,             "RLOF(2)>MT",                "State",             0, 0 }},
     { BINARY_PROPERTY::RLOF_POST_MT_STAR1_STELLAR_TYPE,                     { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)>MT",         "-",                4, 1 }},
@@ -1548,6 +1579,10 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_MASS,                              { TYPENAME::DOUBLE,           "Mass(2)<MT",                 "Msol",            24, 15}},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RADIUS,                            { TYPENAME::DOUBLE,           "Radius(1)<MT",               "Rsol",            24, 15}},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RADIUS,                            { TYPENAME::DOUBLE,           "Radius(2)<MT",               "Rsol",            24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_TEFF,                              { TYPENAME::DOUBLE,           "Teff(1)<MT",                 "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_TEFF,                              { TYPENAME::DOUBLE,           "Teff(2)<MT",                 "K",               24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_LUM,                               { TYPENAME::DOUBLE,           "Lum(1)<MT",                  "Lsol",             24, 15}},
+    { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_LUM,                               { TYPENAME::DOUBLE,           "Lum(2)<MT",                  "Lsol",             24, 15}},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_RLOF,                              { TYPENAME::BOOL,             "RLOF(1)<MT",                 "Event",            0, 0 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR2_RLOF,                              { TYPENAME::BOOL,             "RLOF(2)<MT",                 "Event",            0, 0 }},
     { BINARY_PROPERTY::RLOF_PRE_MT_STAR1_STELLAR_TYPE,                      { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)<MT",         "-",                4, 1 }},
@@ -1699,7 +1734,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION,                                    { TYPENAME::INT,        "PO_Initial_Mass_Function",                  "-",          4, 1 }},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MAX,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Max",                  "Msol",      24, 15}},
     { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_MIN,                                { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Min",                  "Msol",      24, 15}},
-    { PROGRAM_OPTION::INITIAL_MASS_FUNCTIONPOWER,                               { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
+    { PROGRAM_OPTION::INITIAL_MASS_FUNCTION_POWER,                              { TYPENAME::DOUBLE,     "PO_Initial_Mass_Func_Power",                "-",         24, 15}},
 
     { PROGRAM_OPTION::KICK_DIRECTION_DISTRIBUTION,                              { TYPENAME::INT,        "PO_Kick_Direction_Dstrbtn",                 "-",          4, 1 }},
     { PROGRAM_OPTION::KICK_DIRECTION_POWER,                                     { TYPENAME::DOUBLE,     "PO_Kick_Direction_Power",                   "-",         24, 15}},
@@ -1730,6 +1765,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::LBV_FACTOR,                                               { TYPENAME::DOUBLE,     "PO_LBV_Factor",                             "-",         24, 15}},
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
 
+    { PROGRAM_OPTION::MALTSEV_FALLBACK,                                         { TYPENAME::DOUBLE,     "PO_Maltsev_Fallback",                       "-",         24, 15}},
+    { PROGRAM_OPTION::MALTSEV_MODE,                                             { TYPENAME::INT,        "PO_Maltsev_Mode",                           "-",          4, 1 }},
     { PROGRAM_OPTION::MASS_LOSS_PRESCRIPTION,                                   { TYPENAME::INT,        "PO_Mass_Loss_Prscrptn",                     "-",          4, 1 }},
 
     { PROGRAM_OPTION::MASS_RATIO,                                               { TYPENAME::DOUBLE,     "PO_Mass_Ratio",                             "-",         24, 15}},
@@ -1749,7 +1786,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MAX,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Max",                "-",         24, 15}},
     { PROGRAM_OPTION::METALLICITY_DISTRIBUTION_MIN,                             { TYPENAME::DOUBLE,     "PO_Metallicity_Dstrbtn_Min",                "-",         24, 15}},
 
-    { PROGRAM_OPTION::MINIMUM_MASS_SECONDARY,                                   { TYPENAME::DOUBLE,     "PO_Min_Secondary_Mass",                     "Msol",      24, 15}},
+    { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                           { TYPENAME::DOUBLE,     "PO_Min_Sampled_Secondary_Mass",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::MSPS_FROM_AIC,                                            { TYPENAME::BOOL,       "MSPS_From_AIC",                             "Flag",       0,  0}},
     
@@ -1789,8 +1826,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                     { TYPENAME::DOUBLE,     "PO_MT_Fraction_Accreted",                   "-",         24, 15}},
     { PROGRAM_OPTION::MT_JLOSS,                                                 { TYPENAME::DOUBLE,     "PO_MT_JLoss",                               "-",         24, 15}},
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_DEGEN,                   { TYPENAME::DOUBLE,     "PO_MT_JLoss_Macleod_Linear_Frac_Degen",     "-",         24, 15}},
-    { PROGRAM_OPTION::MT_JLOSS_MACLEOD_LINEAR_FRACTION_NON_DEGEN,               { TYPENAME::DOUBLE,     "PO_MT_JLoss_Macleod_Linear_Frac_Non_Degen", "-",         24, 15}},
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_DEGEN,                           { TYPENAME::DOUBLE,     "PO_MT_JLoss_Linear_Frac_Degen",             "-",         24, 15}},
+    { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_NON_DEGEN,                       { TYPENAME::DOUBLE,     "PO_MT_JLoss_Linear_Frac_Non_Degen",         "-",         24, 15}},
     { PROGRAM_OPTION::MT_REJUVENATION_PRESCRIPTION,                             { TYPENAME::INT,        "PO_MT_Rejuvenation_Prscrptn",               "-",          4, 1 }},
     { PROGRAM_OPTION::MT_THERMALLY_LIMITED_VARIATION,                           { TYPENAME::INT,        "PO_MT_Thermally_Lmtd_Variation",            "-",          4, 1 }},
 
@@ -1871,6 +1908,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_Tides_Prscrptn",                         "-",          4, 1 }},
+    
+    { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                        { TYPENAME::BOOL,       "PO_USSN_Kicks_Override_Mandel_Muller",  "flag",       0,  0}},
 
     { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "PO_WR_Factor",                              "-",         24, 15}},
 
@@ -1920,7 +1959,7 @@ enum class DCO_RECORD_TYPE: unsigned int {                                      
 };
 
 enum class BSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // BSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default BSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     POST_BINARY_TIMESTEP                                                                                            // 3 - record was logged immediately following binary timestep (i.e. the evolution of the binary system for a single timestep)
 };
@@ -1957,7 +1996,7 @@ enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                             
 };
 
 enum class SSE_PULSAR_RECORD_TYPE: unsigned int {                                                                   // SSE_PULSAR_EVOLUTION file record type
-    DEFAULT = 1,                                                                                                    // 1 - default SSE_PULSAR_EVOLUTION file record type
+    PRE_SN = 1,                                                                                                     // 1 - record was logged immediately prior to a supernova event
     POST_SN,                                                                                                        // 2 - record was logged immediately following a supernova event
     TIMESTEP_COMPLETED                                                                                              // 3 - record was logged immediately following the completion of the timestep (after all changes to the star)
 };

@@ -72,7 +72,7 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //    2. if 'fallback' is 'true':
 //           the value specified on the commandline if the user did not specify the 
 //           option on the grid line (regardless of whether they specified the option
-//           on the commandline).  In this case, if the user did not speify a value on
+//           on the commandline).  In this case, if the user did not specify a value on
 //           the commandline, the commandline value is set according to the default
 //           behaviour for the option, and the grid line value is set from that.  Note
 //           that for options whose default behaviours is to draw a random number, this
@@ -224,7 +224,15 @@ private:
     //       deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
 
     std::vector<std::tuple<std::string, std::string, bool, std::string>> deprecatedOptionStrings = {
-        { "retain-core-mass-during-caseA-mass-transfer", "", false, "20250116" }
+        { "retain-core-mass-during-caseA-mass-transfer",           "",                                                  false, "20250116" },
+        { "minimum-secondary-mass",                                "minimum-sampled-secondary-mass",                    false, "20250808" },
+        { "initial-mass-max",                                      "initial-mass-function-max",                         false, "20250808" },
+        { "initial-mass-min",                                      "initial-mass-function-min",                         false, "20250808" },
+        { "initial-mass-power",                                    "initial-mass-function-power",                       false, "20250808" },
+        { "use-mass-loss",                                         "mass-loss-prescription",                            false, "20250809" },
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",         false, "20250819" }, 
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen",     false, "20250819" },   
+        { "scale-mass-loss-with-surface-helium-abundance",         "scale-CHE-mass-loss-with-surface-helium-abundance", false, "20251209" },    
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -233,7 +241,17 @@ private:
         { "pulsational-pair-instability-prescription", "COMPAS",      "WOOSLEY",     false, "20250208" },
 	    { "pulsar-birth-spin-period-distribution",     "ZERO",        "NOSPIN",      false, "20250303" },
         { "tides-prescription",                        "KAPIL2024",   "KAPIL2025",   false, "20250525" },
-        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" }
+        { "tides-prescription",                        "KAPIL2025",   "KAPIL2026",   false, "20260130" },
+        { "mass-loss-prescription",                    "MERRITT2024", "MERRITT2025", false, "20250717" },
+        { "use-mass-loss",                             "TRUE",        "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "ON",          "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "YES",         "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "1",           "MERRITT2025", true,  "20250809" },
+        { "use-mass-loss",                             "FALSE",       "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "OFF",         "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "NO",          "ZERO",        true,  "20250809" },
+        { "use-mass-loss",                             "0",           "ZERO",        true,  "20250809" },
+        { "main-sequence-core-mass-prescription",      "ZERO",        "HURLEY",      false, "20251024" }
     };
 
     // the following vector is used to replace deprecated options in the logfile-definitions file
@@ -501,6 +519,7 @@ private:
         "logfile-rlof-parameters",
         "logfile-rlof-parameters-record-types",
 
+        "maltsev-fallback",
         "mass-ratio", "q",
         "mass-ratio-max",
         "mass-ratio-min",
@@ -508,15 +527,15 @@ private:
         "mass-transfer",
         "mass-transfer-fa",
         "mass-transfer-jloss",
-        "mass-transfer-jloss-macleod-linear-fraction-degen",
-        "mass-transfer-jloss-macleod-linear-fraction-non-degen",
+        "mass-transfer-jloss-linear-fraction-degen",
+        "mass-transfer-jloss-linear-fraction-non-degen",
         "mass-transfer-accretion-efficiency-prescription",
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor-multiplier",
         "mass-transfer-thermal-limit-C",
         "maximum-mass-donor-nandez-ivanova",
-        "minimum-secondary-mass",
+        "minimum-sampled-secondary-mass",
 
         "msps-from-aic",
         "msp-birth-magnetic-field-distribution",
@@ -548,7 +567,6 @@ private:
         "rocket-kick-theta-1",
         "rocket-kick-theta-2",
 
-        "scale-CHE-mass-loss-with-surface-helium-abundance",
         "semi-major-axis", "a",
         "semi-major-axis-distribution",
         "semi-major-axis-max",
@@ -650,6 +668,7 @@ private:
         "logfile-type",
 
         "main-sequence-core-mass-prescription",
+        "maltsev-mode",
         "mass-change-fraction",
         "mass-loss-prescription",
         "mass-ratio-distribution",
@@ -707,6 +726,7 @@ private:
 
         "use-mass-loss",
         "use-mass-transfer",
+        "USSN-kicks-override-mandel-muller",
 
         "VMW-mass-loss-prescription",
         "version", "v",
@@ -900,13 +920,17 @@ public:
             double                                              m_InitialMassFunctionMax;                                       // Maximum mass to generate in Msol
             double                                              m_InitialMassFunctionPower;                                     // single IMF power law set manually
 
+            // Maltsev remnant mass model
+            double                                              m_MaltsevFallback;                                              // fallback fraction for Maltsev fallback black holes
+            ENUM_OPT<MALTSEV_MODE>                              m_MaltsevMode;                                                  // Maltsev remnant mass mode (which variant of the prescription)
+
             // Mass ratio
             double                                              m_MassRatio;                                                    // Mass ratio for BSE
             ENUM_OPT<MASS_RATIO_DISTRIBUTION>                   m_MassRatioDistribution;                                        // Which mass ratio distribution
             double                                              m_MassRatioDistributionMin;                                     // Minimum initial mass ratio when using a distribution
             double                                              m_MassRatioDistributionMax;                                     // Maximum initial mass ratio when using a distribution
 
-            double                                              m_MinimumMassSecondary;                                         // Minimum mass of secondary to draw (in Msol)
+            double                                              m_MinimumSampledSecondaryMass;                                  // Minimum mass of secondary to draw when sampling (in Msol)
 
             // Semi major axis
             double                                              m_SemiMajorAxis;                                                // Semi-major axis
@@ -963,6 +987,8 @@ public:
             double                                              m_MullerMandelKickNS;                                           // Multiplier for NS kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelSigmaKickBH;                                      // Scatter for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelSigmaKickNS;                                      // Scatter for NS kicks per Mandel and Mueller, 2020
+            bool                                                m_USSNKicksOverrideMandelMuller;                                // Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
+        
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
@@ -1016,7 +1042,6 @@ public:
             std::string                                         m_OutputContainerName;                                          // Name of output container (directory)
 
             // Mass loss options
-            bool                                                m_UseMassLoss;                                                  // Whether to activate mass loss (default = True)
             bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
 
             // Can also have options for modifying strength of winds etc here
@@ -1061,8 +1086,8 @@ public:
 	        ENUM_OPT<MT_THERMALLY_LIMITED_VARIATION>            m_MassTransferThermallyLimitedVariation;                        // Choose how to deal with mass transfer if it is set as thermally limited.
 
             double                                              m_MassTransferJloss;                                            // Specific angular momentum of the material leaving the system (not accreted)
-            double                                              m_MassTransferJlossMacLeodLinearFractionDegen;                  // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position 
-            double                                              m_MassTransferJlossMacLeodLinearFractionNonDegen;               // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position 
+            double                                              m_MassTransferJlossLinearFractionDegen;                         // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
+            double                                              m_MassTransferJlossLinearFractionNonDegen;                      // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
             ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_MassTransferAngularMomentumLossPrescription;                  // Which mass transfer angular momentum loss prescription
 
             // Mass transfer rejuvenation prescription
@@ -1512,9 +1537,9 @@ public:
     double                                      InitialMass2() const                                                    { return OPT_VALUE("initial-mass-2", m_InitialMass2, true); }
 
     INITIAL_MASS_FUNCTION                       InitialMassFunction() const                                             { return OPT_VALUE("initial-mass-function", m_InitialMassFunction.type, true); }
-    double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-max", m_InitialMassFunctionMax, true); }
-    double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-min", m_InitialMassFunctionMin, true); }
-    double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-power", m_InitialMassFunctionPower, true); }
+    double                                      InitialMassFunctionMax() const                                          { return OPT_VALUE("initial-mass-function-max", m_InitialMassFunctionMax, true); }
+    double                                      InitialMassFunctionMin() const                                          { return OPT_VALUE("initial-mass-function-min", m_InitialMassFunctionMin, true); }
+    double                                      InitialMassFunctionPower() const                                        { return OPT_VALUE("initial-mass-function-power", m_InitialMassFunctionPower, true); }
 
     KICK_DIRECTION_DISTRIBUTION                 KickDirectionDistribution() const                                       { return OPT_VALUE("kick-direction-distribution", m_KickDirectionDistribution.type, true); }
     double                                      KickDirectionPower() const                                              { return OPT_VALUE("kick-direction-power", m_KickDirectionPower, true); }
@@ -1603,6 +1628,9 @@ public:
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
+
+    double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
+    MALTSEV_MODE                                MaltsevMode() const                                                     { return OPT_VALUE("maltsev-mode", m_MaltsevMode.type, true); }
     
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
@@ -1636,8 +1664,8 @@ public:
 
     double                                      MassTransferFractionAccreted() const                                    { return OPT_VALUE("mass-transfer-fa", m_MassTransferFractionAccreted, true); }
     double                                      MassTransferJloss() const                                               { return OPT_VALUE("mass-transfer-jloss", m_MassTransferJloss, true); }
-    double                                      MassTransferJlossMacLeodLinearFractionDegen() const                     { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-degen", m_MassTransferJlossMacLeodLinearFractionDegen, true); }
-    double                                      MassTransferJlossMacLeodLinearFractionNonDegen() const                  { return OPT_VALUE("mass-transfer-jloss-macleod-linear-fraction-non-degen", m_MassTransferJlossMacLeodLinearFractionNonDegen, true); }
+    double                                      MassTransferJlossLinearFractionDegen() const                            { return OPT_VALUE("mass-transfer-jloss-linear-fraction-degen", m_MassTransferJlossLinearFractionDegen, true); }
+    double                                      MassTransferJlossLinearFractionNonDegen() const                         { return OPT_VALUE("mass-transfer-jloss-linear-fraction-non-degen", m_MassTransferJlossLinearFractionNonDegen, true); }
     MT_REJUVENATION_PRESCRIPTION                MassTransferRejuvenationPrescription() const                            { return OPT_VALUE("mass-transfer-rejuvenation-prescription", m_MassTransferRejuvenationPrescription.type, true); }
     MT_THERMALLY_LIMITED_VARIATION              MassTransferThermallyLimitedVariation() const                           { return OPT_VALUE("mass-transfer-thermal-limit-accretor-multiplier", m_MassTransferThermallyLimitedVariation.type, true); }
     double                                      MaxEvolutionTime() const                                                { return OPT_VALUE("maximum-evolution-time", m_MaxEvolutionTime, true); }
@@ -1651,7 +1679,7 @@ public:
     double                                      MetallicityDistributionMax() const                                      { return OPT_VALUE("metallicity-distribution-max", m_MetallicityDistributionMax, true); }
     double                                      MetallicityDistributionMin() const                                      { return OPT_VALUE("metallicity-distribution-min", m_MetallicityDistributionMin, true); }
 
-    double                                      MinimumMassSecondary() const                                            { return OPT_VALUE("minimum-secondary-mass", m_MinimumMassSecondary, true); }
+    double                                      MinimumSampledSecondaryMass() const                                     { return OPT_VALUE("minimum-sampled-secondary-mass", m_MinimumSampledSecondaryMass, true); }
 
     bool                                        MSPsFromAIC() const                                                     { return OPT_VALUE("msps-from-aic", m_MSPsFromAIC, true); }
     
@@ -1762,7 +1790,7 @@ public:
     double                                      RotationalFrequency2() const                                            { return OPT_VALUE("rotational-frequency-2", m_RotationalFrequency2, true); }
     RSG_MASS_LOSS_PRESCRIPTION                  RSGMassLossPrescription() const                                         { return OPT_VALUE("RSG-mass-loss-prescription", m_RSGMassLossPrescription.type, true); }
 
-    bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, false); }
+    bool                                        ScaleCHEMassLossWithSurfaceHeliumAbundance() const                      { return OPT_VALUE("scale-CHE-mass-loss-with-surface-helium-abundance", m_ScaleCHEMassLossWithSurfaceHeliumAbundance, true); }
     double                                      ScaleTerminalWindVelocityWithMetallicityPower() const                   { return OPT_VALUE("scale-terminal-wind-velocity-with-metallicity-power", m_ScaleTerminalWindVelocityWithMetallicityPower, true);}
     double                                      SemiMajorAxis() const                                                   { return OPT_VALUE("semi-major-axis", m_SemiMajorAxis, true); }
     SEMI_MAJOR_AXIS_DISTRIBUTION                SemiMajorAxisDistribution() const                                       { return OPT_VALUE("semi-major-axis-distribution", m_SemiMajorAxisDistribution.type, true); }
@@ -1771,12 +1799,12 @@ public:
 
     void                                        ShowHelp()                                                              { PrintOptionHelp(!m_CmdLine.optionValues.m_ShortHelp); }
 
-    double                                      SN_MeanAnomaly1() const                                                 { return OPT_VALUE("kick-mean-anomaly-1", m_KickMeanAnomaly1, true); }
-    double                                      SN_MeanAnomaly2() const                                                 { return OPT_VALUE("kick-mean-anomaly-2", m_KickMeanAnomaly2, true); }
-    double                                      SN_Phi1() const                                                         { return OPT_VALUE("kick-phi-1", m_KickPhi1, true); }
-    double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, true); }
-    double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, true); }
-    double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, true); }
+    double                                      SN_MeanAnomaly1() const                                                 { return OPT_VALUE("kick-mean-anomaly-1", m_KickMeanAnomaly1, false); }
+    double                                      SN_MeanAnomaly2() const                                                 { return OPT_VALUE("kick-mean-anomaly-2", m_KickMeanAnomaly2, false); }
+    double                                      SN_Phi1() const                                                         { return OPT_VALUE("kick-phi-1", m_KickPhi1, false); }
+    double                                      SN_Phi2() const                                                         { return OPT_VALUE("kick-phi-2", m_KickPhi2, false); }
+    double                                      SN_Theta1() const                                                       { return OPT_VALUE("kick-theta-1", m_KickTheta1, false); }
+    double                                      SN_Theta2() const                                                       { return OPT_VALUE("kick-theta-2", m_KickTheta2, false); }
 
     ZETA_PRESCRIPTION                           StellarZetaPrescription() const                                         { return OPT_VALUE("stellar-zeta-prescription", m_StellarZetaPrescription.type, true); }
     bool                                        StoreInputFiles() const                                                 { return m_CmdLine.optionValues.m_StoreInputFiles; }
@@ -1795,10 +1823,10 @@ public:
     DBL_VECTOR                                  TimestepMultipliers() const                                             { return OPT_VALUE("timestep-multipliers", m_TimestepMultipliers, true); }
 
     bool                                        UseFixedUK() const                                                      { return (m_GridLine.optionValues.m_UseFixedUK || m_CmdLine.optionValues.m_UseFixedUK); }
-    bool                                        UseMassLoss() const                                                     { return OPT_VALUE("use-mass-loss", m_UseMassLoss, true); }
     bool                                        UseMassTransfer() const                                                 { return OPT_VALUE("use-mass-transfer", m_UseMassTransfer, true); }
     bool                                        UsePairInstabilitySupernovae() const                                    { return OPT_VALUE("pair-instability-supernovae", m_UsePairInstabilitySupernovae, true); }
     bool                                        UsePulsationalPairInstability() const                                   { return OPT_VALUE("pulsational-pair-instability", m_UsePulsationalPairInstability, true); }
+    bool                                        USSNKicksOverrideMandelMuller() const                                   { return OPT_VALUE("USSN-kicks-override-mandel-muller", m_USSNKicksOverrideMandelMuller, true); }
 
     VMS_MASS_LOSS_PRESCRIPTION                  VMSMassLossPrescription() const                                         { return OPT_VALUE("VMS-mass-loss-prescription", m_VMSMassLossPrescription.type, true); }
     double                                      WolfRayetFactor() const                                                 { return OPT_VALUE("wolf-rayet-multiplier", m_WolfRayetFactor, true); }
