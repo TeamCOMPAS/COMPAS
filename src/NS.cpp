@@ -528,27 +528,27 @@ void NS::CalculateAndSetPulsarParameters() {
  * */
 double NS::CalculateMagneticFieldDecayTimescale(){
 
-    std::cout << "CalculateMagneticFieldDecayTimescale" << std::endl;
+    // std::cout << "CalculateMagneticFieldDecayTimescale" << std::endl;
 
     double taud                 = 0.0;                                                          // Initialise variable to hold magnetic field decay timescale
     double Bref                 = 1E11;                                                         // Reference magnetic field (in G) at which OPTIONS->PulsarMagneticFieldDecayTimescale is defined
     double initialMagField_G    = m_PulsarDetails.magneticField * TESLA_TO_GAUSS;               // Convert T to G 
 
-    std::cout << "Bref = " << Bref << std::endl;
-    std::cout << "initialMagField_G = " << initialMagField_G << std::endl;
+    // std::cout << "Bref = " << Bref << std::endl;
+    // std::cout << "initialMagField_G = " << initialMagField_G << std::endl;
 
     if (OPTIONS->PulsarMagneticFieldDecayTimescalePower() == 0.0){                              // No scaling with magnetic field
-        std::cout << "alpha = 0" << std::endl;
+        // std::cout << "alpha = 0" << std::endl;
         taud = OPTIONS->PulsarMagneticFieldDecayTimescale();                                    // Decay timescale is just a constant
     }
     else{
-        std::cout << "alpha != 0" << std::endl;
-        std::cout << "B = " << m_PulsarDetails.magneticField << std::endl;
+        // std::cout << "alpha != 0" << std::endl;
+        // std::cout << "B = " << m_PulsarDetails.magneticField << std::endl;
         taud = OPTIONS->PulsarMagneticFieldDecayTimescale() * PPOW(Bref/initialMagField_G, OPTIONS->PulsarMagneticFieldDecayTimescalePower());
     }
     
-    std::cout << "tauconst = " << OPTIONS->PulsarMagneticFieldDecayTimescale() << std::endl;
-    std::cout << "taud = " << taud << std::endl;
+    // std::cout << "tauconst = " << OPTIONS->PulsarMagneticFieldDecayTimescale() << std::endl;
+    // std::cout << "taud = " << taud << std::endl;
 
     return taud;
 }
@@ -565,8 +565,8 @@ double NS::CalculateMagneticFieldDecayTimescale(){
  */
 double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField){
 
-    std::cout << "CalculateMagneticFieldStrengthOnPhase" << std::endl;
-    std::cout << "p_Time " << p_Time << std::endl;
+    // std::cout << "CalculateMagneticFieldStrengthOnPhase" << std::endl;
+    // std::cout << "p_Time " << p_Time << std::endl;
 
     double magneticFieldStrength = 0.0;
 
@@ -575,13 +575,13 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
     const double alpha           = OPTIONS->PulsarMagneticFieldDecayTimescalePower();                                
 
     if (alpha == 0.0){              // see Equation 6 in  arXiv:0903.3538v2    
-        std::cout << "alpha == 0" << std::endl;
+        // std::cout << "alpha == 0" << std::endl;
         magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * exp(-p_Time / tau);   // update pulsar magnetic field in SI. 
     }
     else{                   // Equation 8 in Dall'Osso et al. 2012 (https://ui.adsabs.harvard.edu/abs/2012MNRAS.422.2878D/abstract) but with a minimum magnetic field
-        std::cout << "alpha != 0" << std::endl;
+        // std::cout << "alpha != 0" << std::endl;
         magneticFieldStrength    = magFieldLowerLimit + (p_initialMagField - magFieldLowerLimit) * PPOW(1.0 + alpha*(p_Time/tau), -1.0/alpha);
-        std::cout << "p_initialMagField, magneticFieldStrength = " << p_initialMagField << " " << magneticFieldStrength << std::endl;
+        // std::cout << "p_initialMagField, magneticFieldStrength = " << p_initialMagField << " " << magneticFieldStrength << std::endl;
     }
 
     return magneticFieldStrength;
@@ -626,14 +626,16 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
  
     bool magFieldAboveMin = utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) > 0;
 
-    std::cout << "initialMagField = " << initialMagField << std::endl;
-    std::cout << "magFieldAboveMin = " << magFieldAboveMin << std::endl;
+    // std::cout << "initialMagField = " << initialMagField << std::endl;
+    // std::cout << "magFieldAboveMin = " << magFieldAboveMin << std::endl;
 
     // If the NS is not recycled, calculate magnetic field decay
     if (!p_RecycledNS && magFieldAboveMin){
         // calculate the decay of magnetic field for an isolated neutron star
         // see Equation 6 in  arXiv:0903.3538v2
-        m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
+        // m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
+        // Calculate isolated decay of the magnetic field for a neutron star
+        m_PulsarDetails.magneticField = CalculateMagneticFieldStrengthOnPhase(p_Stepsize, initialMagField); 
         
         // calculate the spin period for an isolated neutron star 
         // with a decaying magnetic field
@@ -645,9 +647,9 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
         double term3           = (NS::NS_DECAY_TIME_SCALE / 2.0) * ((m_PulsarDetails.magneticField * m_PulsarDetails.magneticField) - (initialMagField * initialMagField));
         Psquared               = 2.0 * constant * (term1 - term2 - term3) + (initialSpinPeriod * initialSpinPeriod);
     
-        std::cout << "term 1 = " << term1 << std::endl;
-        std::cout << "term 2 = " << term2 << std::endl;
-        std::cout << "term 3 = " << term3 << std::endl;
+        // std::cout << "term 1 = " << term1 << std::endl;
+        // std::cout << "term 2 = " << term2 << std::endl;
+        // std::cout << "term 3 = " << term3 << std::endl;
     
     }
     else{
@@ -662,12 +664,12 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
     m_PulsarDetails.spinPeriod    = std::sqrt(Psquared);
     m_PulsarDetails.spinFrequency = _2_PI / m_PulsarDetails.spinPeriod;                                                                     // pulsar spin frequency
 
-    std::cout << "initial spin period = " << initialSpinPeriod << std::endl;
-    std::cout << "final spin period = " << m_PulsarDetails.spinPeriod << std::endl;
+    // std::cout << "initial spin period = " << initialSpinPeriod << std::endl;
+    // std::cout << "final spin period = " << m_PulsarDetails.spinPeriod << std::endl;
 
     m_PulsarDetails.spinDownRate  = CalculateSpinDownRate(m_PulsarDetails.spinPeriod, m_MomentOfInertia_CGS, m_PulsarDetails.magneticField, m_Radius * RSOL_TO_KM) ; 
 
-    std::cout << "spinDownRate = " << m_PulsarDetails.spinDownRate << std::endl << std::endl;
+    // std::cout << "spinDownRate = " << m_PulsarDetails.spinDownRate << std::endl << std::endl;
 
     m_AngularMomentum_CGS         = m_PulsarDetails.spinFrequency * m_MomentOfInertia_CGS;                                                  // angular momentum of star in CGS
 }
@@ -744,7 +746,7 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, double p_Stepsize, double p_MassGain, const double p_Epsilon) {
 
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGain, 0.0) == 0 )) {                                 // 'classical' isolated pulsars
-        std::cout << "Isolated spindown 1" << std::endl;
+        // std::cout << "Isolated spindown 1" << std::endl;
         SpinDownIsolatedPulsar(p_Stepsize, p_RecycledNS);                                                                                                 // spin down
     }
     else if (p_CommonEnvelope && (OPTIONS->NeutronStarAccretionInCE() == NS_ACCRETION_IN_CE::SURFACE)) {                                    // mass transfer through CE when accretion happens at the surface of the NS
@@ -860,8 +862,8 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_PulsarDetails.spinDownRate  = -fDot * m_PulsarDetails.spinPeriod * m_PulsarDetails.spinPeriod / _2_PI;
     }      
     else {          
-        std::cout << "Isolated spindown 2" << std::endl;                                                                                                                        // otherwise...    
-        std::cout << "p_RecylcedNS = " << p_RecycledNS << std::endl;
+        // std::cout << "Isolated spindown 2" << std::endl;                                                                                                                        // otherwise...    
+        // std::cout << "p_RecylcedNS = " << p_RecycledNS << std::endl;
         SpinDownIsolatedPulsar(p_Stepsize, p_RecycledNS);                                                                                                 // ...treat the pulsar as isolated - spin down
     }
 }
