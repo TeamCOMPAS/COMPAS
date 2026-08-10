@@ -349,6 +349,9 @@ function [pdetection]=...
     %save time by not doing calculations beyond maximum redshifted total
     %mass corresponding to detection redshift threshold
     Mtzlistdetection=1:1:ceil(max(Mtlist)*(1+max(zlistdetection)));
+    %the masses are probably too discrete; consider relative discretisation
+    %of mass and redshift grids for smooth detection curves, or maybe move
+    %masses to a uniform-in-log grid?
     SNRat1Mpc=zeros(length(Mtzlistdetection),length(etalist));
     for(i=1:length(Mtzlistdetection)),
         for(j=1:length(etalist)),
@@ -372,10 +375,10 @@ function [pdetection]=...
     %find indices of first values larger than SNRthreshold/SNRopt in Thetas
     idx=discretize(1./SNRratio, Thetas); 
     pdetect=1-idx/Ntheta;
-    pdetect(isnan(pdetect))=0;   %set of measure zero to exceed threshold, but enforce just in case
+    pdetect(isnan(pdetect))=0;
 
-
-    SNRtothreshold=SNRopt/8;   %should really be 10 for network, but 8 matches Reed's calculations more closely
+    SNRtothreshold=SNRopt/8;   %should really be 10 for network, 
+    % but 8 matches Reed's calculations more closely according to Michael Fulgoni
     pdetection=zeros(length(zlistdetection),length(Mtlist),length(etalist));
     pdetection=pdetect(max(min(ceil(SNRtothreshold*100),length(pdetect)),1));
 end %end of DetectionProbability
