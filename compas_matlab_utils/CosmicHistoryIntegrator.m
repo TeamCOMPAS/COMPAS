@@ -358,22 +358,24 @@ function [pdetection]=...
         end;
     end;
 
-    SNR=zeros(length(zlistdetection),length(Mtlist),length(etalist));
+    %optimal SNR for face-on, overhead source
+    SNRopt=zeros(length(zlistdetection),length(Mtlist),length(etalist));
 
     for(i=1:length(zlistdetection)),
         for(j=1:length(Mtlist)),
-            SNR(i,j,:)=SNRat1Mpc(ceil(Mtlist(j)*(zlistdetection(i)+1)),:)./Dl(i);
+            SNRopt(i,j,:)=SNRat1Mpc(ceil(Mtlist(j)*(zlistdetection(i)+1)),:)./Dl(i);
         end;
     end;
 
-    %Compute detection probability as a function of the ratio of SNR to SNR
-    %threshold
-    SNRtothreshold=0.01:0.01:100;
-    theta=1./SNRtothreshold;
-    pdetect=1-interp1([0,Thetas],[(1:Ntheta)/Ntheta,1],theta);
-    pdetect(1)=0;   %set of measure zero to exceed threshold, but enforce just in case
+    %Compute detection probability as a function of the ratio of SNRopt to SNRthreshold
+    SNRratio=0.01:0.01:100; %for convenience, no chance of detection below 1/max(Thetas)~1/sqrt(2) 
+    %find indices of first values larger than SNRthreshold/SNRopt in Thetas
+    idx=discretize(1./SNRratio, Thetas); 
+    pdetect=1-idx/Ntheta;
+    pdetect(isnan(pdetect))=0;   %set of measure zero to exceed threshold, but enforce just in case
 
-    SNRtothreshold=SNR/8;   %should really be 10 for network, but 8 matches Reed's calculations more closely
+
+    SNRtothreshold=SNRopt/8;   %should really be 10 for network, but 8 matches Reed's calculations more closely
     pdetection=zeros(length(zlistdetection),length(Mtlist),length(etalist));
     pdetection=pdetect(max(min(ceil(SNRtothreshold*100),length(pdetect)),1));
 end %end of DetectionProbability
