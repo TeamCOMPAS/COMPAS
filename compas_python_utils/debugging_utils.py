@@ -77,11 +77,11 @@ def print_compas_details_dataframe(data: H5Group,
 
     >>> mt_seeds = mt_data['SEED'][()]
     >>> print_compas_details_dataframe(mt_data, mt_seeds[:50])
-    [output of all BSE_RLOF events occuring in the first 50 seeds]
+    [output of all BSE_RLOF events occurring in the first 50 seeds]
 
     >>> cee_events = mt_data['CEE>MT'][()] == 1 # needed to convert to boolean mask
     >>> print_compas_details_dataframe(mt_data, mt_seeds[:50], mask=cee_events)
-    [output of all Common Envelope events occuring in the first 50 seeds]
+    [output of all Common Envelope events occurring in the first 50 seeds]
     """
     # Check if SEED parameter exists in data
     if ('SEED' or 'SEED>MT') in data:
