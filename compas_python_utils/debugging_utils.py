@@ -1,8 +1,12 @@
 import h5py as h5
 import numpy as np
 import pandas as pd
-from numpy.dtypes import StringDType
 from typing import NewType
+
+try:
+    from numpy.dtypes import StringDType
+except ImportError:
+    StringDType = getattr(np.dtypes, "StringDType", np.str_)
 
 ### New Types
 MaskNdarray = NewType('MaskNdarray', np.ndarray[bool])
@@ -84,19 +88,29 @@ def print_compas_details_dataframe(data: H5Group,
     [output of all Common Envelope events occurring in the first 50 seeds]
     """
     # Check if SEED parameter exists in data
-    if ('SEED' or 'SEED>MT') in data:
+    if 'SEED' in data or 'SEED>MT' in data:
         # SEED>MT is a relic from older versions, but we leave this in for
         # backwards compatibility
-        seed_variable_name = 'SEED' if ('SEED' in data) else 'SEED>MT'
+        seed_variable_name = 'SEED' if 'SEED' in data else 'SEED>MT'
 
         # If `seeds` or `mask` arguments supplied, create the relevant mask
-        all_seeds = data[seed_variable_name][()]
+        all_seeds = np.asarray(data[seed_variable_name][()])
         seeds_mask = np.isin(all_seeds, seeds)
         if len(seeds) == 0:  # If `seeds` argument is not supplied, set the default mask
-            seeds_mask = np.ones_like(all_seeds).astype(bool)
-        if mask == ():
-            mask = np.ones_like(all_seeds).astype(bool)
-        mask &= seeds_mask
+            seeds_mask = np.ones_like(all_seeds, dtype=bool)
+
+        if isinstance(mask, tuple) and len(mask) == 0:
+            mask = np.ones_like(all_seeds, dtype=bool)
+        else:
+            mask = np.asarray(mask, dtype=bool)
+            if mask.size == 0:
+                mask = np.ones_like(all_seeds, dtype=bool)
+            if mask.shape != all_seeds.shape:
+                raise ValueError(
+                    "mask must have the same length as the data['SEED'] array"
+                )
+
+        mask = mask & seeds_mask
         df = pd.DataFrame.from_dict(
             {param: data[param][()][mask] for param in data}).set_index(seed_variable_name).T
 
@@ -117,7 +131,10 @@ def print_compas_details_dataframe(data: H5Group,
         df = pd.concat([df_keys, df_drvs], axis=1)
 
     # Add units as first col
-    units_dict = {key: data[key].attrs['units'].astype(str) for key in data}
+    units_dict = {
+        key: str(data[key].attrs['units']) if 'units' in data[key].attrs else ''
+        for key in data
+    }
     df.insert(loc=0, column='(units)', value=pd.Series(units_dict))
     return df
 
@@ -531,13 +548,14 @@ def get_event_strings(
     elif (all_events is None):
         _, all_events = get_event_history(data)
 
-    event_strings = np.zeros(len(all_events), dtype=StringDType())
+    # Keep the full string values instead of truncating to a single character.
+    event_strings = np.empty(len(all_events), dtype=object)
     for ii, events_for_given_seed in enumerate(all_events):
         event_string = build_event_string(
             events_for_given_seed,
             use_int_stypes=use_int_stypes)
         # append event string for this star (pop the last underscore first)
-        event_strings[ii] = event_string
+        event_strings[ii] = str(event_string)
     return event_strings
 
 def main():
