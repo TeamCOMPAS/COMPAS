@@ -331,37 +331,56 @@ function [pdetection]=...
     Fplus=1/2*(1+costh.^2).*cos(2*phi).*cos(2*psi)-costh.*sin(2*phi).*sin(2*psi);
     Fcross=1/2*(1+costh.^2).*cos(2*phi).*sin(2*psi)+costh.*sin(2*phi).*cos(2*psi);
     Theta=1/2*sqrt(Fplus.^2.*(1+cosiota.^2).^2+4*Fcross.^2.*cosiota.^2);
-    Thetas=sort(Theta);
+
+    alpha=13.6*pi/180; %angle between z axes, https://labcit.ligo.caltech.edu/~ajw/bursts/protect/T030215cor.pdf
+    alpha=20*pi/180;
+    cosalpha=cos(alpha); sinalpha=sin(alpha);
+    costh2=costh*cosalpha-sinth*sinalpha;
+    phi2=phi+2*alpha;
+    psi2=psi+2*alpha;
+    %the transformations below are very approximate
+    Fplus2=1/2*(1+costh2.^2).*cos(2*phi2).*cos(2*psi2)-costh2.*sin(2*phi2).*sin(2*psi2);
+    Fcross2=1/2*(1+costh2.^2).*cos(2*phi2).*sin(2*psi2)+costh2.*sin(2*phi2).*cos(2*psi2);
+    Theta2=1/2*sqrt(Fplus2.^2.*(1+cosiota.^2).^2+4*Fcross2.^2.*cosiota.^2);
+
+    Thetas=sort(sqrt(Theta.^2+Theta2.^2));
 
 
     %save time by not doing calculations beyond maximum redshifted total
     %mass corresponding to detection redshift threshold
     Mtzlistdetection=1:1:ceil(max(Mtlist)*(1+max(zlistdetection)));
+    %the masses are probably too discrete; consider relative discretisation
+    %of mass and redshift grids for smooth detection curves, or maybe move
+    %masses to a uniform-in-log grid?
     SNRat1Mpc=zeros(length(Mtzlistdetection),length(etalist));
     for(i=1:length(Mtzlistdetection)),
         for(j=1:length(etalist)),
             [h,Am,psi]=IMRSAWaveform(f, Mtzlistdetection(i), etalist(j), 0, 0, 0, 1, flow);
-            integral=sum(4*Am.^2./Sf*df);
+            integral=sum(4*Am.*conj(Am)./Sf*df);
             SNRat1Mpc(i,j)=sqrt(integral);
         end;
     end;
 
-    SNR=zeros(length(zlistdetection),length(Mtlist),length(etalist));
+    %optimal SNR for face-on, overhead source
+    SNRopt=zeros(length(zlistdetection),length(Mtlist),length(etalist));
 
     for(i=1:length(zlistdetection)),
         for(j=1:length(Mtlist)),
-            SNR(i,j,:)=SNRat1Mpc(ceil(Mtlist(j)*(zlistdetection(i)+1)),:)./Dl(i);
+            SNRopt(i,j,:)=SNRat1Mpc(ceil(Mtlist(j)*(zlistdetection(i)+1)),:)./Dl(i);
         end;
     end;
 
-    SNR8pre=1:0.01:100;
-    theta=1./SNR8pre;
-    pdetect=1-interp1([0,Thetas,1],[(0:Ntheta)/Ntheta,1],theta);
-    pdetect(1)=0;   %set of measure zero to exceed threshold, but enforce just in case
+    %Compute detection probability as a function of the ratio of SNRopt to SNRthreshold
+    SNRratio=0.01:0.01:100; %for convenience, no chance of detection below 1/max(Thetas)~1/sqrt(2) 
+    %find indices of first values larger than SNRthreshold/SNRopt in Thetas
+    idx=discretize(1./SNRratio, Thetas); 
+    pdetect=1-idx/Ntheta;
+    pdetect(isnan(pdetect))=0;
 
-    SNR8=SNR/8;
+    SNRtothreshold=SNRopt/8;   %should really be 10 for network, 
+    % but 8 matches Reed's calculations more closely according to Michael Fulgoni
     pdetection=zeros(length(zlistdetection),length(Mtlist),length(etalist));
-    pdetection=pdetect(max(min(floor((SNR8-1)*100),length(pdetect)),1));
+    pdetection=pdetect(max(min(ceil(SNRtothreshold*100),length(pdetect)),1));
 end %end of DetectionProbability
 
 %Make a set of default plots
