@@ -260,7 +260,7 @@ def get_sn_data_tuple(sn_data: H5Group) -> tuple[list, list, list]:
 
     Notes
     -----
-    SnEventTuples take the form: (stellar_type_progenitor, stellar_type_remnant, which_starIsProgenitor, is_binary_unbound).
+    SnEventTuples take the form: (stellar_type_progenitor, stellar_type_remnant, which_star_is_progenitor, is_binary_unbound).
     The events in the input do not have to be ordered chronologically, this function orders them, in the event
     that the input was coallated from a previous h5copy command. The output is not meant to be used generally,
     it is just a feeder for get_event_history below.
