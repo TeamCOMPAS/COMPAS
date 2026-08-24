@@ -531,7 +531,7 @@ data.close()
 # ### Plot histogram and CDF of data on left, and component mass scatter plot on the right
 
 # %%
-fig, axes = plt.subplots(ncols=2, figsize=(12,5))
+fig, axes = plt.subplots(ncols=2, figsize=(12,5), constrained_layout=True)
 fs_title = 30
 fs_label= 20
 fs_tick = 15
@@ -571,7 +571,6 @@ ax.set_xlabel(r'$M_1 \; [M_\odot$]', fontsize=fs_label)
 ax.set_ylabel(r'$M_2 \; [M_\odot$]', fontsize=fs_label)
 ax.tick_params(axis='both', which='major', labelsize=fs_tick)
 
-fig.tight_layout()
 
 # %%
 
