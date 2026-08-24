@@ -81,9 +81,9 @@ print(list(data.keys()))
 #
 # Brief description of the categories:
 # - 'BSE_System_Parameters': Initial state of the binary
-# - 'BSE_RLOF': Any mass transfer events that occured within the binary
+# - 'BSE_RLOF': Any mass transfer events that occurred within the binary
 # - 'BSE_Common_Envelopes': If any of the mass transfer events were unstable, details will be included here.
-# - 'BSE_Supernovae': Parameters and outcome of any supernovae that occured in the binary
+# - 'BSE_Supernovae': Parameters and outcome of any supernovae that occurred in the binary
 # - 'BSE_Double_Compact_Objects': Includes key information of all binaries which end their lives as an intact pair of compact obects (either neutron stars or black holes)
 # - 'Run_Details': Information on the input settings supplied to the Compas run
 #
@@ -149,7 +149,7 @@ for ii, seed in enumerate(seeds):
 # There is also an optional argument `exclude_null` which defaults to False. If True, it will skip systems which undergo no events of interest (which may speed up large runs).
 
 # %% [markdown]
-# A useful function that builds off of `get_event_history` is `get_event_strings`, which collects the event information into a succint string, which may be easier to read (once you get used to the syntax).
+# A useful function that builds off of `get_event_history` is `get_event_strings`, which collects the event information into a succinct string, which may be easier to read (once you get used to the syntax).
 #
 # The syntax for the event strings takes the following convention:
 #     
@@ -195,7 +195,7 @@ def calculate_total_masses_naive(path_data=None):
     
     total_masses = []
     
-    # Retrive the categories
+    # Retrieve the categories
     SPs = data['BSE_System_Parameters']
     DCs = data['BSE_Double_Compact_Objects']
     
@@ -257,7 +257,7 @@ m_total_all_systems  = np.add(m1_zams, m2_zams)
 
 # %%
 # Create a boolean array from the total mass array which is True
-# if the total mass of the corrresponding system is less than 40. 
+# if the total mass of the corresponding system is less than 40. 
 
 mask_m_tot_less_than_40 = (m_total_all_systems <= 40)
 
@@ -297,7 +297,7 @@ m1_zams  = SPs['Mass@ZAMS(1)'][()]
 # - see numpy.isin documentation for details
 mask = np.isin(seeds_SP, seeds_DC)
 
-print("The occurence rate of DCOs is {}/{}".format(sum(mask), len(mask)))
+print("The occurrence rate of DCOs is {}/{}".format(sum(mask), len(mask)))
 
 # %%
 seeds_DC = DCs['SEED'][()]
@@ -415,7 +415,7 @@ print_compas_details_dataframe(DCs, mask=mask_merges_hubble_time)
 # %% [markdown]
 # ### Example 2
 #
-# The previous example uses the fact that both `BSE_System_Parameters` and `BSE_Double_Compact_Objects` only print at most one line per system. However, as mentioned above, events such as supernovae or mass transfer might happen multiple times to a given system, and as a result there would be multiple occurences of a given seed in the relevant file. 
+# The previous example uses the fact that both `BSE_System_Parameters` and `BSE_Double_Compact_Objects` only print at most one line per system. However, as mentioned above, events such as supernovae or mass transfer might happen multiple times to a given system, and as a result there would be multiple occurrences of a given seed in the relevant file. 
 
 # %%
 # Example: Want to investigate CEE events for a given system. 
@@ -438,7 +438,7 @@ print_compas_details_dataframe(MTs, best_seed, mask=mask_cee)
 #
 # ### Example 3
 #
-# Combining masks on the seeds and other data can provide a lot of flexibility to help explore your science case. Imagine you want the primary masses of systems that experienced two core collapse supernovae (CCSNe) and resulted in a double compact object that will merge in a Hubble time. We'll reuse our mock data, with additional information about the types of SN which occured in each star. 
+# Combining masks on the seeds and other data can provide a lot of flexibility to help explore your science case. Imagine you want the primary masses of systems that experienced two core collapse supernovae (CCSNe) and resulted in a double compact object that will merge in a Hubble time. We'll reuse our mock data, with additional information about the types of SN which occurred in each star. 
 
 # %%
 # Example: get the primary ZAMS masses of systems which experience 2 CCSNe before becoming a DCO
@@ -488,7 +488,7 @@ data.close()
 #
 # *Disclaimer:*
 #
-# There are many ways to make the same plot in matplotlib and there are many ways to bin your data. Often, there is no "best" way to display data in a plot, and the message conveyed can be heavily dependent on the context of the data as well as asthetic plotting decisions.
+# There are many ways to make the same plot in matplotlib and there are many ways to bin your data. Often, there is no "best" way to display data in a plot, and the message conveyed can be heavily dependent on the context of the data as well as aesthetic plotting decisions.
 #
 # For example, in histograms, as we discuss below, the relatively subjective choice of bin size can significantly affect the interpretation of the results. It is important to be aware of when and how we make these choices and to try to reduce any unintended bias.
 #
