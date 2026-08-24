@@ -132,7 +132,7 @@ def print_compas_details_dataframe(data: H5Group,
 
     # Add units as first col
     units_dict = {
-        key: str(data[key].attrs['units']) if 'units' in data[key].attrs else ''
+        key: data[key].attrs['units'].decode('utf-8') if 'units' in data[key].attrs else ''
         for key in data
     }
     df.insert(loc=0, column='(units)', value=pd.Series(units_dict))
