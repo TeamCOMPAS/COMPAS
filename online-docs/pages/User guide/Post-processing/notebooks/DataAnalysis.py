@@ -314,7 +314,7 @@ def calculate_total_masses_optimized(path_data=None):
     
     total_masses = []
         
-    # Retrive the categories
+    # Retrieve the categories
     SPs = data['BSE_System_Parameters']
     DCs = data['BSE_Double_Compact_Objects']
     
