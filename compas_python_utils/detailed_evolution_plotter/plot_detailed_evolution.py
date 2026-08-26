@@ -312,7 +312,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
 
     # Add in the letters corresponding to various events
     event_times = [event.time for event in events]
-    mask2 = mask & (np.in1d(Data['Time'][()], event_times))
+    mask2 = mask & (np.isin(Data['Time'][()], event_times))
     Tmsk = Data['Teff(1)'][()][mask2]
     Lmsk = Data['Luminosity(1)'][()][mask2]
     for jj in range(np.sum(mask2)):
