@@ -1305,26 +1305,28 @@ double MainSequence::InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPres
         double logRadius = log10(m_Radius);
         double qCritUpperEffLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qUppLowLow
                                       : (logRadius > upperLogRadiusLowerMass) ? qUppLowUpp
-                                      : qUppLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qUppLowUpp - qUppLowLow);
+                                      : qUppLowLow + (logRadius - lowerLogRadiusLowerMass) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qUppLowUpp - qUppLowLow);
         double qCritUpperEffUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qUppUppLow
                                       : (logRadius > upperLogRadiusUpperMass) ? qUppUppUpp
-                                      : qUppUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppUpp - qUppUppLow);
+                                      : qUppUppLow + (logRadius - lowerLogRadiusUpperMass) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUppUpp - qUppUppLow);
         double qCritLowerEffLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qLowLowLow
                                       : (logRadius > upperLogRadiusLowerMass) ? qLowLowUpp
-                                      : qLowLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowLowUpp - qLowLowLow);
+                                      : qLowLowLow + (logRadius - lowerLogRadiusLowerMass) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowLowUpp - qLowLowLow);
         double qCritLowerEffUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qLowUppLow
                                       : (logRadius > upperLogRadiusUpperMass) ? qLowUppUpp
-                                      : qLowUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qLowUppUpp - qLowUppLow);
+                                      : qLowUppLow + (logRadius - lowerLogRadiusUpperMass) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qLowUppUpp - qLowUppLow);
     
         double logMass = log10(m_Mass);
         double interpolatedQCritUpperEff = (logMass < logLowerMass) ? qCritUpperEffLowerMass
                                          : (logMass > logUpperMass) ? qCritUpperEffUpperMass
-                                         : qCritUpperEffLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritUpperEffUpperMass - qCritUpperEffLowerMass);
+                                         : qCritUpperEffLowerMass + (logMass - logLowerMass) / (logUpperMass - logLowerMass) * (qCritUpperEffUpperMass - qCritUpperEffLowerMass);
         double interpolatedQCritLowerEff = (logMass < logLowerMass) ? qCritLowerEffLowerMass
                                          : (logMass > logUpperMass) ? qCritLowerEffUpperMass
-                                         : qCritLowerEffLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritLowerEffUpperMass - qCritLowerEffLowerMass);
-    
-        double interpolatedQCritForZ = p_massTransferEfficiencyBeta * interpolatedQCritUpperEff + (1.0 - p_massTransferEfficiencyBeta) * interpolatedQCritLowerEff;                 // Don't need to use nearest neighbor for this, beta is always between 0 and 1
+                                         : qCritLowerEffLowerMass + (logMass - logLowerMass) / (logUpperMass - logLowerMass) * (qCritLowerEffUpperMass - qCritLowerEffLowerMass);
+
+        double fBeta = (p_massTransferEfficiencyBeta > 0.5) ? (p_massTransferEfficiencyBeta - 0.5) / 0.5 //define a local interpolation factor from 0 to 1 within the selected beta interval
+                     : p_massTransferEfficiencyBeta / 0.5;
+        double interpolatedQCritForZ = fBeta * interpolatedQCritUpperEff + (1.0 - fBeta) * interpolatedQCritLowerEff;     // Don't need to use nearest neighbor for this, beta is always between 0 and 1
         qCritPerMetallicity[ii] = interpolatedQCritForZ;
     }
     double logZlo = -3;                // log10(0.001)
