@@ -1,3 +1,21 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.5
+#   kernelspec:
+#     display_name: general
+#     language: python
+#     name: python3
+# ---
+
+# %%
+import os
 import h5py as h5
 import numpy as np
 import pandas as pd
@@ -147,13 +165,16 @@ def print_compas_details_dataframe(data: H5Group,
 
 ### Get event histories of MT data, SN data, and combined MT, SN data
 
-def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
+def get_mt_data_tuple(mt_data: H5Group,
+                      *seeds: int) -> tuple[list, list, list]:
     """Calculates the EventTuple for the BSE_RLOF output H5Group.
 
     Parameters
     ----------
     mt_data : H5Group
         the COMPAS output H5Group corresponding to BSE_RLOF
+    seeds : int or array_like of ints, optional
+        seeds of specific systems to include (default is to include all seeds)
 
     Returns
     -------
@@ -193,6 +214,11 @@ def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
     mt_is_cee = mt_is_cee[mt_seeds_idx]
     mt_is_mrg = mt_is_mrg[mt_seeds_idx]
 
+    if len(seeds) == 0:  # If `seeds` argument is not supplied, set the default mask
+        included_seeds = np.unique(mt_seeds)
+    else:
+        included_seeds = np.unique(seeds)
+
     # Process the mt_data events
     # array of seeds - will only contain seeds that have mt_data events
     returned_seeds = []
@@ -206,6 +232,8 @@ def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
     last_seed = -1
     for seed_index, this_seed in enumerate(
             mt_seeds):          # iterate over all RLOF file entries
+        if this_seed not in included_seeds:
+            continue
         # time for this RLOF file entry
         this_time = mt_times[seed_index]
         this_event = (
@@ -246,13 +274,16 @@ def get_mt_data_tuple(mt_data: H5Group) -> tuple[list, list, list]:
     return returned_seeds, returned_events, returned_times
 
 
-def get_sn_data_tuple(sn_data: H5Group) -> tuple[list, list, list]:
+def get_sn_data_tuple(sn_data: H5Group, 
+                      *seeds: int) -> tuple[list, list, list]:
     """Calculates the EventTuple for the BSE_Supernovae output H5Group.
 
     Parameters
     ----------
     sn_data : H5Group
         the COMPAS output H5Group corresponding to BSE_Supernovae
+    seeds : int or array_like of ints, optional
+        seeds of specific systems to include (default is to include all seeds)
 
     Returns
     -------
@@ -287,6 +318,10 @@ def get_sn_data_tuple(sn_data: H5Group) -> tuple[list, list, list]:
     sn_remn_stype = sn_remn_stype[sn_seeds_idx]
     sn_which_prog = sn_which_prog[sn_seeds_idx]
     sn_is_unbound = sn_is_unbound[sn_seeds_idx]
+    if len(seeds) == 0:  # If `seeds` argument is not supplied, set the default mask
+        included_seeds = np.unique(sn_seeds)
+    else:
+        included_seeds = np.unique(seeds)
 
     # Process the sn_data events
     # array of seeds - will only contain seeds that have sn_data events
@@ -301,6 +336,8 @@ def get_sn_data_tuple(sn_data: H5Group) -> tuple[list, list, list]:
     last_seed = -1
     for seed_index, this_seed in enumerate(
             sn_seeds):          # iterate over all sn_data file entries
+        if this_seed not in included_seeds:
+            continue
         # time for this sn_data file entry
         this_time = sn_times[seed_index]
         this_event = (
@@ -327,33 +364,40 @@ def get_sn_data_tuple(sn_data: H5Group) -> tuple[list, list, list]:
     return returned_seeds, returned_events, returned_times
 
 
-def get_event_history(
-        data: H5File, include_null: bool = True) -> tuple[list, list]:
+def get_event_history( data: H5File, 
+                       *seeds: int,
+                       include_null: bool = True, 
+                       ) -> tuple[list, list]:
     """Get the event history for all seeds, including both MT and SN events, in chronological order.
 
     Parameters
     ----------
     data : H5File
         the COMPAS output H5file
+    seeds : int or array_like of ints, optional
+        seeds of specific systems to include (default is to include all seeds)
     include_null : bool
         whether to include seeds which undergo no MT or SN events (default is True)
 
     Returns
     -------
-    returned_seeds : list
-        an ordered list of all the unique seeds in the output file
     returned_events : list
         a list where each element is a chronological set of events corresponding to the associated seed
+    returned_seeds : list
+        an ordered list of all the unique seeds in the output file
     """
     sp_data = data['BSE_System_Parameters']
     mt_data = data['BSE_RLOF']
     sn_data = data['BSE_Supernovae']
     # get all seeds
     all_seeds = sp_data['SEED'][()]
+    if len(seeds) != 0:  # If `seeds` argument is not supplied, set the default mask
+        all_seeds = np.unique(seeds)
+
     mt_seeds, mt_events, mt_times = get_mt_data_tuple(
-        mt_data)                # get mt data tuple
+        mt_data, all_seeds)                # get mt data tuple
     sn_seeds, sn_events, sn_times = get_sn_data_tuple(
-        sn_data)                # get sn data tuple
+        sn_data, all_seeds)                # get sn data tuple
 
     # number of mt_data events
     num_mt_seeds = len(mt_seeds)
@@ -424,7 +468,7 @@ def get_event_history(
         returned_seeds[idx] = seed
         # record the events for this seed in the events array being returned
         returned_events[idx] = seed_events
-    return returned_seeds, returned_events
+    return returned_events, returned_seeds 
 
 
 ###########################################
@@ -525,23 +569,36 @@ def build_event_string(
 
 def get_event_strings(
         data: H5File = None,
+        *seeds: int,
         all_events: list = None,
-        use_int_stypes: bool = False):
+        use_int_stypes: bool = False,
+        return_seeds: bool = False,
+        ):
     """Calculate the event history strings for a COMPAS population.
 
     Parameters
     ----------
     data : H5File, optional
         the COMPAS output H5file
+    seeds : int or array_like of ints, optional
+        seeds of specific systems to include (default is to include all seeds)
     all_events : list, optional
         a list where each element is a chronological set of events corresponding to the associated seed,
         one of the outputs of get_event_history(data)
     use_int_stypes : bool, optional
+        whether to report stellar types as integers
+        (default is False, report them as 2-char stellar types)
+    return_seeds : bool, optional
+        whether to return the seeds as well as the event strings
+        (default is False, only return the event strings)
 
     Returns
     -------
     event_strings : array of EventHistoryString's
         strings of the event history of each system
+    event_seeds : array of ints, optional
+        seeds of the systems corresponding to the event strings,
+        only returned if return_seeds is True
 
     Notes
     -----
@@ -550,9 +607,11 @@ def get_event_strings(
 
     # If output is
     if (data is None) & (all_events is None):
-        return
+        raise ValueError("Either data or all_events must be provided")
     elif (all_events is None):
-        _, all_events = get_event_history(data)
+        all_events, event_seeds = get_event_history(data, *seeds)
+    else: # if only all_events is provided, do not return seeds
+        return_seeds = False
 
     # Keep the full string values instead of truncating to a single character.
     event_strings = np.empty(len(all_events), dtype=object)
@@ -562,7 +621,10 @@ def get_event_strings(
             use_int_stypes=use_int_stypes)
         # append event string for this star (pop the last underscore first)
         event_strings[ii] = str(event_string)
-    return event_strings
+    if return_seeds:
+        return event_strings, event_seeds 
+    else:
+        return event_strings
 
 def main():
     return
