@@ -1,21 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.5
-#   kernelspec:
-#     display_name: general
-#     language: python
-#     name: python3
-# ---
-
-# %%
-import os
 import h5py as h5
 import numpy as np
 import pandas as pd
