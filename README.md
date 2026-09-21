@@ -24,6 +24,7 @@ https://ui.adsabs.harvard.edu/abs/2025ApJS..280...43T .
 As the public COMPAS code is a product of work by the entire COMPAS collaboration over many years, we kindly request that, in recognition of 
 this team effort, the papers are cited as “Team COMPAS: J. Riley et al. (2021)” and "Team COMPAS: I. Mandel et al. (2025). Example bibtex codes are:
 
+```
 @ARTICLE{compas2021,
        author = {{Team COMPAS: Riley}, Jeff and {Agrawal}, Poojan and {Barrett}, Jim W. and {Boyett}, Kristan N.~K. and {Broekgaarden}, Floor S. and {Chattopadhyay}, Debatri and {Gaebel}, Sebastian M. and {Gittins}, Fabian and {Hirai}, Ryosuke and {Howitt}, George and {Justham}, Stephen and {Khandelwal}, Lokesh and {Kummer}, Floris and {Lau}, Mike Y.~M. and {Mandel}, Ilya and {de Mink}, Selma E. and {Neijssel}, Coenraad and {Riley}, Tim and {van Son}, Lieke and {Stevenson}, Simon and {Vigna-G{\'o}mez}, Alejandro and {Vinciguerra}, Serena and {Wagg}, Tom and {Willcox}, Reinhold},
         title = "{Rapid Stellar and Binary Population Synthesis with COMPAS}",
@@ -39,7 +40,9 @@ this team effort, the papers are cited as “Team COMPAS: J. Riley et al. (2021)
        adsurl = {https://ui.adsabs.harvard.edu/abs/2022ApJS..258...34R},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
+```
 
+```
 @ARTICLE{compas2025,
        author = {{Team COMPAS: Mandel}, Ilya and {Riley}, Jeff and {Boesky}, Adam and {Brcek}, Adam and {Hirai}, Ryosuke and {Kapil}, Veome and {Lau}, Mike Y.~M. and {Merritt}, JD and {Rodr{\'\i}guez-Segovia}, Nicol{\'a}s and {Romero-Shaw}, Isobel and {Song}, Yuzhe and {Stevenson}, Simon and {Vajpeyi}, Avi and {van Son}, L.~A.~C. and {Vigna-G{\'o}mez}, Alejandro and {Willcox}, Reinhold},
         title = "{Rapid Stellar and Binary Population Synthesis with COMPAS: Methods Paper II}",
@@ -58,13 +61,17 @@ archivePrefix = {arXiv},
        adsurl = {https://ui.adsabs.harvard.edu/abs/2025ApJS..280...43T},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
+```
 
-##Note that the preferred acknowledgement relies on \noopsort and cites the paper as TEAM COMPAS; Riley et al.; to make it work, you'll have to include the following line at the start of your bibtex file:
-##@PREAMBLE{ {\providecommand{\noopsort}[1]{}} }
+Note that the preferred acknowledgement relies on `\noopsort` and cites the paper as TEAM COMPAS; Riley et al.; to make it work, you'll have to include the following line at the start of your bibtex file:
 
-##and change the author line in the bib entry to:
+`@PREAMBLE{ {\providecommand{\noopsort}[1]{}} }`
 
-##author = {{\noopsort{Team COMPAS}}{Team COMPAS: Riley, J.} and {Agrawal}, Poojan and {Barrett}, Jim W. and {Boyett}, Kristan N.~K. and {Broekgaarden}, Floor S. and {Chattopadhyay}, Debatri and {Gaebel}, Sebastian M. and {Gittins}, Fabian and {Hirai}, Ryosuke and {Howitt}, George and {Justham}, Stephen and {Khandelwal}, Lokesh and {Kummer}, Floris and {Lau}, Mike Y.~M. and {Mandel}, Ilya and {de Mink}, Selma E. and {Neijssel}, Coenraad and {Riley}, Tim and {van Son}, Lieke and {Stevenson}, Simon and {Vigna-Gomez}, Alejandro and {Vinciguerra}, Serena and {Wagg}, Tom and {Willcox}, Reinhold}
+and change the author line in the bib entry to:
+
+```
+author = {{\noopsort{Team COMPAS}}{Team COMPAS: Riley, J.} and {Agrawal}, Poojan and {Barrett}, Jim W. and {Boyett}, Kristan N.~K. and {Broekgaarden}, Floor S. and {Chattopadhyay}, Debatri and {Gaebel}, Sebastian M. and {Gittins}, Fabian and {Hirai}, Ryosuke and {Howitt}, George and {Justham}, Stephen and {Khandelwal}, Lokesh and {Kummer}, Floris and {Lau}, Mike Y.~M. and {Mandel}, Ilya and {de Mink}, Selma E. and {Neijssel}, Coenraad and {Riley}, Tim and {van Son}, Lieke and {Stevenson}, Simon and {Vigna-Gomez}, Alejandro and {Vinciguerra}, Serena and {Wagg}, Tom and {Willcox}, Reinhold}
+```
 
 
 
