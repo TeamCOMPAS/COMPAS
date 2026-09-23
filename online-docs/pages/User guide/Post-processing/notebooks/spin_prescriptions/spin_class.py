@@ -1,6 +1,5 @@
 import h5py as h5
 import numpy as np
-import matplotlib.pyplot as plt
 import os
 from astropy import units as u
 from astropy import constants as c
@@ -34,7 +33,6 @@ class calculate_spin(object):
         returns black hole spins with a random spin value uniformly sampled between 'low' and 'high'
         """
         
-        import random
         
         sample_size = len(self.h5file['BSE_Double_Compact_Objects']['Mass(1)'][...].squeeze())
         
@@ -379,7 +377,6 @@ class calculate_spin_olderCOMPASdata(object):
         returns black hole spins with a random spin value uniformly sampled between 'low' and 'high'
         """
         
-        import random
         
         sample_size = len(self.h5file['doubleCompactObjects']['M1'][...].squeeze())
         

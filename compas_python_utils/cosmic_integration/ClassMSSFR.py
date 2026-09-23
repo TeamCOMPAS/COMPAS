@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
 import scipy.special
-from   scipy.optimize    import newton
 from   astropy.cosmology import FlatLambdaCDM
 from   astropy.cosmology import WMAP9 #as cosmo
 import astropy.units as u
