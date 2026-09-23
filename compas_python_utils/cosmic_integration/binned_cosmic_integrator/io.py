@@ -1,5 +1,4 @@
 import h5py
-from typing import Dict
 import numpy as np
 
 
@@ -15,7 +14,7 @@ def recursively_load_dict_contents_from_group(h5file: h5py.File, group: str):
     return output
 
 
-def recursively_save_dict_contents_to_group(h5file: h5py.File, group: str, dic: Dict):
+def recursively_save_dict_contents_to_group(h5file: h5py.File, group: str, dic: dict):
     for key, item in dic.items():
         item = encode_for_hdf5(key, item)
         if isinstance(item, dict):

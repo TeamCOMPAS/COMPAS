@@ -8,7 +8,7 @@ from . import ClassCOMPAS
 from . import ClassMSSFR
 from .cosmology import get_cosmology
 import selection_effects
-class CosmicIntegrator(object):
+class CosmicIntegrator:
     """
 
     The cosmological integrator calculates the rate 

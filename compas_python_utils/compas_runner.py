@@ -4,7 +4,8 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
-from typing import Iterable, Optional, Sequence
+from typing import Optional
+from collections.abc import Iterable, Sequence
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parent

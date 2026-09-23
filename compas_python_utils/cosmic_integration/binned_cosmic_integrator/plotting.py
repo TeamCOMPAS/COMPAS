@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from corner import corner
-from typing import List
 import warnings
 from .conversions import m1_m2_to_eta_chirp_mass
 
@@ -127,7 +126,7 @@ def plot_sfr_and_metallicity(
         p_draw_metallicity: np.array,
         metallicity_label: str,
         sf_label: str,
-        redshift_range: List, logZ_range: List,
+        redshift_range: list, logZ_range: list,
 ) -> plt.Figure:
     fig, axes = plt.subplots(3, 1, figsize=(5, 8))
     ax = axes[0]
@@ -220,7 +219,7 @@ def plot_snr_grid(
 
 
 def plot_binary_population(
-        data: np.ndarray, params: List[str]
+        data: np.ndarray, params: list[str]
 ) -> plt.Figure:
     n_sys = len(data)
     # mask out the outliers
