@@ -9,4 +9,7 @@ select = [
     "UP004",
     # https://docs.astral.sh/ruff/rules/extraneous-parentheses/
     "UP034",
+    # https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    # https://github.com/asottile/pyupgrade
+    "UP",
 ]
