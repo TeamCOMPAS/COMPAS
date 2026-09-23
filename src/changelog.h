@@ -1705,6 +1705,8 @@
 //                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
 //  03.29.05  AG - May 26, 2026          - Defect repair:
 //                                       - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
+//  03.29.06  DH - September 23, 2026    - Defect repair:
+//                                       - Fix for issue #1484: reversed interpolation factors for mass transfer stability with Ge's model q_crit, in MainSequence and HeMS
 //
 // Version string format is MM.mm.rr, where
 //
@@ -1715,7 +1717,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.29.05";
+const std::string VERSION_STRING = "03.29.06";
 
 
 # endif // __changelog_h__
