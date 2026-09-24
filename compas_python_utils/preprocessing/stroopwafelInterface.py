@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import os
 import pandas as pd
 import shutil
 import time

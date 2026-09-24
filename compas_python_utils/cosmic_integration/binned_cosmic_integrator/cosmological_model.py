@@ -1,4 +1,3 @@
-from .gpu_utils import xp
 
 from ..FastCosmicIntegration import find_sfr, find_metallicity_distribution, calculate_redshift_related_params
 from .plotting import plot_sfr_and_metallicity
