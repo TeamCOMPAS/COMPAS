@@ -1864,6 +1864,8 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;             // vicinity of the donor 
 
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;             // vicinity of the accretor
+            
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MIN:                   gamma = std::min(p_AccretorMass / p_DonorMass, p_DonorMass / p_AccretorMass); break; // the smaller of isotropic re-emission and Jeans mode mass loss
         
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
 

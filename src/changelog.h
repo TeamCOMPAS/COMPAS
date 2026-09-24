@@ -1707,6 +1707,7 @@
 //                                          - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
 //  03.30.00  IM - Sep 23, 2026         - Enhancement:
 //                                          - Include the possibility of pulsational (L/M threshold) mass loss in the middle of a thermal-timescale mass transfer episode that removes entire envelope
+//                                          - Add option (MIN) to lose specific angular momentum during non-conservative mass transfer that is the smaller of isotropic re-emission and Jeans mode mass loss
 //                                      - Defect repair:
 //                                          - Corrected orbital separation re-computation following pulsational (L/M threshold) mass loss
 //
