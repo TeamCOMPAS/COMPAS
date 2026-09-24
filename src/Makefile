@@ -84,7 +84,7 @@ BOOSTLIBDIR ?= /lib
 
 # hdf5 directories
 HDF5INCDIR ?= /usr/include/hdf5/serial
-HDF5LIBDIR ?= /usr/lib/x86_64-linux-gnu/hdf5/serial
+HDF5LIBDIR ?= /usr/lib/$(shell $(CPP) -print-multiarch)/hdf5/serial
 
 # Homebrew defaults for macOS local builds
 ifeq ($(UNAME_S),Darwin)
