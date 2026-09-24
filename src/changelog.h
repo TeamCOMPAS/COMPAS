@@ -1705,6 +1705,8 @@
 //                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
 //  03.29.05  AG - May 26, 2026         - Defect repair:
 //                                          - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
+//  03.29.06  DH - September 23, 2026    - Defect repair:
+//                                       - Fix for issue #1484: reversed interpolation factors for mass transfer stability with Ge's model q_crit, in MainSequence and HeMS
 //  03.30.00  IM - Sep 23, 2026         - Enhancement:
 //                                          - Include the possibility of pulsational (L/M threshold) mass loss in the middle of a thermal-timescale mass transfer episode that removes entire envelope
 //                                          - Add option (MIN) to lose specific angular momentum during non-conservative mass transfer that is the smaller of isotropic re-emission and Jeans mode mass loss
