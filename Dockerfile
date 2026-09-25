@@ -6,7 +6,8 @@ WORKDIR /app/COMPAS
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
-    apt-get update && apt-get install -y \
+    apt-get update && apt-get install -y --no-install-recommends \
+        make \
         g++ \
         libhdf5-serial-dev \
         libboost-all-dev \
