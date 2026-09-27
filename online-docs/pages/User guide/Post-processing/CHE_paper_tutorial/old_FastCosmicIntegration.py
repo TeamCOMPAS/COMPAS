@@ -1,10 +1,8 @@
 import numpy as np
 import h5py  as h5
-import os
 import time
 import matplotlib.pyplot as plt
 from astropy.cosmology import WMAP9 as cosmology
-import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
 import old_ClassCOMPAS as ClassCOMPAS

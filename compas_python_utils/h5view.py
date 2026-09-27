@@ -95,7 +95,6 @@ JR, April 2021
 #!/usr/bin/python3
 import sys
 import os
-import math
 import datetime
 import numpy as np
 import h5py as h5

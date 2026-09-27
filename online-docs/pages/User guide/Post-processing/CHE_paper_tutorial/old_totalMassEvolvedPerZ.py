@@ -1,6 +1,5 @@
 import numpy as np 
 import h5py as h5 #for reading in data
-import os
 
 def threePartBrokenPowerLaw(x, x1=0.01, x2=0.08, x3=0.5, x4=200, a1=-0.3, \
                             a2=-1.3, a3=-2.3, C1=1):

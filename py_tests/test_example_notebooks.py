@@ -1,4 +1,3 @@
-import glob
 from tqdm.auto import tqdm
 import jupytext
 import os
