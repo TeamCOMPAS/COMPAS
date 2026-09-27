@@ -5434,4 +5434,3 @@ std::string Options::CheckDeprecatedOptionProperty(const std::string p_OptionPro
 
     return newPropertyString;
 }
-

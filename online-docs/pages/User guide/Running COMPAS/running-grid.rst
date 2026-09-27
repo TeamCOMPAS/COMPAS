@@ -65,4 +65,3 @@ Contents of ``grid_demo.txt``::
 Output:
 
 .. include:: example/COMPAS_Output/Run_Details
-

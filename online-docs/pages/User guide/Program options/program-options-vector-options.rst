@@ -66,4 +66,3 @@ so the caveat mentioned above that option values may not begin with the dash cha
 
 Shorthand notation is optional: users may choose to use the notation described above rather than shorthand notation, but in that case all option
 values must be specified (no omissions, no defaults).
-

@@ -344,4 +344,3 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     M_sf_Univ_per_N_binary_COMPAS = average_stellar_mass_sys / N_bin_in_COMPAS
 
     return M_sf_Univ_per_N_binary_COMPAS
-

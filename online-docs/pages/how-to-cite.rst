@@ -33,4 +33,3 @@ If using the COMPAS model of (pulsational) pair instability supernova, please ci
 If evolving pulsar spins and magnetic fields with COMPAS, please cite :cite:t:`Chattopadhyay2020`.
 
 If you use the COMPAS model of chemically homogeneous evolution, please cite :cite:t:`Riley2021`.
-

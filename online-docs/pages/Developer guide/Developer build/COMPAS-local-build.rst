@@ -66,4 +66,3 @@ The makefile provided also defines several entry points:
 .. rubric:: Footnotes
 
 .. [#f1] https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
-

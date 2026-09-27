@@ -1623,5 +1623,3 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --create-YAML-file, YAML-template
 
 :ref:`Back to Top <options-props-top>`
-
-

@@ -10,4 +10,3 @@ being described by a separate ``C++`` class.
 
    SSE-class-hierarchy
    SSE-evolution-model
-

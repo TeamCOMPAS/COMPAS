@@ -434,4 +434,3 @@ STELLAR_TYPE CH::EvolveToNextPhase() {
 
     return stellarType;
 }
-

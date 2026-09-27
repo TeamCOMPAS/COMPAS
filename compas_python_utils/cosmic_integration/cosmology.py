@@ -67,4 +67,3 @@ def set_cosmology(cosmology: COSMO_TYPE = None):
     _set_default_cosmology()
     if cosmology is None:
         cosmology = DEFAULT_COSMOLOGY
-

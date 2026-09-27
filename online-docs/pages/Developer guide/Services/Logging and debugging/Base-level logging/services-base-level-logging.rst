@@ -60,4 +60,3 @@ The Log service provides the following public member functions:
    ./services-base-level-logging-func-squawk
    ./services-base-level-logging-func-say
    ./services-base-level-logging-func-enabled
-

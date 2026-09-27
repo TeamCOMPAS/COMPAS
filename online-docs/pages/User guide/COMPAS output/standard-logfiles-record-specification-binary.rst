@@ -2265,4 +2265,3 @@ both. If both are printed then the file will contain two columns with the same h
      - Mass-radius exponent of the star at the onset of the RLOF. Calculated differently based on the value of program option ``--zeta-prescription``
    * - Header String:
      - Zeta_Star
-

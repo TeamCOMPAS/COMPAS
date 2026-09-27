@@ -5,4 +5,3 @@ Following is a list of the SSE System Parameters file record type numbers and co
 
 #. DEFAULT |BR|
    Default SSE_SYSTEM_PARAMETERS file record type
-

@@ -40,4 +40,3 @@ This following sections assume ``Docker`` has been installed and is running. For
 .. [#f3] https://www.docker.com/resources/what-container
 .. [#f4] `https://stackoverflow.com/questions/23735149 <https://stackoverflow.com/questions/23735149/what-is-the-difference-between-a-docker-image-and-a-container#:~:text=An%20instance%20of%20an%20image,of%20layers%20as%20you%20describe.&text=You%20can%20see%20all%20your,an%20image%20is%20a%20container>`_
 .. [#f5] https://hub.docker.com/
-

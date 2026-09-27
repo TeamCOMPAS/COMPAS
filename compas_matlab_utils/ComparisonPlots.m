@@ -422,6 +422,3 @@ function [binariescount, SNcount, BHcompletecount, SNbothcount, SNonecount, ...
     strippedCEcount=sum(IsStrippedSN & HadRLOFSN & precedingCE & SNtypeSN~=2 & SNtypeSN~=32);
     CESNcount=sum(IsStrippedSN & HadRLOFSN & simultaneouswithCE & SNtypeSN~=2 & SNtypeSN~=32);
 end %end of SNstats
-
-
-

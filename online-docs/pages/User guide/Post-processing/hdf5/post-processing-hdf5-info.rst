@@ -147,4 +147,3 @@ Here str is a Python string and ``print(str)`` will display (e.g.) ``abcde``
 Note: ``HDF5`` files not created by COMPAS will not (necessarily) exhibit this behaviour, so for ``HDF5`` files created by the existing 
 post-processing Python scripts the use of ``.decode()`` is not only not necessary, it will fail (because the strings in ``HDF5`` files 
 created by Python are already Python strings, not byte arrays).
-

@@ -265,4 +265,3 @@ class CosmicIntegrator(object):
                 self.PerSystemPerRedshift_ratesObserved[nr][maskZ]  = np.multiply(NrMergersInShell,probObservingZ)      # observed  dN per year prob between 0-1 
         if np.sum(self.PerSystemPerRedshift_ratesObserved[-1]) != 0 :
             print("The detected rate of the outermost redshift shell is nonzero, did we integrate far enough?")
-

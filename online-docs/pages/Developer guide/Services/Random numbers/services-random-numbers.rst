@@ -43,4 +43,3 @@ The Rand service provides the following public member functions:
    ./services-random-numbers-randomGaussian
    ./services-random-numbers-randomInt1
    ./services-random-numbers-randomInt2
-

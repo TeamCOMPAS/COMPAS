@@ -3,4 +3,3 @@ References
 
 .. bibliography::
    :all:
-

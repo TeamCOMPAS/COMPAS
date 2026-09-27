@@ -35,4 +35,3 @@ bool ONeWD::IsSupernova() const {
 STELLAR_TYPE ONeWD::EvolveToNextPhase() {
     return ResolveAIC();
 }
-

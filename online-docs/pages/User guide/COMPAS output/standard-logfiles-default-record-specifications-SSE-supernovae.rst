@@ -22,4 +22,3 @@ Default record definition for the SSE Supernovae log file::
         STAR_PROPERTY::TIME,
         STAR_PROPERTY::IS_HYDROGEN_POOR
     };
-
