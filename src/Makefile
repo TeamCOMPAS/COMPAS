@@ -106,7 +106,7 @@ ifneq ($(filter fast staticfast,$(MAKECMDGOALS)),)
 endif
 
 # might need -Wno-vla-cxx-extension for clang>18?
-EXTRA_WARN_SUPPRESS := -Wno-vla-extension 
+EXTRA_WARN_SUPPRESS := -Wno-vla-extension
 
 CXXFLAGS := -std=c++17 -Wall $(OPTFLAGS) $(CXXFLAGS_SPECIFIC) $(EXTRA_WARN_SUPPRESS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.

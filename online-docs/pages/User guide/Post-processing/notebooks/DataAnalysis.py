@@ -48,7 +48,7 @@ import time                      # for finding computation time
 import matplotlib.pyplot as plt  #for plotting
 
 # Import COMPAS specific scripts
-compas_root_dir = os.environ['COMPAS_ROOT_DIR'] 
+compas_root_dir = os.environ['COMPAS_ROOT_DIR']
 sys.path.append(compas_root_dir + 'compas_python_utils')
 from debugging_utils import print_compas_details_dataframe, get_event_history, get_event_strings
 
@@ -77,7 +77,7 @@ data  = h5.File(path_to_data)
 print(list(data.keys()))
 
 # %% [markdown]
-# The output above represents the event categories available from the particular run. If you used the output produced in the previous tutorial, you should see `['BSE_Common_Envelopes', 'BSE_Double_Compact_Objects', 'BSE_RLOF', 'BSE_Supernovae', 'BSE_System_Parameters', 'Run_Details']`. Note that for smaller runs which do not produce any of a particular type of output, the output category will not be created. 
+# The output above represents the event categories available from the particular run. If you used the output produced in the previous tutorial, you should see `['BSE_Common_Envelopes', 'BSE_Double_Compact_Objects', 'BSE_RLOF', 'BSE_Supernovae', 'BSE_System_Parameters', 'Run_Details']`. Note that for smaller runs which do not produce any of a particular type of output, the output category will not be created.
 #
 # Brief description of the categories:
 # - 'BSE_System_Parameters': Initial state of the binary
@@ -103,7 +103,7 @@ DCs = data['BSE_Double_Compact_Objects']
 print(SPs.keys())
 
 # %% [markdown]
-# One of the most important parameters in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically. 
+# One of the most important parameters in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically.
 #
 # If we want to view the random seeds in the system parameters file, we run
 
@@ -152,15 +152,15 @@ for ii, seed in enumerate(seeds):
 # A useful function that builds off of `get_event_history` is `get_event_strings`, which collects the event information into a succinct string, which may be easier to read (once you get used to the syntax).
 #
 # The syntax for the event strings takes the following convention:
-#     
+#
 # - For MT events:
 #     - P>S, P<S, P=S, or P&S
 #     - where P is primary type, S is secondary type, and `>`, `<` is RLOF (1->2 or 1<-2), `=` is a (successful) CEE, and `&` is a merger.
 #
 # - For SN events:
-#     - P\*SR for star1 the SN progenitor, or 
+#     - P\*SR for star1 the SN progenitor, or
 #     - R\*SP for star2 the SN progenitor,
-#     - where P is progenitor type, R is remnant type, 
+#     - where P is progenitor type, R is remnant type,
 #       S is state (`i` for intact, `u` for unbound)
 #     - Note that the companion type is not reported in this truncated syntax.
 #
@@ -178,7 +178,7 @@ for ii in range(5):
 # %% [markdown]
 # ## 2. Slicing the data
 #
-# Since the random seed is unique and constant for a given binary, the properties and events of the binary system can be recovered by looking at its seed across different output categories. 
+# Since the random seed is unique and constant for a given binary, the properties and events of the binary system can be recovered by looking at its seed across different output categories.
 #
 # Here we introduce the basics of manipulating the data using the seeds. We provide an example on how we get the initial parameters of systems that ended up forming double compact objects.
 #
@@ -192,15 +192,15 @@ for ii in range(5):
 # %%
 def calculate_total_masses_naive(path_data=None):
     data  = h5.File(path_to_data)
-    
+
     total_masses = []
-    
+
     # Retrieve the categories
     SPs = data['BSE_System_Parameters']
     DCs = data['BSE_Double_Compact_Objects']
-    
-    # For syntax see section 1 
-    
+
+    # For syntax see section 1
+
     # Extract parameters of interest
     seeds_DC       = DCs['SEED'][()]
     seeds_SP       = SPs['SEED'][()]
@@ -227,7 +227,7 @@ m_tot_old = calculate_total_masses_naive(path_data=path_to_data)
 end     = time.time()
 time_diff_naive = end-start
 
-print('%s seconds, using for loops.' %(time_diff_naive)) 
+print('%s seconds, using for loops.' %(time_diff_naive))
 
 # %% [markdown]
 # ### I) Optimizing the above loop
@@ -235,7 +235,7 @@ print('%s seconds, using for loops.' %(time_diff_naive))
 # #### a - Use built-in numpy routines
 
 # %% [markdown]
-# Numpy arrays can make use of a powerful library of optimization tools which allow the user to bypass computationally heavy for-loops. 
+# Numpy arrays can make use of a powerful library of optimization tools which allow the user to bypass computationally heavy for-loops.
 #
 # For example, we can speed up the calculation of the element-wise sum of two arrays with:
 
@@ -244,20 +244,20 @@ SPs = data['BSE_System_Parameters']
 
 m1_zams  = SPs['Mass@ZAMS(1)'][()]
 m2_zams  = SPs['Mass@ZAMS(2)'][()]
-    
+
 m_total_all_systems  = np.add(m1_zams, m2_zams)
 
 # %% [markdown]
 # #### b - Use boolean masks in a single file
 
 # %% [markdown]
-# Where previously we put the condition in an if statement nested within a for loop, now we again make use of boolean masks to filter out the undesired elements. 
+# Where previously we put the condition in an if statement nested within a for loop, now we again make use of boolean masks to filter out the undesired elements.
 #
 # The boolean array must have the same length as the input array.
 
 # %%
 # Create a boolean array from the total mass array which is True
-# if the total mass of the corresponding system is less than 40. 
+# if the total mass of the corresponding system is less than 40.
 
 mask_m_tot_less_than_40 = (m_total_all_systems <= 40)
 
@@ -269,7 +269,7 @@ mask_m_tot_less_than_40 = (m_total_all_systems <= 40)
 seeds_m_tot_below_40 = seeds_SP[mask_m_tot_less_than_40]
 
 # %% [markdown]
-# Note that this works because the order of the two columns (seeds and total masses) are the same. 
+# Note that this works because the order of the two columns (seeds and total masses) are the same.
 #
 # For example, the total mass of the system at index 2 corresponds to the seed at index 2.
 
@@ -281,11 +281,11 @@ seeds_m_tot_below_40 = seeds_SP[mask_m_tot_less_than_40]
 #
 # Before we continue it is useful to understand how the COMPAS-popsynth printing works.
 #
-# Each simulated system will be initialized only once and so will have only one line in the `BSE_System_Parameters` file. However, lines in `BSE_RLOF` are created whenever a system goes through a mass transfer event, which might happen multiple times for a single system, or potentially not at all. Similarly, in the `BSE_Supernovae` file, you will find at most two lines per system, but possibly none. `BSE_Double_Compact_Objects` lines are printed only when the final system is intact and composed of either Neutron Stars or Black Holes, which is a rare event that happens at most once per system. 
+# Each simulated system will be initialized only once and so will have only one line in the `BSE_System_Parameters` file. However, lines in `BSE_RLOF` are created whenever a system goes through a mass transfer event, which might happen multiple times for a single system, or potentially not at all. Similarly, in the `BSE_Supernovae` file, you will find at most two lines per system, but possibly none. `BSE_Double_Compact_Objects` lines are printed only when the final system is intact and composed of either Neutron Stars or Black Holes, which is a rare event that happens at most once per system.
 #
 # For this reason, it is generally not the case that the system on line $n$ of one file corresponds to the system on line $n$ of another file.
 #
-# In order to match systems across files, we need to extract the seeds of desired systems from one file, and apply them as a mask in the other file. 
+# In order to match systems across files, we need to extract the seeds of desired systems from one file, and apply them as a mask in the other file.
 
 # %%
 # Example: calculate the primary ZAMS mass of systems which become DCOs (Double Compact Objects)
@@ -311,25 +311,25 @@ print_compas_details_dataframe(DCs, seeds_DC[:3])
 # %%
 def calculate_total_masses_optimized(path_data=None):
     data  = h5.File(path_to_data)
-    
+
     total_masses = []
-        
+
     # Retrieve the categories
     SPs = data['BSE_System_Parameters']
     DCs = data['BSE_Double_Compact_Objects']
-    
-    # For syntax see section 1 
-    
+
+    # For syntax see section 1
+
     # Extract parameters of interest
     seeds_DC       = DCs['SEED'][()]
     seeds_SP       = SPs['SEED'][()]
     m1_zams        = SPs['Mass@ZAMS(1)'][()]
     m2_zams        = SPs['Mass@ZAMS(2)'][()]
-    
+
     m_zams_tot             = np.add(m1_zams, m2_zams)
     mask_seeds_became_DCO  = np.isin(seeds_SP, seeds_DC)
     m_zams_tot_of_DCOs     = m_zams_tot[mask_seeds_became_DCO]
-    
+
     data.close()
     return m_zams_tot_of_DCOs
 
@@ -345,12 +345,12 @@ time_diff_optimized = end-start
 n_DCos = len(seeds_DC)
 
 print('Compare')
-print('%s seconds, using For Loops.'     %(time_diff_naive)) 
-print('%s seconds, using Optimizations.' %(time_diff_optimized)) 
+print('%s seconds, using For Loops.'     %(time_diff_naive))
+print('%s seconds, using Optimizations.' %(time_diff_optimized))
 print('Using %s DCO systems'             %(n_DCos))
 
 # %% [markdown]
-# *Note:* The time difference will depend heavily on the number of systems under investigation, as well as the number of bypassed For Loops. If you used the path to the pre-generated tutorial data set, you should see very little improvement. 
+# *Note:* The time difference will depend heavily on the number of systems under investigation, as well as the number of bypassed For Loops. If you used the path to the pre-generated tutorial data set, you should see very little improvement.
 
 # %%
 # Test that the two arrays are in fact identical
@@ -365,9 +365,9 @@ print(np.array_equal(m_tot_old, m_tot_new))
 # %%
 def calculate_total_masses_bbh(path_to_data=None):
     data  = h5.File(path_to_data)
-    
+
     total_masses = []
-    
+
     SPs = data['BSE_System_Parameters']
     DCs = data['BSE_Double_Compact_Objects']
 
@@ -377,17 +377,17 @@ def calculate_total_masses_bbh(path_to_data=None):
 
     dc_mask_bbh     = (stype1 == 14) & (stype2 == 14)
     seeds_bbh      = seeds_DC[dc_mask_bbh]
-    
+
     # Get info from ZAMS
     seeds_SP  = SPs['SEED'][()]
     m1_zams   = SPs['Mass@ZAMS(1)'][()]
     m2_zams   = SPs['Mass@ZAMS(2)'][()]
-    
-    m_zams_tot = np.add(m1_zams, m2_zams)    
-    
+
+    m_zams_tot = np.add(m1_zams, m2_zams)
+
     sp_mask_bbh    = np.isin(seeds_SP, seeds_bbh)
     m_zams_tot_bbh = m_zams_tot[sp_mask_bbh]
-    
+
     data.close()
     return m_zams_tot_bbh
 
@@ -401,8 +401,8 @@ time_diff_bbh = end-start
 
 # calculate number of BBH systems
 n_bbh = len(m_tot_bbh)
-    
-print('%s seconds for all %s BBH systems.' %(time_diff_bbh, n_bbh)) 
+
+print('%s seconds for all %s BBH systems.' %(time_diff_bbh, n_bbh))
 
 # %% [markdown]
 # Note that the `print_compas_details_dataframe` function can also optionally take a mask as argument. The mask array must have the same length as the data arrays for the given category.
@@ -415,16 +415,16 @@ print_compas_details_dataframe(DCs, mask=mask_merges_hubble_time)
 # %% [markdown]
 # ### Example 2
 #
-# The previous example uses the fact that both `BSE_System_Parameters` and `BSE_Double_Compact_Objects` only print at most one line per system. However, as mentioned above, events such as supernovae or mass transfer might happen multiple times to a given system, and as a result there would be multiple occurrences of a given seed in the relevant file. 
+# The previous example uses the fact that both `BSE_System_Parameters` and `BSE_Double_Compact_Objects` only print at most one line per system. However, as mentioned above, events such as supernovae or mass transfer might happen multiple times to a given system, and as a result there would be multiple occurrences of a given seed in the relevant file.
 
 # %%
-# Example: Want to investigate CEE events for a given system. 
-# 
+# Example: Want to investigate CEE events for a given system.
+#
 # To illustrate the point, we find the seed of the system with the most mass transfer events, one of which is a CEE.
 
 seeds_CE = CEs['SEED'][()]
 uniq_seeds, uniq_counts = np.unique(seeds_MT[np.isin(seeds_MT, seeds_CE)], return_counts=True)
-best_seed = uniq_seeds[np.argmax(uniq_counts)]  
+best_seed = uniq_seeds[np.argmax(uniq_counts)]
 print_compas_details_dataframe(MTs, best_seed)
 
 # %% [markdown]
@@ -438,7 +438,7 @@ print_compas_details_dataframe(MTs, best_seed, mask=mask_cee)
 #
 # ### Example 3
 #
-# Combining masks on the seeds and other data can provide a lot of flexibility to help explore your science case. Imagine you want the primary masses of systems that experienced two core collapse supernovae (CCSNe) and resulted in a double compact object that will merge in a Hubble time. We'll reuse our mock data, with additional information about the types of SN which occurred in each star. 
+# Combining masks on the seeds and other data can provide a lot of flexibility to help explore your science case. Imagine you want the primary masses of systems that experienced two core collapse supernovae (CCSNe) and resulted in a double compact object that will merge in a Hubble time. We'll reuse our mock data, with additional information about the types of SN which occurred in each star.
 
 # %%
 # Example: get the primary ZAMS masses of systems which experience 2 CCSNe before becoming a DCO
@@ -456,22 +456,22 @@ sn_type_dict = {
     1: 'CCSN',
     2: 'ECSN',
     4: 'PISN',
-    8: 'PPISN', 
+    8: 'PPISN',
     16: 'USSN',
 } # this dictionary is illustrative, but not explicitly used here
 
 
 # Determine which seeds experienced 2 CCSNe
 mask_ccsn = sn_type == 1
-seeds_ccsn, counts_ccsn = np.unique(seeds_SN[mask_ccsn], return_counts=True) 
+seeds_ccsn, counts_ccsn = np.unique(seeds_SN[mask_ccsn], return_counts=True)
 seeds_double_ccsn = seeds_ccsn[counts_ccsn == 2]                              # Seeds with 2 CCSNe will have a counts_ccsn value of 2
 mask_SP_double_ccsn = np.isin(seeds_SP, seeds_double_ccsn)
 
 # Determine which systems end up as merging DCOs
 mask_merges_hubble_time = DCs['Merges_Hubble_Time'][()] == 1
-mask_SP_hubble_time_mergers = np.isin(seeds_SP, seeds_DC[mask_merges_hubble_time]) 
+mask_SP_hubble_time_mergers = np.isin(seeds_SP, seeds_DC[mask_merges_hubble_time])
 
-# Combine the 2 masks to get only the correct subset of systems 
+# Combine the 2 masks to get only the correct subset of systems
 combined_mask = mask_SP_double_ccsn & mask_SP_hubble_time_mergers
 m1_zams_masked = m1_zams[combined_mask]
 
@@ -484,7 +484,7 @@ data.close()
 # %% [markdown]
 # ## 3. Visualizing the data
 #
-# Although math is the fundamental basis of physics and astrophysics, we cannot always easily convert numbers and equations into a coherent picture. Plotting is therefore a vital tool in bridging the gap between raw data and a deeper scientific understanding. 
+# Although math is the fundamental basis of physics and astrophysics, we cannot always easily convert numbers and equations into a coherent picture. Plotting is therefore a vital tool in bridging the gap between raw data and a deeper scientific understanding.
 #
 # *Disclaimer:*
 #
@@ -563,7 +563,7 @@ ax.set_ylim(0, 1)
 ax.tick_params(axis='y', which='major', labelsize=fs_tick, labelcolor='red')
 ax.grid(False)
 
-# Scatter plot 
+# Scatter plot
 ax = axes[1]
 ax.scatter(m1, m2, color='black')
 ax.set_title('Component Masses', fontsize=fs_title)

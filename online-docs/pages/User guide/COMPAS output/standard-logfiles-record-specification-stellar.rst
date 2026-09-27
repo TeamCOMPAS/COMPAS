@@ -1,7 +1,7 @@
 Stellar properties
 ==================
 
-When specifying known properties in a log file record specification record, the property name must be prefixed with 
+When specifying known properties in a log file record specification record, the property name must be prefixed with
 the property type. The current list of valid stellar property types available for use is:
 
     - STAR_PROPERTY for all stars for ``SSE``
@@ -91,16 +91,16 @@ Following is an alphabetical list of stellar properties available for inclusion 
 
 
    * - :cspan:`2` **BINDING_ENERGY_CONVECTIVE_ENVELOPE**
-     -  
+     -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
-   * - Description:   
+     -
+   * - Description:
      - Absolute value of the binding energy of the convective portion of the envelope, via the :cite:`Picker2024` formalism, used for calculating post-CE separation in the 2-stage formalism (erg).
    * - Header Strings:
      -  BE_ConvectiveEnvelope
-   
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
@@ -111,9 +111,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      -  DOUBLE
    * - COMPAS variable:
-     - 
+     -
    * - Description:
-     - Absolute value of the envelope binding energy calculated using a fixed lambda parameter (erg). 
+     - Absolute value of the envelope binding energy calculated using a fixed lambda parameter (erg).
    * - Header Strings:
      - BE_Fixed, BE_Fixed(1), BE_Fixed(2), BE_Fixed(SN), BE_Fixed(CP)
 
@@ -127,7 +127,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
+     -
    * - Description:
      - Absolute value of the envelope binding energy calculated using the fit by :cite:`Vigna-Gomez2018` to :cite:`Kruckow2016` (erg). Calculated using alpha = OPTIONS→CommonEnvelopeSlopeKruckow().
    * - Header Strings:
@@ -143,9 +143,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
+     -
    * - Description:
-     - Absolute value of the envelope binding energy calculated as per :cite:`Loveridge2011` (erg). 
+     - Absolute value of the envelope binding energy calculated as per :cite:`Loveridge2011` (erg).
    * - Header Strings:
      - BE_Loveridge, BE_Loveridge(1), BE_Loveridge(2), BE_Loveridge(SN), BE_Loveridge(CP)
 
@@ -159,9 +159,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
+     -
    * - Description:
-     - Absolute value of the envelope binding energy calculated as per :cite:`Webbink1984` & :cite:`Loveridge2011` including winds (erg). 
+     - Absolute value of the envelope binding energy calculated as per :cite:`Webbink1984` & :cite:`Loveridge2011` including winds (erg).
    * - Header Strings:
      - BE_Loveridge_Winds, BE_Loveridge_Winds(1), BE_Loveridge_Winds(2), BE_Loveridge_Winds(SN), BE_Loveridge_Winds(CP)
 
@@ -175,9 +175,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
+     -
    * - Description:
-     - Absolute value of the envelope binding energy calculated as per :doc:`Xu & Li (2010) <../../references>` (erg). 
+     - Absolute value of the envelope binding energy calculated as per :doc:`Xu & Li (2010) <../../references>` (erg).
    * - Header Strings:
      - BE_Nanjing, BE_Nanjing(1), BE_Nanjing(2), BE_Nanjing(SN), BE_Nanjing(CP)
 
@@ -211,7 +211,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - COMPAS variable:
      - BinaryConstituentStar::m_CEDetails.preCEE.bindingEnergy
    * - Description:
-     - Absolute value of the binding energy at the onset of unstable RLOF leading to the CE (erg). 
+     - Absolute value of the binding energy at the onset of unstable RLOF leading to the CE (erg).
    * -
      - `Applies only to constituent stars of a binary system (i.e. does not apply to` ``SSE``\ `).`
    * - Header Strings:
@@ -291,17 +291,17 @@ Following is an alphabetical list of stellar properties available for inclusion 
      - Mass CO_Core@\ CO, Mass_CO_Core@CO(1), Mass_CO_Core@CO(2), Mass_CO_Core@CO(SN), Mass_CO_Core@CO(CP)
 
 
-.. flat-table::   
-   :widths: 25 75 1 1  
+.. flat-table::
+   :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
-   
+
    * - :cspan:`2` **CONVECTIVE_ENV_MASS**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
+     -
    * - Description:
      - Envelope mass calculated using :cite:`Picker2024` (\ :math:`M\odot`).
    * - Header Strings:
@@ -408,19 +408,19 @@ Following is an alphabetical list of stellar properties available for inclusion 
            :header-rows: 0
            :class: aligned-text
 
-           * - None 
+           * - None
              - = 0
-           * - GB (Giant Branch) 
+           * - GB (Giant Branch)
              - = 1
-           * - LBV (Luminous Blue Variable) 
+           * - LBV (Luminous Blue Variable)
              - = 2
            * - OB (Main Sequence)
              - = 3
-           * - RSG (Red Supergiant) 
+           * - RSG (Red Supergiant)
              - = 4
            * - VMS (Very Massive Main Sequence)
              - = 5
-           * - WR (Wolf-Rayet) 
+           * - WR (Wolf-Rayet)
              - = 6
 
    * - Header Strings:
@@ -437,9 +437,9 @@ Following is an alphabetical list of stellar properties available for inclusion 
      - DOUBLE
    * - COMPAS variable:
      - BaseStar::m_Dt
-   * - Description: 
+   * - Description:
      - Current timestep (Myr).
-   * - Header Strings: 
+   * - Header Strings:
      - dT, dT(1), dT(2), dT(SN), dT(CP)
 
 .. flat-table::
@@ -882,7 +882,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - Header Strings:
      - ID, ID(1), ID(2), ID(SN), ID(CP)
 
-`Note that this property has the same header string as BINARY_PROPERTY::ID & BINARY_PROPERTY::RLOF_CURRENT_ID. It is expected that one or 
+`Note that this property has the same header string as BINARY_PROPERTY::ID & BINARY_PROPERTY::RLOF_CURRENT_ID. It is expected that one or
 the other is printed in any file, but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -901,7 +901,7 @@ the other is printed in any file, but not both. If both are printed then the fil
    * - Header Strings:
      - Stellar_Type@\ ZAMS, Stellar_Type@ZAMS(1), Stellar_Type@ZAMS(2), Stellar_Type@ZAMS(SN), Stellar_Type@ZAMS(CP)
 
-`Note that this property has the same header string as INITIAL_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any 
+`Note that this property has the same header string as INITIAL_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any
 file, but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -920,7 +920,7 @@ file, but not both. If both are printed then the file will contain two columns w
    * - Header Strings:
      - Stellar_Type@\ ZAMS, Stellar_Type@ZAMS(1), Stellar_Type@ZAMS(2), Stellar_Type@ZAMS(SN), Stellar_Type@ZAMS(CP)
 
-`Note that this property has the same header string as INITIAL_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as INITIAL_STELLAR_TYPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1130,18 +1130,18 @@ but not both. If both are printed then the file will contain two columns with th
      - Lambda@CE(1), Lambda@CE(2), Lambda@CE(SN), Lambda@CE(CP)
 
 
-.. flat-table::      
-   :widths: 25 75 1 1  
+.. flat-table::
+   :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
-      
+
    * - :cspan:`2` **LAMBDA_CONVECTIVE_ENVELOPE**
-     - 
+     -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - 
-   * - Description:   
+     -
+   * - Description:
      - Common-envelope lambda parameter calculated using the :cite:`Picker2024` formalism for the convective portion of the envelope only.
    * - Header Strings:
      - Lambda_Convective
@@ -1379,7 +1379,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header Strings:
      - Mass, Mass(1), Mass(2), Mass(SN), Mass(CP)
 
-`Note that this property has the same header string as RLOF_CURRENT_STAR1_MASS & RLOF_CURRENT_STAR2_MASS. It is expected that one or 
+`Note that this property has the same header string as RLOF_CURRENT_STAR1_MASS & RLOF_CURRENT_STAR2_MASS. It is expected that one or
 the other is printed in any file, but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1780,7 +1780,7 @@ the other is printed in any file, but not both. If both are printed then the fil
    * - Header Strings:
      - Radius, Radius(1), Radius(2), Radius(SN), Radius(CP)
 
-`Note that this property has the same header string as RLOF_CURRENT_STAR1_RADIUS & RLOF_CURRENT_STAR2_RADIUS. It is expected that one or 
+`Note that this property has the same header string as RLOF_CURRENT_STAR1_RADIUS & RLOF_CURRENT_STAR2_RADIUS. It is expected that one or
 the other is printed in any file, but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1799,8 +1799,8 @@ the other is printed in any file, but not both. If both are printed then the fil
    * - Header Strings:
      - SEED, SEED(1), SEED(2), SEED(SN), SEED(CP)
 
-`Note that this property has the same header string as BINARY_PROPERTY::RANDOM_SEED & BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED. It is 
-expected that one or the other is printed in any file, but not both. If both are printed then the file will contain two columns with the 
+`Note that this property has the same header string as BINARY_PROPERTY::RANDOM_SEED & BINARY_PROPERTY::RLOF_CURRENT_RANDOM_SEED. It is
+expected that one or the other is printed in any file, but not both. If both are printed then the file will contain two columns with the
 same header string.`
 
 .. flat-table::
@@ -1873,7 +1873,7 @@ same header string.`
            :widths: 20 10
            :header-rows: 0
            :class: aligned-text
-    
+
            * - NONE
              - = 0
            * - CCSN
@@ -1912,7 +1912,7 @@ same header string.`
    * - Description:
      - Magnitude of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
    * - Header String:
-     - ComponentSpeed    
+     - ComponentSpeed
 
 
 .. flat-table::
@@ -1931,7 +1931,7 @@ same header string.`
    * - Header Strings:
      - Stellar_Type, Stellar_Type(1), Stellar_Type(2), Stellar_Type(SN), Stellar_Type(CP)
 
-`Note that this property has the same header string as STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1950,7 +1950,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header Strings:
      - Stellar_Type, Stellar_Type(1), Stellar_Type(2), Stellar_Type(SN), Stellar_Type(CP)
 
-`Note that this property has the same header string as STELLAR_TYPE. It is expected that one or the other is printed in any file, but 
+`Note that this property has the same header string as STELLAR_TYPE. It is expected that one or the other is printed in any file, but
 not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1969,7 +1969,7 @@ not both. If both are printed then the file will contain two columns with the sa
    * - Header Strings:
      - Stellar_Type_Prev, Stellar_Type_Prev(1), Stellar_Type_Prev(2), Stellar_Type_Prev(SN), Stellar_Type_Prev(CP)
 
-`Note that this property has the same header string as STELLAR_TYPE_PREV_NAME. It is expected that one or the other is printed in any 
+`Note that this property has the same header string as STELLAR_TYPE_PREV_NAME. It is expected that one or the other is printed in any
 file, but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1988,7 +1988,7 @@ file, but not both. If both are printed then the file will contain two columns w
    * - Header Strings:
      - Stellar_Type_Prev, Stellar_Type_Prev(1), Stellar_Type_Prev(2), Stellar_Type_Prev(SN), Stellar_Type_Prev(CP)
 
-`Note that this property has the same header string as STELLAR_TYPE_PREV. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_PREV. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -2122,7 +2122,7 @@ but not both. If both are printed then the file will contain two columns with th
      - DOUBLE
    * - COMPAS variable:
      - BaseStar::m_ThermalTimescale
-   * - Description: 
+   * - Description:
      - Thermal timescale (Myr).
    * - Header Strings:
      - Tau_Thermal, Tau_Thermal(1), Tau_Thermal(2), Tau_Thermal(SN), Tau_Thermal(CP)
@@ -2179,7 +2179,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header Strings:
      - Time, Time(1), Time(2), Time(SN), Time(CP)
 
-`Note that this property has the same header string as BINARY_PROPERTY::TIME & BINARY_PROPERTY::RLOF_CURRENT_TIME. It is expected that one 
+`Note that this property has the same header string as BINARY_PROPERTY::TIME & BINARY_PROPERTY::RLOF_CURRENT_TIME. It is expected that one
 or the other is printed in any file, but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -2267,7 +2267,7 @@ or the other is printed in any file, but not both. If both are printed then the 
    * - Description:
      - X-component of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
    * - Header String:
-     - VelocityX 
+     - VelocityX
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -2299,7 +2299,7 @@ or the other is printed in any file, but not both. If both are printed then the 
    * - Description:
      - Z-component of the velocity of a single star, or the binary's Systemic Velocity for a bound binary (\ :math:`km s^{-1}`).
    * - Header String:
-     - VelocityZ 
+     - VelocityZ
 
 .. _stellar-props-W:
 
@@ -2382,13 +2382,13 @@ or the other is printed in any file, but not both. If both are printed then the 
 Supernova events/states
 -----------------------
 
-Supernova events/states, both current ("is") and past ("experienced"), are stored within COMPAS as bitmaps. That means different values 
+Supernova events/states, both current ("is") and past ("experienced"), are stored within COMPAS as bitmaps. That means different values
 can be ORed or ANDed into the bit map, so that various events or states can be set concurrently.
 
-The values shown below for the ``SN_EVENT`` type are powers of 2 so that they can be used in a bitmap and manipulated with bit-wise logical 
+The values shown below for the ``SN_EVENT`` type are powers of 2 so that they can be used in a bitmap and manipulated with bit-wise logical
 operators. Any of the individual supernova event/state types that make up the ``SN_EVENT`` type can be set independently of any other event/state.
 
-`constants.h` defines an enum class for ``SN_EVENT``, and an associated label map, ``SN_EVENT_LABEL``, to provide labels for the events.  These 
+`constants.h` defines an enum class for ``SN_EVENT``, and an associated label map, ``SN_EVENT_LABEL``, to provide labels for the events.  These
 are shown below::
 
     enum class SN_EVENT: int {
@@ -2412,7 +2412,7 @@ are shown below::
         { SN EVENT::PPISN,        "Pulsational Pair Instability Supernova" },
         { SN EVENT::USSN,         "Ultra Stripped Supernova" },
         { SN EVENT::AIC,          "Accretion-Induced Collapse" },
-        { SN_EVENT::SNIA,         "Supernova Type Ia" }, 
+        { SN_EVENT::SNIA,         "Supernova Type Ia" },
         { SN_EVENT::HeSD,         "Helium-shell detonation" },
         };
 
@@ -2451,4 +2451,3 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
 
         return SN EVENT::NONE;
     }
-

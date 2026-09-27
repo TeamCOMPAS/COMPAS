@@ -43,4 +43,3 @@ Default record definition for the BSE RLOF Parameters log file::
         STAR_2_PROPERTY::ZETA_HURLEY,
         STAR_2_PROPERTY::ZETA_HURLEY_HE
     };
-

@@ -43,7 +43,7 @@ plt.rcParams.update(params)
 
 def t_MS(m, Z):
     """ Get the main sequence lifetime of a star with mass m and metallicity Z using Hurley+2000 """
-    
+
     def tBGB(m, Z):
         zeta = np.log10(Z / 0.02)
 
@@ -53,7 +53,7 @@ def t_MS(m, Z):
         a4 = 4.141960e-2 + 4.564888e-2 * zeta + 2.958542e-2 * zeta**2 + 5.571483e-3 * zeta**3
         a5 = 3.426349e-1
         return (a1 + a2 * m**4 + a3 * m**(5.5) + m**7) / (a4 * m**2 + a5 * m**7)
-    
+
     def mu_t(m, Z):
         zeta = np.log10(Z / 0.02)
 
@@ -64,11 +64,11 @@ def t_MS(m, Z):
         a10 = 8.073972e-1
 
         return np.maximum(0.5, 1.0 - 0.01 * np.maximum(a6 / m**a7, a8 + a9 / m**a10))
-    
+
     def x_t(Z):
         zeta = np.log10(Z / 0.02)
         return np.maximum(0.95, np.minimum(0.95 - 0.03 * (zeta + 0.30103), 0.99))
-    
+
     tbgb = tBGB(m, Z)
     return np.maximum(mu_t(m, Z) * tbgb, x_t(Z) * tbgb)
 

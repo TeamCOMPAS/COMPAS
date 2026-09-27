@@ -29,17 +29,17 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 
 * Added KLENCKI_LINEAR AM loss, which is linear in the specific AM gamma instead of the orbital separation (as in MACLEOD_LINEAR).
 
-This is based on the variations explored in Klencki+ 2025, and is very similar in construction to the MACLEOD_LINEAR option, 
+This is based on the variations explored in Klencki+ 2025, and is very similar in construction to the MACLEOD_LINEAR option,
 with both requiring an interpolation fraction f set by the user. Therefore, the following options are deprecated:
 
-    * ``--mass-transfer-jloss-macleod-linear-fraction-degen``     in favor of ``--mass-transfer-jloss-linear-fraction-degen``     
-    * ``--mass-transfer-jloss-macleod-linear-fraction-non-degen`` in favor of ``--mass-transfer-jloss-linear-fraction-non-degen`` 
+    * ``--mass-transfer-jloss-macleod-linear-fraction-degen``     in favor of ``--mass-transfer-jloss-linear-fraction-degen``
+    * ``--mass-transfer-jloss-macleod-linear-fraction-non-degen`` in favor of ``--mass-transfer-jloss-linear-fraction-non-degen``
 
 and the replacement options apply for both MACLEOD_LINEAR and KLENCKI_LINEAR.
 
 **03.24.00 August 19, 2025**
 
-* Updated Maltsev remnant mass prescription to include the 3 variants described in Willcox+ 2025 (bimodality paper). 
+* Updated Maltsev remnant mass prescription to include the 3 variants described in Willcox+ 2025 (bimodality paper).
 * New related options `--maltsev-fallback` which takes a float between 0 and 1 to specify the fallback fraction, and
   `--maltsev-mode` with choices `'OPTIMISTIC','PESSIMISTIC','BALANCED'` for the extrapolation prescription (see Willcox+ 2025b)
 
@@ -90,7 +90,7 @@ disabled with ``--mass-loss-prescription zero`` instead of ``use-mass-loss false
 
 **03.20.01 May 26, 2025**
 
-* Updates to mass accretion for massive ONe WD 
+* Updates to mass accretion for massive ONe WD
 * Changed white dwarf mass-radius relation to use expression from Eggleton 1986, suitable for extremely low-mass white dwarfs.
 
 **03.20.00 May 25, 2025**
@@ -121,8 +121,8 @@ New command line option:
 
 **03.17.03 Apr 14, 2025**
 
-* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``). 
-* Removed output option ``RLOF_ONTO_NS`` as it can be retrieved from existing RLOF output info. 
+* Neutron stars are now labelled as ``RecycledNS`` when undergoing mass transfer through common envelope (when ``--neutron-star-accretion-in-ce`` is not set to ``ZERO``).
+* Removed output option ``RLOF_ONTO_NS`` as it can be retrieved from existing RLOF output info.
 
 **03.17.00 Mar 22, 2025**
 
@@ -151,7 +151,7 @@ Changes to the treatment of Neutron Star evolution.
 New command line options:
 
 * ``--neutron-star-accretion-in-ce`` to determine how a NS accretes mass in a common envelope
-* ``--pulsar-birth-magnetic-field-distribution-mean`` and ``--pulsar-birth-magnetic-field-distribution-sigma`` to determine the birth distribution of the pulsar magnetic field (only relevant when the ``--pulsar-birth-magnetic-field-distribution`` option value is ``NORMAL`` or ``LOGNORMAL``) 
+* ``--pulsar-birth-magnetic-field-distribution-mean`` and ``--pulsar-birth-magnetic-field-distribution-sigma`` to determine the birth distribution of the pulsar magnetic field (only relevant when the ``--pulsar-birth-magnetic-field-distribution`` option value is ``NORMAL`` or ``LOGNORMAL``)
 * ``--pulsar-birth-spin-period-distribution-mean`` and ``--pulsar-birth-spin-period-distribution-sigma`` to determine the birth distribution of the pulsar period (only relevant when the ``--pulsar-birth-spin-period-distribution`` option value is ```NORMAL`` or ``LOGNORMAL``)
 
 Changed command line option values and defaults:
@@ -163,7 +163,7 @@ Changed command line option values and defaults:
 
 Changes to the NS-related values in log files:
 
-* The pulsar magnetic field strength is now recorded in ``Gauss`` (was ``Tesla``) 
+* The pulsar magnetic field strength is now recorded in ``Gauss`` (was ``Tesla``)
 * The pulsar spin down rate now tracks the pulsar spin period derivative (was spin frequency derivative).
 * The SSE/BSE_Pulsar_Evolution file default record now includes the pulsar spin period (s) instead of spin frequency. Spin frequency is still tracked and can be added using the ``logfile-definitions`` option
 * The period of non-spinning neutron stars is now reported as infinity instead of zero
@@ -206,7 +206,7 @@ Switchlog merger records come in pairs (one for each star) so that the stellar t
 
 **03.09.00 Nov 28, 2024**
 
-Improved nuclear timescale mass transfer: the nuclear timescale mass transfer rate is now set by the requirement that the star 
+Improved nuclear timescale mass transfer: the nuclear timescale mass transfer rate is now set by the requirement that the star
 ends the time step just filling its Roche lobe.
 Fixed several significant mass-transfer issues, such as accretors not gaining mass appropriately and failures
 in the root solver for fitting the star into the Roche lobe that were leading to artificial common envelopes and mergers.
@@ -215,8 +215,8 @@ in the root solver for fitting the star into the Roche lobe that were leading to
 
 Updated implementation of the mass transfer stability critical mass ratio tables from the team of Hongwei Ge.
 We now use all the most up to do date tables they've produced (public or otherwise) from Papers I-V, including
-variations for adiabatic and isentropic treatments, variable accretion efficiency, and two different metallicities, 
-as well as for He stars (albeit only for adiabatic, fully conservative, solar metallicity stars). 
+variations for adiabatic and isentropic treatments, variable accretion efficiency, and two different metallicities,
+as well as for He stars (albeit only for adiabatic, fully conservative, solar metallicity stars).
 
 **03.08.00 Nov 18, 2024**
 
@@ -247,7 +247,7 @@ Incorporated the Maltsev+ (2024) prescription for supernova remnant masses.
 Added new functionality to improve modelling of chemically homogeneous evolution (CHE). The default behaviour remains unchanged.
 
 * New command line option `--enable-rotationally-enhanced-mass-loss` to enable rotationally enhanced mass loss following Langer (1998)
-* New command line option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015) 
+* New command line option `--enhance-CHE-lifetimes-luminosities` to enhance CHE lifetimes and luminosities following detailed models from Szecsi et al. (2015)
 * New command line option `--scale-CHE-mass-loss-with-surface-helium-abundance` to switch from OB to WR mass loss for CH stars towards the end of the main sequence
 * New command line option `--scale-terminal-wind-velocity-with-metallicity-power` to scale the terminal wind velocity with the metallicity
 
@@ -256,7 +256,7 @@ Added new functionality to improve modelling of chemically homogeneous evolution
 Added recording of ``MASS_TRANSFER_TIMESCALE (NONE, NUCLEAR, THERMAL, CE)``.
 Now continuing evolution on mergers at birth (stars touching) if ``--resolve-main-sequence-merger``.
 Changed Sabhahit+ 2023 VMS winds to default to current OB wind prescription if Gamma threshold is not met
-Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF; 
+Correct the behaviour of the second stage of 2-stage CE to first transfer mass from the star that initiated RLOF;
 now ensuring that the accretor's mass is correctly adjusted
 Update the fits for the convective envelope mass and radial extent to ensure smooth behaviour
 Updated treatment of 2-stage common envelope for intermediate mass stars, to smoothly reduce from Hirai & Mandel above 8 solar masses
@@ -265,14 +265,14 @@ to classical "full envelope" removal for stars below 2 solar masses.
 **03.01.06 Aug 30, 2024**
 
 Added functionality to allow users to specify if WD-binaries should be included in the BSE DCO file via new option ``--include-WD-binaries-as-DCO``.
-When enabled, ``--include-WD-binaries-as-DCO`` changes the definition of "Double Compact Object" from a binary comprised of any two of 
+When enabled, ``--include-WD-binaries-as-DCO`` changes the definition of "Double Compact Object" from a binary comprised of any two of
 {Neutron Star, Black Hole} to a binary star comprised of any two of {Helium White Dwarf, Carbon-Oxygen White Dwarf, Oxygen-Neon White Dwarf, Neutron Star, Black Hole}.
 
 The default value for the new option is FALSE.
 
 **03.01.04 Aug 28, 2024**
 
-* New option `'HENDRIKS'` for `--pulsational-pair-instability-prescription` implementing the prescription for pulsational pair instability mass-loss from Hendricks et al. 2023 (https://arxiv.org/abs/2309.09339). 
+* New option `'HENDRIKS'` for `--pulsational-pair-instability-prescription` implementing the prescription for pulsational pair instability mass-loss from Hendricks et al. 2023 (https://arxiv.org/abs/2309.09339).
 * New command line option `--PPI-CO-Core-Shift-Hendriks` for use with the above prescription (see Hendriks+ for an explanation)
 
 **03.01.00 Aug 24, 2024**
@@ -294,8 +294,8 @@ code effectively ignored these errors (for a detailed explanation of why this wa
 
 In COMPAS version 03.00.00 the error handling philosophy has changed, and more coherent and robust error-handling code implemented. The new error-handling philosophy
 is to stop evolution of a star or binary if an error occurs (including, optionally by a program option, floating-point errors), and record in the (SSE/BSE) system
-parameters file the fact that an error occurred, and an error number identifying the error that occurred. This way users can check the system parameters file 
-at the completion of a run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an error occurred, the 
+parameters file the fact that an error occurred, and an error number identifying the error that occurred. This way users can check the system parameters file
+at the completion of a run for the disposition of a star or binary and, if the evolution of that star or binary was stopped because an error occurred, the
 actual error that occurred.
 
 Users should refer to the Error Handling documentation in the User Guide (See :doc:`./User guide/Handling errors/handling-errors`).
@@ -312,7 +312,7 @@ naming convention we are trying to maintain. The program options deprecated, and
 #. `--WR-mass-loss`                        , replaced by `--WR-mass-loss-prescription` (to be consistent with other 'prescription'- type options)
 #. `--kick-direction`                      , replaced by `--kick-direction-distribution` (to be consistent with other 'distribution'-type options)
 #. `--mass-transfer-thermal-limit-accretor`, replaced by `--mass-transfer-thermal-limit-accretor-multiplier` (for consistency and to better describe the option)
-#. `--black-hole-kicks`                    , replaced by `--black-hole-kicks-mode` (for consistency and to better describe the option) 
+#. `--black-hole-kicks`                    , replaced by `--black-hole-kicks-mode` (for consistency and to better describe the option)
 #. `--chemically-homogeneous-evolution`    , replaced by `--chemically-homogeneous-evolution-mode` (for consistency and to better describe the option)
 
 Deprecated program options will still be available, in tandem with their replacements, for some time (at least six months from the release date of v03.00.00),
@@ -362,7 +362,7 @@ Finally, for program option `--mt-rejuvenation-prescription`, the value `NONE` w
 
 **02.44.00 Apr 04, 2024**
 
-* Added 'realistic' tides option, which implements dynamical and equilibrium tides using the formalism described in Kapil et al. (2024). 
+* Added 'realistic' tides option, which implements dynamical and equilibrium tides using the formalism described in Kapil et al. (2024).
 * Functionality enabled with new option ``--tides-prescription KAPIL2024`` (default is ``NONE``).
 * Removed old option ``--enable-tides``, which can now be enabled by setting ``--tides-prescription PERFECT``.
 
@@ -407,12 +407,12 @@ Finally, for program option `--mt-rejuvenation-prescription`, the value `NONE` w
 
 **02.37.00 Mar 26, 2023**
 
-* Added functionality for WDs to accrete in different regimes. 
-* New supernova types: SNIA (Type Ia), and HeSD (Helium shell detonation). 
+* Added functionality for WDs to accrete in different regimes.
+* New supernova types: SNIA (Type Ia), and HeSD (Helium shell detonation).
 
 **02.36.00 Mar 15, 2023**
 
-* Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.  
+* Added functionality to automatically create COMPAS YAML file - adds two new options: ``--create-YAML-file`` and ``YAML-template``. See documentation for details.
 
   **Note:** From this release, the default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has all COMPAS option entries commented so that the COMPAS default value for the option is used by default. To use a value other than the COMPAS default value, users must uncomment the entry and change the option value to the desired value.
 
@@ -426,7 +426,7 @@ Added mass accretion prescription during CE ``CHEVALIER`` for option ``--common-
 * Changed header string for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_1`` from ``'RocheLobe(1)|a'`` to ``'RocheLobe(1)'`` - same change made for ``BINARY_PROPERTY::ROCHE_LOBE_RADIUS_2``.
 * Removed ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_1`` (header string ``'Radius(1)|RL'``) and ``BINARY_PROPERTY::STAR_TO_ROCHE_LOBE_RADIUS_RATIO_2`` (header string ``'Radius(2)|RL'``) from ``BSE_DETAILED_OUTPUT_REC`` (BSE detailed output file default record).  Note that both variables are still selectable for output via the logfile-definitions file.
 
-  **Note:** These changes will affect post-processing code that consumes the affected variables - users should check their post-processing code. 
+  **Note:** These changes will affect post-processing code that consumes the affected variables - users should check their post-processing code.
 
 **02.35.00 Dec 8, 2022**
 
@@ -544,4 +544,3 @@ Added mass accretion prescription during CE ``CHEVALIER`` for option ``--common-
 * Added Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 * Added Nanjing lambda mass and metallicity interpolation options
 * No change in default behaviour
-

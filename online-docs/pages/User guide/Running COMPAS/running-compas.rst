@@ -12,4 +12,3 @@ There are several ways to run COMPAS: each method suiting different needs:
    running-via-docker
    running-detailed-output
    running-grid
-

@@ -1,7 +1,7 @@
 function SSEDetailedOutput(filename, nfiles)
 % Carries out some basic analysis and makes plots for a single SSE run
 %
-% USAGE: 
+% USAGE:
 % SSEDetailedOutput(filename [, nfiles])
 %
 % INPUTS:
@@ -10,10 +10,10 @@ function SSEDetailedOutput(filename, nfiles)
 %   the files are all assumed to start with filename, followed by numbers
 %   0...nfiles-1, followed by .h5
 %
-% examples: 
+% examples:
 %       SSEDetailedOutput('~/Work/COMPAS/src/COMPAS_Output/Detailed_Output/SSE_Detailed_Output_0.h5')
 %       SSEDetailedOutput('~/Work/COMPAS/src/COMPAS_Output/Detailed_Output/SSE_Detailed_Output_', 5)
-%       
+%
 
 
 if(nargin==1) %parse one file
@@ -53,17 +53,17 @@ scatter(time(type==6),radius(type==6),20,'filled', 'k');
 hold off;
 set(gca,'FontSize',20); xlabel('Time, Myr'); ylabel('Radius, Rsun'), legend('MS','HG','FGB','CHeB','EAGB','TPAGB')
 
-%for(i=2:length(radius)), %remove points where radius is less than the radius at previous time 
+%for(i=2:length(radius)), %remove points where radius is less than the radius at previous time
 %    if(~isempty(find(radius(1:i-1)>=radius(i)))),
 %        envMass(i)=0; convEnvMass(i)=0; radius(i)=0;
 %    end;
 %end;
 %goodindices=type>1 & type<=6 & radius>0;
-%figure(2); 
+%figure(2);
 %subplot(2,1,1), scatter(radius(goodindices), envMass(goodindices)-convEnvMass(goodindices), 20, 'b', 'filled'); hold on;
 %scatter(radius(goodindices), convEnvMass(goodindices), 20, 'm', 'filled'); hold on;
-%scatter(radius(goodindices), mass(goodindices)-envMass(goodindices), 20, 'y', 'filled'); 
-%scatter(radius(goodindices), mass(goodindices), 20, 'k', 'filled'); 
+%scatter(radius(goodindices), mass(goodindices)-envMass(goodindices), 20, 'y', 'filled');
+%scatter(radius(goodindices), mass(goodindices), 20, 'k', 'filled');
 %hold off;
 %set(gca,'FontSize',20); xlabel('Radius, Rsun'); ylabel('Mass, Msun'), legend('Radiative intershell','Convective Envelope','Core', 'Total')
 %subplot(2,1,2); scatter(radius(goodindices), binding(goodindices), 20, 'm', 'filled')
@@ -85,7 +85,7 @@ end; % end of if(nargin==1)
 if(nargin==2),
 
 for (k=0:nfiles-1),
-file=[filename,int2str(k),'.h5'];    
+file=[filename,int2str(k),'.h5'];
 time=h5read(file,'/Time');
 Z=h5read(file,'/Metallicity@ZAMS');
 mass=h5read(file,'/Mass');
@@ -101,7 +101,7 @@ for(i=2:length(radius)), %remove points where radius is less than one of previou
         binding(i)=0; radius(i)=0;
     end;
 end;
-figure(k+1), 
+figure(k+1),
 scatter(radius(type==1),log10(binding(type==1)),20,'filled'); hold on;
 scatter(radius(type==2),log10(binding(type==2)),20,'filled');
 scatter(radius(type==3),log10(binding(type==3)),20,'filled');

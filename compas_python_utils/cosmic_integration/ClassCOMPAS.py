@@ -80,7 +80,7 @@ class COMPASData(object):
         # By default, we mask for BHBHs that merge within a Hubble time, assuming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
-        
+
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Stellar_Type(1)", "Stellar_Type(2)", "Merges_Hubble_Time", "SEED"])
         dco_seeds = dco_seeds.flatten()
@@ -88,7 +88,7 @@ class COMPASData(object):
         if types == "CHE_BHBH" or types == "NON_CHE_BHBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
                 self.get_COMPAS_variables("BSE_System_Parameters", ["Stellar_Type@ZAMS(1)", "Stellar_Type@ZAMS(2)", "CH_on_MS(1)", "CH_on_MS(2)", "SEED"])
-          
+
             che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
             che_seeds = sys_seeds[()][che_mask]
 
@@ -101,7 +101,7 @@ class COMPASData(object):
         type_masks = {
             "all": np.repeat(True, len(dco_seeds)),
             "BHBH": np.logical_and(stellar_type_1 == 14, stellar_type_2 == 14),
-            "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),  
+            "NSNS": np.logical_and(stellar_type_1 == 13, stellar_type_2 == 13),
             "WDWD": np.logical_and(np.isin(stellar_type_1,[10,11,12]),np.isin(stellar_type_2,[10,11,12])),
             "BHNS": np.logical_or(np.logical_and(stellar_type_1 == 13, stellar_type_2 == 14),np.logical_and(stellar_type_1 == 14, stellar_type_2 == 13)),
             "NSWD": np.logical_or(np.logical_and(np.isin(stellar_type_1,[10,11,12]),stellar_type_2 == 13),
@@ -176,7 +176,7 @@ class COMPASData(object):
         Data.close()
 
     def setCOMPASData(self):
-        
+
         primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
             self.get_COMPAS_variables("BSE_Double_Compact_Objects", ["Mass(1)", "Mass(2)", "Time", "Coalescence_Time", "SEED"])
         # Raise an error if DCO table is empty
@@ -227,7 +227,7 @@ class COMPASData(object):
         )
 
     def get_COMPAS_variables(self, hdf5_file, var_names):
-        """ 
+        """
             Get a variable or variables from a COMPAS file
 
             Args:

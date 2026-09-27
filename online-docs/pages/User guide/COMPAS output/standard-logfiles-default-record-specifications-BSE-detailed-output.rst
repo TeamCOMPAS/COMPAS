@@ -85,4 +85,3 @@ Default record definition for the BSE Detailed Output log file::
     	BINARY_PROPERTY::RLOF_MASS_TRANSFER_TIMESCALE,
     	BINARY_PROPERTY::RLOF_ACCRETION_EFFICIENCY
     };
-

@@ -3,10 +3,10 @@ import pandas as pd
 
 
 ########################################################################
-### 
-### Function to print the data from a given COMPAS HDF5 group 
+###
+### Function to print the data from a given COMPAS HDF5 group
 ### in a readable pandas template
-### 
+###
 ########################################################################
 
 def printCompasDetails(data, *seeds, mask=()):
@@ -16,13 +16,13 @@ def printCompasDetails(data, *seeds, mask=()):
     list_of_keys = list(data.keys())
 
     # Check if seed parameter exists - if not, just print without (e.g RunDetails)
-    if ('SEED' in list_of_keys) | ('SEED>MT' in list_of_keys): # Most output files 
+    if ('SEED' in list_of_keys) | ('SEED>MT' in list_of_keys): # Most output files
         #SEED>MT is a relic from older versions, but we leave this in for backwards compatibility
 
         # Set the seed name parameter, mask on seeds as needed, and set the index
         seedVariableName='SEED' if ('SEED' in list_of_keys) else 'SEED>MT'
         list_of_keys.remove(seedVariableName) # this is the index above, don't want to include it
-    
+
         allSeeds = data[seedVariableName][()]
         seedsMask = np.in1d(allSeeds, seeds)
         if len(seeds) == 0: # if any seed is included, do not reset the mask
@@ -40,7 +40,7 @@ def printCompasDetails(data, *seeds, mask=()):
         for key in list_of_keys:
             if '-Derivation' not in key:
                 keys_not_derivations.append(key)
-        
+
         # Some parameter values are string types, formatted as np.bytes_, need to convert back
         def convert_strings(param_array):
             if isinstance(param_array[0], np.bytes_):
@@ -63,17 +63,17 @@ def printCompasDetails(data, *seeds, mask=()):
 
 
 ########################################################################
-### 
+###
 ### Get event histories of MT data, SN data, and combined MT, SN data
-### 
+###
 ########################################################################
 
-def getMtEvents(MT):                                     
+def getMtEvents(MT):
     """
     This function takes in the `BSE_RLOF` output category from COMPAS, and returns the information
-    on the Mass Transfer (MT) events that happen for each seed. The events do not have to be in order, 
+    on the Mass Transfer (MT) events that happen for each seed. The events do not have to be in order,
     either chronologically or by seed, this function will reorder them as required.
-    
+
     OUT:
         tuple of (returnedSeeds, returnedEvents, returnedTimes)
         returnedSeeds (list): ordered list of the unique seeds in the MT file
@@ -93,8 +93,8 @@ def getMtEvents(MT):
 
     # We want the return arrays sorted by seed, so sort here.
     mtSeedsInds = np.lexsort((mtTimes, mtSeeds)) # sort by seeds then times - lexsort sorts by the last column first...
-    mtSeeds = mtSeeds[mtSeedsInds]  
-    mtTimes = mtTimes[mtSeedsInds]  
+    mtSeeds = mtSeeds[mtSeedsInds]
+    mtTimes = mtTimes[mtSeedsInds]
     mtPrimaryStype = mtPrimaryStype[mtSeedsInds]
     mtSecondaryStype = mtSecondaryStype[mtSeedsInds]
     mtIsRlof1 = mtIsRlof1[mtSeedsInds]
@@ -111,7 +111,7 @@ def getMtEvents(MT):
 
     for seedIndex, thisSeed in enumerate(mtSeeds):          # iterate over all RLOF file entries
         thisTime = mtTimes[seedIndex]                       # time for this RLOF file entry
-        thisEvent = (mtPrimaryStype[seedIndex], mtSecondaryStype[seedIndex], 
+        thisEvent = (mtPrimaryStype[seedIndex], mtSecondaryStype[seedIndex],
                      mtIsRlof1[seedIndex], mtIsRlof2[seedIndex], mtIsCEE[seedIndex])  # construct event tuple
 
         # If this is an entirely new seed:
@@ -123,8 +123,8 @@ def getMtEvents(MT):
 
         # Add event, if it is not a duplicate
         try:
-            eventIndex = returnedEvents[-1].index(thisEvent)  # find eventIndex of this particular event tuple in the array of events for this seed 
-            if thisTime > returnedTimes[-1][eventIndex]:      # ^ if event is not a duplicate, this will throw a ValueError 
+            eventIndex = returnedEvents[-1].index(thisEvent)  # find eventIndex of this particular event tuple in the array of events for this seed
+            if thisTime > returnedTimes[-1][eventIndex]:      # ^ if event is not a duplicate, this will throw a ValueError
                 returnedTimes[-1][eventIndex] = thisTime      # if event is duplicate, update time to the later of the duplicates
         except ValueError:                                    # event is not a duplicate:
             returnedEvents[-1].append(thisEvent)              # record new event tuple for this seed
@@ -133,21 +133,21 @@ def getMtEvents(MT):
     return returnedSeeds, returnedEvents, returnedTimes       # see above for description
 
 
-def getSnEvents(SN):                                     
+def getSnEvents(SN):
     """
     This function takes in the `BSE_Supernovae` output category from COMPAS, and returns the information
     on the Supernova (SN) events that happen for each seed. The events do not have to be in order chronologically,
     this function will reorder them as required.
-    
+
     OUT:
-        tuple of (returnedSeeds, returnedEvents, returnedTimes)     
+        tuple of (returnedSeeds, returnedEvents, returnedTimes)
         returnedSeeds (list): ordered list of all the unique seeds in the SN file
         returnedEvents (list): list of sublists, where each sublist contains all the SN events for a given seed.
             SN event tuples take the form :
             (stellarTypeProgenitor, stellarTypeRemnant, whichStarIsProgenitor, isBinaryUnbound)
         returnedTimes (list): is a list of sublists of times of each of the SN events
     """
-    
+
     snSeeds = SN['SEED'][()]
     snTimes = SN['Time'][()]
     snProgStype = SN['Stellar_Type_Prev(SN)'][()]
@@ -157,13 +157,13 @@ def getSnEvents(SN):
 
     # We want the return arrays sorted by seed, so sort here.
     snSeedsInds = np.lexsort((snTimes, snSeeds)) # sort by seeds then times - lexsort sorts by the last column first...
-    snSeeds = snSeeds[snSeedsInds]  
-    snTimes = snTimes[snSeedsInds]  
+    snSeeds = snSeeds[snSeedsInds]
+    snTimes = snTimes[snSeedsInds]
     snProgStype = snProgStype[snSeedsInds]
     snRemnStype = snRemnStype[snSeedsInds]
     snWhichProg = snWhichProg[snSeedsInds]
     snIsUnbound = snIsUnbound[snSeedsInds]
-    
+
     # Process the SN events
 
     returnedSeeds = []                                      # array of seeds - will only contain seeds that have SN events
@@ -174,9 +174,9 @@ def getSnEvents(SN):
 
     for seedIndex, thisSeed in enumerate(snSeeds):          # iterate over all SN file entries
         thisTime = snTimes[seedIndex]                       # time for this SN file entry
-        thisEvent = (snProgStype[seedIndex], snRemnStype[seedIndex], 
+        thisEvent = (snProgStype[seedIndex], snRemnStype[seedIndex],
                      snWhichProg[seedIndex], snIsUnbound[seedIndex]) # construct event tuple
-               
+
         # If this is an entirely new seed:
         if thisSeed != lastSeed:                            # same seed as last seed processed?
             returnedSeeds.append(thisSeed)                  # no - new seed, record it
@@ -186,7 +186,7 @@ def getSnEvents(SN):
         else:                                               # yes - second SN event for this seed
             returnedTimes[-1].append(thisTime)              #   append time at end of array
             returnedEvents[-1].append(thisEvent)            #   append event at end of array
-                
+
     return returnedSeeds, returnedEvents, returnedTimes     # see above for description
 
 
@@ -199,7 +199,7 @@ def getEventHistory(h5file, exclude_null=False):
     OUT:
         tuple of (returnedSeeds, returnedEvents)
         returnedSeeds (list): ordered list of all seeds in the output
-        returnedEvents (list): a list of the collected SN and MT events from the 
+        returnedEvents (list): a list of the collected SN and MT events from the
             getMtEvents and getSnEvents functions above
     """
 
@@ -227,7 +227,7 @@ def getEventHistory(h5file, exclude_null=False):
         seedsToIterate = np.sort(np.unique(np.append(mtSeeds, snSeeds)))    # iterate over all the seeds that have either MT or SN events
     else:
         seedsToIterate = allSeeds
-        
+
     idxOrdered = np.argsort(seedsToIterate)
     returnedSeeds = [None] * np.size(seedsToIterate)                        # array of seeds - will only contain seeds that have events (of any type)
     returnedEvents = [None] * np.size(seedsToIterate)                       # array of events - same size as returnedSeeds (includes event times)
@@ -242,7 +242,7 @@ def getEventHistory(h5file, exclude_null=False):
                 seedEvents.append(('MT', mtTimes[mtIndex][eventIndex], *mtEvents[mtIndex][eventIndex]))
             mtIndex += 1
 
-        # Collect any SN events for this seed, add the time of the event and the event type 
+        # Collect any SN events for this seed, add the time of the event and the event type
         while snIndex < numSnSeeds and snSeeds[snIndex] == seed:
             for eventIndex, event in enumerate(snEvents[snIndex]):
                 seedEvents.append(('SN', snTimes[snIndex][eventIndex], *snEvents[snIndex][eventIndex]))
@@ -258,9 +258,9 @@ def getEventHistory(h5file, exclude_null=False):
 
 
 ###########################################
-### 
+###
 ### Produce strings of the event histories
-### 
+###
 ###########################################
 
 def buildEventString(events):
@@ -270,24 +270,24 @@ def buildEventString(events):
         events (list of tuples): events output from getEventHistory()
     OUT:
         eventString (string): string representing the event history of the binary
-    
-    MT strings look like: 
-        P>S, P<S, or P=S where P is primary type, S is secondary type, 
+
+    MT strings look like:
+        P>S, P<S, or P=S where P is primary type, S is secondary type,
         and >, < is RLOF (1->2 or 1<-2) or = for CEE
 
     SN strings look like:
-        P*SR for star1 the SN progenitor,or 
+        P*SR for star1 the SN progenitor,or
         R*SP for star2 the SN progenitor,
-        where P is progenitor type, R is remnant type, 
+        where P is progenitor type, R is remnant type,
         S is state (I for intact, U for unbound)
 
     Event strings for the same seed are separated by the undesrcore character ('_')
     """
-    
+
     # Empty event
     if len(events) == 0:
         return 'NA'
-    
+
     eventStr = ''                                                          # event string for this star
     for event in events:
         if event[0] == 'MT':                                               # MT event
@@ -297,7 +297,7 @@ def buildEventString(events):
         else:                                                              # assume SN event (until other event types are added...)
             eventStr += str(event[2]) if event[4] == 1 else str(event[3])  # Progenitor or Remnant depending upon which star is the SN
             eventStr += '*U' if event[5] else '*I'                         # unbound or intact
-            eventStr += str(event[3]) if event[4] == 1 else str(event[2])  # Progenitor or Remnant depending upon which star is the SN 
+            eventStr += str(event[3]) if event[4] == 1 else str(event[2])  # Progenitor or Remnant depending upon which star is the SN
 
         eventStr += '_'                                                    # event separator
 
@@ -315,14 +315,14 @@ def getEventStrings(h5file=None, allEvents=None):
         eventStrings (list): list of strings of the event history of each seed
     """
 
-    # If output is 
+    # If output is
     if (h5file == None) & (allEvents == None):
-        return 
+        return
     elif (allEvents == None):
         _, allEvents = getEventHistory(h5file)
-    
+
     eventStrings = []                                                        # array of event strings to be returned
-    for eventsForGivenSeed in allEvents:  
+    for eventsForGivenSeed in allEvents:
         eventString = buildEventString(eventsForGivenSeed)
         eventStrings.append(eventString)                                     # append event string for this star (pop the last underscore first)
 

@@ -34,7 +34,7 @@ COMPAS output file to an appropriate value (see link below for COMPAS error valu
 When floating-point error checking is ON (``--fp-error-mode ON``), if a floating-point error is encountered during evolution of
 a system, evolution of that system will be stopped, and the evoltion status and error values set appropriately.
 
-When floating-point error checking is OFF (``--fp-error-mode OFF``), floating-point errors that occur during the evolution of a 
+When floating-point error checking is OFF (``--fp-error-mode OFF``), floating-point errors that occur during the evolution of a
 system will not cause the evolution of that system to stop. However, if a floating-point error does occur during evolution while
 floating-point error checking is off, the error value in the COMPAS output files will still indicate that a floating-point error
 occurred. If that happens, users should use the results of the evolution of an affected system with caution.

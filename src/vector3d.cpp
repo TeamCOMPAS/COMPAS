@@ -7,7 +7,7 @@
 
 Vector3d::Vector3d() {
 
-    m_ObjectId = globalObjectId++; 
+    m_ObjectId = globalObjectId++;
 
     m_x = 0.0;
     m_y = 0.0;
@@ -18,8 +18,8 @@ Vector3d::Vector3d() {
 Vector3d::Vector3d(const double p_x, const double p_y, const double p_z) {
 
     // Initialize member variables
-    
-    m_ObjectId = globalObjectId++; 
+
+    m_ObjectId = globalObjectId++;
 
     m_x = p_x;
     m_y = p_y;
@@ -29,8 +29,8 @@ Vector3d::Vector3d(const double p_x, const double p_y, const double p_z) {
 // Regular constructor - initialise from std:vector
 Vector3d::Vector3d(const DBL_VECTOR p_Vec) {
 
-    m_ObjectId = globalObjectId++; 
-    
+    m_ObjectId = globalObjectId++;
+
     size_t numValuesSupplied = p_Vec.size();
 
     THROW_ERROR_IF(numValuesSupplied != 3, ERROR::EXPECTED_3D_VECTOR);  // this is a coding error
@@ -43,33 +43,33 @@ Vector3d::Vector3d(const DBL_VECTOR p_Vec) {
 
 /*
  * Redefine a vector from one coordinate basis to another using Euler Angles
- * 
- * For a vector defined in a new coordinate basis, (X',Y',Z'), we want to 
- * find it's values in a previous coordinate basis (X,Y,Z) so that we can 
+ *
+ * For a vector defined in a new coordinate basis, (X',Y',Z'), we want to
+ * find it's values in a previous coordinate basis (X,Y,Z) so that we can
  * add the new vector to vectors defined in the previous basis.
  *
  * For a change of basis from (X,Y,Z)->(X',Y',Z')
- * 
+ *
  *     ThetaE [0, pi] is the angle between Z and Z',
  *     Vector N := Z x Z' (cross product)
  *     PhiE [0, 2pi) is the angle between X and N
  *     PsiE [0, 2pi) is the angle between X' and N
- * 
- * These angles uniquely determine the change of basis, which is applied 
+ *
+ * These angles uniquely determine the change of basis, which is applied
  * in the form of a rotation matrix R as a function of these angles.
- * 
+ *
  * V_{X,Y,Z} = R * V_{X',Y',Z'} gives the vector in the original coordinates.
  *
  * For details, see:
  * https://en.wikipedia.org/wiki/Euler_angles
  * https://en.wikipedia.org/wiki/Change_of_basis
  *
- * 
+ *
  * Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE)
- * 
- * @param   [IN]   p_ThetaE                    Euler angle Theta (rad) 
- * @param   [IN]   p_PhiE                      Euler angle Phi   (rad) 
- * @param   [IN]   p_PsiE                      Euler angle Psi   (rad) 
+ *
+ * @param   [IN]   p_ThetaE                    Euler angle Theta (rad)
+ * @param   [IN]   p_PhiE                      Euler angle Phi   (rad)
+ * @param   [IN]   p_PsiE                      Euler angle Psi   (rad)
  * @return                                     Vector in previous basis
  */
 Vector3d Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const double p_PsiE) {
@@ -81,7 +81,7 @@ Vector3d Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const
 #define sPhi   sin(p_PhiE)
 #define sPsi   sin(p_PsiE)
 
-    // Define the Rotation Matrix     
+    // Define the Rotation Matrix
     std::vector<DBL_VECTOR> rotationMatrix = {
         { cPhi * cPsi - sPhi * cTheta * sPsi ,  -cPhi * sPsi - sPhi * cTheta * cPsi ,  sTheta * sPhi },
         { sPhi * cPsi + cPhi * cTheta * sPsi ,  -sPhi * sPsi + cPhi * cTheta * cPsi , -sTheta * cPhi },
@@ -112,9 +112,9 @@ Vector3d Vector3d::ChangeBasis(const double p_ThetaE, const double p_PhiE, const
 /*
  * Right multiply a matrix by a vector
  *
- * Vector3d MatrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector) 
+ * Vector3d MatrixMult(const std::vector<DBL_VECTOR>& p_matrix, const Vector3d& p_vector)
  *
- * @param   [IN]   p_Matrix                     matrix 
+ * @param   [IN]   p_Matrix                     matrix
  * @param   [IN]   p_Vec                        vector
  * @return                                      angle between them, in radians
  */
@@ -141,7 +141,7 @@ Vector3d Vector3d::MatrixMult(const std::vector<DBL_VECTOR>& p_Matrix, const Vec
  *
  * Vector3d RotateVectorAboutX(const double p_Theta)
  *
- * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @param   [IN]   p_Theta                     Rotation angle (rad)
  * @return                                     Vector after rotation
  */
 Vector3d Vector3d::RotateVectorAboutX(const double p_Theta) {
@@ -150,7 +150,7 @@ Vector3d Vector3d::RotateVectorAboutX(const double p_Theta) {
 #define sTheta sin(p_Theta)
 
     // Define the Rotation Matrix
-    std::vector<DBL_VECTOR> RotationMatrix = {     
+    std::vector<DBL_VECTOR> RotationMatrix = {
         { 1.0,  0.0,     0.0    },
         { 0.0,  cTheta, -sTheta },
         { 0.0,  sTheta,  cTheta }};
@@ -168,7 +168,7 @@ Vector3d Vector3d::RotateVectorAboutX(const double p_Theta) {
  *
  * Vector3d RotateVectorAboutY( const double p_Theta)
  *
- * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @param   [IN]   p_Theta                     Rotation angle (rad)
  * @return                                     Vector after rotation
  */
 Vector3d Vector3d::RotateVectorAboutY( const double p_Theta) {
@@ -195,7 +195,7 @@ Vector3d Vector3d::RotateVectorAboutY( const double p_Theta) {
  *
  * Vector3d RotateVectorAboutZ( const double p_Theta)
  *
- * @param   [IN]   p_Theta                     Rotation angle (rad) 
+ * @param   [IN]   p_Theta                     Rotation angle (rad)
  * @return                                     Vector after rotation
  */
 Vector3d Vector3d::RotateVectorAboutZ( const double p_Theta) {

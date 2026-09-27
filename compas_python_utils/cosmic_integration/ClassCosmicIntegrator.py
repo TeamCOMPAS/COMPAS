@@ -11,7 +11,7 @@ import selection_effects
 class CosmicIntegrator(object):
     """
 
-    The cosmological integrator calculates the rate 
+    The cosmological integrator calculates the rate
     an object given the SFR that went into it at birth
 
     The entire class consists of several subclasses and their instances
@@ -32,7 +32,7 @@ class CosmicIntegrator(object):
 
     Each class lives in a separate file (except cosmo which is inbuilt library astropy)
 
-    
+
     """
 
     def __init__(self, pathCOMPAS=None, Cosmology='WMAP',hubbleConstant = 67.8,\
@@ -58,7 +58,7 @@ class CosmicIntegrator(object):
             self.cosmology            = get_cosmology(**cosmo_kwargs)
         self.redshiftFirstSFR         = redshiftFirstSFR
         self.ageFirstSFR              = self.cosmology.age(self.redshiftFirstSFR).value
-        
+
         #These are the redshifts shells we integrate over
         self.minRedshift              = minRedshift
         self.maxRedshift              = maxRedshift
@@ -100,7 +100,7 @@ class CosmicIntegrator(object):
         #####################################################
         if self.verbose:
             print("Creating instance MSSFR class User has to still set grid")
-        self.MSSFR = ClassMSSFR.MSSFR(metallicityGrid=None, cosmo=self.cosmology)       
+        self.MSSFR = ClassMSSFR.MSSFR(metallicityGrid=None, cosmo=self.cosmology)
 
         #additionally needed for sensitivity
         self.GWdetector_sensitivity     = GWdetector_sensitivity
@@ -122,13 +122,13 @@ class CosmicIntegrator(object):
         self.PerSystemPerRedshift_redshiftBirth  = None
         # dN Gpc-3 per year at z=redshift.     #each row is redshift merger
         self.PerSystemPerRedshift_ratesIntrinsic = None
-        # dN per year in detector from shell 
+        # dN per year in detector from shell
         self.PerSystemPerRedshift_ratesObserved  = None
 
         self.RedshiftTabulated                   = RedshiftTabulated
         self.RedshiftTabulatedResolution         = RedshiftTabulatedResolution
-        self.redshiftAgeTable                    = None 
-        
+        self.redshiftAgeTable                    = None
+
 
     def createConcentricRedshiftShells(self):
         if self.verbose:
@@ -141,16 +141,16 @@ class CosmicIntegrator(object):
                                     self.nrRedshiftBins+1) #The bin edges in redshift
         #Central value of each redshift bin, this is the value used in cosmic Int
         self.Shell_dz             = np.diff(redshiftEdges)
-        self.Shell_centerRedshift = 0.5*(redshiftEdges[:-1] + redshiftEdges[1:])      
+        self.Shell_centerRedshift = 0.5*(redshiftEdges[:-1] + redshiftEdges[1:])
         #Corresponding luminosity Distances [Mpc]
         self.Shell_luminosityDistance = \
-        [x.value for x in self.cosmology.luminosity_distance(self.Shell_centerRedshift)] 
+        [x.value for x in self.cosmology.luminosity_distance(self.Shell_centerRedshift)]
 
         #cosmology.comoving volume is in units of Mpc^-3
-        #The line below translates this to Gpc^-3 (times 1e-9) 
+        #The line below translates this to Gpc^-3 (times 1e-9)
         #and gives me the spehrical volume of each redshift bin.
         comovEdges    = [x.value*1e-9 for x in self.cosmology.comoving_volume(redshiftEdges)]
-        #The difference between the spherical volumes gives me 
+        #The difference between the spherical volumes gives me
         #the shell volume of each redshift we are looking at
         self.Shell_volume   = np.diff(comovEdges)
 
@@ -161,9 +161,9 @@ class CosmicIntegrator(object):
         self.PerSystemPerRedshift_ageBirth       = np.zeros(shape=(int(self.nrRedshiftBins),\
                                                             len(self.COMPAS.delayTimes)))
 
-        #the age of the universe at the birth of the system is the 
+        #the age of the universe at the birth of the system is the
         #age of the universe at merger minus the delay time.
-        #for the age of the universe in a redshift shell 
+        #for the age of the universe in a redshift shell
         #we use the center redshift value
         for nrz, redshift in enumerate(self.Shell_centerRedshift):
             ageUniverseAtMergerGyr = self.cosmology.age(redshift)
@@ -192,9 +192,9 @@ class CosmicIntegrator(object):
         for nrR, row in enumerate(self.PerSystemPerRedshift_ageBirth):
             maskUnphysical = (row == -1) #born before first SFR
             maskPhysical   = np.logical_not(maskUnphysical)
-            
+
             if self.RedshiftTabulated:
-                #find indices in precalculated table 
+                #find indices in precalculated table
                 inds      = np.digitize(row[maskPhysical], self.redshiftAgeTable[:,1])
                 redshifts = self.redshiftAgeTable[inds,0]
             else:
@@ -212,15 +212,15 @@ class CosmicIntegrator(object):
             self.PerSystemPerRedshift_redshiftBirth[nrR][maskUnphysical] = -1
             self.PerSystemPerRedshift_redshiftBirth[nrR][maskPhysical]   = redshifts
 
-    def setBirthTimesAnd2Darrays(self):            
+    def setBirthTimesAnd2Darrays(self):
 
         if self.COMPAS.delayTimes is not None:
             if self.verbose:
                 print("creating 2D arrays with birth ages and redshift")
-               
-            
+
+
             #from the COMPAS data we need the birth ages of each system
-            #in our integral, only if we actually have data. 
+            #in our integral, only if we actually have data.
             #Introduced this because you might want an empty class (without data)
             #for testing and explaining code in notebooks :D
 
@@ -233,9 +233,9 @@ class CosmicIntegrator(object):
              # dN Gpc-3 per year at z=redshift.     #each row is redshift merger
             self.PerSystemPerRedshift_ratesIntrinsic = np.zeros(shape=(int(self.nrRedshiftBins),\
                                                                 len(self.COMPAS.delayTimes)))
-            # dN per year in detector from shell 
+            # dN per year in detector from shell
             self.PerSystemPerRedshift_ratesObserved  = np.zeros(shape=(int(self.nrRedshiftBins),\
-                                                                len(self.COMPAS.delayTimes)))    
+                                                                len(self.COMPAS.delayTimes)))
         else:
             print()
             print("cannot set 2D-array of rates")
@@ -262,7 +262,6 @@ class CosmicIntegrator(object):
                                     sensitivity=self.GWdetector_sensitivity)
                 NrMergersInShell  = np.multiply(RatesZ,self.Shell_volume[nr])                    # intrinsic rate per system per shell
                 NrMergersInShell  = NrMergersInShell * (1./(1.+self.Shell_centerRedshift[nr])) # rate observer frame per system per shell
-                self.PerSystemPerRedshift_ratesObserved[nr][maskZ]  = np.multiply(NrMergersInShell,probObservingZ)      # observed  dN per year prob between 0-1 
+                self.PerSystemPerRedshift_ratesObserved[nr][maskZ]  = np.multiply(NrMergersInShell,probObservingZ)      # observed  dN per year prob between 0-1
         if np.sum(self.PerSystemPerRedshift_ratesObserved[-1]) != 0 :
             print("The detected rate of the outermost redshift shell is nonzero, did we integrate far enough?")
-

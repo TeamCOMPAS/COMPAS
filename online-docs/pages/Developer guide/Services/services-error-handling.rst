@@ -13,7 +13,7 @@ be printed.
 The current values for scope are:
 
     .. list-table::
-       :widths: 30 70 
+       :widths: 30 70
        :header-rows: 0
        :class: aligned-text
 
@@ -32,7 +32,7 @@ The current values for scope are:
        * - **FIRST_IN_FUNCTION**
          - the error will be printed only on the first time it is encountered anywhere in the same function of an object instance in the current execution of COMPAS (i.e. will print more than once if encountered in the same function name in different objects; useful for debugging).
 
-The Errors service provides methods to print both warnings and errors – essentially the same thing (for printing), but warning messages are prepended with 
+The Errors service provides methods to print both warnings and errors – essentially the same thing (for printing), but warning messages are prepended with
 ':boldtext:`WARNING:` ', whereas error messages are prepended with ':boldtext:`ERROR:` '.
 
 Errors and warnings are printed by using the macros defined in ``ErrorsMacros.h``. They are:
@@ -42,7 +42,7 @@ Error macros
 ------------
 
 ::
-    
+
     SHOW_ERROR(error_number)                         // prints the error message associated with error
                                                      // number (from the error catalog) prepended by
                                                      // 'ERROR: '
@@ -57,7 +57,7 @@ Error macros
 
     SHOW_ERROR_IF(cond, error_number, error_string)  // if 'cond' is TRUE, prints the error message
                                                      // associated with error number (from the error
-                                                     // catalog) prepended by 'ERROR: ', and appends 
+                                                     // catalog) prepended by 'ERROR: ', and appends
                                                      // 'error_string'
 
 
@@ -80,8 +80,8 @@ The ``WARNING`` macros are:
 Static macros
 -------------
 
-An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated 
-object (e.g. main()).  
+An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated
+object (e.g. main()).
 
 The static ``ERROR`` macros are:
 
@@ -122,7 +122,7 @@ Any object that uses the the ``SHOW_ERROR(_IF)`` and ``SHOW_WARN(_IF)`` macros m
     OBJECT_TYPE ObjectType()** const { return m ObjectType; }
     STELLAR_TYPE StellarType()** const { return m StellarType; }
 
-These functions are called by the ``ERROR`` and ``WARNING`` macros. If any of the functions are not applicable to the object, 
+These functions are called by the ``ERROR`` and ``WARNING`` macros. If any of the functions are not applicable to the object,
 then they must return ':italictext:`type`::NONE' (all objects should implement ObjectId() correctly).
 
 Error and warning messages displayed using the ``SHOW_ERROR(_IF)_STATIC`` and ``SHOW_WARN(_IF)_STATIC`` macros will always contain:
@@ -138,7 +138,7 @@ but will not contain:
    The object id of the calling object (not available in static functions)
    The object type of the calling object (doesn't add enough information on its own)
    The stellar type of the calling object (not available in static functions)
- 
+
 
 Handling errors at runtime
 --------------------------
@@ -214,7 +214,7 @@ We have 3 modes for the floating-point error instrumentation:
 ::
 
     Instrumentation not active  : This mode is enabled with the option '--fp-error-mode OFF'  (This is the default mode).
-    
+
                                   This mode is just the default behaviour of the C++ compiler, as described above. In this mode,
                                   the program execution will not be interrupted in the event of a floating-point error, but the
                                   error reported in the system parameters file will be set to indicate if a floating-point error
@@ -223,18 +223,18 @@ We have 3 modes for the floating-point error instrumentation:
                                   execution of the program to halt (and, rather obtusely, will report "Floating point exception").
 
     Floating-point traps enabled: This mode is enabled with the option '--fp-error-mode ON'.
-    
+
                                   In this mode, floating-point traps 'DIVBYZERO', 'INVALID', 'OVERFLOW', and 'UNDERFLOW' are enabled.
                                   When a floating-point operation traps, a 'SIGFPE' signal is raised and the 'SIGFPE' signal handler
                                   is invoked, and the signal handler raises a 'runtime_error' exception, with a 'what' argument of
-                                  "FPE" (and in this mode we cannot, and do not, differentiate between 'DIVBYZERO', 'INVALID', 
+                                  "FPE" (and in this mode we cannot, and do not, differentiate between 'DIVBYZERO', 'INVALID',
                                   'OVERFLOW', and 'UNDERFLOW'). The exception raised will cause the execution of the program to halt
                                   if it is not caught and managed. We catch 'runtime_error' exceptions in 'Star::Evolve()' for SSE
                                   mode, in 'BaseBinaryStar::Evolve()' for BSE mode, and in 'main()' for errors that might occur
                                   outside the evolution of stars or binaries.
 
     Debug mode                  : This mode is enabled with the option '--fp-error-mode DEBUG'.
-    
+
                                   In this mode, floating-point traps 'DIVBYZERO', 'INVALID', 'OVERFLOW', and 'UNDERFLOW' are enabled.
                                   When a floating-point operation traps, a 'SIGFPE' signal is raised and the 'SIGFPE' signal handler
                                   is called, but instead of raising a 'runtime_error' exception, the signal handler prints the stack
@@ -244,7 +244,7 @@ We have 3 modes for the floating-point error instrumentation:
                                   The construction of the stack trace in debug mode happens inside the signal handler, and the functions
                                   used to do that are generally not signal safe - but we call 'std::exit()' anyway, so that should not
                                   be a problem.
-   
+
 
 Throwing errors
 ---------------
@@ -263,15 +263,15 @@ throw an exception and cause the ordinary program flow to be interrupted.  These
    THROW_ERROR_STATIC(error_number, error_string)         : displays the error (as described above), then throws exception
    THROW_ERROR_IF_STATIC(cond, error_number)              : if "cond" is TRUE, displays the error (as described above), then throws exception
    THROW_ERROR_IF_STATIC(cond, error_number, error_string): if "cond" is TRUE, displays the error (as described above), then throws exception
- 
-In each case, the exception thrown by the ``THROW*`` macros is the 'error_number' argument cast as an integer, so it can be caught by using 
+
+In each case, the exception thrown by the ``THROW*`` macros is the 'error_number' argument cast as an integer, so it can be caught by using
 ``catch (int e)`` and inspecting "e".
 
 
 Writing errors to file
 ----------------------
 
-When the user sets the ``--errors-to-file`` program option to ``TRUE`` (``FALSE`` by default), errors and, if the user also sets the 
+When the user sets the ``--errors-to-file`` program option to ``TRUE`` (``FALSE`` by default), errors and, if the user also sets the
 ``--enable-warnings`` program option to ``TRUE`` (``FALSE`` by default), warnings will be written to a log file in addition to being
 displayed on stdout/stderr as they occur. In this case, the ``Log::Start()`` parameter ``p_ErrorsToFile`` will be ``TRUE``, instructing
 the ``LOGGING`` service to write errors and warnings to a log file.

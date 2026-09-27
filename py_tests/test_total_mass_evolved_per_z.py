@@ -65,7 +65,7 @@ def test_analytical_vs_numerical_star_forming_mass_per_binary(fake_compas_output
 
     analytical = analytical_star_forming_mass_per_binary_using_kroupa_imf(m1_min, m1_max, m2_min, fbin)
     numerical = star_forming_mass_per_binary(fake_compas_output, m1_min, m1_max, m2_min, fbin)
-    
+
     assert numerical > 0
     assert analytical > 0
 

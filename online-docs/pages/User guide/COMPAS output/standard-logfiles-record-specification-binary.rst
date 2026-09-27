@@ -1,7 +1,7 @@
 Binary properties
 =================
 
-When specifying known properties in a log file record specification record, the property name must be prefixed with 
+When specifying known properties in a log file record specification record, the property name must be prefixed with
 the property type. Currently there is a single binary property type available for use: BINARY_PROPERTY.
 
 For example, to specify the property ``SEMI_MAJOR_AXIS_PRE_COMMON_ENVELOPE`` for a binary star being evolved in ``BSE``, use::
@@ -63,7 +63,7 @@ Binary Properties
    * - Description:
      - Flag to indicate if there has been at least one common envelope event.
    * - Header String:
-     - CEE    
+     - CEE
 
 .. flat-table::
    :widths: 25 75 1 1
@@ -250,7 +250,7 @@ Binary Properties
        Refer to :doc:`../Handling errors/evolution-status-table` for possible values.
    * - Header Strings:
      - Evolution_Status
-  
+
 .. _binary-props-F:
 
 .. _binary-props-G:
@@ -292,7 +292,7 @@ Binary Properties
      - Flag to indicate if either star overflows its Roche lobe immediately following common envelope event.
    * - Header String:
      - Immediate_RLOF>CE
-   
+
 .. _binary-props-J:
 
 .. _binary-props-K:
@@ -450,19 +450,19 @@ Binary Properties
            :header-rows: 0
            :class: aligned-text
 
-           * - NO MASS TRANSFER 
+           * - NO MASS TRANSFER
              - = 0
-           * - MASS TRANSFER STABLE STAR1 -> STAR2 
+           * - MASS TRANSFER STABLE STAR1 -> STAR2
              - = 1
-           * - MASS TRANSFER STABLE STAR2 -> STAR1 
+           * - MASS TRANSFER STABLE STAR2 -> STAR1
              - = 2
-           * - MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2 
+           * - MASS TRANSFER COMMON ENVELOPE STAR1 -> STAR2
              - = 3
-           * - MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1 
+           * - MASS TRANSFER COMMON ENVELOPE STAR2 -> STAR1
              - = 4
-           * - MASS TRANSFER COMMON ENVELOPE DOUBLE CORE 
+           * - MASS TRANSFER COMMON ENVELOPE DOUBLE CORE
              - = 5
-           * - MASS TRANSFER -> MERGER 
+           * - MASS TRANSFER -> MERGER
              - = 6
 
    * - Header String:
@@ -483,7 +483,7 @@ Binary Properties
      - Flag to indicate if the binary compact remnants merge within a Hubble time.
    * - Header String:
      - Merges_Hubble_Time
-  
+
 .. _binary-props-N:
 
 .. _binary-props-O:
@@ -516,7 +516,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.xValue()  
+     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.xValue()
    * - Description:
      - x-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
    * - Header String:
@@ -532,7 +532,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.yValue()  
+     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.yValue()
    * - Description:
      - y-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
    * - Header String:
@@ -548,7 +548,7 @@ Binary Properties
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
-     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.zValue()  
+     - `derived from` BaseBinaryStar::m_NormalizedOrbitalAngularMomentumVector.zValue()
    * - Description:
      - z-component of the normalized orbital AM unit vector, calculated after a SN in the birth reference frame (with z parallel to birth orbital AM, and x parallel to the LRL vector)
    * - Header String:
@@ -586,7 +586,7 @@ Binary Properties
        Will be 0.0 for unbound binaries.
    * - Header String:
      - Orbital_Velocity<SN
-   
+
 .. _binary-props-P:
 
 .. _binary-props-Q:
@@ -680,11 +680,11 @@ Binary Properties
    :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
-   
+
    * - :cspan:`2` **RLOF_ACCRETION_EFFICIENCY:**
      -
    * - Data type:
-     - DOUBLE   
+     - DOUBLE
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPostMT->accretionEfficiency
    * - Description:
@@ -697,23 +697,23 @@ Binary Properties
    :widths: 25 75 1 1
    :header-rows: 0
    :class: aligned-text
-   
+
    * - :cspan:`2` **RLOF_MASS_LOSS_RATE**
      -
    * - Data type:
      - DOUBLE
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPostMT->massLossRateFromDonor
-   * - Description:   
+   * - Description:
      - The rate at which mass is lost from the donor (\ :math:`M_\odot`/yr)
    * - Header String:
      - MassTransferRateDonor
 
 .. flat-table::
    :widths: 25 75 1 1
-   :header-rows: 0     
+   :header-rows: 0
    :class: aligned-text
-   
+
    * - :cspan:`2` **RLOF_MASS_TRANSFER_TIMESCALE:**
      -
    * - Data type:
@@ -738,7 +738,7 @@ Binary Properties
    * - COMPAS variable:
      - BaseBinaryStar::m_RLOFDetails.propsPostMT→isCE
    * - Description:
-     - Flag to indicate if the RLOF leads to a common-envelope event 
+     - Flag to indicate if the RLOF leads to a common-envelope event
    * - Header String:
      - CEE>MT
 
@@ -965,8 +965,8 @@ Binary Properties
      - Stellar type (per :cite:`Hurley2000`) of the primary star immediately after RLOF.
    * - Header String:
      - Stellar_Type(1)>MT
-   
-`Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -984,8 +984,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the primary star immediately after RLOF.
    * - Header String:
      - Stellar_Type(1)>MT
-   
-`Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_POST_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1003,8 +1003,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the secondary star immediately after RLOF.
    * - Header String:
      - Stellar_Type(2)>MT
-   
-`Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1022,8 +1022,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the secondary star immediately after RLOF.
    * - Header String:
      - Stellar_Type(2)>MT
-   
-`Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_POST_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1266,8 +1266,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the primary star at the onset of RLOF.
    * - Header String:
      - Stellar_Type(1)<MT
-   
-`Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1285,8 +1285,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the primary star at the onset of RLOF.
    * - Header String:
      - Stellar_Type(1)<MT
-   
-`Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_PRE_MT_STAR1_STELLAR_TYPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1304,8 +1304,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the secondary star at the onset of RLOF.
    * - Header String:
      - Stellar_Type(2)<MT
-   
-`Note that this property has the same header string as RLOF_PRE_MTvSTAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_PRE_MTvSTAR2_STELLAR_TYPE_NAME. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1323,8 +1323,8 @@ but not both. If both are printed then the file will contain two columns with th
      - Stellar type (per :cite:`Hurley2000`) of the secondary star at the onset of RLOF.
    * - Header String:
      - Stellar_Type(2)<MT
-   
-`Note that this property has the same header string as RLOF_PRE_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file, 
+
+`Note that this property has the same header string as RLOF_PRE_MT_STAR2_STELLAR_TYPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1604,7 +1604,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - SemiMajorAxis<SN
 
-`Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1623,7 +1623,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - SemiMajorAxis<SN
 
-`Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA. It is expected that one or the other is printed in any file, but 
+`Note that this property has the same header string as SEMI_MAJOR_AXIS_PRE_SUPERNOVA. It is expected that one or the other is printed in any file, but
 not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1658,7 +1658,7 @@ not both. If both are printed then the file will contain two columns with the sa
    * - Header String:
      - SemiMajorAxis
 
-`Note that this property has the same header string as SEMI_MAJOR_AXIS_RSOL. It is expected that one or the other is printed in any file, but not both. 
+`Note that this property has the same header string as SEMI_MAJOR_AXIS_RSOL. It is expected that one or the other is printed in any file, but not both.
 If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1677,7 +1677,7 @@ If both are printed then the file will contain two columns with the same header 
    * - Header String:
      - SemiMajorAxis
 
-`Note that this property has the same header string as SEMI_MAJOR_AXIS. It is expected that one or the other is printed in any file, but not both. If both 
+`Note that this property has the same header string as SEMI_MAJOR_AXIS. It is expected that one or the other is printed in any file, but not both. If both
 are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1760,7 +1760,7 @@ are printed then the file will contain two columns with the same header string.`
    * - Header String:
      - Stellar_Type(1)>CE
 
-`Note that this property has the same header string as STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_NAME_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1779,7 +1779,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)<CE
 
-`Note that this property has the same header string as STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1798,7 +1798,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)>CE
 
-`Note that this property has the same header string as STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1817,7 +1817,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(2)<CE
 
-`Note that this property has the same header string as STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1836,7 +1836,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)>CE
 
-`Note that this property has the same header string as STELLAR_TYPE_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, 
+`Note that this property has the same header string as STELLAR_TYPE_1_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file,
 but not both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1855,7 +1855,7 @@ but not both. If both are printed then the file will contain two columns with th
    * - Header String:
      - Stellar_Type(1)<CE
 
-`Note that this property has the same header string as STELLAR_TYPE_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not 
+`Note that this property has the same header string as STELLAR_TYPE_1_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not
 both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1874,7 +1874,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - Stellar_Type(2)>CE
 
-`Note that this property has the same header string as STELLAR_TYPE_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not 
+`Note that this property has the same header string as STELLAR_TYPE_2_POST_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not
 both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1893,7 +1893,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - Header String:
      - Stellar_Type(2)<CE
 
-`Note that this property has the same header string as STELLAR_TYPE_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not 
+`Note that this property has the same header string as STELLAR_TYPE_2_PRE_COMMON_ENVELOPE. It is expected that one or the other is printed in any file, but not
 both. If both are printed then the file will contain two columns with the same header string.`
 
 .. flat-table::
@@ -1908,7 +1908,7 @@ both. If both are printed then the file will contain two columns with the same h
    * - COMPAS variable:
      - `derived from` BaseBinaryStar::m_ThetaE
    * - Description:
-     - Indicates the inclination angle between the pre-supernova and post-supernova orbits, between [0, \ :math:`\pi`]  
+     - Indicates the inclination angle between the pre-supernova and post-supernova orbits, between [0, \ :math:`\pi`]
    * - Header String:
      - Supernova_Orbit_Inclination_Angle
 
@@ -1957,7 +1957,7 @@ both. If both are printed then the file will contain two columns with the same h
      - Tidal synchronisation timescale for the primary star (Myr).
    * - Header String:
      - Tau_Sync(1)
-  
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
@@ -2265,4 +2265,3 @@ both. If both are printed then the file will contain two columns with the same h
      - Mass-radius exponent of the star at the onset of the RLOF. Calculated differently based on the value of program option ``--zeta-prescription``
    * - Header String:
      - Zeta_Star
-

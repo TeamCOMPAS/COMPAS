@@ -20,22 +20,22 @@ class HeMS: virtual public BaseStar, public TPAGB {
 public:
 
     HeMS() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; };
-    
+
     HeMS(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), TPAGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;                                                                                                                                         // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
     }
 
     HeMS* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HeMS* clone = new HeMS(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HeMS* clone = new HeMS(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static HeMS* Clone(HeMS& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HeMS* clone = new HeMS(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HeMS* clone = new HeMS(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -52,7 +52,7 @@ public:
     static DBL_DBL  CalculateRadiusAtPhaseEnd_Static(const double p_Mass, const double p_Luminosity);
     static double   CalculateRadiusAtZAMS_Static(const double p_Mass);
     static double   CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Tau);
-    
+
            double   CalculateRemnantRadius() const                                                                  { return Radius(); }
 
     MT_CASE         DetermineMassTransferTypeAsDonor() const                                                        { return MT_CASE::OTHER; }                                                      // Not A, B, C, or NONE
@@ -64,7 +64,7 @@ protected:
         // initialise surface abundances
         m_HydrogenAbundanceSurface = 0.0;
         m_HeliumAbundanceSurface   = 1.0 - m_Metallicity;
-        
+
         CalculateTimescales();
         // JR: Age for HeMS is partially calculated before switching -
         // can get here from various places in ResolveEnvelopeLoss(),
@@ -100,16 +100,16 @@ protected:
             // Abundances
             double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                                          { return CalculateHeliumAbundanceCoreOnPhase(); }
             double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
-            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables                                       
-            
+            double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                          // Use class member variables
+
             double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
-            double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                            // Use class member variables                      
+            double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                            // Use class member variables
 
-            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+            double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                                        { return CalculateHydrogenAbundanceCoreOnPhase(); }
             double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const                         { return 0.0; }
-            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                        // Use class member variables                                 
+            double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                        // Use class member variables
 
-            double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+            double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); }
             double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                          // Use class member variables
 
             double          CalculateInitialSupernovaMass() const                                                   { return GiantBranch::CalculateInitialSupernovaMass(); }                        // Use GiantBranch
@@ -149,7 +149,7 @@ protected:
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales);
             void            CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                                 // Use class member variables
-    
+
             double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                  { return OPTIONS->ZetaMainSequence(); }                                                                             // A HeMS star is treated as any other MS star for Zeta calculation purposes
             double          CalculateZetaEquilibrium()                                                              { return MainSequence::CalculateZetaEquilibrium(); }                           // A HeMS star is treated as any other MS star for Zeta calculation purposes
 
@@ -159,9 +159,9 @@ protected:
 
             ENVELOPE        DetermineEnvelopeType() const                                                           { return ENVELOPE::RADIATIVE; }                                                 // Always RADIATIVE
 
-            double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+            double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                                    const double p_massTransferEfficiencyBeta)                       { return InterpolateGeEtAlQCrit(); }                                            // The function arguments are irrelavant for He stars, for now
-            double          InterpolateGeEtAlQCrit(); 
+            double          InterpolateGeEtAlQCrit();
 
             bool            IsEndOfPhase() const                                                                    { return !ShouldEvolveOnPhase(); }
             bool            IsSupernova() const                                                                     { return false; }                                                               // Not here

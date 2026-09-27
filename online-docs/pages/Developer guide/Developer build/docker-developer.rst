@@ -5,8 +5,8 @@ Creating a Docker image
 Overview
 --------
 
-Docker simplifies COMPAS deployment by containerizing all dependencies and build tools, 
-eliminating manual environment configuration across different operating systems and platforms. 
+Docker simplifies COMPAS deployment by containerizing all dependencies and build tools,
+eliminating manual environment configuration across different operating systems and platforms.
 This enables reliable deployment on cloud platforms and consistent development environments.
 
 For information on how to use Docker to run COMPAS, see the :doc:`../../User guide/docker` page.
@@ -14,7 +14,7 @@ For information on how to use Docker to run COMPAS, see the :doc:`../../User gui
 
 GitHub CI/CD
 ------------
- 
+
 ``Docker`` images of all versions of COMPAS (``dev`` branch) are available at:
 
     - `TeamCOMPAS dockerHub page <https://hub.docker.com/u/teamcompas>`__
@@ -22,18 +22,18 @@ GitHub CI/CD
 
 Building of these images is performed automatically by the ``GitHub`` CI/CD process.
 
-Whenever a push to `TeamCOMPAS/dev <https://github.com/TeamCOMPAS/COMPAS/tree/dev>`__ occurs, a continuous deployment process 
+Whenever a push to `TeamCOMPAS/dev <https://github.com/TeamCOMPAS/COMPAS/tree/dev>`__ occurs, a continuous deployment process
 automatically
-builds\ [#f1]_ a new image and deploys it to both ``dockerHub`` and the ``GitHub Container Registry`` with a `tag`\ [#f2]_ that corresponds to the value of ``VERSION_STRING`` 
+builds\ [#f1]_ a new image and deploys it to both ``dockerHub`` and the ``GitHub Container Registry`` with a `tag`\ [#f2]_ that corresponds to the value of ``VERSION_STRING``
 in ``changelog.h`` (see :doc:`../changelog` for detailed information regarding ``changelog.h``).
 
-At time of writing, `GitHub Actions`\ [#f3]_ facilitates the above process. While this is convenient (because it's free and well 
-supported) it is somewhat slow - the COMPAS ``Docker`` image is available 5 - 10 minutes after pushing/merging. A future improvement 
+At time of writing, `GitHub Actions`\ [#f3]_ facilitates the above process. While this is convenient (because it's free and well
+supported) it is somewhat slow - the COMPAS ``Docker`` image is available 5 - 10 minutes after pushing/merging. A future improvement
 may be to create a `runner`\ [#f4]_ locally with a high core count that can be used to compile COMPAS quickly.
 
 The Github Actions configuration is in ``/.github/workflows/dockerhub-ci.yml``.
 
-See the `Atlassian CI/CD <https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment>`__ 
+See the `Atlassian CI/CD <https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment>`__
 documentation for detailed information regarding the ``GitHub`` CI/CD process.
 
 
@@ -61,17 +61,17 @@ Dockerfile
 
 The Dockerfile\ [#f5]_ defines how the docker image is constructed.
 
-Images are created as a combination of layers. During the build process, each layer is cached and only updated on subsequent builds 
-if that layer would change. 
+Images are created as a combination of layers. During the build process, each layer is cached and only updated on subsequent builds
+if that layer would change.
 
 The Dockerfile for COMPAS is made up of 8 layers:
 
     **FROM ubuntu:18.04**\ [#f6]_ |br|
     Use `Ubuntu 18.04 <https://hub.docker.com/_/ubuntu>`__ as a base (provided by Docker Hub)
-    
+
     **WORKDIR /app/COMPAS**\ [#f7]_ |br|
     Effectively ``cd /app/COMPAS`` within the container.
-    
+
     **RUN apt-get update && apt-get install -y ...**\ [#f8]_ |br|
     Install the required dependencies.
 
@@ -94,8 +94,8 @@ The Dockerfile for COMPAS is made up of 8 layers:
     **RUN cd src && make -f Makefile.docker -j $(nproc)**\ [#f8]_ |br|
     Change to the ``src`` directory; make COMPAS using a specific makefile (see below) and as many cores as possible.
 
-A Dockerfile usually ends with a ``CMD`` directive that specifies what command should run when the container is started\ [#f11]_. 
-The COMPAS Dockerfile doesn't have a ``CMD`` directive because some users will want to run the executable directly and some will 
+A Dockerfile usually ends with a ``CMD`` directive that specifies what command should run when the container is started\ [#f11]_.
+The COMPAS Dockerfile doesn't have a ``CMD`` directive because some users will want to run the executable directly and some will
 want to use ``runSubmit.py``.
 
 
@@ -107,7 +107,7 @@ A separate makefile is required for ``Docker`` in this scenario for two reasons:
     #. To separate compiled files from source files
     #. To prevent the usage of the ``gcc`` ``-march=native`` compiler option
 
-``-march=native`` is a very useful optimisation for users who compile and run COMPAS on the same machine, however it causes fatal 
+``-march=native`` is a very useful optimisation for users who compile and run COMPAS on the same machine, however it causes fatal
 errors when running COMPAS on a machine for which it was not compiled. The ``-march=native`` compiler option selects the CPU for
 which code should be generated by determining the processor type of the `compiling machine`. Using ``-march=native`` enables all
 instruction subsets supported by the compiling machine, thus producing an executable file that will perform better than it would
@@ -132,4 +132,3 @@ respects.  See :doc:`./COMPAS-local-build` for a detailed description of the loc
 .. [#f9] https://docs.docker.com/engine/reference/builder/#copy
 .. [#f10] https://docs.docker.com/engine/reference/builder/#env
 .. [#f11] https://docs.docker.com/engine/reference/builder/#cmd
-

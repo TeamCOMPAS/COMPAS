@@ -2,16 +2,16 @@ SSE class hierarchy
 ===================
 
 :ref:`Figure 1 <fig-1>` shows the ``SSE`` class diagram, where the arrows indicate inheritance. The COMPAS ``C++`` code is implemented
-using multiple inheritance, and all stellar classes also inherit directly from the ``BaseStar`` class (arrows not shown in 
+using multiple inheritance, and all stellar classes also inherit directly from the ``BaseStar`` class (arrows not shown in
 :ref:`Figure 1 <fig-1>` for clarity). Each of the stellar classes encapsulates data structures and algorithms specific to the evolutionary
 phase corresponding to the class.
 
-The main class for ``SSE`` is the ``Star`` class. The ``Star`` class is a wrapper that abstracts away the details of the star and the 
-evolution. Internally the ``Star`` class maintains a pointer to an object representing the star being evolved, with that object being 
+The main class for ``SSE`` is the ``Star`` class. The ``Star`` class is a wrapper that abstracts away the details of the star and the
+evolution. Internally the ``Star`` class maintains a pointer to an object representing the star being evolved, with that object being
 an instance of one of the following classes:
 
     .. list-table::
-       :widths: 25 75 
+       :widths: 25 75
        :header-rows: 0
        :class: aligned-text
 
@@ -64,7 +64,7 @@ Several other ``SSE`` classes are defined:
 These extra classes are included to allow inheritance of common functionality.
 
 The ``BaseStar`` class is the main class for the underlying star object held by the ``Star`` class. The ``BaseStar`` class defines all member
-variables, and many member functions that provide common functionality. Similarly, the ``MainSequence`` and ``GiantBranch`` classes provide 
+variables, and many member functions that provide common functionality. Similarly, the ``MainSequence`` and ``GiantBranch`` classes provide
 repositories for common functionality for main sequence and giant branch stars respectively, and the the ``Remnants`` and ``WhiteDwarfs`` classes
 provide repositories for common functionality for remnant and white dwarf stars respectively.
 
@@ -82,7 +82,7 @@ provide repositories for common functionality for remnant and white dwarf stars 
 ``CH`` (Chemically Homogeneous) class stars inherit from the ``MS_gt_07`` class because (in this implementation) they are just (large) main
 sequence stars that have a static radius.
 
-``HG`` (Hertzsprung Gap) class stars inherit from the ``GiantBranch`` class because they share the giant branch parameters described in 
+``HG`` (Hertzsprung Gap) class stars inherit from the ``GiantBranch`` class because they share the giant branch parameters described in
 :cite:`Hurley2000`, section 5.2.
 
 Each class has its own set of member functions that calculate various attributes of the star according to the phase the class represents (using

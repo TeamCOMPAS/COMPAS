@@ -30,7 +30,7 @@ option value to default, or just be an empty string).
 Option values beyond the first value may not begin with the dash character ('-'), because the shell parser will parse them as option names
 before passing them through to COMPAS (this is a Boost limitation).
 
-COMPAS imposes no limit to the length (number of characters) of an individual option values that are specified as strings, but there may 
+COMPAS imposes no limit to the length (number of characters) of an individual option values that are specified as strings, but there may
 be practical limits imposed by the underlying system.
 
 
@@ -54,7 +54,7 @@ in this manner on the command line they will default to the COMPAS default annot
 
 Spaces in option values (in general, but also specifically for vector options) strings need to be enclosed in quotes, or the shell parser will
 parse them as separate arguments before passing them through to COMPAS.  If the log file type is specified as TXT, then any spaces in option
-values need to be enclosed in quotes to avoid the shell parser parsing them as separate arguments, but also need to have enclosing quotes 
+values need to be enclosed in quotes to avoid the shell parser parsing them as separate arguments, but also need to have enclosing quotes
 propagated to the logfile, or the spaces will be interpreted as delimiters in the log file.  e.g. - in the following example, enclosing escaped
 quote characters ('\"') are added before adding the enclosing quotes::
 
@@ -66,4 +66,3 @@ so the caveat mentioned above that option values may not begin with the dash cha
 
 Shorthand notation is optional: users may choose to use the notation described above rather than shorthand notation, but in that case all option
 values must be specified (no omissions, no defaults).
-

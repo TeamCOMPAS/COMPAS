@@ -1,7 +1,7 @@
 Extended logging
 ================
 
-The extended logging service supports standard log files for both Single Star Evolution ``(SSE``) and Binary Star 
+The extended logging service supports standard log files for both Single Star Evolution ``(SSE``) and Binary Star
 Evolution (``BSE``).
 
 The standard log files defined are:
@@ -26,7 +26,7 @@ For ``BSE``:
 
 The Logging service maintains information about each of the standard log files, and will handle creating, opening, writing and
 closing the files. For each execution of the COMPAS program, one (and only one) of each of the log files listed above that
-pertain to the mode of evolution (``--mode`` option, ``SSE`` or ``BSE``) will be created, except for the ``Detailed_Output`` 
+pertain to the mode of evolution (``--mode`` option, ``SSE`` or ``BSE``) will be created, except for the ``Detailed_Output``
 log files, in which case there will be one log file created for each system (single star or binary star) evolved.
 
 The Logging service provides the following public member functions specifically for managing standard log files:
@@ -38,9 +38,9 @@ For ``SSE`` log files::
     BOOL LogSSEDetailedOutput(CONST T* CONST p_Star, CONST int p_Id, CONST string p_Rec)
     BOOL LogSSESwitchLog(CONST T* CONST p_Star, CONST string p_Rec)
 
-Each ``SSE`` function is passed a pointer to the single star for which details are to be logged (``p_Star``), and a string to be 
-written to the log file (``p_Rec``). If ``p_Rec`` is an empty string, the function constructs the log record from the current 
-attributes of the star and the default record specifier for the log file (see property vectors in ``constants.h``,  e.g. 
+Each ``SSE`` function is passed a pointer to the single star for which details are to be logged (``p_Star``), and a string to be
+written to the log file (``p_Rec``). If ``p_Rec`` is an empty string, the function constructs the log record from the current
+attributes of the star and the default record specifier for the log file (see property vectors in ``constants.h``,  e.g.
 ``SSE_DETAILED_OUTPUT_REC``). ``LogSSEDetailedOutput()`` is also passed an integer identifier (typically the loop index of the
 star) that is appended to the log file name (``p_Id``).
 
@@ -55,9 +55,9 @@ For ``BSE`` log files::
     BOOL LogBSEDetailedOutput(CONST T* CONST p_Binary, CONST long int p_Id, CONST string p_Rec)
     BOOL LogBSESwitchLog(CONST T* CONST p_Binary, CONST bool p_PrimarySwitching)
 
-Each ``BSE`` function is passed a pointer to the binary star for which details are to be logged (``p_Binary``), and a string to 
-be  written to the log file (``p_Rec``). If ``p_Rec`` is an empty string, the function constructs the log record from the current 
-attributes of the binary and the default record specifier for the log file (see property vectors in ``constants.h``,  e.g. 
+Each ``BSE`` function is passed a pointer to the binary star for which details are to be logged (``p_Binary``), and a string to
+be  written to the log file (``p_Rec``). If ``p_Rec`` is an empty string, the function constructs the log record from the current
+attributes of the binary and the default record specifier for the log file (see property vectors in ``constants.h``,  e.g.
 ``BSE_DETAILED_OUTPUT_REC``). ``LogBSEDetailedOutput()`` is also passed an integer identifier (typically the loop index of the
 binary) that is appended to the log file name (``p_Id``).
 
@@ -81,4 +81,3 @@ Standard log file names are supplied via program options (e.g. ``--logfile-syste
 The extended logging service always sets the log record ``class`` to the name of the standard log file being written to, and the
 log record ``level`` to 0.  See :doc:`./Base-level logging/services-base-level-logging` for details regarding log record ``class``
 and ``level``.
-

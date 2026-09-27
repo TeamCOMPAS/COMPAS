@@ -27,7 +27,7 @@ namespace utils {
     double      ConvertPeriodInDaysToSemiMajorAxisInAU(const double p_Mass1, const double p_Mass2, const double p_Period);
 
     DBL_DBL     DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower);
-    
+
     bool        Equals(std::string p_Str1, std::string p_Str2);
 
     bool        FileExists(const std::string& p_Filename);
@@ -108,7 +108,7 @@ namespace utils {
 
     std::string                         PadLeadingZeros(const std::string p_Str, const std::size_t p_MaxLength);
     std::string                         PadTrailingSpaces(const std::string p_Str, const std::size_t p_MaxLength);
-    
+
     std::string&                        ltrim(std::string& p_Str);
     std::string&                        rtrim(std::string& p_Str);
     std::string&                        trim(std::string& p_Str);
@@ -125,13 +125,13 @@ namespace utils {
     double                              SampleMassRatio(const MASS_RATIO_DISTRIBUTION p_Qdist, const double p_Max, const double p_Min);
     double                              SampleMetallicity(const METALLICITY_DISTRIBUTION p_Zdist, const double p_Max, const double p_Min);
     double                              SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, const double p_PdistMax, const double p_PdistMin);
-    std::tuple<ERROR, double>           SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                                                            const double                       p_AdistMax, 
-                                                            const double                       p_AdistMin, 
-                                                            const double                       p_AdistPower, 
-                                                            const double                       p_PdistMax, 
-                                                            const double                       p_PdistMin, 
-                                                            const double                       p_Mass1, 
+    std::tuple<ERROR, double>           SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist,
+                                                            const double                       p_AdistMax,
+                                                            const double                       p_AdistMin,
+                                                            const double                       p_AdistPower,
+                                                            const double                       p_PdistMax,
+                                                            const double                       p_PdistMin,
+                                                            const double                       p_Mass1,
                                                             const double                       p_Mass2);
 
     SN_EVENT                            SNEventType(const SN_EVENT p_SNEvent);

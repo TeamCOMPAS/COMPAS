@@ -14,7 +14,7 @@ as “Log::Instance()”, so calling the ``Log::Enabled()`` function can be writ
 
     LOGGING→Enabled();
 
-The Log service must be initialised and started before logging and debugging functionality can be used. Initialise and start 
+The Log service must be initialised and started before logging and debugging functionality can be used. Initialise and start
 logging by calling the ``Log::Start()`` function::
 
     LOGGING→Start(...)
@@ -33,8 +33,8 @@ Log & debug record filtering
 ----------------------------
 
 The Log service provides a set of functions and macros to manage log files, and to write log and debug records to the log files,
-``stdout``, and ``stderr``. Base-level logging allows developers to tag log and debug records with a string ``class``, and an 
-integer ``level``. The Log service will filter log and debug records by ``class`` and ``level``, and only write those records 
+``stdout``, and ``stderr``. Base-level logging allows developers to tag log and debug records with a string ``class``, and an
+integer ``level``. The Log service will filter log and debug records by ``class`` and ``level``, and only write those records
 that meet the ``class`` and ``level`` filters specified by the users via the ``--log-level``,  ``--log-class``, ``--debug-level``,
 and ``--debug-classes`` program options.
 
@@ -60,4 +60,3 @@ The Log service provides the following public member functions:
    ./services-base-level-logging-func-squawk
    ./services-base-level-logging-func-say
    ./services-base-level-logging-func-enabled
-

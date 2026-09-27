@@ -1,7 +1,7 @@
 Running the COMPAS Docker image
 ===============================
 
-COMPAS can be configured as usual via command line arguments passed to the COMPAS executable or via a ``runSubmit.py`` file in the 
+COMPAS can be configured as usual via command line arguments passed to the COMPAS executable or via a ``runSubmit.py`` file in the
 ``Docker`` environment.
 
 
@@ -21,11 +21,11 @@ To run COMPAS via a ``runSubmit.py`` file, type::
         -e COMPAS_INPUT_DIR_PATH=/app/COMPAS/config                             \
         -e COMPAS_LOGS_OUTPUT_DIR_PATH=/app/COMPAS/logs                         \
         teamcompas/compas                                                       \
-        python3 /app/starts/runSubmit.py                     
+        python3 /app/starts/runSubmit.py
 
 
 NOTE: if you decide to execute using ``runSubmit.py``, you will need a ``compasConfigDefault.yaml``  file in the same directory.
-This file can be found in the same directory as the ``runSubmit.py``, and contains the default COMPAS choices for stellar and 
+This file can be found in the same directory as the ``runSubmit.py``, and contains the default COMPAS choices for stellar and
 binary physics. These choices can be changed by modifying the options available in the ``compasConfigDefault.yaml`` file.
 
 NOTE2: when running on a MacOS with the M1 chip that runs on amd64 architecture you likely need to add the line `--platform linux/amd64` to the note above
@@ -45,7 +45,7 @@ short for [-i and -t] - provides an interactive terminal\ [#f2]_.
 mount ``<path-on-host>`` to ``<path-in-container>``\ [#f3]_. |br|
 
 This time we not only want to read the COMPAS input files (i.e. grid file and/or logfile-definitions file) on the
-host from the container, and get the output from COMPAS in the container onto the host machine, we also want to 
+host from the container, and get the output from COMPAS in the container onto the host machine, we also want to
 supply a ``runSubmit.py`` to the container from the host machine.
 
 **-e VAR_NAME=value** |br|
@@ -112,11 +112,11 @@ Environment variables
 Three new environment variables are used in ``runSubmit.py``.  These environment variables are used primarily in the ``Docker``
 environment, and are non-breaking changes (i.e. benign to other environments).
 
-``COMPAS_EXECUTABLE_PATH`` specifies where ``runSubmit.py`` looks for the COMPAS executable. This override exists purely for 
+``COMPAS_EXECUTABLE_PATH`` specifies where ``runSubmit.py`` looks for the COMPAS executable. This override exists purely for
 ease-of-use from the command line.
 
-`COMPAS_LOGS_OUTPUT_DIR_PATH` specifies where COMPAS output log files are created. The override exists because the mounted directory 
-(option `-v`) is created before COMPAS runs. COMPAS sees that the directory where it's supposed to put logs already exists, so it 
+`COMPAS_LOGS_OUTPUT_DIR_PATH` specifies where COMPAS output log files are created. The override exists because the mounted directory
+(option `-v`) is created before COMPAS runs. COMPAS sees that the directory where it's supposed to put logs already exists, so it
 creates a different (i.e. non-mapped) directory for the output log files.
 
 `COMPAS_INPUT_DIR_PATH` specifies where input files (such as the ``grid`` file, or ``logfile-definitions`` file are located.
@@ -126,7 +126,7 @@ Detached mode
 -------------
 
 The ``docker run`` examples above use the ``-it`` option.
-To run multiple instances of COMPAS, an alternative is to use detached mode (`-d`)\ [#f6]_. In detached mode, containers are run in 
+To run multiple instances of COMPAS, an alternative is to use detached mode (`-d`)\ [#f6]_. In detached mode, containers are run in
 the background of the current shell - they do not receive input or display output.
 
 Typing::
@@ -155,5 +155,3 @@ to get the container id of interest, then type::
 .. [#f4] https://docs.docker.com/engine/reference/run/#env-environment-variables
 .. [#f5] https://docs.docker.com/engine/reference/run/
 .. [#f6] https://docs.docker.com/engine/reference/run/#detached--d
-
-   

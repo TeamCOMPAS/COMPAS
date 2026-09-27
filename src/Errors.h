@@ -83,14 +83,14 @@
 //                                      "Floating point exception").
 //
 //                                      This mode is enabled with the option '--fp-error-mode OFF'  (This is the default mode).
-//                             
+//
 //    1: floating-point traps enabled - floating-point traps DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW are enabled.
 //                                      In this mode, when a floating-point operation traps, a SIGFPE is raised and the
 //                                      SIGFPE signal handler is called, and the signal handler raises a runtime_error
 //                                      exception, with a what argument of "FPE" (and in this mode we cannot, and do not,
 //                                      differentiate between DIVBYZERO, INVALID, OVERFLOW, and UNDERFLOW).  The exception
 //                                      raised will cause the execution of the program to halt if it is not caught and
-//                                      managed.  We catch runtime_error exceptions in Star::Evolve() for SSE mode, in 
+//                                      managed.  We catch runtime_error exceptions in Star::Evolve() for SSE mode, in
 //                                      BaseBinaryStar::Evolve() for BSE mode, and in main() for errors that might occur
 //                                      outside the evolution of stars or binaries.
 //

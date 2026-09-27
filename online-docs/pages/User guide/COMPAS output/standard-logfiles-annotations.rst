@@ -5,8 +5,8 @@ COMPAS provides functionality that allows users to annotate standard log files.
 
 The original motivation for log file annotation functionality was to enable users to describe the contents of custom grid files,
 but annotations can be used for any reason.  With the ability to annotate the log files, users can indicate the origin of various
-input data - e.g. the user could indicate what IMF was used to draw initial mass values, or what distribution was used to draw 
-mass ratio (q), etc.  
+input data - e.g. the user could indicate what IMF was used to draw initial mass values, or what distribution was used to draw
+mass ratio (q), etc.
 
 Annotations are written to log files as columns of data (aka datasets in ``HDF5`` files). Annotations are specified via program
 options, and so can be specified on the command line as well as in grid files. Because annotations are written to log files
@@ -51,7 +51,7 @@ Neither header strings, nor annotation strings, may begin with the dash characte
 as option names before passing them through to COMPAS.
 
 COMPAS imposes no limit to the length of an individual annotation header string or annotation string (number of characters), but
-there may be practical limits imposed by the underlying system. 
+there may be practical limits imposed by the underlying system.
 
 
 Using vector option shorthand notation
@@ -78,7 +78,7 @@ example above, if the number of annotations expected, as defined by the number o
 program option is more than 5, then annotations beyond annotation 5 (the last annotation actually specified by the user) will default
 in the same manner as described above.
 
-Spaces in annotation header strings and annotation strings need to be enclosed in quotes, or the shell parser will parse them as 
+Spaces in annotation header strings and annotation strings need to be enclosed in quotes, or the shell parser will parse them as
 separate arguments before passing them through to COMPAS.  If the log file type is specified as TXT, then any spaces in annotation
 header strings and annotation strings need to be enclosed in quotes to avoid the shell parser parsing them as separate arguments, but
 also need to have enclosing quotes propagated to the logfile, or the spaces will be interpreted as delimiters in the log file - in this
@@ -87,7 +87,7 @@ case, the user will need to add enclosing escaped quote characters ('\"') before
     --notes-hdrs [headerstr1,"\"header str 2\"",headerstr3,...,headerStrN]
 
 The shorthand notation is expanded to the notation described above (the COMPAS code just fills in the omitted annotation strings with
-the required defaults), so the caveat mentioned above that neither header strings, nor annotation strings, may begin with the dash 
+the required defaults), so the caveat mentioned above that neither header strings, nor annotation strings, may begin with the dash
 character ('-') applies to the shorthand notation.
 
 Shorthand notation is optional: users may choose to use the notation described above rather than shorthand notation, but in that case
@@ -126,10 +126,10 @@ COMPAS provides functionality to allow users to change which properties are to b
 see :doc:`./standard-logfiles-record-specification`. The property specifier ``PROGRAM_OPTION::NOTES`` can be added to, or removed from,
 any of the log file record specifiers by the use of this functionality.
 
-Furthermore, because at run-time the number of annotation columns is known (information not known at compile-time), the 
+Furthermore, because at run-time the number of annotation columns is known (information not known at compile-time), the
 ``PROGRAM_OPTION::NOTES`` property specifier can (optionally) be indexed to allow the specification of a particular annotation column.
-Thus, ``PROGRAM_OPTION::NOTES`` (with no index) indicates *all* annotations columns, whereas ``PROGRAM_OPTION::NOTES[2]`` indicates 
-annotation column 2 (1-based: the first annotation column is indicated by ``PROGRAM_OPTION::NOTES[1]``). By using the optional index, 
+Thus, ``PROGRAM_OPTION::NOTES`` (with no index) indicates *all* annotations columns, whereas ``PROGRAM_OPTION::NOTES[2]`` indicates
+annotation column 2 (1-based: the first annotation column is indicated by ``PROGRAM_OPTION::NOTES[1]``). By using the optional index,
 users can add specific annotations columns to, or remove them from, any of the log files.
 
 For example, this log file definitions file entry::
@@ -171,7 +171,7 @@ See :doc:`./standard-logfiles-record-specification` for more details.
 The property ``PROGRAM_OPTION::NOTES`` is included in the default record specifier in ``constants.h`` for both the SSE System Parameters
 log file, and the BSE System Parameters log file.
 
-Note that whichever configuration method is used to include annotations in log files, if no annotation headers are specified via the 
+Note that whichever configuration method is used to include annotations in log files, if no annotation headers are specified via the
 ``notes-hdrs`` program option, no annotations will be included in any log file.
 
 
@@ -185,4 +185,3 @@ log file(s). In such situations, it is likely that the annotation headers and st
 for each system in a grid file, and so will be recorded in the ``Run_Details`` file - so removing the ``PROGRAM_OPTION::NOTES`` property
 from the log file record specifications will prevent them from being repeated needlessly in the log files, and they can be retrieved as
 required from the ``Run_Details`` file.
-

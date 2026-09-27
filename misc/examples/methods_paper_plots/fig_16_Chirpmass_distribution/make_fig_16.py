@@ -24,7 +24,7 @@
 #
 #
 # ****
-# ## Data 
+# ## Data
 # The data used for this figure is publicly available at: https://zenodo.org/record/5655483
 #
 # This data set contains the output of 10,000,000 binaries evolved using COMPAS 02.21.00, using adaptive importance sampling (STROOPWAFEL, Broekgaarden et al. 2019), sampling from a metallicity uniform in $\log(Z) \in [10^{-4},0.03]$. More details can be found in `Run_Details.txt`.
@@ -41,7 +41,7 @@
 #
 #
 # ```:::bash
-#     python FastCosmicIntegration.py  --mu0 0.035 --muz -0.23 --sigma0 0.39 --sigmaz 0.0 --alpha 0.0 --weight mixture_weight --zstep 0.01 --sens O3 --m1min 10. --aSF 0.01 --bSF 2.77 --cSF 2.9 --dSF 4.7 
+#     python FastCosmicIntegration.py  --mu0 0.035 --muz -0.23 --sigma0 0.39 --sigmaz 0.0 --alpha 0.0 --weight mixture_weight --zstep 0.01 --sens O3 --m1min 10. --aSF 0.01 --bSF 2.77 --cSF 2.9 --dSF 4.7
 # ```
 #
 #
@@ -60,7 +60,7 @@ import h5py as h5
 import matplotlib.pyplot as plt
 
 from scipy import stats
-import sys 
+import sys
 
 ######################################
 fileLoc    = '/Users/lieke/Downloads/output/'
@@ -98,9 +98,9 @@ File        = h5.File(fileLoc + filename ,'r')
 rate_key = 'Rates_mu00.035_muz-0.23_alpha0.0_sigma00.39_sigmaz0.0'
 ################################################
 ## Read merger rate related data
-DCO_mask                  = File[rate_key]['DCOmask'][()] # Mask from DCO to merging BBH 
+DCO_mask                  = File[rate_key]['DCOmask'][()] # Mask from DCO to merging BBH
 redshifts                 = File[rate_key]['redshifts'][()] # Redshifts at which the rates were calculated
-O1_detection_rate         = File[rate_key]['detection_rateO3'][()] # detection rate for O1 sensitivity 
+O1_detection_rate         = File[rate_key]['detection_rateO3'][()] # detection rate for O1 sensitivity
 
 # Read the DCO masses, Select only merging BBHs
 Mass1              = File['BSE_Double_Compact_Objects']['Mass(1)'][DCO_mask]
@@ -120,7 +120,7 @@ File.close()
 ######################################
 def Mchirp(m1, m2):
     chirp_mass = np.divide(np.power(np.multiply(m1, m2), 3./5.), np.power(np.add(m1, m2), 1./5.))
-    return chirp_mass    
+    return chirp_mass
 # Calculate the chrip mass
 Mchirp = Mchirp(M_moreMassive, M_lessMassive)
 
@@ -153,14 +153,14 @@ colors  = 'grey'
 # -
 
 #################################
-# Nice little progressbar script 
+# Nice little progressbar script
 # to know how far you are with bootstrapping
 def progressbar(it, prefix="", size=60, file=sys.stdout):
     count = len(it)
     def show(j):
         x = int(size*j/count)
         file.write("%s[%s%s] %i/%i\r" % (prefix, "#"*x, "."*(size-x), j, count))
-        file.flush()        
+        file.flush()
     show(0)
     for i, item in enumerate(it):
         yield item
@@ -178,15 +178,15 @@ fig, ax = plt.subplots(figsize = (10,10))
 
 
 ########################
-# Plot the Histogram   
+# Plot the Histogram
 hist, bin_edge = np.histogram(x_vals, weights = Weights, bins = Bins)
-ax.bar(center_bins, hist/binwidth, width= binwidth, color='white', fill=False, edgecolor=colors,lw = 1.) 
+ax.bar(center_bins, hist/binwidth, width= binwidth, color='white', fill=False, edgecolor=colors,lw = 1.)
 
 ########################
 # Add the KDE
 kernel = stats.gaussian_kde(x_vals, bw_method=0.1, weights=Weights)
 # plot the KDE at these x-ticks
-x_KDE = np.arange(0,40,0.5) 
+x_KDE = np.arange(0,40,0.5)
 center_KDEbins = (x_KDE[:-1] + x_KDE[1:])/2.
 # Re-normalise the KDE
 y_vals = kernel(center_KDEbins)*sum(hist)
@@ -201,7 +201,7 @@ ax.fill_between(center_KDEbins, y1=0, y2=y_vals, color=colors, alpha = 0.1)
 if bootstrap:
     indices = np.arange(len(x_vals))
     hist_vals = np.zeros((bootstraps, len(x_KDE)))  #center_bins
-    
+
     for b in progressbar( range(len(hist_vals)), "Bootstrapping: "):
         boot_index = np.random.choice(indices, size=len(indices), replace=True)
 
@@ -213,11 +213,11 @@ if bootstrap:
     # calculate 1- and 2- sigma percentiles
     percentiles = np.percentile(hist_vals, [15.89, 84.1, 2.27, 97.725], axis=0)
     median = np.percentile(hist_vals, [50], axis=0)
-    
-    ax.fill_between(x_KDE, percentiles[0],percentiles[1], alpha=0.4, color=colors, zorder = 11) # 1-sigma
-    ax.fill_between(x_KDE, percentiles[2], percentiles[3],alpha=0.2, color=colors, zorder = 10) # 2-sgima    
 
-    
+    ax.fill_between(x_KDE, percentiles[0],percentiles[1], alpha=0.4, color=colors, zorder = 11) # 1-sigma
+    ax.fill_between(x_KDE, percentiles[2], percentiles[3],alpha=0.2, color=colors, zorder = 10) # 2-sgima
+
+
 #########################################
 # plot values
 ax.set_xlim(0,40)
@@ -232,5 +232,3 @@ plt.show()
 
 
 # -
-
-

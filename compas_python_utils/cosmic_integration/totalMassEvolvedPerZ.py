@@ -74,11 +74,11 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
         IMF breakpoints and slopes
     """
     fbinary_bin_edges = [m1, 0.08, 0.5, 1, 10, m4]
-    
+
     def get_binary_fraction(mass):
         binaryFractions = [0.1, 0.225, 0.5, 0.8, 1.0]
         for i in range(len(fbinary_bin_edges) - 1):
-            if mass < fbinary_bin_edges[0]:  
+            if mass < fbinary_bin_edges[0]:
                 # Mass below lowest binary fraction bin edge (shouldn't happen)
                 return binaryFractions[0]
             if fbinary_bin_edges[i] <= mass < fbinary_bin_edges[i + 1]:
@@ -90,9 +90,9 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
     def integrand_full(mass, f_bin):
         local_f_bin = get_binary_fraction(mass) if f_bin is None else f_bin
         expected_q = quad(lambda q: q * mass_ratio_pdf_function(q), 0, 1)[0]
-        # mass of single stars = (1 - f_bin) * m1 
-        # mass of binaries = f_bin * (1 + <q>) * m1 
-        expected_mass_all_stellar_sys =(1 + local_f_bin * expected_q) * mass * IMF(mass, m1, m2, m3, m4, a12, a23, a34) 
+        # mass of single stars = (1 - f_bin) * m1
+        # mass of binaries = f_bin * (1 + <q>) * m1
+        expected_mass_all_stellar_sys =(1 + local_f_bin * expected_q) * mass * IMF(mass, m1, m2, m3, m4, a12, a23, a34)
         return expected_mass_all_stellar_sys
 
     def integrand_compas(mass, f_bin):
@@ -102,7 +102,7 @@ def get_COMPAS_fraction(m1_low, m1_upp, m2_low, f_bin=None,
         q_min = m2_low / mass
         if q_min >= 1:
             return 0  # No valid secondaries
-        # Integrate (1 + q)P(q) dq over q from q_min to 1, 
+        # Integrate (1 + q)P(q) dq over q from q_min to 1,
         # we get p(q)dq:
         p_qdq = quad(mass_ratio_pdf_function, q_min, 1)[0]
         # and q P(q) dq (= expected_q)
@@ -164,7 +164,7 @@ def totalMassEvolvedPerZ(path, Mlower, Mupper, m2_low, binaryFraction, mass_rati
     # get the mass evolved for each metallicity bin and convert to a total mass using the fraction
     MassEvolvedPerZ = retrieveMassEvolvedPerZ(path)
 
-    totalMassEvolvedPerMetallicity = MassEvolvedPerZ / fraction 
+    totalMassEvolvedPerMetallicity = MassEvolvedPerZ / fraction
 
     return multiplicationFactor, totalMassEvolvedPerMetallicity
 
@@ -230,12 +230,12 @@ def draw_samples_from_kroupa_imf(
 def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     m1_min, m1_max, m2_min, fbin=1.0, imf_mass_bounds=(0.01, 0.08, 0.5, 200.0)):
     """
-    Takes: 
+    Takes:
         m1_min, m1_max, m2_min: COMPAS mass ranges [Msun]
         fbin: binary fraction (if None, use piecewise constant fbin(m1))
         imf_mass_bounds: Kroupa IMF mass bounds [Msun]
     Computes:
-      N_bin_in_COMPAS 
+      N_bin_in_COMPAS
       average_stellar_mass_sys = M_sys,Univ / N_sys,Univ (blue)
       M_sf_Univ_per_N_binary_COMPAS = average_stellar_mass_sys / N_bin_in_COMPAS
 
@@ -245,7 +245,7 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
       Flat mass ratio: P(q)=U(0,1)  =>  P(m2>m2_min | m1) = 1 - m2_min/m1  (for m1 >= m2_min)
     """
     # -------------------------
-    # Kroupa IMF 
+    # Kroupa IMF
     # -------------------------
     m1, m2, m3, m4 = imf_mass_bounds
     continuity_constants = [1.0 / (m2 * m3), 1.0 / m3, 1.0]
@@ -344,4 +344,3 @@ def analytical_star_forming_mass_per_binary_using_kroupa_imf(
     M_sf_Univ_per_N_binary_COMPAS = average_stellar_mass_sys / N_bin_in_COMPAS
 
     return M_sf_Univ_per_N_binary_COMPAS
-

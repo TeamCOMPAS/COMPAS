@@ -68,14 +68,14 @@ class COMPASData(object):
         # By default, we mask for BBHs that merge within a Hubble time, assuming
         # the pessimistic CEE prescription (HG donors cannot survive a CEE) and
         # not allowing immediate RLOF post-CEE
-        
+
         stellar_type_1, stellar_type_2, hubble_flag, dco_seeds = \
             self.get_COMPAS_variables("DoubleCompactObjects", ["Stellar_Type_1", "Stellar_Type_2", "Merges_Hubble_Time", "SEED"])
 
         if types == "CHE_BBH" or types == "NON_CHE_BBH":
             stellar_type_1_zams, stellar_type_2_zams, che_ms_1, che_ms_2, sys_seeds = \
                 self.get_COMPAS_variables("SystemParameters", ["Stellar_Type@ZAMS_1", "Stellar_Type@ZAMS_2", "CH_on_MS_1", "CH_on_MS_2", "SEED"])
-          
+
             che_mask  = np.logical_and.reduce((stellar_type_1_zams == 16, stellar_type_2_zams == 16, che_ms_1 == True, che_ms_2 == True))
             che_seeds = sys_seeds[()][che_mask]
 
@@ -154,7 +154,7 @@ class COMPASData(object):
         Data.close()
 
     def setCOMPASData(self):
-        
+
         primary_masses, secondary_masses, formation_times, coalescence_times, dco_seeds = \
             self.get_COMPAS_variables("DoubleCompactObjects", ["Mass_1", "Mass_2", "Time", "Coalescence_Time", "SEED"])
 
@@ -198,7 +198,7 @@ class COMPASData(object):
         )
 
     def get_COMPAS_variables(self, hdf5_file, var_names):
-        """ 
+        """
             Get a variable or variables from a COMPAS file
             Args:
                 hdf5_file --> [string]                Name of HDF5 subfile (e.g. "DoubleCompactObjects")
@@ -249,7 +249,7 @@ class COMPASData(object):
 
         # only fbin fraction of stars have a secondary (in a binary)
         binary_mask = binary < self.binaryFraction
-        
+
         # assign each a random secondary mass, default 0 because single stars have m2=0 (surprisingly :P)
         secondary_mass = np.zeros(SAMPLES) * u.Msun
         secondary_mass[binary_mask] = primary_mass[binary_mask] * mass_ratio[binary_mask]
@@ -261,14 +261,14 @@ class COMPASData(object):
         primary_mask = np.logical_and(primary_mass >= self.Mlower, primary_mass <= self.Mupper)
         secondary_mask = secondary_mass > self.m2_min
         full_mask = np.logical_and(primary_mask, secondary_mask)
-        
+
         # find the total mass with COMPAS cuts
         total_mass_COMPAS = np.sum(primary_mass[full_mask]) + np.sum(secondary_mass[full_mask])
 
         # use the totals to find the ratio and return the average mass as well
         f_mass_sampled = total_mass_COMPAS / total_mass
         average_mass_COMPAS = total_mass_COMPAS / len(primary_mass[full_mask])
-        
+
         # find the average star forming mass evolved per binary in the Universe
         self.mass_evolved_per_binary = average_mass_COMPAS / f_mass_sampled
 
@@ -277,21 +277,21 @@ class COMPASData(object):
 # ============================================== #
 
 def IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
-    """ 
+    """
         Calculate the fraction of stellar mass between m and m + dm for a three part broken power law.
         Default values follow Kroupa (2001)
             zeta(m) ~ m^(-a_ij)
-        
+
         Args:
             m       --> [float, list of floats] mass or masses at which to evaluate
             mi      --> [float]                 masses at which to transition the slope
             aij     --> [float]                 slope of the IMF between mi and mj
-            
+
         Returns:
             zeta(m) --> [float, list of floats] value or values of the IMF at m
     """
     # calculate normalisation constants that ensure the IMF is continuous
-    b1 = 1 / ( 
+    b1 = 1 / (
                 (m2**(1 - a12) - m1**(1 - a12)) / (1 - a12) \
                 + m2**(-(a12 - a23)) * (m3**(1 - a23) - m2**(1 - a23)) / (1 - a23) \
                 + m2**(-(a12 - a23)) * m3**(-(a23 - a34)) * (m4**(1 - a34) - m3**(1 - a34)) / (1 - a34)
@@ -323,20 +323,20 @@ def CDF_IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
         Calculate the fraction of stellar mass between 0 and m for a three part broken power law.
         Default values follow Kroupa (2001)
             F(m) ~ int_0^m zeta(m) dm
-        
+
         Args:
             m       --> [float, list of floats] mass or masses at which to evaluate
             mi      --> [float]                 masses at which to transition the slope
             aij     --> [float]                 slope of the IMF between mi and mj
-            
+
         Returns:
             zeta(m) --> [float, list of floats] value or values of the IMF at m
         NOTE: this is implemented recursively, probably not the most efficient if you're using this
-                intensively but I'm not and it looks prettier so I'm being lazy ¯\_(ツ)_/¯ 
+                intensively but I'm not and it looks prettier so I'm being lazy ¯\_(ツ)_/¯
     """
 
     # calculate normalisation constants that ensure the IMF is continuous
-    b1 = 1 / ( 
+    b1 = 1 / (
                 (m2**(1 - a12) - m1**(1 - a12)) / (1 - a12) \
                 + m2**(-(a12 - a23)) * (m3**(1 - a23) - m2**(1 - a23)) / (1 - a23) \
                 + m2**(-(a12 - a23)) * m3**(-(a23 - a34)) * (m4**(1 - a34) - m3**(1 - a34)) / (1 - a34)
@@ -364,21 +364,21 @@ def CDF_IMF(m, m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
         return CDF
 
 def inverse_CDF_IMF(U, m1=0.01, m2=0.08, m3=0.5, m4=200, a12=0.3, a23=1.3, a34=2.3):
-    """ 
+    """
         Calculate the inverse CDF for a three part broken power law.
         Default values follow Kroupa (2001)
-        
+
         Args:
             U       --> [float, list of floats] A uniform random variable on [0, 1]
             mi      --> [float]                 masses at which to transition the slope
             aij     --> [float]                 slope of the IMF between mi and mj
-            
+
         Returns:
             zeta(m) --> [float, list of floats] value or values of the IMF at m
-        NOTE: this is implemented recursively, probably not the most efficient if you're using this intensively but I'm not so I'm being lazy ¯\_(ツ)_/¯ 
+        NOTE: this is implemented recursively, probably not the most efficient if you're using this intensively but I'm not so I'm being lazy ¯\_(ツ)_/¯
     """
     # calculate normalisation constants that ensure the IMF is continuous
-    b1 = 1 / ( 
+    b1 = 1 / (
                 (m2**(1 - a12) - m1**(1 - a12)) / (1 - a12) \
                 + m2**(-(a12 - a23)) * (m3**(1 - a23) - m2**(1 - a23)) / (1 - a23) \
                 + m2**(-(a12 - a23)) * m3**(-(a23 - a34)) * (m4**(1 - a34) - m3**(1 - a34)) / (1 - a34)

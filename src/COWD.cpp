@@ -15,8 +15,8 @@ STELLAR_TYPE COWD::EvolveToNextPhase() {
     if (m_OffCenterIgnition) {
         stellarType = STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
     }
-    else {                                         
-        stellarType = m_HeShellDetonation ? ResolveHeSD() : ResolveSNIa(); 
+    else {
+        stellarType = m_HeShellDetonation ? ResolveHeSD() : ResolveSNIa();
     }
     return stellarType;
 }

@@ -21,28 +21,28 @@ class pythonProgramOptions:
         # if COMPAS_EXECUTABLE_PATH is not set (== None) we assume this is an
         # interactive run with python3
         # if COMPAS_EXECUTABLE_PATH is set (!= None) we assume this is a run
-        # inside a docker container - we have different directories inside a 
+        # inside a docker container - we have different directories inside a
         # docker container (src, obj, bin), and the COMPAS executable resides
         # in the bin directory (rather than the src directory)
-        
+
         # Load yaml file with options
         with open(config_file) as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
             config = yaml.load(file, Loader=yaml.FullLoader)
-        
+
         self.booleanChoices = config['booleanChoices']
         self.numericalChoices = config['numericalChoices']
         self.stringChoices = config['stringChoices']
         self.listChoices = config['listChoices']
-                
+
         if self.booleanChoices   is None: self.booleanChoices   = {}
         if self.numericalChoices is None: self.numericalChoices = {}
         if self.stringChoices    is None: self.stringChoices    = {}
         if self.listChoices      is None: self.listChoices      = {}
 
         compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
-        print('compas_executable_override', compas_executable_override)        
+        print('compas_executable_override', compas_executable_override)
 
         if (compas_executable_override is None):
             # Make sure you have set and exported the COMPAS_ROOT_DIR environment variable
@@ -52,7 +52,7 @@ class pythonProgramOptions:
             self.compas_executable = compas_executable_override
 
         # If random_seed_filename is specified, overwrite the random seed from the yaml file
-        if os.path.isfile(random_seed_filename): 
+        if os.path.isfile(random_seed_filename):
             self.numericalChoices['--random-seed'] = int(np.loadtxt(random_seed_filename))
 
         # If grid is specified in pythonProgramOptions(), ignore the values from yaml file
@@ -75,22 +75,22 @@ class pythonProgramOptions:
         # if COMPAS_LOGS_OUTPUT_DIR_PATH is not set (== None) the current working directory
         # is used as the value for the --output-path option
         compas_logs_output_override = os.environ.get('COMPAS_LOGS_OUTPUT_DIR_PATH')
-        
+
         if (compas_logs_output_override is None):
             self.stringChoices['--output-path'] = os.getcwd()
             self.stringChoices['--output-container'] = output_directory   # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
         else:
             self.stringChoices['--output-path'] = compas_logs_output_override
-            self.stringChoices['--output-container'] = output_directory 
-        
-        
+            self.stringChoices['--output-container'] = output_directory
+
+
         # environment variable COMPAS_INPUT_DIR_PATH is used primarily for docker runs
         # if COMPAS_INPUT_DIR_PATH is set (!= None) it is prepended to input filenames
         # (such as grid_filename and logfile_definitions)
         # if COMPAS_INPUT_DIR_PATH is not set (== None) the current working directory
         # is prepended to input filenames
         compas_input_path_override = os.environ.get('COMPAS_INPUT_DIR_PATH')
-        
+
         if self.grid_filename != None:
             if compas_input_path_override == None:
                 self.grid_filename = os.getcwd() + '/' + self.grid_filename
@@ -109,41 +109,41 @@ class pythonProgramOptions:
                 self.logfile_definitions = compas_input_path_override + '/' + self.logfile_definitions
 
         self.makeCommandString()
-                        
+
     def makeCommandString(self):
         """
-        This function generates a dictionary mapping COMPAS options to their specified 
+        This function generates a dictionary mapping COMPAS options to their specified
         values (or empty strings for boolean options). These are then combined into a string
         that can be run directly as a terminal command, or passed to the stroopwafel interface
-        where some of them may be overwritten. Options not to be included in the command 
+        where some of them may be overwritten. Options not to be included in the command
         line should be set to pythons None (except booleans, which should be set to False)
         """
 
         ### Collect all options into a dictionary mapping option name to option value
-        self.command = {'compas_executable' : self.compas_executable} 
+        self.command = {'compas_executable' : self.compas_executable}
 
         for boolKey, boolVal in self.booleanChoices.items():
             if boolVal is True:
-                self.command.update({boolKey: ''}) 
+                self.command.update({boolKey: ''})
             else:
-                self.command.update({boolKey: 'FALSE'}) 
-                
+                self.command.update({boolKey: 'FALSE'})
+
         for numKey, numVal in self.numericalChoices.items():
             if not numVal == None:
-                self.command.update({numKey : str(numVal)})    
-                
+                self.command.update({numKey : str(numVal)})
+
         for strKey, strVal in self.stringChoices.items():
             if not strVal == None:
                 self.command.update({strKey: strVal})
-                
+
         for listKey, listVal in self.listChoices.items():
             if listVal:
                 self.command.update({listKey : ' '.join(map(str, listVal))})
-        
+
         # Ensure the Compas executable is first, and not repeated.
         # Options are non-ordered.
         self.shellCommand = self.command['compas_executable']
-        del self.command['compas_executable'] 
+        del self.command['compas_executable']
         for key, val in self.command.items():
             self.shellCommand += ' ' + key + ' ' + val
 

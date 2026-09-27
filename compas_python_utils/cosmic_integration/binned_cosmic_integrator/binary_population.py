@@ -304,7 +304,7 @@ def generate_mock_population(
 ):
     if filename == "":
         filename = "dco_mock_population.h5"
-    
+
     if m1_min is None or m1_max is None or m2_min is None:
         raise ValueError("m1_min, m1_max, and m2_min must be provided to generate_mock_population")
 

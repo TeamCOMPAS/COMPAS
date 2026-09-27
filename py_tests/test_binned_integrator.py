@@ -65,11 +65,3 @@ def test_binned_cosmic_integration(fake_compas_output, test_archive_dir,):
     fig = detection_matrix.plot()
     fig.suptitle("Binning during FastCosmicIntegrator")
     fig.savefig(os.path.join(test_archive_dir, "binned_detection_matrix_plot_v2.png"))
-
-
-
-
-
-
-
-

@@ -5,7 +5,7 @@ Error catalog (ErrorCatalog.h)
 corresponding error strings for those errors.
 
 To add a new error, add the symbolic name to the ``ERROR`` enum class, and the corresponding error string to the ``ERROR_CATALOG`` map.
- 
+
 The key to the ``ERROR_CATALOG`` map is the symbolic name in the ``ERROR`` enum class.  The map entry is a tuple containing the
 ``ERROR_SCOPE`` associated with the error (see below), and the error string.
 
@@ -29,4 +29,3 @@ The ``THROW_ERROR*`` macros (see :doc:`../../Developer guide/Services/services-e
 A convenience function for retrieving the error text is #defined here:
 
     #define ERR_MSG(x) std::get<1>(ERROR_CATALOG.at(x))
-

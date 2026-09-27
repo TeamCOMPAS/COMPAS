@@ -8,7 +8,7 @@ evolve stars/systems instead of calculating a new timestep at each iteration. Th
 non-comment line of the timesteps file and set the first timestep to that value, then for each iteration during evolution, each
 subsequent non-blank and non-comment line of the timesteps file is read and the timestep for that iteration set to the value read.
 
-Note that COMPAS will use the timestep exactly as read - the timesteps read from the timesteps file are not quantised by COMPAS, and 
+Note that COMPAS will use the timestep exactly as read - the timesteps read from the timesteps file are not quantised by COMPAS, and
 neither will they be truncated to any limit (e.g. ``ABSOLUTE_MINIMUM_TIMESTEP`` from ``constants.h``) or multiplied by any timestep
 multiplier set by the ``timestep-multiplier`` option.  Furthermore, no check will be made after the timestep is taken to limit the
 radial expansion of the star being evolved.
@@ -36,7 +36,7 @@ plain text - COMPAS will read the plain text and convert it to a floating-point 
 
     # timesteps file for my experiment...
     # description of file here
-    
+
     0.201713464000000
     0.201935435000000
 
@@ -60,4 +60,3 @@ plain text - COMPAS will read the plain text and convert it to a floating-point 
 
 
 COMPAS imposes a hard limit of ``1,000,000`` timesteps in a timesteps file.
-

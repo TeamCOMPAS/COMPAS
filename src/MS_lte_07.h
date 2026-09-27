@@ -17,22 +17,22 @@ class MS_lte_07: virtual public BaseStar, public MainSequence {
 public:
 
     MS_lte_07() { m_StellarType = STELLAR_TYPE::MS_LTE_07; };
-    
+
     MS_lte_07(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::MS_LTE_07;                                                                                // Set stellar type
         if (p_Initialise) Initialise();                                                                                         // Initialise if required
     }
 
     MS_lte_07* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        MS_lte_07* clone = new MS_lte_07(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        MS_lte_07* clone = new MS_lte_07(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static MS_lte_07* Clone(MS_lte_07& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        MS_lte_07* clone = new MS_lte_07(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        MS_lte_07* clone = new MS_lte_07(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 

@@ -17,22 +17,22 @@ class MS_gt_07: virtual public BaseStar, public MainSequence {
 public:
 
     MS_gt_07() { m_StellarType = STELLAR_TYPE::MS_GT_07; };
-    
+
     MS_gt_07(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::MS_GT_07;                                                                                                         // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                 // Initialise if required
     }
 
     MS_gt_07* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        MS_gt_07* clone = new MS_gt_07(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        MS_gt_07* clone = new MS_gt_07(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static MS_gt_07* Clone(MS_gt_07& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        MS_gt_07* clone = new MS_gt_07(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        MS_gt_07* clone = new MS_gt_07(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -41,7 +41,7 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                          // Initialise timescales
         // Age for MS_GT_07 is carried over from CH stars switching to MS after spinning down, so not set to 0.0 here
-        
+
         // Initialise core mass, luminosity, radius, and temperature if Brcek core mass prescription is used
         // Only do this once - this should not be done if a CH star spins down and becomes a MS star (when using CHE_MODE::PESSIMISTIC)
         if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&                                                             // Brcek core mass prescription?
