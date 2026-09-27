@@ -656,7 +656,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             if rate_list_names[i] in h_new[new_rate_group].keys():
                 del h_new[new_rate_group][rate_list_names[i]]
             # write rates as a new data set
-            dataNew     = h_new[new_rate_group].create_dataset(rate_list_names[i], data=data)
+            h_new[new_rate_group].create_dataset(rate_list_names[i], data=data)
 
     #Always close your files again ;)
     h_new.close()
@@ -684,10 +684,6 @@ def delete_rates(path, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0., a
     #Open hdf5 file that we will write on
     print('pathToData', path)
     with h5.File(path, 'r+') as h_new:
-        # The rate info is shaped as BSE_Double_Compact_Objects[COMPAS.DCOmask] , len(redshifts)
-        DCO             = h_new['BSE_Double_Compact_Objects']#
-
-        #################################################
         # Name of the group that has the data stored
         new_rate_group = f'Rates_mu0{mu0}_muz{muz}_alpha{alpha}_sigma0{sigma0}_sigmaz{sigmaz}'
         if append_binned_by_z:

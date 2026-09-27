@@ -431,8 +431,6 @@ class calculate_spin_olderCOMPASdata:
         self.M1formedSecond =  (whichSN2==1) # mask that is 1 if the  compact object M1 formed first in the DCO
         # did M2 form in the first SN?
         self.M2formedSecond =  (whichSN2==2)  # mask that is 1 if the compact object M2 formed first in the DCO
-        mask_SN1not1or2 = (whichSN2!=1) & (whichSN2!=2)
-        
         
         self.mWR =  fSN['MassStarSN'][...].squeeze()[maskSNdco][1::2]   # obtain the CO core mass before the SNe
 

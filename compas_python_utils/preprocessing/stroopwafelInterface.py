@@ -146,7 +146,7 @@ def interesting_systems(batch):
             if sample.properties['SEED'] in interesting_systems_seeds:
                 sample.properties['is_hit'] = 1
         return len(dns)
-    except OSError as error:
+    except OSError:
         return 0
 
 def selection_effects(sw):
@@ -181,7 +181,6 @@ def rejected_systems(locations, dimensions):
         num_rejected (int): number of systems which can be rejected
     """
     m1 = dimensions[0]
-    q = dimensions[1]
     a = dimensions[2]
     mass_1 = [location.dimensions[m1] for location in locations]
     mass_2 = [location.properties['Mass_2'] for location in locations]
@@ -252,7 +251,6 @@ def main():
 
         except:
             print("Invalid runSubmit + compas ConfigDefault.yaml file, using default stroopwafel options")
-            userunSubmit = False
 
     print("Output folder is: ", output_folder)
     if os.path.exists(output_folder):

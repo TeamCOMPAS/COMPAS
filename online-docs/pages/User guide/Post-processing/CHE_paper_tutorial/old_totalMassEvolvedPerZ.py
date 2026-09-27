@@ -61,8 +61,6 @@ def invertCDFbrokenPowerLaw(CDF, x1, x2, x3, x4, a1, a2, a3, C1):
     N2 = float(((1./(a2+1)) * C2 * (x3**(a2+1))) - ((1./(a2+1)) * C2 * (x2**(a2+1))))
     N3 = float(((1./(a3+1)) * C3 * (x4**(a3+1))) - ((1./(a3+1)) * C3 * (x3**(a3+1))))
     
-    bottom = N1+N2+N3
-    
     CDFx2 = CDFbrokenPowerLaw(np.array([x2,x2]), x1, x2, x3, x4, a1, a2, a3, C1)[0]
     CDFx3 = CDFbrokenPowerLaw(np.array([x3,x3]), x1, x2, x3, x4, a1, a2, a3, C1)[0]
 
@@ -132,7 +130,6 @@ def createSampleUniverse(binaryFraction=1., x1=0.01, x2=0.08, x3=0.5, x4=200, a1
 
 def inverseCDF(C, CDF, index, xmin, xmax):
     #CDF sincle powerlaw
-    a =  (1./(index + 1)) * C * CDF**(index+1)
     b =  (1./(index + 1)) * C * xmin**(index+1)
     c =  (1./(index + 1)) * C * xmax**(index+1)
     top    = ((CDF * (c-b))+b)*(index + 1)

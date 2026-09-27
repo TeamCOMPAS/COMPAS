@@ -14,7 +14,7 @@ def sanityChecks(h_old, filename, columns, seeds):
 
     for column in columns:
         try:
-            test = data[column]
+            data[column]
         except:
             raise ValueError(f"column {column} does not exist in {filename}")
 
