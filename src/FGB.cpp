@@ -132,7 +132,7 @@ double FGB::CalculateTauOnPhase() const {
 double FGB::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not) 
+    double dtk = utils::Compare(p_Time, timescales(tMx_FGB)) <= 0       // ah because timescales[4,5,6] are not calculated yet   JR: todo: ?but... timescales[4] is used if this is true...? (and 5 if not)
             ? 0.02 * (timescales(tinf1_FGB) - p_Time)
             : 0.02 * (timescales(tinf2_FGB) - p_Time);
 
@@ -183,7 +183,7 @@ STELLAR_TYPE FGB::ResolveEnvelopeLoss(bool p_Force) {
         m_CoreMass   = m_HeCoreMass;
         m_Mass       = m_CoreMass;
         m_COCoreMass = 0.0;
-        
+
         if (utils::Compare(m_Mass0, massCutoffs(MHeF)) < 0) {                                       // Star evolves to Helium White Dwarf
 
             stellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;

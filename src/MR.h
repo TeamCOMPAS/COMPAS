@@ -15,22 +15,22 @@ class MR: virtual public BaseStar, public Remnants {
 public:
 
     MR() { m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT; };
-    
+
     MR(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), Remnants(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::MASSLESS_REMNANT;                                                     // Set stellar type
         if (p_Initialise) Initialise();                                                                     // Initialise if required
     }
 
     MR* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        MR* clone = new MR(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        MR* clone = new MR(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static MR* Clone(MR& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        MR* clone = new MR(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        MR* clone = new MR(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -53,7 +53,7 @@ protected:
     // member functions
    	 double     CalculateMomentOfInertia() const        { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
    	 double     CalculateMomentOfInertiaAU() const      { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0
-    
+
      double     ChooseTimestep(const double p_Time) const { return std::numeric_limits<double>::max(); }                                                              // Can take arbitrarily long time steps for massless remnants -- nothing is happening
 
      void       SetPulsarParameters() const { }                                                             // NO-OP

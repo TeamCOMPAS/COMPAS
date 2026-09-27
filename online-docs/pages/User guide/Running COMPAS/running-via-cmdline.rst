@@ -7,10 +7,10 @@ output by writing plain text to the terminal. COMPAS reads input files where nec
 and a log file definitions file (see :doc:`../COMPAS output/standard-logfiles-record-specification`), and produces output files
 (see :doc:`../COMPAS output/output`), but these are not interactive.
 
-Command-line applications accept interactive input from the user in a number of ways: one of those is via command-line switches and 
-arguments, or, more generally, command-line options. This is the method COMPAS uses to interact with the user.  
+Command-line applications accept interactive input from the user in a number of ways: one of those is via command-line switches and
+arguments, or, more generally, command-line options. This is the method COMPAS uses to interact with the user.
 
-A few example COMPAS runs, using a small sample of available program option, are shown below. For detailed information regarding program 
+A few example COMPAS runs, using a small sample of available program option, are shown below. For detailed information regarding program
 option use, and a full list of program options available including their default values see :doc:`../Program options/program-options`.
 
 

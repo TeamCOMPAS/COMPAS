@@ -7,7 +7,7 @@
 //
 // To add a new error, add the symbolic name to the ERROR enum class, and the corresponding error string
 // to the ERROR_CATALOG map.
-// 
+//
 // The key to the ERROR_CATALOG map is the symbolic name in the ERROR enum class.  The map entry is a
 // tuple containing the ERROR_SCOPE associated with the error (see below), and the error string.
 
@@ -42,7 +42,7 @@ enum class ERROR: int {
     ADDED_EXCESS_AM_TO_STARS,                                       // attempted to add more angular momentum to stars than was available in a binary
     AMBIGUOUS_REMNANT_MASS_PRESCRIPTION,                            // remnant mass unclear from available parameters
     ARGUMENT_RANGE_COUNT_EXPECTED_ULINT,                            // expected an unsigned long integer for range count for option
-    ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option 
+    ARGUMENT_RANGE_NOT_SUPPORTED,                                   // argument range not supported for option
     ARGUMENT_RANGE_NUM_PARMS,                                       // argument range requires exactly three parameters
     ARGUMENT_RANGE_PARMS_EXPECTED_FP,                               // expected a floating point number for range start and increment for option
     ARGUMENT_RANGE_PARMS_EXPECTED_INT,                              // expected an integer for range parameters for option
@@ -168,7 +168,7 @@ enum class ERROR: int {
     UNKNOWN_KICK_MAGNITUDE_DISTRIBUTION,                            // unknown kick magnitude distribution
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                             // unknown LBV mass loss prescription
-    UNKNOWN_MALTSEV_MODE,                                           // unknown maltsev mode 
+    UNKNOWN_MALTSEV_MODE,                                           // unknown maltsev mode
     UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,                   // unknown mass transfer accretion efficiency prescription
     UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,                  // unknown mass transfer angular momentum loss prescription
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription

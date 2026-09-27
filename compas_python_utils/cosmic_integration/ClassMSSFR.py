@@ -15,8 +15,8 @@ class MSSFR(object):
 
     It combines a
     -  MZ -relation     : galaxy stellar mass - metallicity relatiion
-                          This translates a metallicity to a 
-                          a galaxy stellar mass which has the same 
+                          This translates a metallicity to a
+                          a galaxy stellar mass which has the same
                           average metallicity.
     -  SFR-prescription : Star formation rate prescription.
                           Amount of solar mass that goes into forming
@@ -26,24 +26,24 @@ class MSSFR(object):
 
 
     The entire GSMF is the mass in all stars in all galaxies. Hence the fraction of the GSMF
-    is the fraction of the stellar mass in all galaxies at that time. 
+    is the fraction of the stellar mass in all galaxies at that time.
     We assume that the average cosmic SFR spreads evenly among all the galaxy stellar mass.
     Meaning a galaxy with a stellar mass twice that of another galaxy, has twice
     the SFR. Hence this method does not include local star burts (SMC/LMC for example)
-    
+
 
     The overall idea. Given a metallicity bin with upper and lower bound.
     Translate this to a galaxy stellar mass bin with upper and lower bound using
-    a MZ-relation. Then find the fraction of the GSMF density function that is taken by 
-    this glaxy stellar mass bin. We assumed that the fraction of the stellar mass is 
+    a MZ-relation. Then find the fraction of the GSMF density function that is taken by
+    this glaxy stellar mass bin. We assumed that the fraction of the stellar mass is
     proportional to the fraction of the SFR. Hence we multiply this fraction by the SFR.
-    Note that because we take "cosmological averages" this method does not take into 
+    Note that because we take "cosmological averages" this method does not take into
     account galaxy specific metallicity distributions.
 
 
     Alternatively we can also directly use a metallicity density/probability function
     and calculate the fraction occupied by the metallicity bin in this distribution. This
-    is the logNormal distribution, which is still multiplied by the SFR and a 
+    is the logNormal distribution, which is still multiplied by the SFR and a
     'cosmological average'.
 
     """
@@ -58,8 +58,8 @@ class MSSFR(object):
 
         #With regards to metallicity binning the integral
         self.metallicityGrid       = metallicityGrid
-        self.metallicityBinEdges   = None  
-        self.binInLogSpace         = binInLogSpace 
+        self.metallicityBinEdges   = None
+        self.binInLogSpace         = binInLogSpace
         #lower limit is not zero to avoid divide by zero error
         self.metallicityLowerLimit = metallicityLowerLimit
         self.metallicityUpperLimit = metallicityUpperLimit
@@ -83,7 +83,7 @@ class MSSFR(object):
 
         #If you use MZ and GSMF relations
         self.GSMFprescription      = None
-        # Current Options = Panter et al. (2004) Single, 
+        # Current Options = Panter et al. (2004) Single,
         #                   Furlong et al. (2015) Single,
         #                   Furlong et al. (2015) Double
         self.ZMprescription        = None
@@ -92,14 +92,14 @@ class MSSFR(object):
         #                   Langer et al. +offset (2006)
 
 
-        #if you use a logNormal    
+        #if you use a logNormal
         self.logNormalPrescription = None
         self.customLogNormal       = [None, None, None] #[Z0, alpha, sigma]
 
         #Current Options  = Phenomenological
 
         # SFR prescriptions
-        self.SFRprescription       = None 
+        self.SFRprescription       = None
         self.customSFR             = [None, None, None, None] #[a,b,c,d] see function customSFR
         #Current Options  = Madau et al. (2014)
         #                   Madau et al. (2017)
@@ -118,8 +118,8 @@ class MSSFR(object):
             #Have not defined a cosmology jet use a default
             self.cosmology = WMAP9 #as cosmo
 
-        
-        
+
+
     def calculateMetallicityBinEdges(self):
         """Calculates the bins used in the Riemann sum over metallicities
 
@@ -132,7 +132,7 @@ class MSSFR(object):
                    #convert to "normal" numbers.
         else:
             b=  (self.metallicityGrid[1:] - self.metallicityGrid[:-1])/2. \
-                + self.metallicityGrid[:-1] 
+                + self.metallicityGrid[:-1]
 
         self.metallicityBinEdges = np.zeros(len(b)+2)
 
@@ -145,7 +145,7 @@ class MSSFR(object):
 
 
 
-    
+
 
 
 
@@ -155,7 +155,7 @@ class MSSFR(object):
 
     def LogOH12vsLogZZsun(self, value, inValue='logOH12'):
         """
-        This function translates between 
+        This function translates between
 
         logOH12  = number density of oxygen to hyrdogen
         logZZsun = metallicity mass fraction in solar units
@@ -187,33 +187,33 @@ class MSSFR(object):
         Returns the fraction of the SFR.
         It combines a
         -  MZ -relation     : galaxy stellar mass - metallicity relatiion
-                              This translates a metallicity to a 
-                              a galaxy stellar mass which has the same 
+                              This translates a metallicity to a
+                              a galaxy stellar mass which has the same
                               average metallicity.
         -  GSMF function    : Galaxy stellar mass function
                               A density function of the distribution of galaxy stellar masses.
 
         The entire GSMF is the mass in all stars in all galaxies.
         Hence the fraction of the GSMF is the fraction of the stellar
-        mass in all galaxies at that time. We assume that the 
+        mass in all galaxies at that time. We assume that the
         average cosmic SFR spreads evenly among all the galaxy stellar mass.
         Meaning a galaxy with a stellar mass twice that of another galaxy, has twice
         the SFR. Hence this method does not include local star burts (SMC/LMC for example)
-        
+
         The overall idea. Given a metallicity bin with upper and lower bound.
         Translate this to a galaxy stellar mass bin with upper and lower bound using
-        a MZ-relation. Then find the fraction of the GSMF density function that is taken by 
-        this glaxy stellar mass bin. We assumed that the fraction of the stellar mass is 
+        a MZ-relation. Then find the fraction of the GSMF density function that is taken by
+        this glaxy stellar mass bin. We assumed that the fraction of the stellar mass is
         proportional to the fraction of the SFR. Hence we multiply this fraction by the SFR.
-        Note that because we take "cosmological averages" this method does not take into 
+        Note that because we take "cosmological averages" this method does not take into
         account galaxy specific metallicity distributions.
 
         """
         z = np.copy(redshift) #found that the mask z>4 overwrites input
 
         #these prescriptions work in metallicities of unit solar
-        Zupper_Zsun = Zupper/ self.solarMetallicity 
-        Zlower_Zsun = Zlower/ self.solarMetallicity 
+        Zupper_Zsun = Zupper/ self.solarMetallicity
+        Zlower_Zsun = Zlower/ self.solarMetallicity
 
         #Not compressed coding but easier to read
 
@@ -226,7 +226,7 @@ class MSSFR(object):
             Mlower = 10**self.Langer2005ZM(Zlower_Zsun, z)
         elif self.ZMprescription == 'Langer et al. +offset (2006)':
             Mupper = 10**self.Langer2005OffsetZM(Zupper_Zsun, z)
-            Mlower = 10**self.Langer2005OffsetZM(Zlower_Zsun, z)          
+            Mlower = 10**self.Langer2005OffsetZM(Zlower_Zsun, z)
         elif self.ZMprescription == 'Savaglio2005Bisector':
             print("Danger Savaglio2005Bisector not fully working not tested")
             Mupper = 10**self.Sava2005BisectorZM(Zupper_Zsun, z)
@@ -235,13 +235,13 @@ class MSSFR(object):
             print("Danger Savaglio2005Bisector not fully working turnover in function")
             Mupper = 10**self.Savaglio2005ZM(Zupper_Zsun, z)
             Mlower = 10**self.Savaglio2005ZM(Zlower_Zsun, z)
-        else:     
+        else:
              raise ValueError("The mass-metallicity prescription is not recognised.\n"+\
                               "Current (trusted) options are:\n"+\
                               "Ma et al. (2016), Langer et al. (2006),"+\
                               "Langer et al. +offset (2006)\n"+\
                               "Apologies but I will now break")
-        
+
         #To integrate the schechter function we need to know
         #- alpha which governs the power law slope
         #- phi for the normalization (in case of the double schechter)
@@ -289,7 +289,7 @@ class MSSFR(object):
     #                                                   #
     #           GSMF Schechter functions                #
     #                                                   #
-    #####################################################  
+    #####################################################
     def lineairFitSingleSchechterFurlong(self, z):
 
         try:
@@ -297,14 +297,14 @@ class MSSFR(object):
         except:
             z  = np.array([z])
             nr = 1
-            
+
         fitlogMc        = np.array([11.14, 11.11, 11.06, 10.91, 10.78, 10.60])
         fitphi1          = np.array([0.84, 0.84, 0.74, 0.45, 0.22, 0.12])*10**(-3)
         fita1            = np.array([-1.43, -1.45, -1.48, -1.57, -1.66, -1.74])
 
-        
+
         fitredshifts = np.array([0.1, 0.5, 1.0, 2.0, 3.0, 4.0])
-        
+
         fitvalues = [fitlogMc, fitphi1, fita1]
         thresholds = [0.0, 0.5, 1.0, 2.0, 3.0, 10000000]
         r          = []
@@ -324,7 +324,7 @@ class MSSFR(object):
                     interpolatedValue  = values[nrz] + np.multiply(dz, dydz[nrz])
                 yvalues[mask] =  interpolatedValue
             r.append(yvalues)
-            
+
         logMc, phi1, a1 = r
         #Ignoring phi fit since we do not use the implicit SFR values
         phi1 = np.ones(len(a1))
@@ -343,16 +343,16 @@ class MSSFR(object):
             z  = np.array([z])
             nr = 1
 
-        
+
         fitredshifts = np.array([0.1, 0.5, 1.0, 2.0, 3.0, 4.0])
         fitlogMc     = np.array([10.95, 10.88, 10.74, 10.44, 10.19, 10.00])
         fitphi1      = np.array([1.45, 1.61, 1.51, 1.06, 0.63, 0.24])*10**-3
         fita1        = np.array([-1.31, -1.24, -0.98, -0.25, 0.23, 0.43])
         fitphi2      = np.array([0.0,  0.08,   0.48, 0.8, 0.61, 0.43])*10**-3
         fita2        = np.array([-2.22, -1.79, -1.62, -1.58, -1.64, -1.69])
-        
+
         ratioPhi1Phi2 = np.divide(fitphi2, fitphi1) #Do it in this order because phi2 is zero
-        
+
         fitvalues  = [fitlogMc, fitphi1, fita1, fitphi2, fita2, ratioPhi1Phi2]
         thresholds = [0.0, 0.5, 1.0, 2.0, 3.0, 10000000]
         r          = []
@@ -399,7 +399,7 @@ class MSSFR(object):
         #http://iopscience.iop.org/article/10.1086/500363/meta
         #Note that this is redshift independent!
         logMc = np.log10(7.64*(10**10))
-        phi   = 7.8* (10**(-3)) 
+        phi   = 7.8* (10**(-3))
         alpha = -1.16
         return np.ones(len(z))*logMc, np.ones(len(z))*phi, np.ones(len(z))*alpha
 
@@ -408,7 +408,7 @@ class MSSFR(object):
     #           ZM - relations (inverse of papers)      #
     #           MZ-relations outside class bottom file  #
     #                                                   #
-    #####################################################  
+    #####################################################
     def Ma2015ZM(self, ZZSun, z):
         logM = ((np.log10(ZZSun)  -7.95 + self.logOH12sun -0.93*\
                (np.exp(-0.43*z)) )/0.35  +10.)
@@ -416,7 +416,7 @@ class MSSFR(object):
 
     def Langer2005ZM(self, ZZsun, z):
         Mstar  =  7.64*10**10
-        logM   =  np.log10((((ZZsun*(10**(0.3*z)))**2)*Mstar)) 
+        logM   =  np.log10((((ZZsun*(10**(0.3*z)))**2)*Mstar))
         return logM
 
     def Langer2005OffsetZM(self, ZZsun, z):
@@ -438,7 +438,7 @@ class MSSFR(object):
         logOH12 =  self.LogOH12vsLogZZsun(logZZsun, inValue='logZZsun')
         a       = -0.09649
         b       = -0.4030*logTh + 2.5315
-        c       = -7.5903 -logOH12  + 5.1733*logTh - 0.3944*logTh*logTh 
+        c       = -7.5903 -logOH12  + 5.1733*logTh - 0.3944*logTh*logTh
         d       = b*b - 4*a*c
         mask1   = d<0.
         mask2   = np.logical_not(mask1)
@@ -508,23 +508,23 @@ class MSSFR(object):
         fingerspitzengefuhl Cosmic integration paper
         """
         SFR = 0.01 * ((1+z)**2.77) / (1 + ((1+z)/2.9)**4.7) * 1e9 #[1e9 for GPc-3]
-        return SFR # [Msun yr-1 Gpc-3] in comoving volume        
+        return SFR # [Msun yr-1 Gpc-3] in comoving volume
 
     def SFR_Custom(self, z):
         """
         Custom SFR same functional form as Madau et al
         """
-        a = self.customSFR[0]            
-        b = self.customSFR[1] 
-        c = self.customSFR[2] 
-        d = self.customSFR[3] 
+        a = self.customSFR[0]
+        b = self.customSFR[1]
+        c = self.customSFR[2]
+        d = self.customSFR[3]
         SFR = a * ((1+z)**b) / (1 + ((1+z)/c)**d) * 1e9 #[1e9 for GPc-3]
         return SFR # [Msun yr-1 Gpc-3] in comoving volume
     #################################################
     #                                               #
     #           MZ - relations                      #
     #                                               #
-    #################################################   
+    #################################################
 
     def Tremmonti2004MZ(self, logM, z):
         #z=0.1  validity 8.5 < logM  < 11.5
@@ -609,7 +609,7 @@ class MSSFR(object):
         CDFUpper = 0.5 + 0.5 * scipy.special.erf(Xupper)
         Xlower   = (np.log(Zlower) - mu)/float(np.sqrt(2)*sigma)
         CDFLower =  0.5 + 0.5 * scipy.special.erf(Xlower)
-        fraction = CDFUpper - CDFLower 
+        fraction = CDFUpper - CDFLower
         return fraction
 
 
@@ -629,7 +629,7 @@ class MSSFR(object):
         #independent of metallicity so we can do all at once
         SFR        = np.zeros(len(agesBirth))
         SFR[mask]  = self.returnSFR(redshiftBirth[mask], agesBirth[mask])
-        #The calculation of the fraction is done such that it does 
+        #The calculation of the fraction is done such that it does
         #a single metallicity bin at the time
         fractions = np.zeros(len(agesBirth))
 
@@ -655,7 +655,7 @@ class MSSFR(object):
 
         print("""
         Default instance:
-        self.SFRprescription       = None 
+        self.SFRprescription       = None
 
         pass string
         Current Options  = 'Madau et al. (2014)'
@@ -667,8 +667,8 @@ class MSSFR(object):
         If you use Custom SFR also set the constants
         you want to use
 
-        self.customSFR = [a,b,c,d] 
-        
+        self.customSFR = [a,b,c,d]
+
         which are used in a Madau et al like formula (see source code)
 
         """)
@@ -698,7 +698,7 @@ class MSSFR(object):
 
         Default instance
         self.GSMFprescription      = None
-        Current Options = Panter et al. (2004) Single, 
+        Current Options = Panter et al. (2004) Single,
                           Furlong et al. (2015) Single,
                           Furlong et al. (2015) Double
         """)
@@ -708,7 +708,7 @@ class MSSFR(object):
 
 
         print("""
-        If you use Log normal 
+        If you use Log normal
         i.e. self.Zprescription    = 'logNormal'
 
         Default instance
@@ -716,8 +716,8 @@ class MSSFR(object):
         Current Options = 'Neijssel Phenomenological'
                           'Custom Phenomenological'
 
-        If you use Custom Phenomenological remember to 
-        additionally set 
+        If you use Custom Phenomenological remember to
+        additionally set
 
         self.customLogNormal = [Z0, alpha, sigma]
         """)

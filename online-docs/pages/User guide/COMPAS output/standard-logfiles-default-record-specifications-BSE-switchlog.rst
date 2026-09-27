@@ -31,7 +31,7 @@ Note that the BSE SwitchLog file has the following columns automatically appende
 **STAR_SWITCHING**
 
 .. list-table::
-   :widths: 20 80 
+   :widths: 20 80
    :header-rows: 0
    :class: aligned-text
 
@@ -47,7 +47,7 @@ Note that the BSE SwitchLog file has the following columns automatically appende
 **SWITCHING_FROM**
 
 .. list-table::
-   :widths: 20 80 
+   :widths: 20 80
    :header-rows: 0
    :class: aligned-text
 
@@ -63,7 +63,7 @@ Note that the BSE SwitchLog file has the following columns automatically appende
 **SWITCHING_TO**
 
 .. list-table::
-   :widths: 20 80 
+   :widths: 20 80
    :header-rows: 0
    :class: aligned-text
 
@@ -79,7 +79,7 @@ Note that the BSE SwitchLog file has the following columns automatically appende
 **IS_MERGER**
 
 .. list-table::
-   :widths: 20 80 
+   :widths: 20 80
    :header-rows: 0
    :class: aligned-text
 
@@ -92,5 +92,5 @@ Note that the BSE SwitchLog file has the following columns automatically appende
    * - Header String:
      - "IS_MERGER"
 
-These columns will always be automatically appended to each BSE Switch Log record: they cannot be removed via the log file record 
+These columns will always be automatically appended to each BSE Switch Log record: they cannot be removed via the log file record
 specifications file.

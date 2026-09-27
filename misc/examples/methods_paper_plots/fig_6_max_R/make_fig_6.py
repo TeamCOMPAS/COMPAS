@@ -67,28 +67,28 @@ def gather_maximum_radius_data(folder, files, max_ev_time=13700.0):
                                                                                "Time",
                                                                                "Stellar_Type(1)",
                                                                                "Radius(1)"])
-        
+
         # change MS < 0.7 to just MS
         stellar_type[stellar_type == 0] = 1
 
         # store the mass
         masses[i] = m_1[0]
-        
+
         # limit evolution time
         time_limit = time < max_ev_time
         stellar_type = stellar_type[time_limit]
         radius = radius[time_limit]
-        
+
         # find maximum radius for each stellar type
         for st in range(1, len(stellar_types)):
             radius_at_st = radius[stellar_type == st]
             if len(radius_at_st) > 0:
                 maximum_radius[st - 1][i] = np.max(radius_at_st)
-            
+
             # store ZAMS radius
             if st == 1:
                 R_ZAMS[i] = radius_at_st[0]
-            
+
     return masses, maximum_radius, R_ZAMS
 
 
@@ -119,7 +119,7 @@ def plot_max_R(masses, R_ZAMS, max_R, Z, mass_label_list,
                mass_label_loc=0.35, zloc=(0.98, 0.02), stellar_type_list=True,
                fig=None, ax=None, show=True):
     """ plot the maximum radius of each stellar type
-    
+
     Parameters
     ----------
     masses : `float/array`
@@ -148,13 +148,13 @@ def plot_max_R(masses, R_ZAMS, max_R, Z, mass_label_list,
 
     fig : `figure`, optional
         Matplotlib figure to, by default None
-    
+
     ax : `axis`, optional
         Matplotlib axis to use, by default None
-    
+
     show : `bool`, optional
         Whether to immediately show the plot or just return it, by default True
-    
+
     """
     if fig is None or ax is None:
         fig, ax = plt.subplots(1, figsize=(10, 8))
@@ -164,14 +164,14 @@ def plot_max_R(masses, R_ZAMS, max_R, Z, mass_label_list,
 
     # work out the top of the maximum radius plot
     top = np.maximum(np.maximum(max_R[3], max_R[4]), max_R[5])
-    
+
     # fill the areas of case A,B,C mass transfer
     mask = masses > mass_label_list[0][0]
     ax.fill_between(masses[mask], np.zeros(len(R_ZAMS))[mask], top[mask], color="white", zorder=2)
     ax.fill_between(masses[mask], R_ZAMS[mask], max_R[0][mask], color=stellar_types[1]["colour"], alpha=0.1, zorder=3)
     ax.fill_between(masses[mask], max_R[0][mask], max_R[3][mask], color=stellar_types[2]["colour"], alpha=0.1, zorder=3)
-    ax.fill_between(masses[mask], max_R[3][mask], top[mask], color=stellar_types[4]["colour"], alpha=0.1, zorder=3)    
-    
+    ax.fill_between(masses[mask], max_R[3][mask], top[mask], color=stellar_types[4]["colour"], alpha=0.1, zorder=3)
+
     # plot each maximum radius track
     for st in range(1, 7):
         # for most of them only plot the line when it is above its predecessor
@@ -180,7 +180,7 @@ def plot_max_R(masses, R_ZAMS, max_R, Z, mass_label_list,
         # but for Helium stars plot everything
         else:
             mask = np.repeat(True, len(max_R[st - 1]))
-        
+
         ax.plot(masses[mask], max_R[st - 1][mask], color=stellar_types[st]["colour"], label=stellar_types[st]["short"], lw=2, zorder=5)
 
     ax.set_xscale("log")
@@ -262,7 +262,7 @@ ylims = (np.min([axes[0].get_ylim()[0], axes[1].get_ylim()[0]]),
          np.max([axes[0].get_ylim()[1], axes[1].get_ylim()[1]]))
 for ax in axes:
     ax.set_ylim(ylims)
-    
+
 # hide the yaxis stuff for the right panel
 axes[1].set_axisbelow(False)
 axes[1].tick_params(axis="y", which="both", left=True, right=True, direction="in")

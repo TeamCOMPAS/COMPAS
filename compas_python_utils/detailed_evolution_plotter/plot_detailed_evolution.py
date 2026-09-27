@@ -1,5 +1,5 @@
 ###################################################################
-#                                                                 #                                                               
+#                                                                 #
 #  Plot the detailed evolution of a COMPAS run                    #
 #                                                                 #
 ###################################################################
@@ -24,7 +24,7 @@ def main():
     parser.add_argument('--outdir', type=str, default='.', help='Path to the directory to save the figures')
     parser.add_argument('--dont-show', action='store_false', help='Dont show the plots')
     args = parser.parse_args()
-    
+
     run_main_plotter(args.data_path, outdir=args.outdir, show=args.dont_show, use_latex=True)
 
 
@@ -131,7 +131,7 @@ def makeDetailedPlots(Data=None, events=None, outdir='.', show=True, use_latex=T
 
     if outdir is not None:
         safe_save_figure(fig, f'{outdir}/detailedEvolutionPlot.png', bbox_inches='tight', pad_inches=0, format='png')
-    
+
     return fig
 
 
@@ -267,7 +267,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
     ax.set_yscale('log')
 
     # Get the default x and y limits
-    xlim = ax.get_xlim() 
+    xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
     # Add lines of const radii
@@ -287,12 +287,12 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
         logymin = np.log10(ylim[0])
         logymax = np.log10(ylim[1])
         logyrange = logymax - logymin
-        
+
         logLbot = logymin + 0.1 * logyrange              # place labels some fraction of the y-axis up the plot
 
-        Lbot = 10**logLbot 
-        Trgt = xlim[0] * 2                              
-        
+        Lbot = 10**logLbot
+        Trgt = xlim[0] * 2
+
         Tbot = np.sqrt(np.sqrt(Lbot / (R * R))) * 6e3   # K
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
@@ -343,7 +343,7 @@ def plotVanDenHeuvel(events=None, outdir='.', use_latex=True):
         axs[ii].yaxis.set_label_position("right")
         plt.subplots_adjust(hspace=0)
 
-        if (ii == 0) or (ii == num_events - 1): 
+        if (ii == 0) or (ii == num_events - 1):
             if use_latex:
                 pltString = "$t$ = {:.1f} Myr, $a$ = {:.1f} $R_\odot$ \n $M_1$ = {:.1f} $M_\odot$, $M_2$ = {:.1f} $M_\odot$ \n" + \
                             events[ii].eventString
@@ -404,13 +404,13 @@ def space_out(original_vals, min_separation=None):
     """
     This function takes a sorted array of floats (in this case, event times)
     and spaces them out from each other to have a minimum separation min_separation.
-    
+
     The purpose of this is so that the event letters don't overlap on the plot.
 
-    Idea of this function: for each pair which is too close, subtract off 
-    some amount (nudge) from the lower, add the same amount to the upper, 
-    and do this over the whole range. For big clumps, the middle ones won't move 
-    (+/- will cancel out), but as the outer ones move away, the inner ones will 
+    Idea of this function: for each pair which is too close, subtract off
+    some amount (nudge) from the lower, add the same amount to the upper,
+    and do this over the whole range. For big clumps, the middle ones won't move
+    (+/- will cancel out), but as the outer ones move away, the inner ones will
     have room to stretch out.
     """
 
@@ -429,9 +429,9 @@ def space_out(original_vals, min_separation=None):
 
 
 ###########################################################
-### 
+###
 ### Evolutionary Events
-### 
+###
 ###########################################################
 
 
@@ -713,9 +713,9 @@ class allEvents(object):
 
 
 ###########################################################
-### 
+###
 ### Printing events
-### 
+###
 ###########################################################
 
 

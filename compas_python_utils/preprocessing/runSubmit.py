@@ -84,7 +84,7 @@ class pythonProgramOptions:
         if (compas_logs_output_override is None):
             self.stringChoices['--output-path'] = os.getcwd()
             # names the directory to be created and in which log files are created.  Default in COMPAS is "COMPAS_Output"
-            self.stringChoices['--output-container'] = output_directory  
+            self.stringChoices['--output-container'] = output_directory
         else:
             self.stringChoices['--output-path'] = compas_logs_output_override
             self.stringChoices['--output-container'] = output_directory

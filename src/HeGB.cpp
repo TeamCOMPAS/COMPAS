@@ -94,7 +94,7 @@ double HeGB::CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosi
  *
  * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
- * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
+ * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.
  * Returns stellr type to which star should evolve based on radius calculated.
  *
  *
@@ -207,7 +207,7 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
     double LtHe  = HeMS::CalculateLuminosityAtPhaseEnd_Static(p_Mass);
     double tinf1 = p_tHeMS + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW(gbParams(D) / LtHe, p1_p));
     double tx    = tinf1 - (tinf1 - p_tHeMS) * PPOW((LtHe / gbParams(Lx)), p1_p);
-    
+
     if (utils::Compare(p_Time, tx) > 0) {
         double q1    = gbParams(q) - 1.0;
         double tinf2 = tx + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW(gbParams(B) / gbParams(Lx), q1 / gbParams(q)));
@@ -231,18 +231,18 @@ double HeGB::CalculateCoreMassOnPhase_Static(const double      p_Mass,
  * Assumes this star is the donor; relevant accretor details are passed as parameters.
  * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
- * double HeGB::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
+ * double HeGB::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate)
  *
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Critical mass ratio for unstable MT 
+ * @return                                      Critical mass ratio for unstable MT
  */
 double HeGB::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
     double qCrit;
-                                                                                                                            
+
     qCrit = p_AccretorIsDegenerate
                 ? OPTIONS->MassTransferCriticalMassRatioHeliumGiantDegenerateAccretor()     // degenerate accretor
                 : OPTIONS->MassTransferCriticalMassRatioHeliumGiantNonDegenerateAccretor(); // non-degenerate accretor
-                                                                                                                        
+
     return qCrit;
 }

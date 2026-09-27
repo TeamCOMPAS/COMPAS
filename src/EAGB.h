@@ -17,22 +17,22 @@ class EAGB: virtual public BaseStar, public CHeB {
 public:
 
     EAGB() { m_StellarType = STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH; };
-    
+
     EAGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), CHeB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH;                                                                                                    // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                 // Initialise if required
     }
 
     EAGB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        EAGB* clone = new EAGB(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        EAGB* clone = new EAGB(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static EAGB* Clone(EAGB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        EAGB* clone = new EAGB(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        EAGB* clone = new EAGB(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 

@@ -11,7 +11,7 @@ support different types of records in the detailed output files (BSE and SSE), b
 The use case for the detailed output log files is to differentiate between records written to the file when the star or binary
 and constituent stars are known to be in self-consistent states (that is, the attributes of the star or binary and constituent
 stars have been correctly and completely updated), and records written to the file, perhaps mid-timestep, when the star or
-binary and/or constituent stars may not be self-consistent.  Since the record type property can take any value in the range 
+binary and/or constituent stars may not be self-consistent.  Since the record type property can take any value in the range
 :math:`0..4294967295` there is scope to identify many different events or situations, in any of the standard log files.  We may,
 for example, use different record types to indicate that a detailed output record was written immediately prior to, or immediately
 following, a particular event or calculation.  Or we may want to indicate that a supernovae record was written to the supernovae
@@ -22,7 +22,7 @@ Each standard log file has its own set of record types - select a file below to 
 
 .. toctree::
    :maxdepth: 1
-   
+
    standard-logfiles-record-types-sse-system-parameters
    standard-logfiles-record-types-sse-supernovae
    standard-logfiles-record-types-sse-pulsar-evolution

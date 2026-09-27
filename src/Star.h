@@ -53,11 +53,11 @@ public:
 
     Star();
 
-    Star(const unsigned long int p_RandomSeed, 
-         const double            p_MZAMS, 
-         const double            p_Metallicity, 
+    Star(const unsigned long int p_RandomSeed,
+         const double            p_MZAMS,
+         const double            p_Metallicity,
          const KickParameters    p_KickParameters,
-         const double            p_RotationalVelocity = -1.0); 
+         const double            p_RotationalVelocity = -1.0);
 
     Star(const Star& p_Star);
 
@@ -74,7 +74,7 @@ public:
     // getters - alphabetically
     double              Age() const                                                                                 { return m_Star->Age(); }
     double              AngularMomentum() const                                                                     { return m_Star->AngularMomentum(); }
-    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate, 
+    double              CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate,
                                                    const double p_massTransferEfficiencyBeta) const                 { return m_Star->CalculateCriticalMassRatio(p_AccretorIsDegenerate, p_massTransferEfficiencyBeta); }
     double              CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const                 { return m_Star->CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }
     double              CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return m_Star->CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
@@ -92,7 +92,7 @@ public:
     bool                ExperiencedUSSN() const                                                                     { return m_Star->ExperiencedUSSN(); }
     double              HeCoreMass() const                                                                          { return m_Star->HeCoreMass(); }
     double              HeliumAbundanceCore() const                                                                 { return m_Star->HeliumAbundanceCore(); }
-    double              HeliumAbundanceSurface() const                                                              { return m_Star->HeliumAbundanceSurface();} 
+    double              HeliumAbundanceSurface() const                                                              { return m_Star->HeliumAbundanceSurface();}
     double              HydrogenAbundanceCore() const                                                               { return m_Star->HydrogenAbundanceCore(); }
     double              HydrogenAbundanceSurface() const                                                            { return m_Star->HydrogenAbundanceSurface(); }
     double              InitialHeliumAbundance() const                                                              { return m_Star->InitialHeliumAbundance(); }
@@ -143,7 +143,7 @@ public:
     double              TotalMassLossRate() const                                                                   { return m_Star->TotalMassLossRate(); }
     double              XExponent() const                                                                           { return m_Star->XExponent(); }
 
-    
+
     // setters
     void                SetAngularMomentum(double p_AngularMomentum)                                                { m_Star->SetAngularMomentum(p_AngularMomentum); }
     void                SetOmega(double p_Omega)                                                                    { m_Star->SetOmega(p_Omega); }
@@ -168,14 +168,14 @@ public:
                                                              const double p_Lambda)                                 { return m_Star->CalculateConvectiveEnvelopeBindingEnergy(p_TotalMass, p_ConvectiveEnvelopeMass, p_Radius, p_Lambda); }
     double          CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_convectiveEnvelopeMass) const { return m_Star->CalculateConvectiveEnvelopeLambdaPicker(p_convectiveEnvelopeMass); }
     DBL_DBL         CalculateConvectiveEnvelopeMass()                                                               { return m_Star->CalculateConvectiveEnvelopeMass(); }
-    
+
     double          CalculateEddyTurnoverTimescale()                                                                { return m_Star->CalculateEddyTurnoverTimescale(); }
-    
+
     DBL_DBL_DBL_DBL CalculateImKnmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)  { return m_Star->CalculateImKnmDynamical(p_Omega, p_SemiMajorAxis, p_M2); }
     DBL_DBL_DBL_DBL CalculateImKnmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2){ return m_Star->CalculateImKnmEquilibrium(p_Omega, p_SemiMajorAxis, p_M2); }
     DBL_DBL_DBL_DBL CalculateImKnmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2)      { return m_Star->CalculateImKnmTidal(p_Omega, p_SemiMajorAxis, p_M2); }
 
-    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate, 
+    DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                 const double p_AccretorMassRate,
                                                 const bool   p_IsHeRich)                                            { return m_Star->CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate, p_IsHeRich); }
 
@@ -183,21 +183,21 @@ public:
 
     double          CalculateMomentOfInertia() const                                                                { return m_Star->CalculateMomentOfInertia(); }
     double          CalculateMomentOfInertiaAU() const                                                              { return m_Star->CalculateMomentOfInertiaAU(); }
-    
+
     double          CalculateNuclearMassLossRate()                                                                  { return m_Star->CalculateNuclearMassLossRate(); }
-    
+
     double          CalculateRadialExpansionTimescaleDuringMassTransfer()                                           { return m_Star->CalculateRadialExpansionTimescaleDuringMassTransfer(); }
-    
+
     double          CalculateRadialExtentConvectiveEnvelope()                                                       { return m_Star->CalculateRadialExtentConvectiveEnvelope(); }
 
     double          CalculateRadiusOnMassChange(double p_dM)                                                        { return m_Star->CalculateRadiusOnMassChange(p_dM); }
-    
+
     double          CalculateRemnantRadius()                                                                        { return m_Star->CalculateRemnantRadius(); }
-    
+
     void            CalculateSNAnomalies(const double p_Eccentricity)                                               { m_Star->CalculateSNAnomalies(p_Eccentricity); }
-    
-    double          CalculateSNKickMagnitude(const double p_RemnantMass, 
-                                             const double p_EjectaMass, 
+
+    double          CalculateSNKickMagnitude(const double p_RemnantMass,
+                                             const double p_EjectaMass,
 								             const STELLAR_TYPE p_StellarType)                                      { return m_Star->CalculateSNKickMagnitude(p_RemnantMass, p_EjectaMass, p_StellarType); }
 
 
@@ -225,7 +225,7 @@ public:
 
     void            EvolveOneTimestep(const double p_Dt);
 
-    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                          const double p_massTransferEfficiencyBeta)                                 { return m_Star->InterpolateGeEtAlQCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     void            HaltWinds()                                                                                     { m_Star->HaltWinds(); }
 
@@ -233,11 +233,11 @@ public:
 
     void            ResolveAccretionRegime(const ACCRETION_REGIME p_Regime,
                                            const double p_DonorThermalMassLossRate)                                 { m_Star->ResolveAccretionRegime(p_Regime, p_DonorThermalMassLossRate); }
-    
+
     double          ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                                    const double p_CompanionMass,
                                                    const double p_CompanionRadius,
-                                                   const double p_CompanionEnvelope)                                { return m_Star->ResolveCommonEnvelopeAccretion(p_FinalMass, p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope); } 
+                                                   const double p_CompanionEnvelope)                                { return m_Star->ResolveCommonEnvelopeAccretion(p_FinalMass, p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope); }
 
     void            ResolveEnvelopeLossAndSwitch();
 
@@ -254,11 +254,11 @@ public:
     double     	    SN_RocketKickMagnitude()       									                                { return m_Star->SN_RocketKickMagnitude(); }
     double     	    SN_RocketKickPhi()       									                                    { return m_Star->SN_RocketKickPhi(); }
     double     	    SN_RocketKickTheta()       									                                    { return m_Star->SN_RocketKickTheta(); }
-    
+
     void            SpinDownIsolatedPulsar(const double p_Stepsize)                                                 { m_Star->SpinDownIsolatedPulsar(p_Stepsize); }
 
     STELLAR_TYPE    SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialType = false);
-    
+
     double          TAMSCoreMass() const                                                                            { return m_Star->TAMSCoreMass(); }
 
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass)                                         { m_Star->UpdateAfterMerger(p_Mass, p_HydrogenMass); }
@@ -292,9 +292,9 @@ public:
     void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate)                 { m_Star->UpdateMainSequenceCoreMass(p_Dt, p_TotalMassLossRate); }
 
     void            UpdatePreviousTimestepDuration()                                                                { m_Star->UpdatePreviousTimestepDuration(); }
-    
+
     void            UpdateTotalMassLossRate(const double p_MassLossRate)                                            { m_Star->UpdateTotalMassLossRate(p_MassLossRate); }
-    
+
     ACCRETION_REGIME WhiteDwarfAccretionRegime() const                                                              { return m_Star->WhiteDwarfAccretionRegime(); }
 
 private:

@@ -22,4 +22,4 @@ Examples::
     LOG(SSEfileId, ”This is a log record”);
     LOG(OutputFile2Id, ”The value of x is ” << x << ” km”);
     LOG(MyLogfileId, 2, ”Log string”);
-    LOG(SSEfileId, ”CHeB”, 4, ”This is a CHeB only log record”); 
+    LOG(SSEfileId, ”CHeB”, 4, ”This is a CHeB only log record”);

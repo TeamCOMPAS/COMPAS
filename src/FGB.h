@@ -17,22 +17,22 @@ class FGB: virtual public BaseStar, public HG {
 public:
 
     FGB() { m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH; };
-    
+
     FGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HG(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::FIRST_GIANT_BRANCH;                                                                                                                                           // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                             // Initialise if required
     }
 
     FGB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        FGB* clone = new FGB(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        FGB* clone = new FGB(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static FGB* Clone(FGB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        FGB* clone = new FGB(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        FGB* clone = new FGB(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -41,7 +41,7 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                                                                      // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tBGB)];                                                                                                                                    // Set age appropriately
-        
+
         EvolveOnPhase(0.0);
     }
 
@@ -55,7 +55,7 @@ protected:
     double          CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) const;
     double          CalculateCoreMassOnPhase() const                                                { return CalculateCoreMassOnPhase(m_Mass0, m_Age); }                                            // Use class member variables
 
-    double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const     { return GiantBranch::CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }             // Skip HG 
+    double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const     { return GiantBranch::CalculateCriticalMassRatioClaeys14(p_AccretorIsDegenerate); }             // Skip HG
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                        { return GiantBranch::CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
 
     double          CalculateHeCoreMassAtPhaseEnd() const                                           { return CalculateHeCoreMassOnPhase(); }                                                        // Same as on phase
@@ -73,7 +73,7 @@ protected:
 
     double          CalculateTauAtPhaseEnd() const                                                  { return m_Tau; }                                                                               // NO-OP
     double          CalculateTauOnPhase() const;
-    
+
     double          CalculateZetaEquilibrium()                                                      { return 0.0; }                                                     // At lowest order, giants with a convective envelope have radii that are insensitive to mass loss (but see Hurley+ 2002, Eq. 56 and Hurley+ 2000, Eq. 47)
 
     double          ChooseTimestep(const double p_Time) const;

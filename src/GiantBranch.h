@@ -18,9 +18,9 @@ class GiantBranch: virtual public BaseStar, public MainSequence {
 public:
 
     GiantBranch(){};
-    
+
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
-    
+
     double          CalculateRemnantRadius() const;
 
 protected:
@@ -45,15 +45,15 @@ protected:
     static  double          CalculateCoreMass_Luminosity_Lx_Static(const DBL_VECTOR &p_GBParams);
     static  double          CalculateCoreMass_Luminosity_Mx_Static(const DBL_VECTOR &p_GBParams);
 
-            double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const; 
-            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const; 
+            double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const;
+            double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const;
 
             void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams);
     static  void            CalculateGBParams_Static(const double p_Mass, const double p_LogMetallicityXi, const DBL_VECTOR &p_MassCutoffs, const DBL_VECTOR &p_AnCoefficients, const DBL_VECTOR &p_BnCoefficients, DBL_VECTOR &p_GBParams);
             void            CalculateGBParams()                                                             { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
 
     static  double          CalculateHRateConstant_Static(const double p_Mass);
-    
+
     virtual double          CalculateInitialSupernovaMass() const                                           { return m_Mass; }                                                  // Use class member variables
 
             double          CalculateLifetimeToHeIgnition(const double p_Mass, const double p_Tinf1_FGB, const double p_Tinf2_FGB);
@@ -114,7 +114,7 @@ protected:
 
     virtual double          CalculateRemnantLuminosity() const;
             STELLAR_TYPE    CalculateRemnantTypeByMuller2016(const double p_COCoreMass);
-	
+
 
             double          CalculateThermalMassLossRate() const                                            { return (m_Mass - m_CoreMass) / CalculateThermalTimescale(); }     // Use class member variables
 
@@ -131,11 +131,11 @@ protected:
             STELLAR_TYPE    ResolveElectronCaptureSN();
             STELLAR_TYPE    ResolvePairInstabilitySN();
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
-    
+
             void            UpdateAgeAfterMassLoss() { }                                                                                                                        // NO-OP for most stellar types
 
             void            UpdateInitialMass() { }                                                                                                                             // NO-OP for most stellar types
-    
+
             void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                 // NO-OP for most stellar types
 
 };

@@ -45,7 +45,7 @@ import time                      # for finding computation time
 import matplotlib.pyplot as plt  #for plotting
 
 # Import COMPAS specific scripts
-compasRootDir = os.environ['COMPAS_ROOT_DIR'] 
+compasRootDir = os.environ['COMPAS_ROOT_DIR']
 sys.path.append(compasRootDir + 'postProcessing/PythonScripts')
 from compasUtils import printCompasDetails, getEventHistory, getEventStrings
 
@@ -73,7 +73,7 @@ pathToData = 'COMPAS_Tutorial_Output.h5'
 Data  = h5.File(pathToData)
 print(list(Data.keys()))
 
-# The output above represents the event categories available from the particular run. If you used the output produced in the previous tutorial, you should see `['BSE_Common_Envelopes', 'BSE_Double_Compact_Objects', 'BSE_RLOF', 'BSE_Supernovae', 'BSE_System_Parameters', 'Run_Details']`. Note that for smaller runs which do not produce any of a particular type of output, the output category will not be created. 
+# The output above represents the event categories available from the particular run. If you used the output produced in the previous tutorial, you should see `['BSE_Common_Envelopes', 'BSE_Double_Compact_Objects', 'BSE_RLOF', 'BSE_Supernovae', 'BSE_System_Parameters', 'Run_Details']`. Note that for smaller runs which do not produce any of a particular type of output, the output category will not be created.
 #
 # Brief description of the categories:
 # - 'BSE_System_Parameters': Initial state of the binary
@@ -95,7 +95,7 @@ DCs = Data['BSE_Double_Compact_Objects']
 
 print(SPs.keys())
 
-# One of the most important parameters in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically. 
+# One of the most important parameters in the COMPAS output is the system seed. The seed represents the unique identifier to a specific system in a simulation. It is also used as the seed value in random number generation, which is useful when trying to reproduce a given system identically.
 #
 # If we want to view, say, the random seeds in the system parameters file, we run
 
@@ -136,15 +136,15 @@ for ii, seed in enumerate(seeds):
 # A useful function that builds off of `getEventHistory` is `getEventStrings`, which collects the event information into a succinct string, which may be easier to read (once you get used to the syntax).
 #
 # The syntax for the event strings takes the following convention:
-#     
+#
 # - For MT events:
 #     - P>S, P<S, or P=S
 #     - where P is primary type, S is secondary type, and >, < is RLOF (1->2 or 1<-2) or = for CEE
 #
 # - For SN events:
-#     - P\*SR for star1 the SN progenitor, or 
+#     - P\*SR for star1 the SN progenitor, or
 #     - R\*SP for star2 the SN progenitor,
-#     - where P is progenitor type, R is remnant type, 
+#     - where P is progenitor type, R is remnant type,
 #       S is state (I for intact, U for unbound)
 #
 # Event strings for the same seed are ordered chronologically and separated by the undesrcore character `_`
@@ -158,7 +158,7 @@ for ii in range(5):
 
 # # 2. Slicing the data
 #
-# Since the random seed is unique and constant for a given binary, the properties and events of the binary system can be recovered by looking at its seed across different output categories. 
+# Since the random seed is unique and constant for a given binary, the properties and events of the binary system can be recovered by looking at its seed across different output categories.
 #
 # Here we introduce the basics of manipulating the data using the seeds. We provide an example on how we get the initial parameters of systems that ended up forming double compact objects.
 #
@@ -170,15 +170,15 @@ for ii in range(5):
 
 def calculateTotalMassesNaive(pathData=None):
     Data  = h5.File(pathToData)
-    
+
     totalMasses = []
-    
+
     # Retrieve the categories
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
-    
-    # For syntax see section 1 
-    
+
+    # For syntax see section 1
+
     # Extract parameters of interest
     seedsDC       = DCs['SEED'][()]
     seedsSP       = SPs['SEED'][()]
@@ -205,14 +205,14 @@ mTotOld = calculateTotalMassesNaive(pathData=pathToData)
 end     = time.time()
 timeDiffNaive = end-start
 
-print('%s seconds, using for loops.' %(timeDiffNaive)) 
+print('%s seconds, using for loops.' %(timeDiffNaive))
 # -
 
 # # Optimizing the above loop
 #
 # ## 0 - Use built-in numpy routines
 
-# Numpy arrays can make use of a powerful library of optimization tools which allow the user to bypass computationally heavy for loops. 
+# Numpy arrays can make use of a powerful library of optimization tools which allow the user to bypass computationally heavy for loops.
 #
 # For example, we can speed up the calculation of the element-wise sum of two arrays with:
 
@@ -221,19 +221,19 @@ SPs = Data['BSE_System_Parameters']
 
 m1Zams  = SPs['Mass@ZAMS(1)'][()]
 m2Zams  = SPs['Mass@ZAMS(2)'][()]
-    
+
 mTotalAllSystems  = np.add(m1Zams, m2Zams)
 # -
 
 # ## 1 - Use boolean masks in a single file
 
-# Where previously we put the condition in an if statement nested within a for loop, now we again make use of boolean masks to filter out the undesired elements. 
+# Where previously we put the condition in an if statement nested within a for loop, now we again make use of boolean masks to filter out the undesired elements.
 #
 # The boolean array must have the same length as the input array.
 
 # +
 # Create a boolean array from the total mass array which is True
-# if the total mass of the corresponding system is less than 40. 
+# if the total mass of the corresponding system is less than 40.
 
 maskMTotLessThan40 = (mTotalAllSystems <= 40)
 # -
@@ -243,7 +243,7 @@ maskMTotLessThan40 = (mTotalAllSystems <= 40)
 # seeds of systems with total mass below 40
 seedsMtotBelow40 = seedsSP[maskMTotLessThan40]
 
-# Note that this works because the order of the two columns (seeds and total masses) are the same. 
+# Note that this works because the order of the two columns (seeds and total masses) are the same.
 #
 # For example, the total mass of the third system entry corresponds to the seed at the third system entry.
 
@@ -253,11 +253,11 @@ seedsMtotBelow40 = seedsSP[maskMTotLessThan40]
 #
 # Before we continue it is useful to understand how the COMPAS-popsynth printing works.
 #
-# Each simulated system will be initialized only once and so will have only one line in the `BSE_System_Parameters` file. However, lines in `BSE_RLOF` are created whenever a system goes through a mass transfer event, which might happen multiple times for a single system, or potentially not at all. Similarly, in the `BSE_Supernovae` file, you will find at most two lines per system, but possibly none. `BSE_Double_Compact_Objects` lines are printed only when the final system is intact and composed of either Neutron Stars or Black Holes, which is a rare event that happens at most once per system. 
+# Each simulated system will be initialized only once and so will have only one line in the `BSE_System_Parameters` file. However, lines in `BSE_RLOF` are created whenever a system goes through a mass transfer event, which might happen multiple times for a single system, or potentially not at all. Similarly, in the `BSE_Supernovae` file, you will find at most two lines per system, but possibly none. `BSE_Double_Compact_Objects` lines are printed only when the final system is intact and composed of either Neutron Stars or Black Holes, which is a rare event that happens at most once per system.
 #
 # For this reason, it is in general not the case that the system on line $n$ of one file corresponds will match the system on line $n$ of another file.
 #
-# In order to match systems across files, we need to extract the seeds of desired systems from one file, and apply them as a mask in the other file. 
+# In order to match systems across files, we need to extract the seeds of desired systems from one file, and apply them as a mask in the other file.
 
 # +
 # Example: calculate the primary ZAMS mass of systems which become DCOs (Double Compact Objects)
@@ -283,25 +283,25 @@ printCompasDetails(DCs, [1636090389, 1636091089, 1636091116])
 
 def calculateTotalMassesOptimized(pathData=None):
     Data  = h5.File(pathToData)
-    
+
     totalMasses = []
-        
+
     # Retrieve the categories
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
-    
-    # For syntax see section 1 
-    
+
+    # For syntax see section 1
+
     # Extract parameters of interest
     seedsDC       = DCs['SEED'][()]
     seedsSP       = SPs['SEED'][()]
     m1Zams        = SPs['Mass@ZAMS(1)'][()]
     m2Zams        = SPs['Mass@ZAMS(2)'][()]
-    
+
     mZamsTot            = np.add(m1Zams, m2Zams)
     maskSeedsBecameDCO  = np.in1d(seedsSP, seedsDC)
     mZamsTotOfDCOs      = mZamsTot[maskSeedsBecameDCO]
-    
+
     Data.close()
     return mZamsTotOfDCOs
 
@@ -317,12 +317,12 @@ timeDiffOptimized = end-start
 nrDCOs = len(seedsDC)
 
 print('Compare')
-print('%s seconds, using For Loops.'     %(timeDiffNaive)) 
-print('%s seconds, using Optimizations.' %(timeDiffOptimized)) 
+print('%s seconds, using For Loops.'     %(timeDiffNaive))
+print('%s seconds, using Optimizations.' %(timeDiffOptimized))
 print('Using %s DCO systems'             %(nrDCOs))
 # -
 
-# *Note:* The time difference will depend heavily on the number of systems under investigation, as well as the number of bypassed For Loops. If you used the path to the pre-generated tutorial data set (with few, intentionally specified systems), you should see very little improvement. 
+# *Note:* The time difference will depend heavily on the number of systems under investigation, as well as the number of bypassed For Loops. If you used the path to the pre-generated tutorial data set (with few, intentionally specified systems), you should see very little improvement.
 
 # Test that the two arrays are in fact identical
 print(np.array_equal(mTotOld, mTotNew))
@@ -334,9 +334,9 @@ print(np.array_equal(mTotOld, mTotNew))
 
 def calculateTotalMassesDNS(pathToData=None):
     Data  = h5.File(pathToData)
-    
+
     totalMasses = []
-    
+
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
 
@@ -346,17 +346,17 @@ def calculateTotalMassesDNS(pathToData=None):
 
     dcMaskDNS     = (stype1 == 13) & (stype2 == 13)
     seedsDNS      = seedsDC[dcMaskDNS]
-    
+
     # Get info from ZAMS
     seedsSP  = SPs['SEED'][()]
     m1Zams   = SPs['Mass@ZAMS(1)'][()]
     m2Zams   = SPs['Mass@ZAMS(2)'][()]
-    
-    mZamsTot = np.add(m1Zams, m2Zams)    
-    
+
+    mZamsTot = np.add(m1Zams, m2Zams)
+
     spMaskDNS   = np.in1d(seedsSP, seedsDNS)
     mZamsTotDNS = mZamsTot[spMaskDNS]
-    
+
     Data.close()
     return mZamsTotDNS
 
@@ -370,8 +370,8 @@ timeDiffDNS = end-start
 
 # calculate number of DNS systems
 nrDNSs = len(mTotDNS)
-    
-print('%s seconds for all %s DNS systems.' %(timeDiffDNS, nrDNSs)) 
+
+print('%s seconds for all %s DNS systems.' %(timeDiffDNS, nrDNSs))
 # -
 
 # The `printCompasDetails` function can also optionally take a mask as argument. This is especially useful for those output categories which have multiple events for a single seed. Using both seeds and mask inputs can help to extract a specific type of event from several for the given seeds.
@@ -390,7 +390,7 @@ printCompasDetails(MTs, 1636090318, mask=maskCEE)
 
 # ## Example 2
 #
-# The previous example uses the fact that both SystemParameters and DoubleCompactObjects only print at most one line per system. However, as mentioned above, events such as supernovae or common envelopes might happen multiple times to a given system, and as a result there would be multiple occurrences of a given seed in the relevant file. 
+# The previous example uses the fact that both SystemParameters and DoubleCompactObjects only print at most one line per system. However, as mentioned above, events such as supernovae or common envelopes might happen multiple times to a given system, and as a result there would be multiple occurrences of a given seed in the relevant file.
 #
 # To account for this, we will need to modify the previous method. Consider again the 4 seeds of the previous example. Both 2 and 4 formed a DCO and hence both stars in these binaries went SN. Seeds 1 and 3 are low mass stars hence they did not go SN. (Note that we do not specify the companion masses for any of these systems, but for simplicity we assume that the companions to 1 and 3 are also sufficiently low mass to not produce a supernova). The SN file prints one line per SN and therefore seeds 2 and 4 appear twice each.
 #
@@ -418,7 +418,7 @@ snTypeDict = {
 
 # Determine which seeds experienced at least 1 CCSN
 maskCCSN  = snType == 1
-seedsCCSN, countsCCSN = np.unique(seedsSN[maskCCSN], return_counts=True) 
+seedsCCSN, countsCCSN = np.unique(seedsSN[maskCCSN], return_counts=True)
 
 # Seeds with 2 CCSNe will have a countsCCSN value of 2
 seedsDoubleCCSN = seedsCCSN[countsCCSN == 2]
@@ -435,7 +435,7 @@ Data.close()
 
 # # 3. Visualizing the data
 #
-# Although math is the fundamental basis of physics and astrophysics, we cannot always easily convert numbers and equations into a coherent picture. Plotting is therefore a vital tool in bridging the gap between raw data and a deeper scientific understanding. 
+# Although math is the fundamental basis of physics and astrophysics, we cannot always easily convert numbers and equations into a coherent picture. Plotting is therefore a vital tool in bridging the gap between raw data and a deeper scientific understanding.
 #
 # *Disclaimer:*
 #
@@ -496,7 +496,7 @@ ax2.plot(cdf_xvalues, cdf_yvalues)
 ax2.set_ylabel('CDF values', rotation=270, labelpad=15)
 ax2.grid(False)
 
-# Scatter plot 
+# Scatter plot
 ax3 = axes[1]
 ax3.scatter(m1, m2)
 ax3.set_xlabel(r'M1 [$M_\odot$]', fontsize=smallfontsize)

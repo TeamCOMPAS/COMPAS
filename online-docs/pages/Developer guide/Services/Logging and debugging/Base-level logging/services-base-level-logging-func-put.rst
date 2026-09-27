@@ -7,7 +7,7 @@ Log::Put(...)
         INT    p_LogfileId,  // the identifier of the log file to be written.
         STRING p_LogClass,   // the log class of the record to be written. An empty string (””) satisfies
                              // all checks against enabled classes.
-        INT    p_LogLevel,   // the log level of the record to be written. A value of 0 satisfies all 
+        INT    p_LogLevel,   // the log level of the record to be written. A value of 0 satisfies all
                              // checks against enabled levels.
         STRING p_LogStr      // the string to be written to the log file.
     )

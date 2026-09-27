@@ -14,7 +14,7 @@ The logging macros provided by the :doc:`logging service <../services-logging-de
 
 |br|
 The logging macros described above are also provided in a verbose variant. The verbose macros function the same way as their non-verbose
-counterparts, with the added functionality that the log records written to the log file will also be written to stdout. The verbose 
+counterparts, with the added functionality that the log records written to the log file will also be written to stdout. The verbose
 logging macros are::
 
     LOGV(id, ...)
@@ -31,5 +31,5 @@ A further four macros are provided that allow writing directly to stdout rather 
     SAY_IF(cond, ...)
     SAY_ID IF(cond, ...)
 
-The ``SAY`` macros function the same way as their ``LOG`` counterparts, but write directly to stdout instead of a log file. The ``SAY`` 
+The ``SAY`` macros function the same way as their ``LOG`` counterparts, but write directly to stdout instead of a log file. The ``SAY``
 macros honour the logging classes and level.

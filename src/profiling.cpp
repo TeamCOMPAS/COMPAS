@@ -31,47 +31,47 @@ namespace profiling {
 
     /*
      * Initialises profiling functionality
-     * 
+     *
      * Put any code here required for initialisation of profiling functionality
      * This function should be called once immediately after program start
-     * 
-     * 
+     *
+     *
      * void Initialise()
-     * 
+     *
      */
     void Initialise() {
         InitialisePow();
-    } 
+    }
 
     /*
      * Report profiling outcomes
-     * 
+     *
      * Put any code here required for reporting of profiling functionality
      * This function should be called once immediately prior to program termination
-     * 
-     * 
+     *
+     *
      * void Report()
-     * 
+     *
      */
     void Report() {
-        
+
         std::cout << "\n";
         std::cout << "========== BEGIN PROFILING OUTCOMES ==========\n";
         std::cout << "\n";
 
         ReportPow();
-        
+
         std::cout << "=========== END PROFILING OUTCOMES ===========\n";
-    } 
+    }
 
 
 
     /*
      * Initialises variables used for profiling std::pow()
-     * 
-     * 
+     *
+     *
      * void InitialisePow()
-     * 
+     *
      */
     void InitialisePow() {
 
@@ -86,32 +86,32 @@ namespace profiling {
 
     /*
      * Check call map to determine if specified signature and call count exists
-     * 
+     *
      * This function ostensibly checks the call map for a signature and call count, and returns
      * true if an entry exists that matches both.  The map is checked - for the same thing -
      * a number of times in a loop (number determined by call count).  This is purely to chew up
      * CPU cycles.
-     * 
-     * The real purpose of this function is to expend some CPU time so this call is identified 
-     * by an external profiling tool so the full stack trace can be identified.  This can be 
+     *
+     * The real purpose of this function is to expend some CPU time so this call is identified
+     * by an external profiling tool so the full stack trace can be identified.  This can be
      * disabled if all we want is the immediate calling function and call count.
-     * 
+     *
      * The function could really be named 'expendCPU', but it does actually check the map for
      * duplicate calls and the return value is valid, so 'CheckDuplicate' is appropriate (even
      * though it really only does the check to prevent the code from being optimised away by
      * the compiler - a plain loop that did nothing other than spin to soak up CPU cycles
      * would be optimised out of the code by a good compiler).
-     * 
-     * 
+     *
+     *
      * bool CheckDuplicate(const std::string &p_Signature, const int p_Count)
      *
      * @param   [IN]    p_Signature                 The signature of the call we're profiling
      * @param   [IN]    p_Count                     The call clount we're checking for
      * @return                                      Boolean flag indicating if the signature and call count were found in the map
-     *  
+     *
      */
     bool CheckDuplicate(const std::string &p_Signature, const int p_Count) {
-        
+
         bool duplicate = false;                         // result
 
         #ifndef PROFILING_COUNTS_ONLY                   // counts only? (i.e. no CPU spinning...)
@@ -120,7 +120,7 @@ namespace profiling {
 
         // soak up some CPU cycles
         // the CPU time expended depends on the call count
-        // p_Count should never be < 1, but just in case we include it with < 5 
+        // p_Count should never be < 1, but just in case we include it with < 5
         // (previously it was being included with <100)
 
              if (p_Count <     5) cycles = 0;
@@ -135,37 +135,37 @@ namespace profiling {
         for (int i = 0; i < cycles; i++) {                      // spin some CPU cycles
             duplicate = (m_CallMap[p_Signature] == p_Count);    // and don't get optimised away...
         }
-        
+
         #endif
 
         return duplicate;
     }
-    
+
 
     /*
      * Profiling function to replace std::pow when profiling is enabled
-     * 
+     *
      * Gathers profiling statistics for calls to std::pow(base, exponent),
      * and returns the valued of std::pow(base, exponent)
-     * 
+     *
      * Statistics gathered/recorded are:
-     * 
+     *
      *    - minimum value of 'base'
      *    - maximum value of 'base'
      *    - minimum value of 'exponent'
      *    - maximum value of 'exponent'
      *    - call signatures
      *    - counts for call signatures
-     * 
-     * 
+     *
+     *
      *  double pow(const double p_Base, const double p_Exponent)                                                (if PROFILING_CALLER_NAME is not #defined)
      *  double pow(const double p_Base, const double p_Exponent, const std::string &p_CallerName)               (if PROFILING_CALLER_NAME is #defined)
-     * 
+     *
      * @param   [IN]    p_Base                      Floating point number to be raised to a power
      * @param   [IN]    p_Exponent                  Floating point exponent to which p_Base is to be raised
      * @param   [IN]    p_CallerName                String containing the name of the calling function          (if PROFILING_CALLER_NAME is #defined)
      * @return                                      Value of std::pow(p_Base, p_Exponent)
-     *  
+     *
      */
     #ifdef PROFILING_CALLER_NAME                                                                            // add caller name to signature?
     double pow(const double p_Base, const double p_Exponent, const std::string &p_CallerName) {             // yes
@@ -180,7 +180,7 @@ namespace profiling {
         m_PowExponentMax = std::max(p_Exponent, m_PowExponentMax);                                          // maximum value of 'exponent'
 
         m_PowCallCount++;                                                                                   // increment accumulated call count
-        
+
         std::string signature = "";                                                                         // call signature
 
         #ifdef PROFILING_CALLER_NAME                                                                        // add caller name to signature?
@@ -188,7 +188,7 @@ namespace profiling {
         #endif
 
         signature += "pow(" + std::to_string(p_Base) + "," + std::to_string(p_Exponent) + ")";              // call signature
-            
+
         auto index = m_CallMap.find(signature);                                                             // look for signature map
         if (index == m_CallMap.end()) {                                                                     // found?
             m_CallMap[signature] = 1;                                                                       // no - insert it - first call
@@ -204,14 +204,14 @@ namespace profiling {
 
     /*
      * Report profiling statistics for std::pow()
-     * 
+     *
      * Minimamly formatted for machine parsing.  If the record contains a ":", then
-     * the ": " is the delimiter, the LHS is the identifier, and the RHS is the value 
+     * the ": " is the delimiter, the LHS is the identifier, and the RHS is the value
      * associated with the identifier
-     *      
-     * 
+     *
+     *
      * void ReportPow()
-     * 
+     *
      */
     void ReportPow() {
 

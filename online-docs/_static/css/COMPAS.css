@@ -2,7 +2,7 @@
 /* flat-table allows spanning of columns - list-table doesn't...                                             */
 /* unfortunately this takes borders of ALL rst tables                                                        */
 .rst-content table.docutils, .wy-table-bordered-all, table, thead, tbody, tr, td, th {
-    border: 0 solid transparent !important; 
+    border: 0 solid transparent !important;
     background-color: transparent !important;
     background-image: none !important;
     font-size: 1em !important;
@@ -10,10 +10,10 @@
     white-space: normal !important;
     vertical-align: text-top !important;
 }
-  
+
 /* This takes all borders off tables with class 'aligned-text' - at least it does for list-table, but doesn't seem to work for flat-table */
 .rst-content table.docutils.aligned-text, .wy-table-bordered-all.aligned-text, .aligned-text table, thead, tbody, tr, td, th {
-  border: 0 solid transparent !important; 
+  border: 0 solid transparent !important;
   background-color: transparent !important;
   background-image: none !important;
   font-size: 1em !important;
@@ -21,7 +21,7 @@
   white-space: normal !important;
   vertical-align: text-top !important;
 }
-  
+
 /* This puts borders on tables with class 'bordered' - at least it does for list-table, but doesn't seem to work for flat-table */
 .rst-content table.docutils.bordered, .wy-table-bordered-all.bordered, .bordered table, .bordered thead, .bordered tbody, .bordered tr, .bordered td, .bordered th {
     border-width: 1px !important;

@@ -70,19 +70,19 @@ using std::string;
  * some circumstances).
  *
  * JR, September 2019
- * 
- * 
- * 
+ *
+ *
+ *
  * HDF5 File Support
  * =================
- * 
+ *
  * Further note: support for HDF5 was added to the existing log functionality, which was written
  * assuming separate files for each of the log file (system parameters, DCOs, SNe, etc.).  That
  * existing functionality has been maintained, and HDF5 added as an option available to the user.
  * HDF5 support in the code has been shoe-horned into the existing functionality, so although
  * there is only a single HDF5 output file (except for detailed output files), each of the groups
- * within the HDF5 file is treated in the logging code as a separate file - because that's how it 
- * was originally written, and we just use the existing infrastructure and fit the HDF5 support 
+ * within the HDF5 file is treated in the logging code as a separate file - because that's how it
+ * was originally written, and we just use the existing infrastructure and fit the HDF5 support
  * into that framework.  That makes the HDF5 logging code a bit awkward at times, but it works...
  *
  *
@@ -93,7 +93,7 @@ using std::string;
  * is just a brain dump of my reading/research over the past week or so, and it could very well
  * be based on my misunderstanding of what I have read - so if anyone notices something I've
  * misunderstood please let me know so I can improve the code.)
- * 
+ *
  *
  * Data in HDF5 files are arranged in groups and datasets.
  *
@@ -108,61 +108,61 @@ using std::string;
  *
  * Each dataset in an HDF5 files is broken into "chunks", where a chunk is defined as a number of dataset
  * entries ("chunks" and "chunking" are HDF5 terms).  In COMPAS, all datasets are 1-d arrays (columns), so
- * a chunk is defined as a number of values in the 1-d array (or column).  Chunking can be enabled or not, 
- * but if chunking is not* enabled a dataset cannot be resized - so if chunking is not enabled the size of 
- * the dataset must be known at the time of creation, and the entire dataset created in one go.  That doesn't 
- * work for COMPAS - even though we know the number of systems being evolved, we don't know the number of 
- * entries we'll have in each of the output log files (and therefore the HDF5 datasests if we're logging to 
+ * a chunk is defined as a number of values in the 1-d array (or column).  Chunking can be enabled or not,
+ * but if chunking is not* enabled a dataset cannot be resized - so if chunking is not enabled the size of
+ * the dataset must be known at the time of creation, and the entire dataset created in one go.  That doesn't
+ * work for COMPAS - even though we know the number of systems being evolved, we don't know the number of
+ * entries we'll have in each of the output log files (and therefore the HDF5 datasests if we're logging to
  * HDF5 files).  So, we enable chunking.
- * 
+ *
  * Chunking can improve, or degrade, performance depending upon how it is implemented - mostly related to
  * the chunk size chosen.
- * 
+ *
  * Datasets are stored inside an HDF5 file as a number of chunks - the chunks are not guaranteed (not even
  * likely) to be contiguous in the file or on the storage media (HDD, SSD etc.).  Chunks are mapped/indexed
- * in the HDF5 file using a B-tree, and the size of the B-tree, and therefore the traversal time, depends 
+ * in the HDF5 file using a B-tree, and the size of the B-tree, and therefore the traversal time, depends
  * directly upon the number of chunks allocated for a dataset - so the access time for a chunk increases as
  * the number of chunks in the dataset increases.  So many small chunks will degrade performance.
- * 
+ *
  * Chunks are the unit of IO for HDF5 files - all IO to HDF5 is performed on the basis of chunks.  This means
  * that whenever dataset values are accessed (read or written (i.e. changed)), if the value is not already in
  * memory, the entire chunk containing the value must be read from, or written to, the storage media - even
- * if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause 
+ * if the dataset value being accessed is the only value in the chunk.  So few large chunks could cause
  * empty, "wasted", space in the HDF5 files (at the end of datasets) - but they could also adversely affect
  * performance by causing unnecessary IO traffic (although probably not much in the way we access data in COMPAS
  * files).
- * 
+ *
  * HDF5 files implement a chunk cache on a per-dataset basis.  The default size of the chunk cache is 1MB, and
  * its maximum size is 32MB.  The purpose of the chunk cache is to reduce storage media IO - even with SSDs,
  * memory access is way faster than storage media access, so the more of the file data that can be kept in
  * memory and maipulated there, the better.  Assuming the datatype of a particular dataset is DOUBLE, and
  * therefore consumes 8 bytes of storage space, at its maximum size the chunk cache for that dataset could hold
- * 4,000,000 values - so a single chuck with 4,000,000 values, two chunks with 2,000,000 values, four with 
+ * 4,000,000 values - so a single chuck with 4,000,000 values, two chunks with 2,000,000 values, four with
  * 1,000,000, and so on.  Caching a single chunk defeats the purpose of the cache, so chunk sizes somewhat less
  * that 4,000,000 would be most appropriate if the chunk cache is to be utilised.  Chunks too big to fit in the
  * cache simply bypass the cache and are read from, or written to, the storage media directly.
- * 
+ *
  * However, the chunk cache is really only useful for random access of the dataset.  Most, if not all, of the
  * access in the COMPAS context (including post-creation analyses) is serial - the COMPAS code writes the
  * datasets from top to bottom, and later analyses (generally) read the datasets the same way.  Caching the
- * chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per 
+ * chunks for serial access just introduces overhead that costs memory (not much, to be sure: up to 32MB per
  * open dataset), and degrades performance (albeit it a tiny bit).  For that reason I disable the chunk cache
  * in COMPAS - so all IO to/from an HDF5 file in COMPAS is directly to/from the storage media.  (To be clear,
- * post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS - 
+ * post-creation analysis software can disable the cache or not when accessing HDF5 files created by COMPAS -
  * disabling the cache here does not affect how other software accesses the files post-creation).
- * 
+ *
  * So many small chunks is not so good, and neither is just a few very large chunks.  So what's the optimum
  * chunk size?  It depends upon several things, and probably the most important of those are the final size
  * of the dataset and the access pattern.
- * 
- * As mentioned above, we tend to access datasets serially, and generally from to to bottom, so larger chunks 
- * would seem appropriate, but not so large that we generate HDF5 files with lots of unused space.  However, 
+ *
+ * As mentioned above, we tend to access datasets serially, and generally from to to bottom, so larger chunks
+ * would seem appropriate, but not so large that we generate HDF5 files with lots of unused space.  However,
  * disk space, even SSD space, is cheap, so trading space against performance is probably a good trade.
- * 
+ *
  * Also as mentioned above, we don't know the final size of (most of) the datasets when creating the HDF5 in
  * COMPAS - though we do know the number of systems being generated, which allows us to determine an upper
  * bound for at least some of the datasets (though not for groups such as BSE_RLOF).
- * 
+ *
  * One thing we need to keep in mind is that when we create the HDF5 file we write each dataset of a group
  * in the same iteration - this is analogous to writing a single record in (e.g.) a CSV log file (the HDF5
  * group corresponds to the CSV file, and the HDF5 datasets in the group correspond to the columns in the
@@ -170,34 +170,34 @@ using std::string;
  * output files) we do as many IOs to the HDF5 file as there are datasets in the group (columns in the file).
  * We are not bound to reading or writing a single chunk at a time - but we are bound to reading or writing
  * an integral multiple of whole chunks at a time.
- * 
+ *
  * We want to reduce the number of storage media accesses when writing (or later reading) the HDF5 files, so
  * larger chunk sizes are appropriate, but not so large that we create excessively large HDF5 files that have
  * lots of unused space (bearing in mind the trade-off mentioned above), especially when were evolving just
  * a few systems (rather than millions).
- * 
+ *
  * To really optimise IO performance for HDF5 files we'd choose chunk sizes that are close to multiples of
  * storage media block sizes, but I chose not to go down that rathole...
- * 
+ *
  * Based on everything written above, and some tests, I've chosen a default chunk size of 100,000 (dataset
  * entries) for all datasets (HDF5_DEFAULT_CHUNK_SIZE in constants.h).  This clearly trades performance against
  * storage space.  For the (current) default logfile record specifications, per-binary logfile space is about
- * 1K bytes, so in the very worst case we will waste some space at the end of an HDF5 output file, but the 
- * performance gain, especially for post-creation analyses, is significant.  Ensuring the number of systems 
+ * 1K bytes, so in the very worst case we will waste some space at the end of an HDF5 output file, but the
+ * performance gain, especially for post-creation analyses, is significant.  Ensuring the number of systems
  * evolved is an integral multiple of this fixed chunk size will minimise storage space waste.
- * 
+ *
  * I have added the program option --hdf5-chunk-size to allow users to specify the chunk size - the option
  * value defaults to HDF5_DEFAULT_CHUNK_SIZE.
- * 
+ *
  * I have chosen a minimum chunk size of 1000 (HDF5_MINIMUM_CHUNK_SIZE in constants.h).  If the number of
  * systems being evolved is >= HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be the value of the hdf5-chunk-size
- * program option (either HDF5_DEFAULT_CHUNK_SIZE or a value specified by the user), but if the number of 
+ * program option (either HDF5_DEFAULT_CHUNK_SIZE or a value specified by the user), but if the number of
  * systems being evolved is < HDF5_MINIMUM_CHUNK_SIZE the chunk size used will be HDF5_MINIMUM_CHUNK_SIZE.
  * This is just so we don't waste too much storage space when running small tests - and if they are that small
- * performance is probably not going to be much of an issue, so no real trade-off against storage space.  
+ * performance is probably not going to be much of an issue, so no real trade-off against storage space.
  * Detailed output files will use a chunk size of HDF5_MINIMUM_CHUNK_SIZE on the basis that detailed output
  * files generally don't have many thousands of records.
- * 
+ *
  * IO to HDF5 files is buffered in COMPAS - we buffer a number of chunks for each open dataset and write the
  * buffer to the file when the buffer fills (or a partial buffer upon file close if the buffer is not full).
  * This IO buffering is not HDF5 or filesystem buffering - this is a COMPAS-internal implementation to improve
@@ -206,17 +206,17 @@ using std::string;
  * for all columns in the file, there are fewer IO operations to logfiles of type other than HDF5 (1 per system
  * being evolved) and so IO to logfiles of type other than HDF5 has a far less significant impact on performance
  * than does IO to HDF5 logfiles (where column (dataset) data is written individually).
- * 
+ *
  * The default HDF5 IO buffer size is defined in constants.h - HDF5_DEFAULT_IO_BUFFER_SIZE - and I have set it
- * to just 1 - so by default no buffering happens.  I have added the program option --hdf5-buffer-size to allow 
- * users to specify the buffer size - the option value defaults to HDF5_DEFAULT_IO_BUFFER_SIZE.  The HDF5 IO 
+ * to just 1 - so by default no buffering happens.  I have added the program option --hdf5-buffer-size to allow
+ * users to specify the buffer size - the option value defaults to HDF5_DEFAULT_IO_BUFFER_SIZE.  The HDF5 IO
  * buffer size is specified as a number of chunks.  Users should increase the buffer size for better performance
  * if memory space allows it.
- * 
+ *
  * Users should bear in mind that the combination of HDF5 chunk size and HDF5 IO buffer size affect performance,
  * storage space, and memory usage - so they may need to experiment to find a balance that suits their needs.
- * 
- * 
+ *
+ *
  * String values stored in HDF5 files
  * ==================================
  *
@@ -225,58 +225,58 @@ using std::string;
  * writes the strings as ASCII data (as can be seen with h5dump), but Python ignores that).  Note that
  * this affects the values in datasets (and attributes) only, not the dataset names (or group names,
  * attribute names, etc.).
- * 
+ *
  * The only real impact of this is that if the byte array is printed by Python, it will be displayed
  * as (e.g.) "b'abcde'" rather than just "abcde".  All operations on the data work as expected - it
  * is just the output that is impacted.  If that's an issue, use .decode('utf-8') to decode the byte
  * array as a Python string variable.  E.g.
- * 
+ *
  *     str = h5File[Group][Dataset][0]
  *     str is a byte array and print(str) will display (e.g.) b'abcde'
- * 
+ *
  *     but
- * 
+ *
  *     str = h5File[Group][Dataset][0].decode('utf-8')
  *     str is a Python string and print(str) will display (e.g.) abcde
  *
- * 
+ *
  * JR, January 2021
- * 
- * 
- * 
+ *
+ *
+ *
  * Annotations
  * ===========
- * 
- * We have added functionality to allow users to annotate log files.  The original motivation for 
+ *
+ * We have added functionality to allow users to annotate log files.  The original motivation for
  * annotation functionality was to enable users to describe the contents of custom grid files, but
  * annotations can be used for any reason.  With the ability to annotate the log files, the users
- * can indicate the origin of various input data - e.g. the user could indicate what IMF was used 
- * to draw initial mass values, or what distribution was used to draw mass ratio (q), etc.  
- * 
+ * can indicate the origin of various input data - e.g. the user could indicate what IMF was used
+ * to draw initial mass values, or what distribution was used to draw mass ratio (q), etc.
+ *
  * Annotations are written to log files as columns of data (aka datasets in HDF5 files).
  * Annotations are specified via program options, and so can be specified on the command line as
  * well as in grid files.  Because annotations are written to log files as columns of data, we
  * have provided functionality to provide headers for the columns, as well as the actual data
  * for the columns (the annotations).  Two new program options are provided:
- * 
- * --notes-hdrs 
+ *
+ * --notes-hdrs
  * Allows users to specify header strings for annotation columns.  Can only be specified on the
  * command line.  Allows users to specify one or more annotation header strings: this is a vector
  * program option.  Usage is:
- * 
+ *
  *      --notes-hdrs headerstr1 headerstr2 headerstr3 ... headerstrN
- * 
+ *
  * Note that header strings are separated by a space character.  There is no limit to the number
  * of header strings specified, and the number specified defines the number of annotations allowed.
  *
- * 
+ *
  * --notes
  * Allows users to specify annotations.  Can be specified on the command line and in a grid file.
  * Allows users to specify one or more annotation strings: this is a vector program option.  Usage
  * is:
- * 
+ *
  *      --notes annotation1 annotation2 annotation3 ... annotationN
- * 
+ *
  * Note that annotation strings are separated by a space character.  The number of annotation
  * strings is limited to the number of annotation header strings specified (via the --notes-hdrs
  * program option).  If more annotation strings are specified than header strings, the excess
@@ -286,30 +286,30 @@ using std::string;
  * default) - leaving an annotation string blank would be ambiguous (as to which annotation string
  * had been left blank), and specifying "" as an annotation string would be ambiguous (as to whether
  * the use wanted the annotation string to default, or just be a blank string).
- * 
+ *
  * Because this notation could become awkward, and to allow for default annotations, a shorthand
  * notation for vector program options has been provided (see notes in Options.h for details).
- * 
+ *
  * Usage using the shorthand notation is:
- * 
+ *
  *     --notes-hdrs [headerstr1,headerstr2,headerstr3,...,headerStrN]
- * 
+ *
  *     --notes [annotation1,annotation2,annotation3,...,annotationN]
- * 
+ *
  * Because the parameters are bounded by the brackets, and delimited by commas (and so are now
  * positional), users can omit specific annotations:
- * 
+ *
  *     --notes [,,annotation3,,annotation5]
- * 
+ *
  * In the example above, annotations 1, 2, 4, and those beyond annotation 5 have been omitted.
  * Annotations 1, 2 & 4 will default - if they are specified in this manner on a grid line they will
- * default to the correspodning annotation specified on the command line; if they are specified in 
- * this manner on the command line they will default to the COMPAS default annotation (the empty 
- * string).  If the number of annotations expected, as defined by the number of annotation headers 
+ * default to the correspodning annotation specified on the command line; if they are specified in
+ * this manner on the command line they will default to the COMPAS default annotation (the empty
+ * string).  If the number of annotations expected, as defined by the number of annotation headers
  * specified via the --notes-hdrs program option is more than 5, then annotations beyond annotation 5
  * (the last annotation actually specified by the user) will default in the same manner as described
  * above.
- * 
+ *
  * Note that any spaces in annotation header strings and annotation strings need to be enclosed in
  * quotes, or the shell parser will parse them as separate arguments.  If the logfile type is
  * specified as TXT, then any spaces in annotation header strings and annotation strings need to
@@ -317,24 +317,24 @@ using std::string;
  * need to have enclosing quotes propagated to the logfile, or the spaces will be interpreted as
  * delimiters in the logfile - in this cae, the user will need to add enclosing escaped quote
  * characters ('\"') before adding the enclosing quotes.  e.g.:
- * 
+ *
  *     --notes-hdrs [headerstr1,"\"header str 2\"",headerstr3,...,headerStrN]
- * 
+ *
  * (Note that this is true of all string program option values - spaces that are to be propagated to
  * TXT logfiles need to be enclosed in escaped quotes).
- * 
- * 
+ *
+ *
  * JR, October 2021
- * 
- * 
- * 
+ *
+ *
+ *
  * Record Types
  * ============
- * 
+ *
  * All standard logfiles, except the switch log files, now have a record type property (column).  The record
- * type property is of type LOGRECORDTYPE, which is a typedef for unsigned int (unsigned int allows up to 
+ * type property is of type LOGRECORDTYPE, which is a typedef for unsigned int (unsigned int allows up to
  * 4294967296 different integer record types (per standard log file - that should be plenty...).
- * 
+ *
  * The record type property can be used to identify and filter records within a standard log file.  The
  * functionality was introduced primarily to support different types of records in the detailed output files
  * (BSE and SSE), but could be useful for other log files.
@@ -344,20 +344,20 @@ using std::string;
  * of the binary and constituent stars have been correctly and completely updated), and records written to the
  * file, perhaps mid-timestep, when the binary and/or constituent stars may not be self-consistent.  Since the
  * record type property can take any value in the range 0..4294967295 there is scope to identify many different
- * events or situations, in any of the standard log files.  We may want, for example, to indicate that a detailed 
- * output record was written immediately prior to, or immediately following, a particular event or calculation.  
- * Or we may want to indicate that a supernovae record was written to the supernovae file prior to the SN event, 
- * and another record following the SN event.  Or for the RLOF file we may want to differentiate between records 
+ * events or situations, in any of the standard log files.  We may want, for example, to indicate that a detailed
+ * output record was written immediately prior to, or immediately following, a particular event or calculation.
+ * Or we may want to indicate that a supernovae record was written to the supernovae file prior to the SN event,
+ * and another record following the SN event.  Or for the RLOF file we may want to differentiate between records
  * written pre-MT and post_MT - the possibilities are (almost) limitless.
- * 
- * Each standard log file has its own set of record types, as defined in constants.h (e.g. for the BSE Detailed 
+ *
+ * Each standard log file has its own set of record types, as defined in constants.h (e.g. for the BSE Detailed
  * Output file, see 'enum class BSE_DETAILED_RECORD_TYPE' in constants.h).  The idea is to use positive integers
  * to specify the record type, then record types can be ORed together to form a record type bitmap which can be
  * checked to determine which record type to print (set by program options).
- *  
- * 
+ *
+ *
  * JR, August 2022
- * 
+ *
  */
 
 
@@ -464,7 +464,7 @@ private:
         m_HDF5DetailedId              = -1;                                         // no HDF5 detailed file open initially
         m_LogBasePathString           = ".";                                        // default log file base path string (CWD)
         m_LogPathsCreated             = {};                                         // assume already exists (for now)
-        m_LogContainerName            = DEFAULT_OUTPUT_CONTAINER_NAME;              // default log file container name                        
+        m_LogContainerName            = DEFAULT_OUTPUT_CONTAINER_NAME;              // default log file container name
         m_LogNamePrefix               = "";                                         // default log file name prefix
         m_LogfileType                 = DEFAULT_LOGFILE_TYPE;                       // default log file type
         m_LogLevel                    = 0;                                          // default log level - log everything
@@ -589,7 +589,7 @@ private:
 
     // logfile annotation specifications
     //
-    // these are just vectors of booleans, each with size equalling the number of annotations defined by the 
+    // these are just vectors of booleans, each with size equalling the number of annotations defined by the
     // user-specified option '--notes-hdrs' (OPTIONS->NotesHdrs())
     //
     // the boolean value indicates whether the respective annotation should be recorded in the
@@ -621,7 +621,7 @@ private:
     BOOL_VECTOR m_SSE_Sys_Snapshot_Notes = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
 
     // the following block of variables support the BSE Switch Log file
-    
+
     OBJECT_ID          m_ObjectIdSwitching;                                         // the object id of the Star object switching stellar type
     OBJECT_TYPE        m_ObjectSwitchingType;                                       // the object type of the Star object switching stellar type
     OBJECT_PERSISTENCE m_ObjectSwitchingPersistence;                                // the object persistence of the Star object switching stellar type
@@ -648,9 +648,9 @@ private:
         BOOL_VECTOR            logFileAnnotations;                                  // logfile annotations vector
     };
 
-    delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write details    
-*/    
-  
+    delayedWriteDetailsT m_SSESupernovae_DelayedWrite;                              // SSE_Supernovae delayed write details
+*/
+
     // the following block of variables support the run details file
 
     std::ofstream                                      m_RunDetailsFile;            // run details file
@@ -709,17 +709,17 @@ private:
      *
      * This function constructs a log record to be written to one of the standard COMPAS logfiles.
      * The record to be constructed is identified by the logfile to which it is to be written, and the data
-     * is assembled on-the-fly - except possibly for the parameter p_SpecifiedProperty (see below).  The 
+     * is assembled on-the-fly - except possibly for the parameter p_SpecifiedProperty (see below).  The
      * star from which the data should be gathered is passed as a parameter, as is the logfile for which the
      * record should be constructed.  The logfile record properties and format vector appropriate to the
      * specified logfile are also passed as parameters - this function does not need to retrieve/construct
      * them.
      *
-     * This function will, if the value of parameter p_UseSpecifiedValue is true, replace the value of any 
+     * This function will, if the value of parameter p_UseSpecifiedValue is true, replace the value of any
      * property in the record matching the value of the parameter p_SpecifiedProperty with the value specified
      * by the parameter p_SpecifiedPropertyValue.  (See the variant function GetLogStandardRecord() for an
      * explanation of why p_UseSpecifiedValue is required).
-     * 
+     *
      *
      * template <class T1, typename T2>
      * std::tuple<std::string, COMPAS_VARIABLE_VECTOR> GetLogStandardRecord(const LOGFILE             p_LogFile,
@@ -742,7 +742,7 @@ private:
      *                                              should be used to replace values retrieved from p_Star
      * @param   [IN]    p_SpecifiedProperty         The property type of the value to be replaced by p_SpecifiedPropertyValue
      * @param   [IN]    p_SpecifiedPropertyValue    The value of the property to be replaced
-     * 
+     *
      * @return                                      tuple containing
      *                                                  - String formatted as log file record - empty string if an error occurred
      *                                                  - Vector of property values - empty vector if an error occurred
@@ -766,7 +766,7 @@ private:
 
         string logRecord = "";                                                                                                  // for CSV, TSV, TXT files: the record to be written to the log file
         COMPAS_VARIABLE_VECTOR logRecordValues = {};                                                                            // for HDF5 files: vector of values to be written
-                                                             
+
         // set delimiter based on logfile type
         string delimiter = "";                                                                                                  // default
         switch (OPTIONS->LogfileType()) {
@@ -786,7 +786,7 @@ private:
         int index = 0;
         for (auto &property : p_RecordProperties) {                                                                             // for each property to be included in the log record
             ANY_PROPERTY_TYPE thisPropertyType = boost::apply_visitor(VariantPropertyType(), property);                         // get property type for this property
-            
+
             boost::variant<string> fmtStr(p_FmtVector[index++]);                                                                // format string for this property
 
             // program option NOTES is special...
@@ -871,7 +871,7 @@ private:
 
         if (ok) {
 
-            // if we are writing to the SSE Switch file we add two pre-defined columns to 
+            // if we are writing to the SSE Switch file we add two pre-defined columns to
             // the log record.  These are:
             //
             // ( i) the stellar type from which the star is switching
@@ -931,7 +931,7 @@ private:
             // except the switch files (BSE_SWITCH_LOG and SSE_SWITCH_LOG).
             //
             // This is hard-coded here rather than in the *_PROPERTY_DETAIL maps in constants.h
-            // so that it will always be present in the logfile - this way users can't add or 
+            // so that it will always be present in the logfile - this way users can't add or
             // remove it at runtime via the logfile-definitions option.
 
             if (p_LogFile != LOGFILE::BSE_SWITCH_LOG && p_LogFile != LOGFILE::SSE_SWITCH_LOG) {                                 // switch file?
@@ -950,18 +950,18 @@ private:
 
 
     /*
-     * This variant of GetLogStandardRecord() is here because I can't readily figure out how to 
-     * have an optional parameter in a template function if not providing that optional parameter 
+     * This variant of GetLogStandardRecord() is here because I can't readily figure out how to
+     * have an optional parameter in a template function if not providing that optional parameter
      * doesn't give the compiler enough context to deduce the type of the template type.
-     * 
+     *
      * Clear as mud?  Well, for the declaration of GetLogStandardRecord() above, template type T2
      * can't be deduced if the parameter p_SpecifiedPropertyValue is not supplied - even if it
      * is given a default value in the parameter list.  There must be a way of making it work, but
-     * I can't see it - and I don't want to spend any more time trying to figure it out.  Maybe 
+     * I can't see it - and I don't want to spend any more time trying to figure it out.  Maybe
      * later.  In the meantime, this method works.
-     * 
+     *
      * See description of GetLogStandardRecord() for functionality and parameter descriptions.
-     * 
+     *
      */
     template <class T>
     std::tuple<string, COMPAS_VARIABLE_VECTOR> GetLogStandardRecord(const LOGFILE             p_LogFile,
@@ -971,14 +971,14 @@ private:
                                                                     const STR_VECTOR          p_FmtVector,
                                                                     const BOOL_VECTOR         p_Annotations) {
 
-        return GetLogStandardRecord(p_LogFile, 
+        return GetLogStandardRecord(p_LogFile,
                                     p_RecordType,
-                                    p_Star, 
-                                    p_RecordProperties, 
-                                    p_FmtVector, 
+                                    p_Star,
+                                    p_RecordProperties,
+                                    p_FmtVector,
                                     p_Annotations,
-                                    false, 
-                                    ANY_STAR_PROPERTY::STELLAR_TYPE, 
+                                    false,
+                                    ANY_STAR_PROPERTY::STELLAR_TYPE,
                                     STELLAR_TYPE::NONE);
     }
 
@@ -1000,7 +1000,7 @@ private:
      * file status (open, closed) and contents, will be unchanged by this function.  Similarly, if the
      * log level for this record indicates that the record should not be logged, no changes will be made
      * by this function.
-     * 
+     *
      *
      * template <class T>
      * bool LogStandardRecord(const string        p_LogClass,
@@ -1057,7 +1057,7 @@ private:
      * constructed.  Parameters are the same except for an additional parameter in each case: for
      * HDF5 files the extra parameter is a vector of values, and for non-HDF5 files the parameter
      * is a string.
-     * 
+     *
      * See description of GetLogStandardRecord() for functionality and parameter descriptions.
      */
 
@@ -1174,7 +1174,7 @@ public:
 
     bool   Write(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const string p_LogStr);
     bool   Write(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const COMPAS_VARIABLE_VECTOR p_LogRecordValues, const bool p_Flush = false);
-    
+
     bool   Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const string p_LogStr);
     bool   Put(const int p_LogfileId, const string p_LogClass, const int p_LogLevel, const COMPAS_VARIABLE_VECTOR p_LogRecordValues);
 
@@ -1187,12 +1187,12 @@ public:
 
     void   Say(const string p_SayClass, const int p_SayLevel, const string p_SayStr);
 
-    // SetSwitchParameters is called by Star::SwitchTo to set the parameters 
+    // SetSwitchParameters is called by Star::SwitchTo to set the parameters
     // to be written to the Switch Log file
     void   SetSwitchParameters(const OBJECT_ID          p_ObjectIdSwitching,
                                const OBJECT_TYPE        p_ObjectSwitchingType,
-                               const OBJECT_PERSISTENCE p_ObjectSwitchingPersistence, 
-                               const STELLAR_TYPE       p_TypeSwitchingFrom, 
+                               const OBJECT_PERSISTENCE p_ObjectSwitchingPersistence,
+                               const STELLAR_TYPE       p_TypeSwitchingFrom,
                                const STELLAR_TYPE       p_TypeSwitchingTo) {
         m_ObjectIdSwitching          = p_ObjectIdSwitching;                         // the object id of the Star object switching stellar type
         m_ObjectSwitchingType        = p_ObjectSwitchingType;                       // the object type of the Star object switching stellar type
@@ -1213,7 +1213,7 @@ public:
     std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> GetStandardLogFileRecordDetails(const LOGFILE p_Logfile);
 
     template <class T>
-    bool LogBSEDetailedOutput(const T* const p_Binary, 
+    bool LogBSEDetailedOutput(const T* const p_Binary,
                               const long int p_Id,
                               const BSE_DETAILED_RECORD_TYPE p_RecordType)          { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_DETAILED_OUTPUT)), 0, LOGFILE::BSE_DETAILED_OUTPUT, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary, "_" + std::to_string(abs(p_Id))); }
 
@@ -1224,11 +1224,11 @@ public:
     template <class T>
     bool LogBSESupernovaDetails(const T* const p_Binary,
                                 const BSE_SN_RECORD_TYPE p_RecordType)                  { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SUPERNOVAE)), 0, LOGFILE::BSE_SUPERNOVAE, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
-    
+
     template <class T>
     bool LogBSESwitchLog(const T* const p_Binary, const bool p_PrimarySwitching, const bool p_IsMerger) {
         m_PrimarySwitching = p_PrimarySwitching;
-        m_SwitchIsMerger   = p_IsMerger;        
+        m_SwitchIsMerger   = p_IsMerger;
         return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SWITCH_LOG)), 0, LOGFILE::BSE_SWITCH_LOG, 1U, p_Binary);
     }
 
@@ -1237,9 +1237,9 @@ public:
                                 const BSE_SYSPARMS_RECORD_TYPE p_RecordType)            { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_PARAMETERS)), 0, LOGFILE::BSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
 
     template <class T>
-    bool LogBSESystemSnapshotLog(const T* const p_Binary, 
+    bool LogBSESystemSnapshotLog(const T* const p_Binary,
                                     const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG)), 0, LOGFILE::BSE_SYSTEM_SNAPSHOT_LOG, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
-                            
+
     template <class T>
     bool LogCommonEnvelope(const T* const p_Binary,
                            const CE_RECORD_TYPE p_RecordType)                           { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
@@ -1268,9 +1268,9 @@ public:
                                 const SSE_SYSPARMS_RECORD_TYPE p_RecordType)            { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_PARAMETERS)), 0, LOGFILE::SSE_SYSTEM_PARAMETERS, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
 
     template <class T>
-    bool LogSSESystemSnapshotLog(const T* const p_Star, 
+    bool LogSSESystemSnapshotLog(const T* const p_Star,
                                     const SSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType) { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG)), 0, LOGFILE::SSE_SYSTEM_SNAPSHOT_LOG, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }
-                                     
+
     template <class T>
     bool LogSSEPulsarEvolutionParameters(const T* const p_Star,
                                          const SSE_PULSAR_RECORD_TYPE p_RecordType)     { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::SSE_PULSAR_EVOLUTION)), 0, LOGFILE::SSE_PULSAR_EVOLUTION, static_cast<LOGRECORDTYPE>(p_RecordType), p_Star); }

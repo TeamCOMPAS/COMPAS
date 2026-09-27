@@ -6,7 +6,7 @@ A Program Options service is provided, encapsulated in a singleton object (an in
 The ``Options`` class member variables are private, and public getter functions have been created for the program options currently
 used in the code.
 
-The Options service can be accessed by referring to the ``Options::Instance()`` object. For example, to retrieve the value of 
+The Options service can be accessed by referring to the ``Options::Instance()`` object. For example, to retrieve the value of
 the ``--quiet`` program option, call the ``Options::Quiet()`` getter function::
 
     bool quiet = Options::Instance()→Quiet();

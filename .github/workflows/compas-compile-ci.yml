@@ -70,18 +70,18 @@ jobs:
           echo "Running pytest suite..."
           cd ${GITHUB_WORKSPACE}
           export COMPAS_ROOT_DIR=${GITHUB_WORKSPACE}
-          
+
           if command -v jupyter-kernelspec &> /dev/null; then
             echo "Available Jupyter kernels:"
             jupyter-kernelspec list
           fi
-          
+
           pytest --cov=compas_python_utils/ py_tests/ -m 'not webtest'
           pytest --cov=compas_python_utils/ --cov-append py_tests/ -m webtest
-          
+
           echo "Test artifacts:"
           ls py_tests/test_artifacts/ 2>/dev/null || echo "No test artifacts found"
-          
+
           coverage html
           coverage-badge -o coverage_badge.svg -f
           echo "All tests completed successfully!"

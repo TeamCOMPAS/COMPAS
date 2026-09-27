@@ -27,7 +27,7 @@
  */
 DBL_DBL Remnants::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
 
-    double thisMassRate     = CalculateEddingtonCriticalRate(); 
+    double thisMassRate     = CalculateEddingtonCriticalRate();
 
     double acceptanceRate   = std::min(thisMassRate, p_DonorMassRate);
     double fractionAccreted = acceptanceRate / p_DonorMassRate;

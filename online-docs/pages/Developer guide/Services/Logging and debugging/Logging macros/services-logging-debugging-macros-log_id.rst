@@ -12,11 +12,11 @@ Writes a log record prepended with calling function name to the log file specifi
     LOG_ID(id, string)                // writes 'string' prepended with name of calling function to the
                                       // log file
 
-    LOG_ID(id, level, string)         // writes 'string' prepended with name of calling function to the 
+    LOG_ID(id, level, string)         // writes 'string' prepended with name of calling function to the
                                       // log file if 'level' <= 'p_LogLevel' in Log::Start()
 
-    LOG_ID(id, class, level, string)  // writes 'string' prepended with name of calling function to the 
-                                      // log file if 'class' is in 'p_LogClasses' in Log::Start(), and 
+    LOG_ID(id, class, level, string)  // writes 'string' prepended with name of calling function to the
+                                      // log file if 'class' is in 'p_LogClasses' in Log::Start(), and
                                       // 'level' <= 'p_LogLevel' in Log::Start().
 
 Default class is ””; default level is 0.

@@ -16,18 +16,18 @@
 
 
 class BaseStar {
-    
+
 public:
-    
+
     BaseStar();
-    
+
     BaseStar(const unsigned long int p_RandomSeed,
              const double            p_MZAMS,
              const double            p_Metallicity,
              const KickParameters    p_KickParameters,
              const double            p_RotationalVelocity = -1.0);
-    
-    
+
+
     /*
      * The following Clone() functions should be used to clone a star - any steller type, including BaseStar.
      * The BaseStar functions will never actually be executed - the derived functions will be called as required.
@@ -60,13 +60,13 @@ public:
      *                                              (Default is `true`)
      * @return                                      (pointer to) The cloned star
      */
-    
+
     virtual BaseStar* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return this; }
     static  BaseStar* Clone(BaseStar* p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) { return p_Star; }
-    
+
     virtual ~BaseStar() {}
-    
-    
+
+
     // object identifiers - all classes have these
     OBJECT_ID           ObjectId() const                                                        { return m_ObjectId; }
     OBJECT_TYPE         ObjectType() const                                                      { return OBJECT_TYPE::BASE_STAR; }
@@ -74,8 +74,8 @@ public:
     STELLAR_TYPE        InitialStellarType() const                                              { return m_InitialStellarType; }
     STELLAR_TYPE        StellarType() const                                                     { return m_StellarType; }
     STELLAR_TYPE        StellarTypePrev() const                                                 { return m_StellarTypePrev; }
-    
-    
+
+
     // getters - alphabetically
     double              Age() const                                                     { return m_Age; }
     double              AngularMomentum() const                                         { return m_AngularMomentum; }
@@ -182,74 +182,74 @@ public:
     double              VelocityZ() const                                               { return m_ComponentVelocity.zValue(); }
     virtual ACCRETION_REGIME    WhiteDwarfAccretionRegime() const                               { return ACCRETION_REGIME::ZERO; }
     double              XExponent() const                                               { return m_XExponent; }
-    
-    
+
+
     // setters
     void                SetAngularMomentum(double p_AngularMomentum)                    { m_AngularMomentum = std::max(p_AngularMomentum, 0.0); }
     void                SetInitialType(const STELLAR_TYPE p_InitialType)                { m_InitialStellarType = p_InitialType; }
     void                SetError(const ERROR p_Error)                                   { m_Error = p_Error; }
     void                SetObjectId(const OBJECT_ID p_ObjectId)                         { m_ObjectId = p_ObjectId; }
     void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)          { m_ObjectPersistence = p_Persistence; }
-    
+
     void                SetOmega(double p_Omega)                                        { SetAngularMomentum(CalculateMomentOfInertiaAU() * p_Omega); }
-    
+
     void                SetSNCurrentEvent(const SN_EVENT p_SNEvent)                     { m_SupernovaDetails.events.current |= p_SNEvent; }                                 // Set supernova primary event/state for current timestep
     void                SetSNPastEvent(const SN_EVENT p_SNEvent)                        { m_SupernovaDetails.events.past |= p_SNEvent; }                                    // Set supernova primary event/state for any past timestep
-    
+
     void                SetEvolutionStatus(const EVOLUTION_STATUS p_EvolutionStatus)    { m_EvolutionStatus = p_EvolutionStatus; }                                          // Set evolution status (typically final outcome) for star
     void                UpdateComponentVelocity(const Vector3d p_NewVelocity)           { m_ComponentVelocity += p_NewVelocity; }
-    
+
     void                UpdateMassTransferDonorHistory();
-    
+
     void                UpdatePreviousTimestepDuration()                                { m_DtPrev = m_Dt; }
-    
-    
-    
+
+
+
     // member functions - alphabetically
             void            ApplyMassTransferRejuvenationFactor()                                               { m_Age *= CalculateMassTransferRejuvenationFactor(); }             // Apply age rejuvenation factor
-    
+
             double          CalculateBindingEnergy(const double p_CoreMass, const double p_EnvMass, const double p_Radius, const double p_Lambda) const;
 
     virtual double          CalculateConvectiveCoreMass() const {return 0.0;}
     virtual double          CalculateConvectiveCoreRadius() const {return 0.0;}
-    
+
             double          CalculateConvectiveEnvelopeBindingEnergy(const double p_TotalMass, const double p_ConvectiveEnvelopeMass, const double p_Radius, const double p_Lambda) const;
-    
+
             double          CalculateConvectiveEnvelopeLambdaPicker(const DBL_DBL p_ConvectiveEnvelopeMass) const;
     virtual DBL_DBL         CalculateConvectiveEnvelopeMass() const                                             { return std::tuple<double, double> (0.0, 0.0); }
-    
+
     virtual double          CalculateCriticalMassRatio(const bool p_AccretorIsDegenerate,
                                                        const double p_massTransferEfficiencyBeta);
     virtual double          CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const         { return 0.0; }                                                     // Default is 0.0
     virtual double          CalculateCriticalMassRatioGeEtAl(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                                              const double p_massTransferEfficiencyBeta)         { return InterpolateGeEtAlQCrit(p_qCritPrescription, p_massTransferEfficiencyBeta); }
     virtual double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                            { return 0.0; }                                                     // Default is 0.0
-    
+
             double          CalculateDynamicalTimescale() const                                                 { return CalculateDynamicalTimescale_Static(m_Mass, m_Radius); }    // Use class member variables
-    
+
             double          CalculateEddingtonLuminosity() const                                                { return CalculateEddingtonLuminosity_Static(m_Mass, m_HeliumAbundanceSurface); } // Use class member variables
-    
+
             double          CalculateEddyTurnoverTimescale() const;
-    
+
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 { CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
-    
+
             double          CalculateInitialHeliumAbundance() const                                             { return 0.24 + 2.0 * m_Metallicity; }                              // Pols et al. 1998
             double          CalculateInitialHydrogenAbundance() const                                           { return 0.76 - 3.0 * m_Metallicity; }                              // Pols et al. 1998
-    
+
     virtual DBL_DBL_DBL_DBL CalculateImKnmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;
     virtual DBL_DBL_DBL_DBL CalculateImKnmEquilibrium(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const ;
     virtual DBL_DBL_DBL_DBL CalculateImKnmTidal(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const;
-    
+
     virtual double          CalculateLambdaDewi() const                                                         { return 1.0; }                                                     // Default for stellar types with no LamdaDewi definitions - 1.0 is benign
             double          CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const;
             double          CalculateLambdaKruckow() const                                                      { return CalculateLambdaKruckow(m_Radius, OPTIONS->CommonEnvelopeSlopeKruckow()); }
     virtual double          CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss = false) const { return 1.0; }                                                 // Default for non giant branch stars - 1.0 is benign
             double          CalculateLambdaLoveridge() const                                                    { return CalculateLambdaLoveridge(m_Mass - m_CoreMass, false); }
             double          CalculateLambdaNanjing() const;
-    
+
             DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                        const double p_AccretorMassRate); 
+                                                        const double p_AccretorMassRate);
     virtual DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                         const double p_AccretorMassRate,
                                                         const bool   p_IsHeRich)                                { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for non-WDs
@@ -258,16 +258,16 @@ public:
                                                        const double p_CompanionMass,
                                                        const double p_CompanionRadius,
                                                        const double p_CompanionEnvelope) const;
-    
+
             double          CalculateMassChangeTimescale() const                                                { return CalculateMassChangeTimescale_Static(m_StellarType, m_StellarTypePrev, m_Mass, m_MassPrev, m_DtPrev); }  // Use class member variables
 
             double          CalculateMassLossValues(double p_Dt, const bool p_UpdateMDot = false);
 
     virtual double          CalculateMomentOfInertia() const                                                    { return (0.1 * (m_Mass) * m_Radius * m_Radius); }                  // Defaults to MS. k2 = 0.1 as defined in Hurley et al. 2000, after eq 109
     virtual double          CalculateMomentOfInertiaAU() const                                                  { return CalculateMomentOfInertia() * RSOL_TO_AU * RSOL_TO_AU; }
-    
+
             double          CalculateNuclearMassLossRate()                                                      { return m_Mass / CalculateRadialExpansionTimescaleDuringMassTransfer(); }
-        
+
             double          CalculateOmegaCHE(const double p_MZAMS, const double p_Metallicity) const;
 
             double          CalculateOpacity() const                                                            { return CalculateOpacity_Static(m_HeliumAbundanceSurface); }       // Use class member variables
@@ -275,13 +275,13 @@ public:
             double          CalculateRadialChange() const                                                       { return (utils::Compare(m_RadiusPrev,0)<=0)? 0 : std::abs(m_Radius - m_RadiusPrev) / m_RadiusPrev; } // Return fractional radial change (if previous radius is negative or zero, return 0 to avoid NaN
 
             double          CalculateRadialExpansionTimescale() const                                           { return CalculateRadialExpansionTimescale_Static(m_StellarType, m_StellarTypePrev, m_Radius, m_RadiusPrev, m_DtPrev); } // Use class member variables
-    
+
             double          CalculateRadialExpansionTimescaleDuringMassTransfer();
-    
+
     virtual double          CalculateRadialExtentConvectiveEnvelope() const                                     { return 0.0; }                                                     // Default for stars with no convective envelope
-    
+
     virtual double          CalculateRadiusOnMassChange(double p_dM)                                            { return Radius(); } // NO-OP
-        
+
     virtual double          CalculateRemnantRadius() const                                                      { return Radius(); }                                                // Relevant for MS stars, over-written for GB stars
 
 
@@ -301,7 +301,7 @@ public:
 
             double          CalculateZetaAdiabatic();
     virtual double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)              { return 0.0; }                                                     // Use inheritance hierarchy
-    
+
     virtual double          CalculateZetaEquilibrium()                                                          { return 0.0; }
 
             void            ClearCurrentSNEvent()                                                               { m_SupernovaDetails.events.current = SN_EVENT::NONE; }             // Clear supernova event/state for current timestep
@@ -311,10 +311,10 @@ public:
 
     virtual ENVELOPE        DetermineEnvelopeType() const                                                       { return ENVELOPE::REMNANT; }                                       // Default is REMNANT - but should never be called
     virtual MT_CASE         DetermineMassTransferTypeAsDonor() const                                            { return MT_CASE::OTHER; }                                          // Not A, B, C, or NONE
-    
+
             void            HaltWinds()                                                                         { m_Mdot = 0.0; }                                                   // Disable wind mass loss in current time step (e.g., if star is a donor or accretor in a RLOF episode)
 
-    virtual double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+    virtual double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                                    const double p_massTransferEfficiencyBeta)                   { return 0.0; }                                                     // Placeholder, use interpolator for either H-rich or H-poor stars
 
             void            ResetEnvelopeExpulsationByPulsations()                                              { m_EnvelopeJustExpelledByPulsations = false; }
@@ -334,15 +334,15 @@ public:
     virtual void            ResolveMassLoss(double p_Dt);
 
     virtual void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                     // Default does nothing, use inheritance for WDs.
-       
+
             void            SetStellarTypePrev(const STELLAR_TYPE p_StellarTypePrev)                            { m_StellarTypePrev = p_StellarTypePrev; }
-    
+
     virtual bool            ShouldEnvelopeBeExpelledByPulsations() const                                        { return false; }                                                   // Default is that there is no envelope expulsion by pulsations
 
     virtual void            SpinDownIsolatedPulsar(const double p_Stepsize)                                     { }                                                                 // Default is NO-OP
 
     virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                     // Except MS stars
-    
+
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
@@ -361,11 +361,11 @@ public:
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
     virtual void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                     // Set core mass for Main Sequence stars; default is NO-OP
-    
+
     virtual void            UpdateTotalMassLossRate(const double p_MassLossRate)                                { m_TotalMassLossRate = p_MassLossRate; }                           // m_TotalMassLossRate = -m_Mdot in SSE, during a mass transfer episode m_TotalMassLossRate = m_MassLossRateInRLOF
-    
+
     // printing functions
-    bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const { 
+    bool PrintDetailedOutput(const int p_Id, const SSE_DETAILED_RECORD_TYPE p_RecordType) const {
         return OPTIONS->DetailedOutput() ? LOGGING->LogSSEDetailedOutput(this, p_Id, p_RecordType) : true;                                                                          // Write record to SSE Detailed Output log file
     }
 
@@ -377,7 +377,7 @@ public:
         return LOGGING->LogSSESupernovaDetails(this, p_RecordType);                                                                                                                 // Write record to SSE Supernovae log file
     }
 
-    bool PrintSwitchLog() const { 
+    bool PrintSwitchLog() const {
         return OPTIONS->SwitchLog() ? (LOGGING->ObjectSwitchingPersistence() == OBJECT_PERSISTENCE::PERMANENT ? LOGGING->LogSSESwitchLog(this) : true) : true;                      // Write record to SSE Switchlog log file
     }
 
@@ -397,13 +397,13 @@ protected:
     STELLAR_TYPE            m_StellarType;                              // Stellar type defined in Hurley et al. 2000
 
     ERROR                   m_Error;                                    // Records most recent error encountered for this star
-        
+
     // member variables - alphabetical in groups
 
     bool                    m_CHE;                                      // CHE flag - true if the star spent entire MS as a CH star; false if evolved CH->MS
 
     EVOLUTION_STATUS        m_EvolutionStatus;                          // Status of evolution for this star (typically final outcome e.g. DONE, TIMES_UP, etc.)
-    
+
     // Stellar variables
     unsigned long int       m_RandomSeed;                               // Seeds the random number generator for this star
 
@@ -470,7 +470,7 @@ protected:
 
 
     // constants only calculated once
-    double                  m_BaryonicMassOfMaximumNeutronStarMass;      // baryonic mass of MaximumNeutronStarMass 
+    double                  m_BaryonicMassOfMaximumNeutronStarMass;      // baryonic mass of MaximumNeutronStarMass
 
     // JR:
     // I initially implemented the following vectors as unordered_maps.  The code worked
@@ -504,10 +504,10 @@ protected:
     SupernovaDetailsT       m_SupernovaDetails;                         // Supernova attributes
     PulsarDetailsT          m_PulsarDetails;                            // Pulsar attributes
 
-    // Star vector velocity 
+    // Star vector velocity
     Vector3d                m_ComponentVelocity;                        // Isolated star velocity vector (binary's center-of-mass velocity for bound binary)
 
-    // Star mass transfer history 
+    // Star mass transfer history
     ST_VECTOR               m_MassTransferDonorHistory;                 // List of MT donor stellar types - mostly relevant for binary stars
 
     // member functions - alphabetically
@@ -549,7 +549,7 @@ protected:
     virtual double              CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return m_HeliumAbundanceSurface; }                                        // Default is NO-OP
 
     virtual double              CalculateHydrogenAbundanceCoreOnPhase() const                                           { return m_HydrogenAbundanceCore; }                                         // Default is NO-OP
-    virtual double              CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                      // Default is NO-OP    
+    virtual double              CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return m_HydrogenAbundanceSurface; }                                      // Default is NO-OP
 
     static  double              CalculateHeRateConstant_Static()                                                        { return HE_RATE_CONSTANT; }                                                // Only >= CHeB stars need AHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
     static  double              CalculateHHeRateConstant_Static()                                                       { return HHE_RATE_CONSTANT; }                                               // Only TPAGB stars need AHHe, but no drama if other stars calculate (retrieve it) - it's only a constant (we could just use the constant inline...)
@@ -579,7 +579,7 @@ protected:
                                                                     const double       p_Mass,
                                                                     const double       p_MassPrev,
                                                                     const double       p_DtPrev);
-    
+
             void                CalculateMassCutoffs(const double p_Metallicity, const double p_LogMetallicityXi, DBL_VECTOR &p_MassCutoffs);
 
     virtual double              CalculateMassLossRate();
@@ -730,7 +730,7 @@ protected:
 
             double              ReweightSupernovaKickByMass(const double p_vK, const double p_FallbackFraction, const double p_BlackHoleMass) { return p_vK; }                                      // Default is not to re-weight, except for black holes where the --black-hole-kicks-prescription option is relevant
 
-    
+
     virtual void                SetSNHydrogenContent()                                                                  { m_SupernovaDetails.isHydrogenPoor = false; }                              // Default is false
 
             bool                ShouldBeMasslessRemnant() const                                                         { return (m_Mass <= 0.0 || m_StellarType == STELLAR_TYPE::MASSLESS_REMNANT); }

@@ -69,28 +69,28 @@ def detection_probability(m1, m2, redshift, distance, snr_threshold,sensitivity=
 def SNRinterpolator(sensitivity='design'):
     """
     Returns an Interpolator class instance for a given sensitivity
-    
+
     This function is a convenience function to generate the
     interpolator with 'SNR_Grid_IMRPhenomPv2_FD_all_noise.hdf5'
     and 'SimNoisePSDaLIGODesignSensitivityP1200087'.
-    
+
     Parameters
     ----------
     sensitivity : str
     Which detector sensitivity PSD to use. Options are 'design' and 'O1'
-    
+
     Returns
     -------
     out : Interpolator
     Interpolator class instance
-    
+
     Notes
     -----
     The interpolator is only initialized once and then stored in a
     module level global variable to be reused.
     """
     path = os.path.dirname(os.path.abspath(__file__))
-    
+
     if sensitivity == 'design':
         hdfDatasetName = 'SimNoisePSDaLIGODesignSensitivityP1200087'
     elif sensitivity == 'O1':

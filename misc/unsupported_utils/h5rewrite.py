@@ -46,7 +46,7 @@ def createDataInNewH5(h_old, h_new, filename, columns, seeds):
         dataNew    = h_new[filename].create_dataset(column, data=data)
         dataNew.attrs['units'] = unit
         #add attribute comment
-    
+
 def reduceH5(pathToOld = None, pathToNew = None, dictColumns=None, dictSeeds=None):
 
 
@@ -81,7 +81,7 @@ def reduceH5(pathToOld = None, pathToNew = None, dictColumns=None, dictSeeds=Non
             sanityChecks(h_old, filename, dictColumns[filename], dictSeeds[filename])
             createDataInNewH5(h_old, h_new, filename, dictColumns[filename], dictSeeds[filename])
             # RTW
-            
+
         h_old.close()
         h_new.close()
 
@@ -113,10 +113,10 @@ def printAllColumnsInH5(pathToData):
         #It means I add X spaces to line it
         print('\t   column name%sunit%slength'%(29*' ',16*' '))
         print('\t   '+'-----------------'*4)
-        
+
         #In this file give me all the column names
         columns = Data[File].keys()
-        
+
         #for every column in the columns
         for nrc,column in enumerate(columns):
             #always want the column name printed in 40 char

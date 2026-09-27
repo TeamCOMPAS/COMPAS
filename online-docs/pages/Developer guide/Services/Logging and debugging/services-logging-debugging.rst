@@ -25,11 +25,11 @@ When the base-level logging functionality was created, debugging functionality w
 debugging and the issuing of warning messages easier. A set of logging macros was also provided to make logging easier. The debug
 macros are still useful, and their use is encouraged (rather than inserting print statements using ``std::cout`` or ``std::cerr``).
 
-When the ``BSE`` code was refactored, some rudimentary error handling functionality was also provided in the form of the 
+When the ``BSE`` code was refactored, some rudimentary error handling functionality was also provided in the form of the
 :doc:`Errors service <../services-error-handling>` an attempt at making error handling easier. Some of the functionality provided by the
 :doc:`Errors service <../services-error-handling>` supersedes the ``DBG_WARN*`` macros provided as part of the Log class, but the ``DBG_WARN*``
 macros are still useful in some circumstances (and in fact are still used in various places in the code). The ``LOG*`` macros are somewhat less
-useful, but remain in case the original base-level logging functionality (that which underlies the expanded logging functionality) is used in 
+useful, but remain in case the original base-level logging functionality (that which underlies the expanded logging functionality) is used in
 the future (as mentioned above, it could still be useful in some circumstances).
 
 The expanded logging functionality introduces Standard Log Files - described in :doc:`services-extended-logging`.

@@ -15,7 +15,7 @@ where `set-specifier` is defined as:
     and
 
     .. list-table::
-       :widths: 24 76 
+       :widths: 24 76
        :header-rows: 0
        :class: aligned-text
 
@@ -28,7 +28,7 @@ where `set-specifier` is defined as:
 
         `set-identifier` is mandatory for `set-specifier`. |br|
         `value`:sub:`i` must be the same data type as `option-name`.
-        
+
 There should be no spaces inside the brackets ([]). Spaces on the command line are interpreted as argument delimiters
 by the shell parser before passing the command-line arguments to the COMPAS executable, so if spaces are present inside
 the brackets the shell parser breaks the set specification into multiple command-line arguments.
@@ -52,5 +52,3 @@ should be evolved, using the eccentricity distributions ’THERMALISED’, ’FI
 Note that when a set is, or sets are, specified on the command line, the ``--number-of-systems`` command-line option is ignored.
 This is to avoid multiple systems with identical initial values being evolved.  Ranges and sets can be mixed with grid files, and
 in that case ranges and sets specified on the command line will be played out for each grid file line.
-
-   

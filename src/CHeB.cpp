@@ -11,13 +11,13 @@
 
 /*
  * Calculate the helium abundance in the core of the star
- * 
+ *
  * Currently just a simple linear model. Should be updated to match detailed models.
  *
  * double CalculateHeliumAbundanceCore(const double p_Tau)
- * 
+ *
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
- * 
+ *
  * @return                                      Helium abundance in the core (Y_c)
  */
 double CHeB::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
@@ -48,10 +48,10 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     timescales(tHe)    = CalculateLifetimeOnPhase(p_Mass);
 	timescales(tau_BL) = CalculateLifetimeOnBluePhase(p_Mass);
 
-    // JR: The blue loop on CHeB can be 0-length/duration (see Hurley et al., 2000, section 5.3, 
-    // particularly eq 58 and beyond).  COMPAS does not allow for a 0-length blue loop - some of 
-    // the equations used (e.g. to calculate Radius) result in nan or inf.  As a temporary workaround 
-    // until we work out how to skip the blue loop (when it is 0-length) we will set the length of a 
+    // JR: The blue loop on CHeB can be 0-length/duration (see Hurley et al., 2000, section 5.3,
+    // particularly eq 58 and beyond).  COMPAS does not allow for a 0-length blue loop - some of
+    // the equations used (e.g. to calculate Radius) result in nan or inf.  As a temporary workaround
+    // until we work out how to skip the blue loop (when it is 0-length) we will set the length of a
     // 0-length blue loop to the absolute minimum timestep (currently ~100 seconds).
     //
     // Note that this works around a long-standing problem, which was worked around in legacy COMPAS
@@ -60,7 +60,7 @@ void CHeB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     //    if(brackets ==0){brackets = 1e-12;}  //If zero gives R=NaN Coen Neijssel 10-01-2017
     //
     // The workaround implemented here is closer to the source of the problem (the blue loop does not
-    // actually exist for some stars), and maybe a bit more meaningful (we're just using a very short 
+    // actually exist for some stars), and maybe a bit more meaningful (we're just using a very short
     // duration blue loop instead of a no duration (non-existent) one)
 
     if (timescales(tau_BL) <= 0.0) timescales(tau_BL) = ABSOLUTE_MINIMUM_TIMESTEP;      // don't use utils::Compare() here
@@ -141,7 +141,7 @@ double CHeB::CalculateLambdaDewi() const {
  *
  * @param   [IN]    p_MassIndex                 Mass index
  * @param   [IN]    p_StellarPop                The stellar population for metallicity (POP I or POP II)
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double CHeB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const {
@@ -510,7 +510,7 @@ double CHeB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
  *
  * @param   [IN]    p_Mass                      Mass
  * @param   [IN]    p_Metallicity               Metallicity
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double CHeB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -1374,7 +1374,7 @@ double CHeB::CalculateBluePhaseFBL(const double p_Mass) {
  * @param   [IN]    p_Mass                      Mass in Msol
  * @return                                      Relative lifetime of blue phase of Core Helium Burning, clamped to [0, 1]
  */
-double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {                                          
+double CHeB::CalculateLifetimeOnBluePhase(const double p_Mass) {
 #define b m_BnCoefficients                                              // for convenience and readability - undefined at end of function
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
@@ -1441,16 +1441,16 @@ bool CHeB::ShouldEvolveOnPhase() const {
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
 ENVELOPE CHeB::DetermineEnvelopeType() const {
-    
+
     ENVELOPE envelope = ENVELOPE::CONVECTIVE;                                                       // default envelope type
-    
+
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                 // which envelope prescription?
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
             envelope = ENVELOPE::CONVECTIVE;
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             // envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             envelope = utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
@@ -1462,7 +1462,7 @@ ENVELOPE CHeB::DetermineEnvelopeType() const {
             std::tie(convectiveEnvelopeMass, convectiveEnvelopeMassMax) = CalculateConvectiveEnvelopeMass();
             envelope = utils::Compare(convectiveEnvelopeMass / (m_Mass - m_CoreMass), OPTIONS->ConvectiveEnvelopeMassThreshold()) > 0 ? ENVELOPE::CONVECTIVE : ENVELOPE::RADIATIVE;
             break;
-            
+
         default:                                                                                    // unknown prescription
             // the only way this can happen is if someone added an ENVELOPE_STATE_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
@@ -1471,9 +1471,9 @@ ENVELOPE CHeB::DetermineEnvelopeType() const {
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error             
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error
     }
-    
+
     return envelope;
 }
 
@@ -1532,7 +1532,7 @@ double CHeB::ChooseTimestep(const double p_Time) const {
 STELLAR_TYPE CHeB::ResolveEnvelopeLoss(bool p_Force) {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     STELLAR_TYPE stellarType = m_StellarType;
-    
+
     if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
 
     if (p_Force || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations ) {    // Envelope loss

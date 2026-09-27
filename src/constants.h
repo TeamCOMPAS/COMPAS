@@ -25,17 +25,17 @@ typedef std::tuple<std::string, std::string, std::string>               STR_STR_
 typedef std::tuple<std::string, std::string, std::string, std::string>  STR_STR_STR_STR;
 
 typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR, DBL_VECTOR>> GE_QCRIT_RADII_QCRIT_VECTOR;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR>             GE_QCRIT_TABLE; 
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR>             GE_QCRIT_TABLE;
 typedef std::vector<std::tuple<DBL_VECTOR, DBL_VECTOR>>                 GE_QCRIT_RADII_QCRIT_VECTOR_HE;
-typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE>          GE_QCRIT_TABLE_HE; 
+typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE>          GE_QCRIT_TABLE_HE;
 
 
 // the defaults size of the boost list that handles variant types is 20 - so only 20 variant types are allowed
 // we've exceeded that number - we're at 21 currently - so the size of the boost list needs to be increased
 // we have to set the size of the list before we include the boost headers - otherwise boost redefines it
-// boost only recognises values of 20, 30, 40, & 50: for now we set it to 30. 
+// boost only recognises values of 20, 30, 40, & 50: for now we set it to 30.
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-  
+
 #if !defined(BOOST_MPL_LIMIT_LIST_SIZE)
     #if defined(BOOST_MPL_LIST_HPP_INCLUDED)
       # error "BOOST_MPL_LIMIT_LIST_SIZE must be set to accommodate the size of COMPAS_VARIABLE before the including the Boost headers"
@@ -49,7 +49,7 @@ typedef std::tuple<DBL_VECTOR, GE_QCRIT_RADII_QCRIT_VECTOR_HE>          GE_QCRIT
     #else
       # error "BOOST_MPL_LIMIT_LIST_SIZE value is too low"
     #endif
-    
+
 #endif
 
 #include <boost/variant.hpp>
@@ -377,13 +377,13 @@ constexpr double KROUPA_BREAK_2_POWER_2_3               = 0.5;                  
 constexpr double OPIKS_LAW_SEMIMAJOR_AXIS_DISTRIBUTION_POWER =  -1.0;
 
 // Constants for the Muller and Mandel remnant mass and kick prescriptions
-constexpr double MULLERMANDEL_M1                        = 2.0;	
-constexpr double MULLERMANDEL_M2                        = 3.0; 
-constexpr double MULLERMANDEL_M3                        = 7.0; 
-constexpr double MULLERMANDEL_M4                        = 8.0; 
+constexpr double MULLERMANDEL_M1                        = 2.0;
+constexpr double MULLERMANDEL_M2                        = 3.0;
+constexpr double MULLERMANDEL_M3                        = 7.0;
+constexpr double MULLERMANDEL_M4                        = 8.0;
 constexpr double MULLERMANDEL_MU1                       = 1.2;
-constexpr double MULLERMANDEL_SIGMA1                    = 0.02;  
-constexpr double MULLERMANDEL_MU2A                      = 1.4; 
+constexpr double MULLERMANDEL_SIGMA1                    = 0.02;
+constexpr double MULLERMANDEL_MU2A                      = 1.4;
 constexpr double MULLERMANDEL_MU2B                      = 0.5;
 constexpr double MULLERMANDEL_SIGMA2                    = 0.05;
 constexpr double MULLERMANDEL_MU3A                      = 1.4;
@@ -432,9 +432,9 @@ constexpr double MALTSEV2024_M3CZ01                     = 12.3;
 constexpr double MALTSEV2024_M3BZ01                     = 13.7;
 constexpr double MALTSEV2024_M3AZ01                     = 13.7;
 
-// Constants for WD evolution 
+// Constants for WD evolution
 
-constexpr double COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION  = -5.688246139;                                             // Minimum log mass accretion rate for off center ignition in a CO WD. From Wang+ 2017. Log( 2.05 x 10^-6). 
+constexpr double COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION  = -5.688246139;                                             // Minimum log mass accretion rate for off center ignition in a CO WD. From Wang+ 2017. Log( 2.05 x 10^-6).
 constexpr double COWD_MASS_MIN_OFF_CENTER_IGNITION      = 1.33;                                                     // Minimum mass required for off center ignition, as shown in Wang, Podsiadlowski & Han (2017), sect 3.2.
 constexpr double HEWD_HE_MDOT_CRIT                      = 2.0E-8;                                                   // Critical accretion rate for He WD accreting He-rich material. From Belczynski+ 2008, Mdot_crit2 in section 5.7.1.
 constexpr double HEWD_MINIMUM_MASS_IGNITION             = 0.35;                                                     // Minimum mass for HeMS burning
@@ -688,27 +688,27 @@ const std::map<int, COMPASUnorderedMap<AB_TCoeff, double>> A_COEFF = {
     {81, {{ALPHA,  2.493000E0 }, {BETA,  1.147500E0 }, {GAMMA,  0.000000E0 }, {ETA,  0.000000E0 }, {MU,  0.000000E0 }}}
 };
 
-// Critial mass ratios for a grid of masses and radii. These come from the team of Hongwei Ge, in a series of papers 
-// titled "Adiabatic Mass Loss". The first two tables below are a subset of Tables A3 and A4 from Ge et al. 2024 
-// (Paper V, arXiv:2408.16350), provided by private request to Hongwei Ge. This is the most up to date version of these 
-// tables at the time of writing. Table A3 corresponds to low metallicity Z=0.001, Table A4 is for Z=0.02. Both of 
-// these tables are represented below as two separate nested vectors, and we interpolate linearly in logM, logR, and logZ. 
+// Critial mass ratios for a grid of masses and radii. These come from the team of Hongwei Ge, in a series of papers
+// titled "Adiabatic Mass Loss". The first two tables below are a subset of Tables A3 and A4 from Ge et al. 2024
+// (Paper V, arXiv:2408.16350), provided by private request to Hongwei Ge. This is the most up to date version of these
+// tables at the time of writing. Table A3 corresponds to low metallicity Z=0.001, Table A4 is for Z=0.02. Both of
+// these tables are represented below as two separate nested vectors, and we interpolate linearly in logM, logR, and logZ.
 //
-// Both tables contain the Mass/Msol, log(R/Rsol), and critical mass ratios for mass transfer instability for a variety of model 
+// Both tables contain the Mass/Msol, log(R/Rsol), and critical mass ratios for mass transfer instability for a variety of model
 // variations, namely qCritST_full, qCritST_half, qCritST_nonc, qCritIC_full, qCritIC_half, qCritIC_nonc.
 // The ST and IC suffixes distinguish their adiabatic and isentropic models, respectively (see Ge et al. 2020).
-// The _full, _half, and _nonc suffixes distinguish fully conservative MT, half conservative MT, and fully non-conservative MT, 
-// respectively, where non-conservative models assume isotropic re-emission AM loss. 
+// The _full, _half, and _nonc suffixes distinguish fully conservative MT, half conservative MT, and fully non-conservative MT,
+// respectively, where non-conservative models assume isotropic re-emission AM loss.
 //
-// The First entry in the tuple is the vector of unique mass values, second entry is the vector containing 7-tuples of vectors 
-// for logR, and the six qCrits listed above (in order). Note that the radius may contract several times. These points have 
+// The First entry in the tuple is the vector of unique mass values, second entry is the vector containing 7-tuples of vectors
+// for logR, and the six qCrits listed above (in order). Note that the radius may contract several times. These points have
 // been removed to facilitate the interpolation, so logR is monotonic.
 //
 // The third table below comes from Zhang et al. 2024 (Paper IV, arxiv:2406.13146). This table was computed exclusively for He
 // stars, and does include the same variations as for the H-rich donors in the first two tables. There is only one critical mass
 // ratio value per mass and radius, assuming fully conservative MT and a purely adiabatic (i.e non-istentropic) response to mass loss.
 //
-// In all cases, q is mAccretor/mDonor, which is inverted from the Ge et al. datatable. 
+// In all cases, q is mAccretor/mDonor, which is inverted from the Ge et al. datatable.
 //
 // Low Z = 0.001 table
 const GE_QCRIT_TABLE QCRIT_GE_LOW_Z = {

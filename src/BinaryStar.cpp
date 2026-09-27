@@ -57,17 +57,17 @@ bool BinaryStar::RevertState() {
 
 /*
  * Print BSE Switch Log record
- * 
+ *
  * Called from main() when SIGUSR1 received - raised by Star::SwitchTo() to indicate a stellar type switch.
  * Here we use the switch parameters stored in the LOGGING service singleton by Star:SwitchTo() to determine
  * whether it is the primary or the secondary switching, then call BinaryStar::PrintSwitchLog() with the
  * appropriate parameters to print the log file record.
- * 
+ *
  * BinaryStar::PrintSwitchLog()
  *
  * @return                                      Boolean flag indicating success/failure (true = success)
  */
-bool BinaryStar::PrintSwitchLog() { 
+bool BinaryStar::PrintSwitchLog() {
 
     bool result = true;
 

@@ -11,7 +11,7 @@ namespace yaml {
 //  1. The following records will be automatically written to the start of YAML file:
 //         ##~!!~## COMPAS option values
 //         ##~!!~## Created at ddd MMM DD HH:MM:SS YYYY by COMPAS vxx.yy.zz
-//         ##~!!~## 
+//         ##~!!~##
 //         ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 //         ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
 //         ##~!!~## option is used by default. To use a value other than the COMPAS default value,
@@ -34,7 +34,7 @@ namespace yaml {
 //
 // 0001     ##~!!~## COMPAS option values
 // 0002     ##~!!~## File Created Tue Feb 14 13:09:06 2023 by COMPAS v02.34.06
-// 0003     ##~!!~## 
+// 0003     ##~!!~##
 // 0004     ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 // 0005     ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
 // 0006     ##~!!~## option is used by default. To use a value other than the COMPAS default value,
@@ -61,13 +61,13 @@ namespace yaml {
 // The blank line at line 0014 will be preserved.
 // The header "### STELLAR PROPERTIES" on line 0015 will be preserved.
 // The string beginning with "# Default: " and extending to the next '#' on line 0016 will not be preserved (but will be replaced by COMPAS).
-// The string beginning with "# Options: " and extending to the next '#' (or, in this case because there is no subsequent #, the end of the 
+// The string beginning with "# Options: " and extending to the next '#' (or, in this case because there is no subsequent #, the end of the
 // line) on line 0016 will not be preserved (but will be replaced by COMPAS).
 // The comment "third comment" on line 0016 will not be preserved - there is no "# " prefix, so it will be subsumed by the "# Options: " string
 // (which extends from "# Options: " to the end of the line).
 
 
-// The default COMPAS YAML template follows    
+// The default COMPAS YAML template follows
     namespace {
         std::vector<std::string> yamlTemplate {
 

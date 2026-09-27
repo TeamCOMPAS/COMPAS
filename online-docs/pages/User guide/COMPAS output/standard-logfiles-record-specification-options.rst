@@ -1,7 +1,7 @@
 Program option properties
 =========================
 
-When specifying known properties in a log file record specification record, the property name must be prefixed with 
+When specifying known properties in a log file record specification record, the property name must be prefixed with
 the property type. Currently there is a single binary property type available for use: PROGRAM_OPTION.
 
 For example, to specify the program option property ``RANDOM_SEED``, use::
@@ -1933,7 +1933,7 @@ DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will s
      - Value of program option ``--scale-terminal-wind-velocity-with-metallicity-power``
    * - Header String:
      - PO_Scale_Terminal_Wind_Vel_Metallicity_Power
-   
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0

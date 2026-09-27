@@ -7,7 +7,7 @@ COMPAS can produce log files in several formats:
     - Comma Separated Values (``CSV``)
     - Tab Separated Values (``TSV``)
     - Plain text: space separated values (``TXT``)
-    
+
 The log file type is set using the ``--logfile-type`` program option.
 
 Standard ``CSV``, ``TSV``, and ``TXT`` log files are human-readable files, and formatted in a similar fashion. Each standard
@@ -23,13 +23,13 @@ The header records for all standard ``CSV``, ``TSV``, and ``TXT`` log files are:
 Column Data Type Names are taken from the set **{ BOOL, INT, FLOAT, STRING }**, where
 
     .. list-table::
-       :widths: 12 88 
+       :widths: 12 88
        :header-rows: 0
        :class: aligned-text
 
        * - **BOOL**
          - indicates the data value will be a boolean value.
-       * - 
+       * -
          - Boolean data values will be recorded in the log file in either numerical format (1 or 0, where 1 = TRUE and 0 = FALSE), or string format ("TRUE" or "FALSE"), depending upon the value of the ``--print-bool-as-string`` program option.
        * - **INT**
          - indicates the data value will be an integer number.
@@ -42,7 +42,7 @@ Column Units is a string indicating the units of the corresponding data values (
 "Msol", "AU", etc.). The Column Units value may be blank where units are not applicable, or may be one of:
 
     .. list-table::
-       :widths: 12 88 
+       :widths: 12 88
        :header-rows: 0
        :class: aligned-text
 
@@ -57,7 +57,7 @@ Column Headings are string labels that describe the corresponding data values. T
 constituent stars of a binary will have appropriate identifiers appended. That is, heading strings for:
 
     .. list-table::
-       :widths: 38 62 
+       :widths: 38 62
        :header-rows: 0
        :class: aligned-text
 
@@ -71,7 +71,7 @@ constituent stars of a binary will have appropriate identifiers appended. That i
          - will have ":boldtext:`(CP)`" appended: any column with a header with a suffix of ":boldtext:`(CP)`" represents an attribute of the the companion after the supernova event.
 
 ``HDF5`` files are not human-readable. The ``HDF5`` file format supports large, complex, heterogeneous data, enabling the data to be stored
-in a structured way in a single file. When the ``HDF5`` format is specified for COMPAS log files, a single ``HDF5`` file is produced for 
+in a structured way in a single file. When the ``HDF5`` format is specified for COMPAS log files, a single ``HDF5`` file is produced for
 non-detailed output log files, containing all non-detailed output log files described above. Detailed output files are created, as for
 other logfile types, as individual files (in this case, ``HDF5`` files), in the ’Detailed_Output’ container directory.
 

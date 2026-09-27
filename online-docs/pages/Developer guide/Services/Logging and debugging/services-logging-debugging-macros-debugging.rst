@@ -46,5 +46,5 @@ The ``DBG_WARN`` macros write to stdout via the ``SAY`` macro, so honour the log
 to the debug or errors files.
 
 Note that the ``id`` parameter of the ``LOG`` macros (to specify the logfileId) is not required for the ``DBG`` macros (the
-filename to which debug records are written is declared in ``constants.h`` – see the enum class ``LOGFILE`` and associated 
+filename to which debug records are written is declared in ``constants.h`` – see the enum class ``LOGFILE`` and associated
 descriptor map ``LOGFILE_DESCRIPTOR``).

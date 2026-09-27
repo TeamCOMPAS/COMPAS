@@ -195,7 +195,7 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
         case CE_LAMBDA_PRESCRIPTION::KRUCKOW:
             m_CEDetails.lambda = CalculateLambdaKruckow();
             break;
-            
+
         case CE_LAMBDA_PRESCRIPTION::DEWI:
             m_CEDetails.lambda = CalculateLambdaDewi();
             break;
@@ -208,15 +208,15 @@ void BinaryConstituentStar::CalculateCommonEnvelopeValues() {
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION);                                                 // throw error            
+            THROW_ERROR(ERROR::UNKNOWN_CE_LAMBDA_PRESCRIPTION);                                                 // throw error
     }
 
     if (utils::Compare(m_CEDetails.lambda, 0.0) <= 0) m_CEDetails.lambda = 0.0;                                 // force non-positive lambda to 0
 
     m_CEDetails.lambda *= OPTIONS->CommonEnvelopeLambdaMultiplier();                                            // multiply by constant (program option, default = 1.0)
-                                                                        
+
     m_CEDetails.bindingEnergy = CalculateBindingEnergy(CoreMass(), Mass() - CoreMass(), Radius(), m_CEDetails.lambda);
-    
+
     // properties relevant for the Hirai & Mandel (2022) formalism
     double maxConvectiveEnvelopeMass;
     std::tie(m_CEDetails.convectiveEnvelopeMass, maxConvectiveEnvelopeMass) = CalculateConvectiveEnvelopeMass();
@@ -266,9 +266,9 @@ double BinaryConstituentStar::CalculateCircularisationTimescale(const double p_S
             double rOverAPow10            = rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA * rOverA;    // use multiplication - pow() is slow
             double rOverAPow21Over2       = rOverAPow10 * rOverA * std::sqrt(rOverA);                                                   // sqrt() is faster than pow()
 
-		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                             // aka E_2.    
+		    double	secondOrderTidalCoeff = 1.592E-09 * PPOW(Mass(), 2.84);                                                             // aka E_2.
 		    double	freeFallFactor        = std::sqrt(G_AU_Msol_yr * Mass() / rInAUPow3);
-		
+
 		    timescale                     = 1.0 / ((21.0 / 2.0) * freeFallFactor * q2 * PPOW(1.0 + q2, 11.0/6.0) * secondOrderTidalCoeff * rOverAPow21Over2);
             } break;
 
@@ -396,7 +396,7 @@ double BinaryConstituentStar::StarToRocheLobeRadiusRatio(const double p_SemiMajo
     // JR: note, this will (probably) fail if option --fp-error-mode is not OFF (the calculation that resulted in p_SemiMajorAxis = inf will (probably) result in a trap)
     // Maybe use !std::isfinite(p_SemiMajorAxis) to ensure p_SemiMajorAxis is not NaN or inf
     if ((utils::Compare(p_SemiMajorAxis, 0.0) <= 0) || (utils::Compare(p_Eccentricity, 1.0) > 0) || isinf(p_SemiMajorAxis)) return 0.0;
-    
+
     double rocheLobeRadius = BaseBinaryStar::CalculateRocheLobeRadius_Static(Mass(), m_Companion->Mass());
     return (Radius() * RSOL_TO_AU) / (rocheLobeRadius * p_SemiMajorAxis * (1.0 - p_Eccentricity));
 }
@@ -421,16 +421,16 @@ void BinaryConstituentStar::InitialiseMassTransfer(const bool p_CommonEnvelope, 
 }
 
 
-/* 
+/*
  * Set class member variable m_MassTransferDiff based on the mass gained or lost during MT.
  *
  * Also modify changes to the H/He shell (relevant only for WDs)
  *
- * void SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff) 
+ * void SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff)
  *
- * @param   [IN]    p_MassTransferDiff          The amount of mass lost or gained by the star 
+ * @param   [IN]    p_MassTransferDiff          The amount of mass lost or gained by the star
  */
 void BinaryConstituentStar::SetMassTransferDiffAndResolveWDShellChange(const double p_MassTransferDiff) {
-    m_MassTransferDiff = p_MassTransferDiff; 
+    m_MassTransferDiff = p_MassTransferDiff;
     ResolveShellChange(p_MassTransferDiff);       // only applies to WDs
 }

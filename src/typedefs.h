@@ -25,13 +25,13 @@ struct EnableBitMaskOperators<x> {      \
     static const bool enable = true;    \
 };
 
-template<typename Enum>  
+template<typename Enum>
 struct EnableBitMaskOperators {
     static const bool enable = false;
 };
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type  
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator |(Enum lhs, Enum rhs) {
     return static_cast<Enum> (
         static_cast<typename std::underlying_type<Enum>::type>(lhs) |
@@ -39,19 +39,19 @@ operator |(Enum lhs, Enum rhs) {
     );
 }
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type  
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator |=(Enum &lhs, Enum rhs) {
     lhs = static_cast<Enum> (
         static_cast<typename std::underlying_type<Enum>::type>(lhs) |
-        static_cast<typename std::underlying_type<Enum>::type>(rhs)           
+        static_cast<typename std::underlying_type<Enum>::type>(rhs)
     );
 
     return lhs;
 }
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type 
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator &(Enum lhs, Enum rhs) {
     return static_cast<Enum> (
         static_cast<typename std::underlying_type<Enum>::type>(lhs) &
@@ -59,19 +59,19 @@ operator &(Enum lhs, Enum rhs) {
     );
 }
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type 
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator &=(Enum &lhs, Enum rhs) {
     lhs = static_cast<Enum> (
         static_cast<typename std::underlying_type<Enum>::type>(lhs) &
-        static_cast<typename std::underlying_type<Enum>::type>(rhs)           
+        static_cast<typename std::underlying_type<Enum>::type>(rhs)
     );
 
     return lhs;
 }
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type 
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator ^(Enum lhs, Enum rhs) {
     return static_cast<Enum> (
         static_cast<typename std::underlying_type<Enum>::type>(lhs) ^
@@ -79,19 +79,19 @@ operator ^(Enum lhs, Enum rhs) {
     );
 }
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type 
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator ^=(Enum &lhs, Enum rhs) {
     lhs = static_cast<Enum> (
         static_cast<typename std::underlying_type<Enum>::type>(lhs) ^
-        static_cast<typename std::underlying_type<Enum>::type>(rhs)           
+        static_cast<typename std::underlying_type<Enum>::type>(rhs)
     );
 
     return lhs;
 }
 
-template<typename Enum>  
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type 
+template<typename Enum>
+typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator ~(Enum rhs) {
     return static_cast<Enum> (
         ~static_cast<typename std::underlying_type<Enum>::type>(rhs)
@@ -285,7 +285,7 @@ const STELLAR_TYPE_LIST He_RICH_TYPES = {
 // accretion regimes
 // symbolic names for WD accretion regimes
 enum class ACCRETION_REGIME: int {
-    NONE,   // DEPRECATED June 2024 - remove end 2024 
+    NONE,   // DEPRECATED June 2024 - remove end 2024
     ZERO,
     HELIUM_ACCUMULATION,
     HELIUM_FLASHES,
@@ -361,7 +361,7 @@ const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PR
     { CE_ACCRETION_PRESCRIPTION::MACLEOD,   "MACLEOD" },
     { CE_ACCRETION_PRESCRIPTION::CHEVALIER, "CHEVALIER" }
 };
-    
+
 // common envelope formalisms
 enum class CE_FORMALISM: int { ENERGY, TWO_STAGE };
 const COMPASUnorderedMap<CE_FORMALISM, std::string> CE_FORMALISM_LABEL = {
@@ -377,7 +377,7 @@ const COMPASUnorderedMap<CE_LAMBDA_PRESCRIPTION, std::string> CE_LAMBDA_PRESCRIP
     { CE_LAMBDA_PRESCRIPTION::NANJING,   "LAMBDA_NANJING" },
     { CE_LAMBDA_PRESCRIPTION::KRUCKOW,   "LAMBDA_KRUCKOW" },
     { CE_LAMBDA_PRESCRIPTION::DEWI,      "LAMBDA_DEWI" }
-};   
+};
 
 // CHE (Chemically Homogeneous Evolution) Options
 enum class CHE_MODE: int { NONE, OPTIMISTIC, PESSIMISTIC };
@@ -693,7 +693,7 @@ const COMPASUnorderedMap<MT_TIMING, std::string> MT_TIMING_LABEL = {
 };
 
 // mass transfer tracking constants
-enum class MT_TRACKING: int { NO_MASS_TRANSFER, STABLE_1_TO_2_SURV, STABLE_2_TO_1_SURV, CE_1_TO_2_SURV, CE_2_TO_1_SURV, CE_DOUBLE_SURV, MERGER }; 
+enum class MT_TRACKING: int { NO_MASS_TRANSFER, STABLE_1_TO_2_SURV, STABLE_2_TO_1_SURV, CE_1_TO_2_SURV, CE_2_TO_1_SURV, CE_DOUBLE_SURV, MERGER };
 const COMPASUnorderedMap<MT_TRACKING, std::string> MT_TRACKING_LABEL = {
     { MT_TRACKING::NO_MASS_TRANSFER,   "NO MASS TRANSFER" },
     { MT_TRACKING::STABLE_1_TO_2_SURV, "MASS TRANSFER STABLE STAR1 -> STAR2" },
@@ -747,7 +747,7 @@ const COMPASUnorderedMap<OBJECT_PERSISTENCE, std::string> OBJECT_PERSISTENCE_LAB
 
 // object types
 // identifies the type of an object
-// if BASE_STAR, check STELLAR_TYPE    
+// if BASE_STAR, check STELLAR_TYPE
 enum class OBJECT_TYPE: int { NONE, MAIN, PROFILING, UTILS, STAR, BASE_STAR, BINARY_STAR, BASE_BINARY_STAR, BINARY_CONSTITUENT_STAR };
 const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
     { OBJECT_TYPE::NONE,                    "Not_an_Object!" },
@@ -868,11 +868,11 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //
 // Note that the CCSN value here replaces the SN value in the legacy code
 // The legacy code implemented these values as boolean flags, and the SN flag was always set when
-// the USSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set 
+// the USSN flag was set (but not the converse).  In the legacy code when the ECSN flag was set
 // the SN flag was not set.  In the legacy code the PISN and PPISN flags were used to track history
 // and we only set for the "experienced" condition (I think).
 //
-// To match the legacy code usage of these flags, here the "is" and "experienced" conditions 
+// To match the legacy code usage of these flags, here the "is" and "experienced" conditions
 // ("current" and "past" SN events) are implemented as bit maps - different values can be
 // ORed or ANDed into the bit map (that way the USSN and CCSN flags can be set at the same
 // time - necessary for the code flow (from the legacy code) - which we should probably one
@@ -882,7 +882,7 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //
 // A convenience function has been provided in utils.cpp to interpret the bit map (utils::SNEventType()).
 // Given an SN_EVENT bitmap (current or past), it returns (in priority order):
-//     
+//
 //    SN_EVENT::NONE    iff no bits are set
 //    SN_EVENT::CCSN    iff CCSN  bit is set and USSN bit is not set
 //    SN_EVENT::ECSN    iff ECSN  bit is set
@@ -894,12 +894,12 @@ const COMPASUnorderedMap<SN_ENGINE, std::string> SN_ENGINE_LABEL = {
 //    SN_EVENT::HeSD    iff HeSD  bit is set
 //    SN_EVENT::UNKNOWN otherwise
 //
-enum class SN_EVENT: int { 
-    NONE         = 0, 
-    CCSN         = 1, 
-    ECSN         = 2, 
-    PISN         = 4, 
-    PPISN        = 8, 
+enum class SN_EVENT: int {
+    NONE         = 0,
+    CCSN         = 1,
+    ECSN         = 2,
+    PISN         = 4,
+    PPISN        = 8,
     USSN         = 16,
     AIC          = 32,
     SNIA         = 64,
@@ -913,9 +913,9 @@ const COMPASUnorderedMap<SN_EVENT, std::string> SN_EVENT_LABEL = {
     { SN_EVENT::PISN,    "Pair Instability Supernova" },
     { SN_EVENT::PPISN,   "Pulsational Pair Instability Supernova" },
     { SN_EVENT::USSN,    "Ultra Stripped Supernova" },
-    { SN_EVENT::AIC,     "Accretion-Induced Collapse" }, 
-    { SN_EVENT::SNIA,    "Supernova Type Ia" }, 
-    { SN_EVENT::HeSD,    "Helium-shell detonation" }, 
+    { SN_EVENT::AIC,     "Accretion-Induced Collapse" },
+    { SN_EVENT::SNIA,    "Supernova Type Ia" },
+    { SN_EVENT::HeSD,    "Helium-shell detonation" },
     { SN_EVENT::UNKNOWN, "Unknown Supernova Type" }
 };
 ENABLE_BITMASK_OPERATORS(SN_EVENT);
@@ -1069,7 +1069,7 @@ typedef std::vector<COMPAS_VARIABLE>    COMPAS_VARIABLE_VECTOR;
 typedef struct OptionDetails {
     std::string optionStr;                                  // name string
     std::string valueStr;                                   // value string
-    std::string sourceStr;                                  // source string (COMPAS DEFAULT or USER SUPPLIED)    
+    std::string sourceStr;                                  // source string (COMPAS DEFAULT or USER SUPPLIED)
     std::string typeStr;                                    // detailed data type (e.g. UNSIGNED LONG INT)
     TYPENAME    dataType;                                   // short data type (e.g. INT, FLOAT, etc)
     std::string defaultStr;                                 // default value string
@@ -1163,7 +1163,7 @@ typedef struct KickParameters {
 typedef struct SupernovaDetails {                           // Holds attributes, flags - if the star went supernova
 
     KickParameters initialKickParameters;                   // User-supplied initial kick parameters - if present used in place of drawing randomly/from distributions
-    
+
     double         coreMassAtCOFormation;                   // Core mass of this star when it formed a compact object
     double         coreRadiusAtCOFormation;                 // Core radius of this star when it formed a compact object
     double         COCoreMassAtCOFormation;                 // Carbon Oxygen core mass of the star when it goes supernova and forms a compact object
@@ -1176,8 +1176,8 @@ typedef struct SupernovaDetails {                           // Holds attributes,
     double         kickMagnitude;                           // Kick magnitude the system received during the supernova (km s^-1)
     double         kickMagnitudeRandom;                     // Random number U(0,1) for choosing the supernova kick magnitude - drawn once at star creation
     double         rocketKickMagnitude;                     // Rocket kick magnitude the system received after the supernova (km s^-1)
-    double         rocketKickPhi;                           // Rocket kick azimuthal angle phi the system received after the supernova 
-    double         rocketKickTheta;                         // Rocket kick polar angle theta the system received after the supernova 
+    double         rocketKickPhi;                           // Rocket kick azimuthal angle phi the system received after the supernova
+    double         rocketKickTheta;                         // Rocket kick polar angle theta the system received after the supernova
     double         meanAnomaly;                             // Mean anomaly at instantaneous time of the SN - uniform in [0, 2pi]
     double         phi;                                     // Kick angle in the orbital plane, defined CCW from the radial vector pointed away from the Companion (rad) [0, 2pi)
     SN_STATE       supernovaState;                          // Indicates which star (or stars) are undergoing / have undergone a supernova event
@@ -1218,7 +1218,7 @@ typedef struct RLOFProperties {
     double       luminosity1;
     double       luminosity2;
 
-    double       starToRocheLobeRadiusRatio1;                                    
+    double       starToRocheLobeRadiusRatio1;
     double       starToRocheLobeRadiusRatio2;
 
     double       eccentricity;
@@ -1233,7 +1233,7 @@ typedef struct RLOFProperties {
     bool         isRLOF2;
 
     bool         isCE;
-    
+
     double       massLossRateFromDonor;
     double       accretionEfficiency;
     MT_TIMESCALE massTransferTimescale;

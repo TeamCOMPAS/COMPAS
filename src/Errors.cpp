@@ -25,7 +25,7 @@
  *                           an object (i.e. will print twice if encountered in the same function name in different objects)
  *
  *
- * The Errors class provides methods to print both warnings and errors - essentially the same thing, but warning messages are prefixed 
+ * The Errors class provides methods to print both warnings and errors - essentially the same thing, but warning messages are prefixed
  * with "WARNING:", whereas error messages are prefixed with "ERROR:".
  *
  * Errors and warnings are printed by using the macros defined in ErrorsMacros.h.  They are:
@@ -52,10 +52,10 @@
  *    The function name of the calling function
  *
  * Notes:
- * 
- * An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated 
+ *
+ * An additional set of macros is provided to be used in static functions and other functions that are not contained within an instantiated
  * object (e.g. main()).  These are:
- * 
+ *
  * Static error macros:
  *
  *    SHOW_ERROR_STATIC(error_number)                       : prints "ERROR: " followed by the error message associated with "error_number" (from the error catalog)
@@ -80,7 +80,7 @@
  *    The object type of the calling object (doesn't add enough information on its own)
  *    The stellar type of the calling object (not available in static functions)
  *
- * 
+ *
  * Any object that uses the non-static SHOW_* macros *must* expose the following functions:
  *
  *    OBJECT_ID    ObjectId()    (would typically return m_ObjectId)
@@ -89,8 +89,8 @@
  *
  * The functions are called, by the SHOW_ERROR* and SHOW_WARN* macros.  If any of the functions are not applicable to the object, then they
  * must return "*::NONE" (all objects should implement ObjectId() correctly)
- *  
- * 
+ *
+ *
  * Another additional set of macros is provided, for both static and non-static functions, that will, after displaying an error (as described above),
  * throw an exception and cause the ordinary program flow to be interrupted.  These are:
  *
@@ -103,9 +103,9 @@
  *    THROW_ERROR_STATIC(error_number, error_string)         : displays the error (as described above), then throws exception
  *    THROW_ERROR_IF_STATIC(cond, error_number)              : if "cond" is TRUE, displays the error (as described above), then throws exception
  *    THROW_ERROR_IF_STATIC(cond, error_number, error_string): if "cond" is TRUE, displays the error (as described above), then throws exception
- * 
+ *
  * In each case, the exception thrown by the THROW* macros is "error_number" cast as an integer, so it can be caught by using "catch (int e)" and inspecting "e".
- * 
+ *
  */
 
 

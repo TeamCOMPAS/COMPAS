@@ -61,8 +61,8 @@ def get_COMPAS_vars(file, group, var_list):
 def core_remnant_mass_comparison(file, fig=None, ax=None, show=True):
     if fig is None or ax is None:
         fig, ax = plt.subplots(figsize=(10, 8))
-        
-    with h5.File(file, "r") as compas:    
+
+    with h5.File(file, "r") as compas:
         m_ZAMS, m_final, m_co_core_atCO, Z, stellar_type = get_COMPAS_vars(compas, "SSE_System_Parameters",
                                                                            ["Mass@ZAMS",
                                                                             "Mass",
@@ -73,13 +73,13 @@ def core_remnant_mass_comparison(file, fig=None, ax=None, show=True):
     # only plot things for solar metallicity
     solar = Z == 0.01416
     uni_types = np.unique(stellar_type[solar])
-    
+
     # annotate the plot with the stellar types
     for i in range(len(uni_types)):
         ax.annotate(stellar_types[uni_types[i]]["short"], xy=(0.02, 0.93 - 0.05 * i),
                     xycoords="axes fraction", color=plt.get_cmap("tab10")(i / 10), fontsize=0.7*fs, weight="bold")
-    
-    
+
+
     for i in range(len(uni_types)):
         # plot the final white dwarf mass for WDs
         if uni_types[i] in [10, 11, 12]:
@@ -94,12 +94,12 @@ def core_remnant_mass_comparison(file, fig=None, ax=None, show=True):
 
     # annotate with solar metallicity
     ax.annotate(r"$Z = Z_{\rm \odot}$", xy=(0.97, 0.04), xycoords="axes fraction", fontsize=0.7*fs, ha="right")
-    
+
     ax.set_ylabel(r"Core Mass $[\rm M_{\odot}]$")
-    
+
     if show:
         plt.show()
-        
+
     return fig, ax
 
 
@@ -111,19 +111,19 @@ def core_remnant_mass_comparison(file, fig=None, ax=None, show=True):
 def remnant_mass_across_metallicity(file, fig=None, ax=None, show=True):
     if fig is None or ax is None:
         fig, ax = plt.subplots(figsize=(10, 8))
-        
-    with h5.File(file, "r") as compas:    
+
+    with h5.File(file, "r") as compas:
         m_ZAMS, m_final, m_co_core_atCO, Z, stellar_type = get_COMPAS_vars(compas, "SSE_System_Parameters",
                                                            ["Mass@ZAMS",
                                                             "Mass",
                                                             "Mass_CO_Core@CO",
                                                             "Metallicity",
                                                             "Stellar_Type"])
-        
+
     # create an inset axis for the linear version
     inset_ax = ax.inset_axes([0.05, 0.55, 0.53, 0.425])
     inset_ax.tick_params(labelsize=0.5*fs)
-    
+
     # plot three different metallicities
     for Z_match, style in [(0.01, "-"), (0.001, "--"), (0.0001, "dotted")]:
         matching_Z = Z == Z_match
@@ -142,12 +142,12 @@ def remnant_mass_across_metallicity(file, fig=None, ax=None, show=True):
                                lw=2, linestyle=style, markevery=25, color=plt.get_cmap("tab10")(i / 10))
 
     ax.legend(loc="lower right", fontsize=0.7 * fs)
-    
+
     ax.set_ylabel(r"Core Mass $[\rm M_{\odot}]$")
-    
+
     if show:
         plt.show()
-    
+
     return fig, ax
 
 
@@ -161,7 +161,7 @@ def remnant_mass_prescription_comparison(prescriptions, fig=None, ax=None, show=
         fig, ax = plt.subplots(figsize=(10, 8))
 
     for file, style, label in prescriptions:
-        with h5.File("COMPAS_Output_{}/COMPAS_Output_{}.h5".format(file, file), "r") as compas:    
+        with h5.File("COMPAS_Output_{}/COMPAS_Output_{}.h5".format(file, file), "r") as compas:
             m_ZAMS, m_final, Z, stellar_type = get_COMPAS_vars(compas, "SSE_System_Parameters",
                                                                ["Mass@ZAMS",
                                                                 "Mass",
@@ -179,7 +179,7 @@ def remnant_mass_prescription_comparison(prescriptions, fig=None, ax=None, show=
                                     m_final[solar][stellar_type[solar] == uni_types[i]],
                                     s=0.2, alpha=0.5, color=plt.get_cmap("tab10")(i / 10),
                                     label=label if i == len(uni_types) - 1 else None)
-                    
+
                 # use lines for the other ones
                 else:
                     ax.loglog(m_ZAMS[solar][stellar_type[solar] == uni_types[i]],
@@ -191,12 +191,12 @@ def remnant_mass_prescription_comparison(prescriptions, fig=None, ax=None, show=
     ax.set_yscale("log")
     leg = ax.legend(fontsize=0.7 * fs, loc="lower right", markerscale=25, title=r"$Z = Z_{\rm \odot}$")
     leg.get_title().set_fontsize(0.7 * fs)
-    
+
     ax.set_ylabel(r"Remnant Mass $[\rm M_{\odot}]$")
-    
+
     if show:
         plt.show()
-        
+
     return fig, ax
 
 
@@ -206,7 +206,7 @@ def remnant_mass_prescription_comparison(prescriptions, fig=None, ax=None, show=
 
 # +
 fig, axes = plt.subplots(3, figsize=(10, 24))
-    
+
 fig, axes[0] = core_remnant_mass_comparison("COMPAS_Output_default/COMPAS_Output_default.h5",
                                         fig=fig, ax=axes[0], show=False)
 
@@ -224,13 +224,13 @@ for ax, xticks, yticks in zip(axes,
     ax.set_xticks(xticks)
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.set_xlabel(r"Initial Mass $[\rm M_{\rm \odot}]$")
-    
+
     ax.set_yticks(yticks)
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    
+
     ax.tick_params(which="major", length=7)
     ax.tick_params(which="minor", length=4)
-    
+
 plt.savefig("initial_core_final_mass_relations.pdf", format="pdf", bbox_inches="tight")
-    
+
 plt.show()

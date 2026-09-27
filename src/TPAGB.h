@@ -17,22 +17,22 @@ class TPAGB: virtual public BaseStar, public EAGB {
 public:
 
     TPAGB() { m_StellarType = STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH; };
-    
+
     TPAGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), EAGB(p_BaseStar, false) {
         m_StellarType = STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH;                                                                                                                            // Set stellar type
         if (p_Initialise) Initialise();                                                                                                                                                                     // Initialise if required
     }
 
     TPAGB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        TPAGB* clone = new TPAGB(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        TPAGB* clone = new TPAGB(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static TPAGB* Clone(TPAGB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        TPAGB* clone = new TPAGB(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        TPAGB* clone = new TPAGB(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -41,7 +41,7 @@ protected:
     void Initialise() {
         CalculateTimescales();                                                                                                                                                                              // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tP)];                                                                                                                                              // Set age appropriately
-        
+
         EvolveOnPhase(0.0);
    }
 

@@ -49,7 +49,7 @@ Options: { ALWAYS, GRID, NEVER } |br|
 Default = GRID
 
 .. list-table::
-   :widths: 11 80 
+   :widths: 11 80
    :header-rows: 0
    :class: aligned-text
 
@@ -57,7 +57,7 @@ Default = GRID
      - indicates that the program options should be added to the sysparms file
    * - GRID
      - indicates that the program options should be added to the sysparms file `only if`
-   * -  
+   * -
      - a GRID file is specified, or RANGEs or SETs are specified for options
    * - NEVER
      - indicates that the program options should `not` be added to the sysparms file
@@ -132,8 +132,8 @@ Default = FALSE
 Allow main sequence accretors to survive common envelope evolution if other criteria point to survival. |br|
 Default = TRUE
 
-**--common-envelope-allow-radiative-envelope-survive** |br| 
-Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase (they always survive in the 
+**--common-envelope-allow-radiative-envelope-survive** |br|
+Allow binaries with an evolved component with a radiative envelope to survive the common envelope phase (they always survive in the
 `--common-envelope-formalism TWO_STAGE` option). |br|
 Default = FALSE
 
@@ -149,8 +149,8 @@ Default = 1.0
 **--common-envelope-formalism** |br|
 CE formalism prescription. |br|
 Options: { ENERGY, TWO_STAGE } |br|
-``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) -- the latter always allows radiative-envelope 
-donors to survive CE, so `--common-envelope-allow-radiative-envelope-survive` option is ignored |br| 
+``ENERGY`` is the standard alpha-lambda formalism; ``TWO_STAGE`` is the formalism of Hirai & Mandel (2022) -- the latter always allows radiative-envelope
+donors to survive CE, so `--common-envelope-allow-radiative-envelope-survive` option is ignored |br|
 Default = ENERGY
 
 **--common-envelope-lambda** |br|
@@ -167,11 +167,11 @@ Continuous extrapolation beyond maximum radius range in Nanjing lambda's as impl
 Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-mass** |br|
-Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``.  Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Interpolate Nanjing lambda parameters across different mass models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``.  Requires ``--common-envelope-lambda-nanjing-enhanced``. |br|
 Default = TRUE
 
 **--common-envelope-lambda-nanjing-interpolate-in-metallicity** |br|
-Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. Requires ``--common-envelope-lambda-nanjing-enhanced``. |br| 
+Interpolate Nanjing lambda parameters across population I and population II metallicity models. Only used when ``--common-envelope-lambda-prescription = LAMBDA_NANJING``. Requires ``--common-envelope-lambda-nanjing-enhanced``. |br|
 Default = TRUE
 
 **--common-envelope-lambda-nanjing-use-rejuvenated-mass** |br|
@@ -217,7 +217,7 @@ Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored 
 Default = 0.1
 
 **--convective-envelope-temperature-threshold** |br|
-Temperature [K] threshold, below which the envelopes of giants are convective. 
+Temperature [K] threshold, below which the envelopes of giants are convective.
 Only used for --envelope-state-prescription = FIXED_TEMPERATURE, ignored otherwise. |br|
 Default = 5370
 
@@ -276,7 +276,7 @@ Default = 0.87
 Critical mass ratio for MT from a giant star to a non-degenerate accretor. |br|
 0 is always stable, < 0 is disabled. |br|
 Only used for ``--critical-mass-ratio-prescription CLAEYS``, ignored otherwise. |br|
-Default shows -1, but this translates to a function of the core mass ratio, as described in Claeys+ 2014. 
+Default shows -1, but this translates to a function of the core mass ratio, as described in Claeys+ 2014.
 
 **--critical-mass-ratio-helium-HG-degenerate-accretor** |br|
 Critical mass ratio for MT from a helium HG star to a degenerate accretor. |br|
@@ -406,7 +406,7 @@ Options: { LEGACY, HURLEY, FIXED_TEMPERATURE, CONVECTIVE_MASS_FRACTION } |br|
 ``LEGACY`` refers to the model used in Stevenson et al., 2017 |br|
 ``HURLEY`` refers to the model of Hurley, Pols, Tout, 2002 |br|
 ``FIXED_TEMPERATURE`` assumes that a deep convective envelope developes only when the temperature drops below ``CONVECTIVE_BOUNDARY_TEMPERATURE`` (Klencki et al., 2020) |br|
-``CONVECTIVE_MASS_FRACTION`` means that whether the envelope is labelled convective is determined by the fraction of the envelope's mass which is convective; 
+``CONVECTIVE_MASS_FRACTION`` means that whether the envelope is labelled convective is determined by the fraction of the envelope's mass which is convective;
 that threshold can be changed from its default value with the additional option ``--convective-envelope-mass-threshold`` |br|
 Default = LEGACY
 
@@ -593,9 +593,9 @@ Options: { ZERO, FIXED, FLAT, MAXWELLIAN, BRAYELDRIDGE, MULLER2016, MULLER2016MA
 ``FIXED`` always sets the magnitude to a fixed value based on supernova type. |br|
 ``FLAT`` and ``MAXWELLIAN`` draw kicks from uniform or Maxwellian (e.g., Hobbs et al., 2005) distributions, respectively. |br|
 ``BRAYELDRIDGE`` and ``MULLERMANDEL`` use momentum-preserving kicks from Bray & Eldrigde 2018 and Mandel & Mueller 2020, respectively. |br|
-Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br| 
+Note that this is independent from ``--remnant-mass-prescription`` to provide flexibility; however, the ``MULLERMANDEL`` |br|
 kick prescription is intended to be consistently used with the ``MULLERMANDEL`` remnant mass prescription, |br|
-as well as with the ``MALTSEV2024`` remnant mass prescription (e.g., if used with other remnant mass prescriptions, 
+as well as with the ``MALTSEV2024`` remnant mass prescription (e.g., if used with other remnant mass prescriptions,
 inconsistent black hole kicks may be applied rescaled by fallback fractions). |br|
 ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
 (reduced by a factor of sqrt(3) in the latter case). |br|
@@ -1012,7 +1012,7 @@ Default = 0.45
 **--natal-kick-for-PPISN**
 TRUE indicates PPISN remnants will receive natal kicks via the same prescription as CCSN remnants. |br|
 FALSE indicates PPISN remnants will receive no natal kicks. |br|
-Default = TRUE  
+Default = TRUE
 
 **--neutrino-mass-loss-BH-formation** |br|
 Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MULLERMANDEL`). |br|
@@ -1205,7 +1205,7 @@ Default = TRUE
 Pulsational pair instability prescription (only relevant when using ``--pulsational-pair-instability``). |br|
 Options: { HENDRIKS, WOOSLEY, STARTRACK, MARCHANT, FARMER } |br|
 ``HENDRIKS`` implements the prescription from Hendriks et al. 2023 |br|
-``WOOSLEY``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018, 
+``WOOSLEY``, ``STARTRACK`` and ``MARCHANT`` follow Woosley 2017, Belczynski et al. 2016, and Marchant et al. 2018,
 all as implemented in Stevenson et al. 2019. |br|
 ``FARMER`` follows Farmer et al. 2019 |br|
 Default = MARCHANT
@@ -1262,27 +1262,27 @@ Default = TRUE
 
 **--rocket-kick-magnitude-1** |br|
 Magnitude of post-SN pulsar rocket kick for the primary, in km/s. |br|
-Default = 0.0 
+Default = 0.0
 
 **--rocket-kick-magnitude-2** |br|
 Magnitude of post-SN pulsar rocket kick for the secondary, in km/s. |br|
-Default = 0.0 
+Default = 0.0
 
 **--rocket-kick-phi-1** |br|
 The in-plane angle :math:`[0.0, 2pi)` of the rocket kick velocity that primary neutron star receives following the supernova. |br|
-Default = 0.0 
+Default = 0.0
 
 **--rocket-kick-phi-2** |br|
 The in-plane angle :math:`[0.0, 2pi)` of the rocket kick velocity that secondary neutron star receives following the supernova. |br|
-Default = 0.0 
+Default = 0.0
 
 **--rocket-kick-theta-1** |br|
 The polar angle [0, pi] of the rocket kick velocity that primary neutron star receives following the supernova. 0 is aligned with orbital AM. |br|
-Default = 0.0 
+Default = 0.0
 
 **--rocket-kick-theta-2** |br|
 The polar angle :math:`[0, pi]`` of the rocket kick velocity that secondary neutron star receives following the supernova. 0 is aligned with orbital AM. |br|
-Default = 0.0 
+Default = 0.0
 
 **--rotational-frequency** |br|
 Initial rotational frequency of the star for SSE (Hz). |br|
@@ -1322,7 +1322,7 @@ Default = DECIN2023 |br|
 :ref:`Back to Top <options-props-top>`
 
 **--scale-CHE-mass-loss-with-surface-helium-abundance** |br|
-Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance. 
+Scale mass loss for chemically homogeneously evolving (CHE) stars with the surface helium abundance.
 Transition from OB to WR mass loss towards the end of the main sequence.
 Default = TRUE
 
@@ -1404,7 +1404,7 @@ Default = ’’ (None)
 **--timestep-multiplier** |br|
 Multiplicative factor for timestep duration.  |br|
 |br|
-This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` 
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction``
 and ``--mass-change-fraction``, and will therefore override expected behaviour.  |br|
 This option can be used in conjunction with ``--timestep-multipliers``, in which case this multiplier, and the appropriate
 phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
@@ -1414,11 +1414,11 @@ This option is primarily intended for debugging/testing of convergence issues ra
 **--timestep-multipliers** |br|
 Phase-dependent multiplicative factors for timestep duration. This is a vector option: one or more timestep multiplier values may be specified. |br|
 See :doc:`Vector program options <./program-options-vector-options>` for option format. |br|
-A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the 
-option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at 
+A multiplicative factor can be specified for each phase (stellar type), where the ordinal value (zero-based) of the
+option value indicates the stellar type (from ``MS_LTE_07`` to ``CHEMICALLY_HOMOGENEOUS``, see stellar type list at
 :doc:`../../Developer guide/Headers/typedefs-dot-h`>). |br|
 |br|
-This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and 
+This multiplier is applied after the timesteps are chosen using other program options such as ``--radial-change-fraction`` and
 ``--mass-change-fraction``, and will therefore override expected behaviour. |br|
 This option can be used in conjunction with ``--timestep-multiplier``, in which case that multiplier, and the appropriate
 phase-dependent multiplier (specified by ``--timestep-multipliers``) are both applied. |br|
@@ -1525,7 +1525,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --metallicity-distribution, --metallicity, --metallicity-min, --metallicity-max
 
---orbital-period-distribution, --orbital-period, --orbital-period-min, --orbital-period-max, --semi-major-axis-distribution, --semi-major-axis, 
+--orbital-period-distribution, --orbital-period, --orbital-period-min, --orbital-period-max, --semi-major-axis-distribution, --semi-major-axis,
 --semi-major-axis-min, --semi-major-axis-max, --allow-rlof-at-birth, --allow-touching-at-birth
 
 --rotational-velocity-distribution, --rotational-frequency, --rotational-frequency-1, --rotational-frequency-2
@@ -1537,7 +1537,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier,
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
@@ -1549,28 +1549,28 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Mass transfer physics**
 
---case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
+--case-bb-stability-prescription, --convective-envelope-temperature-threshold,
 --convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
---critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor, 
---critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
---critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
---mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-linear-fraction-degen, --mass-transfer-jloss-linear-fraction-non-degen, 
---mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
---stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
+--critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor,
+--critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor,
+--critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription,
+--mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-linear-fraction-degen, --mass-transfer-jloss-linear-fraction-non-degen,
+--mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer,
+--stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star
 
---circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription,
 --response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
---common-envelope-lambda-prescription, --common-envelope-lambda, 
---common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-lambda-nanjing-enhanced, 
---common-envelope-lambda-nanjing-interpolate-in-mass, --common-envelope-lambda-nanjing-interpolate-in-metallicity, 
---common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive, 
---common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, 
---common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, 
+--common-envelope-lambda-prescription, --common-envelope-lambda,
+--common-envelope-slope-kruckow, --common-envelope-lambda-multiplier, --common-envelope-lambda-nanjing-enhanced,
+--common-envelope-lambda-nanjing-interpolate-in-mass, --common-envelope-lambda-nanjing-interpolate-in-metallicity,
+--common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive,
+--common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant,
+--common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova,
 --revised-energy-formalism-nandez-ivanova
 
 :ref:`Back to Top <options-props-top>`
@@ -1579,18 +1579,18 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, 
---neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
+--remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN,
+--neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit,
 --PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
---pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
---pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
+--pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max,
+--pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max,
 --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
 
---kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
---black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
---kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
---muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller, 
+--kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN,
+--black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max,
+--kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH,
+--muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller,
 --kick-direction, --kick-direction-distribution, --kick-direction-power, --kick-mean-anomaly-1, --kick-mean-anomaly-2, --kick-phi-1, --kick-phi-2, --kick-theta-1, --kick-theta-2
 
 :ref:`Back to Top <options-props-top>`
@@ -1599,8 +1599,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Administrative**
 
---mode, --number-of-systems, 
---emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems, 
+--mode, --number-of-systems,
+--emit-gravitational-radiation, --evolve-double-white-dwarfs, --evolve-main-sequence-mergers, --evolve-pulsars, --evolve-unbound-systems,
 --include-WD-binaries-as-DCO,
 --mass-change-fraction, --maximum-evolution-time, --maximum-number-timestep-iterations,
 --radial-change-fraction, --random-seed, --timestep-multiplier, --timestep-filename,
@@ -1610,14 +1610,14 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --grid, --grid-start-line, --grid-lines-to-process
 
---add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --enable-warnings, --errors-to-file, 
+--add-options-to-sysparms, --debug-classes, --debug-level, --debug-to-file, --detailed-output, --enable-warnings, --errors-to-file,
 --help, --notes, --notes-hdrs, --population-data-printing, --print-bool-as-string, --quiet, --version
 
---log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-common-envelopes-record-types, 
---logfile-detailed-output, --logfile-detailed-output-record-types, --logfile-double-compact-objects, --logfile-double-compact-objects-record-types, 
---logfile-pulsar-evolution, --logfile-pulsar-evolution-record-type, --logfile-rlof-parameters, --logfile-rlof-parameters-record-types, --logfile-supernovae, 
+--log-classes, --logfile-definitions, --logfile-name-prefix, --logfile-type, --log-level, --logfile-common-envelopes, --logfile-common-envelopes-record-types,
+--logfile-detailed-output, --logfile-detailed-output-record-types, --logfile-double-compact-objects, --logfile-double-compact-objects-record-types,
+--logfile-pulsar-evolution, --logfile-pulsar-evolution-record-type, --logfile-rlof-parameters, --logfile-rlof-parameters-record-types, --logfile-supernovae,
 --logfile-supernovae-record-types, --logfile-switch-log, --logfile-system-parameters, --logfile-system-parameters-record-types, --logfile-system-snapshot-log,
---logfile-system-snapshot-log-record-types, --output-container, 
+--logfile-system-snapshot-log-record-types, --output-container,
 --output-path, --rlof-printing, --store-input-files, --switch-log, --hdf5-buffer-size, --hdf5-chunk-size
 
 --create-YAML-file, YAML-template

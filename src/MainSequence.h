@@ -19,11 +19,11 @@ public:
     MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
 
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
-    
+
     const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                                 // Interpolate Shikauchi coefficients for the given metallicity
 
 protected:
-    
+
     // member variables
     double          m_HeliumAbundanceCoreOut      = m_InitialHeliumAbundance;                                                                                       // Helium abundance just outside the core, used for rejuvenation calculations
 
@@ -54,19 +54,19 @@ protected:
     double          CalculateHeCoreMassOnPhase() const                                      { return 0.0; }                                                         // McHe(MS) = 0.0
 
     double          CalculateHeliumAbundanceCoreAtPhaseEnd() const                          { return CalculateHeliumAbundanceCoreOnPhase(); }
-    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;                                         
-    double          CalculateHeliumAbundanceCoreOnPhase() const                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                  // Use class member variables                                       
-    
+    double          CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHeliumAbundanceCoreOnPhase() const                             { return CalculateHeliumAbundanceCoreOnPhase(m_Tau); }                  // Use class member variables
+
     double          CalculateHeliumAbundanceSurfaceAtPhaseEnd() const                       { return CalculateHeliumAbundanceSurfaceOnPhase(); }
     double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_HeliumAbundanceSurface; }                                    // Use class member variables
-    
-    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
-    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
-    double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
-    
-    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); } 
+
+    double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); }
+    double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;
+    double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables
+
+    double          CalculateHydrogenAbundanceSurfaceAtPhaseEnd() const                     { return CalculateHydrogenAbundanceSurfaceOnPhase(); }
     double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_HydrogenAbundanceSurface; }                                  // Use class member variables
-    
+
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
@@ -84,7 +84,7 @@ protected:
     double          CalculateRadialExtentConvectiveEnvelope() const;
 
     double          CalculateRadiusOnMassChange(double p_dM)                                { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Tau, CalculateRadiusAtZAMS(m_Mass + p_dM)); }
-    
+
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
 
     double          CalculateRadiusAtPhaseEnd(const double p_Mass, const double p_RZAMS) const;
@@ -92,7 +92,7 @@ protected:
     double          CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase(m_Mass, m_Tau, m_RZAMS0); }             // Use class member variables
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const { return Radius(); }                                               // Not a meaningful function for MS stars
     double          CalculateRadiusTransitionToHG(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
-     
+
     double          CalculateTauAtPhaseEnd() const                                          { return 1.0; }                                                         // tau = 1.0 at end of MS
     double          CalculateTauOnPhase() const;
 
@@ -107,11 +107,11 @@ protected:
     void            EvolveOneTimestepPreamble();
     STELLAR_TYPE    EvolveToNextPhase()                                                     { return STELLAR_TYPE::HERTZSPRUNG_GAP; }
 
-    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription, 
+    double          InterpolateGeEtAlQCrit(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                            const double p_massTransferEfficiencyBeta); // RTW do I need a const here?
-    
+
     std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> InterpolateShikauchiCoefficients(const double p_Metallicity) const;
-    
+
     bool            IsEndOfPhase() const                                                    { return !ShouldEvolveOnPhase(); }                                      // Phase ends when age at or after MS timescale
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
@@ -119,13 +119,13 @@ protected:
     STELLAR_TYPE    ResolveEnvelopeLoss(bool p_Force = false);
 
     bool            ShouldEvolveOnPhase() const                                             { return (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]); }    // Evolve on MS phase if age in MS timescale
-    
+
     double          TAMSCoreMass() const;
 
     void            UpdateInitialMass()                                                     { m_Mass0 = m_Mass; }                                                   // Per Hurley et al. 2000, section 7.1
-   
+
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass);
-    
+
     void            UpdateAgeAfterMassLoss();                                                                                                                       // Per Hurley et al. 2000, section 7.1
 
     void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_MassLossRate);

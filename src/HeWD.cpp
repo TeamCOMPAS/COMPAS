@@ -8,7 +8,7 @@
  *     (b) the retention efficiency parameter
  *
  *
- * For He WDs, we calculate the mass accretion rate following the 
+ * For He WDs, we calculate the mass accretion rate following the
  * StarTrack prescription (Belczynski+ 2008, sect 5.7.1).
  * https://ui.adsabs.harvard.edu/abs/2008ApJS..174..223B/abstract
  *
@@ -22,7 +22,7 @@
 DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
     m_AccretionRegime       = DetermineAccretionRegime(p_DonorMassRate, p_IsHeRich);                                    // Check if accretion leads to stage switch for WDs and returns retention efficiency as well.
-                                                                               
+
     double acceptanceRate   = 0.0;                                                                                      // acceptance mass rate - default = 0.0
     double fractionAccreted = m_AccretionRegime == ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES ? 0.0 : 1.0;   // accretion fraction - default = 1.0, but flashes restrict accumulation
 
@@ -30,14 +30,14 @@ DBL_DBL HeWD::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bo
 }
 
 
-/* 
+/*
  * Determine the WD accretion regime based on the MT rate and whether the donor is He rich. Also,
- * initialize Sub-Chandrasekhar SN Ia or rejuvenation (evolution into HeMS) when necessary, by 
- * changing the value of m_IsSubChandrasekharTypeIa or m_ShouldRejuvenate (respectively). 
+ * initialize Sub-Chandrasekhar SN Ia or rejuvenation (evolution into HeMS) when necessary, by
+ * changing the value of m_IsSubChandrasekharTypeIa or m_ShouldRejuvenate (respectively).
  *
  * The accretion regime is one of the options listed in enum ACCRETION_REGIME (constants.h)
  *
- * ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich) 
+ * ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich)
  *
  * @param   [IN]    p_DonorMassRate      Donor mass loss rate, in units of Msol / Myr
  * @param   [IN]    p_HeRich             Whether the accreted material is helium-rich or not
@@ -53,7 +53,7 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const double p_DonorMassRate, co
             if (utils::Compare(m_Mass, massSubCh) >= 0 ) {
                 m_IsSubChandrasekharTypeIa = true;
             }
-        } 
+        }
         else {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HELIUM_IGNITION;                              // Could lift degeneracy and evolve into He MS. Requires minimum mass ! on top of the shell size
             if (utils::Compare(m_Mass, HEWD_MINIMUM_MASS_IGNITION) >= 0) {
@@ -62,18 +62,18 @@ ACCRETION_REGIME HeWD::DetermineAccretionRegime(const double p_DonorMassRate, co
                     if (utils::Compare(m_HeShell, mCritHeShell) >= 0) {
                         m_ShouldRejuvenate = true;
                     }
-                } 
+                }
                 else {
                     m_ShouldRejuvenate = true;
                 }
             }
         }
-    } 
+    }
     else {
         double Mcrit = m_L0Ritter * PPOW(m_Mass, m_LambdaRitter) / (m_XRitter * Q_HYDROGEN_BURNING);    // Eq. 60 in Belczynski+ 2008. 6e18 is the energy yield of H burning in ergs/g.
         if (utils::Compare(Mdot, Mcrit) <= 0) {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_FLASHES;                             // Flashes restrict accumulation
-        } 
+        }
         else {
             regime = ACCRETION_REGIME::HELIUM_WHITE_DWARF_HYDROGEN_ACCUMULATION;                        // Material piles up on the WD. Leads to merger or CEE.
         }
@@ -99,9 +99,9 @@ STELLAR_TYPE HeWD::EvolveToNextPhase() {
         m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_CoreMass);
         m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_CoreMass);
         m_Tau        = 0;
-        stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS; 
+        stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
     }
-    else {                                         
+    else {
         stellarType  = ResolveSNIa();       // currently, assume a Type Ia from a HeWD is the same as other WDs. May want to vary in the future
     }
     return stellarType;

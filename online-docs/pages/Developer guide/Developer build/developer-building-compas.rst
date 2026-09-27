@@ -13,5 +13,3 @@ to the other makefile.
 
    ./COMPAS-local-build
    ./docker-developer
-
-   

@@ -389,11 +389,10 @@ def get_plot_json(data_path):
     Returns
     -------
     str
-        JSON string containing 
+        JSON string containing
     """
     detailed_fig, _, events = run_main_plotter(data_path, outdir=None, show=False)
     axes = detailed_fig.get_axes()
     plots_data = get_plot_data([('mass_plot', axes[0]), ('length_plot', axes[1]), ('hr_plot', axes[3])])
     events_data = get_events_data(events)
     return json.dumps({**plots_data, **events_data}, cls=NumpyEncoder)
-    

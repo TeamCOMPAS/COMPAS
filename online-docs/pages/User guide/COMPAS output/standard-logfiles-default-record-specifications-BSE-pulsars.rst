@@ -24,5 +24,3 @@ Default record definition for the BSE Pulsar Evolution log file::
         BINARY_PROPERTY::TIME,
         BINARY_PROPERTY::DT
     };
-
-    

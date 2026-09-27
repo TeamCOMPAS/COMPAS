@@ -415,7 +415,7 @@ double TPAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLA
  *
  * @param   [IN]    p_Mass                      Mass
  * @param   [IN]    p_Metallicity               Metallicity
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double TPAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -926,7 +926,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_Force) {
     if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
 
     if (p_Force || (utils::Compare(m_CoreMass, m_Mass)) >= 0 || m_EnvelopeJustExpelledByPulsations) {   // envelope loss
-                
+
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;

@@ -119,13 +119,13 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
 //  !!!   The STAR_PROPERTIES #define below defines the STELLAR variables allowed   !!!
 //  !!!   for logfile record definition - if a property is not on the list it       !!!
 //  !!!   cannot be selected for inclusion in a logfile via the                     !!!
-//  !!!   --logfile-definitions option.                                             !!!                                            
+//  !!!   --logfile-definitions option.                                             !!!
 //  !!!                                                                             !!!
 //  !!!   The enum classes STAR_PROPERTY, BINARY_PROPERTY, and PROGRAM_OPTION       !!!
 //  !!!   defined below defines the STELLAR and BINARY properties, and the          !!!
 //  !!!   PROGRAM_OPTIONs allowed for logfile record definition - if a property is  !!!
 //  !!!   not on those lists it cannot be selected for inclusion in a logfile via   !!!
-//  !!!   --logfile-definitions option.                                             !!!                                            
+//  !!!   --logfile-definitions option.                                             !!!
 //  !!!                                                                             !!!
 //  !!!   *NOTE*                                                                    !!!
 //  !!!   The following enum classes and maps are not where header strings should   !!!
@@ -471,7 +471,7 @@ enum class ANY_STAR_PROPERTY: int { STAR_PROPERTIES };
 // Symbolic names for variables of binary stars that can be selected for printing
 // BINARY_PROPERTY refers to a binary star of type BaseBinaryStar) for BSE
 //
-// Properties only need to be here if they are required to be available for 
+// Properties only need to be here if they are required to be available for
 // printing in the logfiles - all keys present here should also be in BINARY_PROPERTY_LABEL
 // and BINARY_PROPERTY_DETAIL
 enum class BINARY_PROPERTY: int {
@@ -525,9 +525,9 @@ enum class BINARY_PROPERTY: int {
     RLOF_POST_MT_STAR2_MASS,
     RLOF_POST_MT_STAR1_RADIUS,
     RLOF_POST_MT_STAR2_RADIUS,
-    RLOF_POST_MT_STAR1_TEFF, 
+    RLOF_POST_MT_STAR1_TEFF,
     RLOF_POST_MT_STAR2_TEFF,
-    RLOF_POST_MT_STAR1_LUM, 
+    RLOF_POST_MT_STAR1_LUM,
     RLOF_POST_MT_STAR2_LUM,
     RLOF_POST_MT_STAR1_RLOF,
     RLOF_POST_MT_STAR2_RLOF,
@@ -543,9 +543,9 @@ enum class BINARY_PROPERTY: int {
     RLOF_PRE_MT_STAR2_MASS,
     RLOF_PRE_MT_STAR1_RADIUS,
     RLOF_PRE_MT_STAR2_RADIUS,
-    RLOF_PRE_MT_STAR1_TEFF, 
+    RLOF_PRE_MT_STAR1_TEFF,
     RLOF_PRE_MT_STAR2_TEFF,
-    RLOF_PRE_MT_STAR1_LUM, 
+    RLOF_PRE_MT_STAR1_LUM,
     RLOF_PRE_MT_STAR2_LUM,
     RLOF_PRE_MT_STAR1_RLOF,
     RLOF_PRE_MT_STAR2_RLOF,
@@ -629,7 +629,7 @@ enum class BINARY_PROPERTY: int {
 // map BINARY_PROPERTY to string identifying the property
 // for lookup by the printing functions
 //
-// Property names only need to be here if they are required to be available for 
+// Property names only need to be here if they are required to be available for
 // printing in the logfiles - all keys present here should also be in BINARY_PROPERTY
 // and BINARY_PROPERTY_DETAIL
 const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
@@ -760,7 +760,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_10_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_12_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_22_2" },
-    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_32_2" },    
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_2,                   "TIDAL_POTENTIAL_LOVE_NUMBER_32_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_1" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_1" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1,                "TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_1" },
@@ -768,7 +768,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_10_EQ_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_12_EQ_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_22_EQ_2" },
-    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2" }, 
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2,                "TIDAL_POTENTIAL_LOVE_NUMBER_32_EQ_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_1" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_1" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1,               "TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_1" },
@@ -776,7 +776,7 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_10_DYN_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_12_DYN_2" },
     { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_22_DYN_2" },
-    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2" }, 
+    { BINARY_PROPERTY::TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2,               "TIDAL_POTENTIAL_LOVE_NUMBER_32_DYN_2" },
     { BINARY_PROPERTY::TIME,                                               "TIME" },
     { BINARY_PROPERTY::TIME_TO_COALESCENCE,                                "TIME_TO_COALESCENCE" },
     { BINARY_PROPERTY::TOTAL_ANGULAR_MOMENTUM,                             "TOTAL_ANGULAR_MOMENTUM" },
@@ -805,9 +805,9 @@ enum class PROGRAM_OPTION: int {
     ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,
 
     BLACK_HOLE_KICKS_MODE,
-    
+
     CASE_BB_STABILITY_PRESCRIPTION,
-    
+
     CHECK_PHOTON_TIRING_LIMIT,
 
     CHE_MODE,
@@ -988,7 +988,7 @@ enum class PROGRAM_OPTION: int {
     RANDOM_SEED_CMDLINE,
 
     REMNANT_MASS_PRESCRIPTION,
-    
+
     RESPONSE_TO_SPIN_UP,
 
     ROCKET_KICK_MAGNITUDE_1,
@@ -1002,7 +1002,7 @@ enum class PROGRAM_OPTION: int {
     ROTATIONAL_FREQUENCY,
     ROTATIONAL_FREQUENCY_1,
     ROTATIONAL_FREQUENCY_2,
-    
+
     SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,
     SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,
     SEMI_MAJOR_AXIS,
@@ -1013,7 +1013,7 @@ enum class PROGRAM_OPTION: int {
     STELLAR_ZETA_PRESCRIPTION,
 
     TIDES_PRESCRIPTION,
-    
+
     USSN_KICKS_OVERRIDE_MANDEL_MULLER,
 
     WR_FACTOR,
@@ -1042,9 +1042,9 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,      "ANG_MOM_CONSERVATION_DURING_CIRCULARISATION" },
 
     { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                            "BLACK_HOLE_KICKS_MODE" },
-    
+
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                   "CASE_BB_STABILITY_PRESCRIPTION" },
-    
+
     { PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT,                        "CHECK_PHOTON_TIRING_LIMIT" },
 
     { PROGRAM_OPTION::CHE_MODE,                                         "CHE_MODE" },
@@ -1074,7 +1074,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ECCENTRICITY_DISTRIBUTION_MIN,                    "ECCENTRICITY_DISTRIBUTION_MIN" },
     { PROGRAM_OPTION::EDDINGTON_ACCRETION_FACTOR,                       "EDDINGTON_ACCRETION_FACTOR" },
     { PROGRAM_OPTION::ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS,           "ENABLE_ROTATIONALLY_ENHANCED_MASS_LOSS" },
-    { PROGRAM_OPTION::ENHANCE_CHE_LIFETIMES_LUMINOSITIES,               "ENHANCE_CHE_LIFETIMES_LUMINOSITIES" }, 
+    { PROGRAM_OPTION::ENHANCE_CHE_LIFETIMES_LUMINOSITIES,               "ENHANCE_CHE_LIFETIMES_LUMINOSITIES" },
     { PROGRAM_OPTION::ENVELOPE_STATE_PRESCRIPTION,                      "ENVELOPE_STATE_PRESCRIPTION" },
     { PROGRAM_OPTION::EVOLUTION_MODE,                                   "EVOLUTION_MODE" },
 
@@ -1232,7 +1232,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY,                             "ROTATIONAL_FREQUENCY" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                           "ROTATIONAL_FREQUENCY_1" },
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                           "ROTATIONAL_FREQUENCY_2" },
-   
+
     { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,            "SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE" },
     { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,        "SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER" },
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                  "SEMI_MAJOR_AXIS" },
@@ -1243,7 +1243,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
-    
+
     { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                "USSN_KICKS_OVERRIDE_MANDEL_MULLER" },
 
     { PROGRAM_OPTION::WR_FACTOR,                                        "WR_FACTOR" },
@@ -1312,7 +1312,7 @@ typedef std::tuple<TYPENAME, std::string, std::string, int, int> PROPERTY_DETAIL
 // to individual stars, whether they be a single star being evolved for SSE, or one of the
 // constituent stars being evolved as part of a binary for BSE
 //
-// Properties only need to be here if they are required to be available for printing in 
+// Properties only need to be here if they are required to be available for printing in
 // the logfiles - all keys present here should also be in the STAR_PROPERTIES #define and
 // STAR_PROPERTIES_LABEL
 const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
@@ -1398,7 +1398,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::MASS_0,                                            { TYPENAME::DOUBLE,           "Mass_0",                          "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::MASS_LOSS_DIFF,                                    { TYPENAME::DOUBLE,           "dmWinds",                         "Msol",             24, 15}},
     { ANY_STAR_PROPERTY::MASS_TRANSFER_DIFF,                                { TYPENAME::DOUBLE,           "dmMT",                            "Msol",             24, 15}},
-    { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,           "MT_Donor_Hist",                   "-",                16, 1 }}, 
+    { ANY_STAR_PROPERTY::MASS_TRANSFER_DONOR_HISTORY,                       { TYPENAME::STRING,           "MT_Donor_Hist",                   "-",                16, 1 }},
     { ANY_STAR_PROPERTY::MDOT,                                              { TYPENAME::DOUBLE,           "Mdot",                            "Msol yr^-1",       24, 15}},
     { ANY_STAR_PROPERTY::METALLICITY,                                       { TYPENAME::DOUBLE,           "Metallicity@ZAMS",                "-",                24, 15}},
     { ANY_STAR_PROPERTY::MOMENT_OF_INERTIA,                                 { TYPENAME::DOUBLE,           "Moment_Of_Inertia",               "Msol Rsol^2",      24, 15}},
@@ -1459,7 +1459,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
 // Records the details of BINARY properties.  The BINARY properties are those that pertain
 // to exclusively to a binary star - not the constituent stars that make up the binary
 //
-// Properties only need to be here if they are required to be available for printing in 
+// Properties only need to be here if they are required to be available for printing in
 // the logfiles - all keys present here should also be in BINARY_PROPERTY and BINARY_PROPERTY_LABEL
 const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,           "Tau_Circ",                  "Myr",              24, 15}},
@@ -1488,9 +1488,9 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,                       { TYPENAME::MT_TRACKING,      "MT_History",                "-",                 4, 1 }},
     { BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,                               { TYPENAME::BOOL,             "Merges_Hubble_Time",        "State",             0, 0 }},
     { BINARY_PROPERTY::OPTIMISTIC_COMMON_ENVELOPE,                          { TYPENAME::BOOL,             "Optimistic_CE",             "State",             0, 0 }},
-    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_X",     "-",               24, 15}},   
-    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Y",     "-",               24, 15}},   
-    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Z",     "-",               24, 15}},   
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_X",     "-",               24, 15}},
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Y",     "-",               24, 15}},
+    { BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,                   { TYPENAME::DOUBLE,           "Orbital_AM_Vector>SN_Z",     "-",               24, 15}},
     { BINARY_PROPERTY::ORBITAL_ANGULAR_VELOCITY,                            { TYPENAME::DOUBLE,           "Orbital_Angular_Velocity",  "kms^-1",           24, 15}},
     { BINARY_PROPERTY::ORBITAL_VELOCITY_PRE_SUPERNOVA,                      { TYPENAME::DOUBLE,           "Orb_Velocity<SN",           "kms^-1",           24, 15}},
     { BINARY_PROPERTY::RADIUS_1_POST_COMMON_ENVELOPE,                       { TYPENAME::DOUBLE,           "Radius(1)>CE",              "Rsol",             24, 15}},
@@ -1572,7 +1572,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_1_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,           "Stellar_Type(1)<CE",         "-",               42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_POST_COMMON_ENVELOPE,            { TYPENAME::STRING,           "Stellar_Type(2)>CE",         "-",               42, 1 }},
     { BINARY_PROPERTY::STELLAR_TYPE_NAME_2_PRE_COMMON_ENVELOPE,             { TYPENAME::STRING,           "Stellar_Type(2)<CE",         "-",               42, 1 }},
-    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,           "SN_Orbit_Inclination_Angle", "-",               24, 15}},   
+    { BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,                   { TYPENAME::DOUBLE,           "SN_Orbit_Inclination_Angle", "-",               24, 15}},
     { BINARY_PROPERTY::SUPERNOVA_STATE,                                     { TYPENAME::SN_STATE,         "Supernova_State",            "State",            4, 1 }},
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_1,                         { TYPENAME::DOUBLE,           "Tau_Sync(1)",                "Myr",             24, 15}},
     { BINARY_PROPERTY::SYNCHRONIZATION_TIMESCALE_2,                         { TYPENAME::DOUBLE,           "Tau_Sync(2)",                "Myr",             24, 15}},
@@ -1616,7 +1616,7 @@ const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
 // map PROGRAM_OPTION_DETAIL
 // Records the details of PROGRAM_OPTION properties.
 //
-// Options only need to be here if they are required to be available for printing in 
+// Options only need to be here if they are required to be available for printing in
 // the logfiles - all keys present here should also be in PROGRAM_OPTION and PROGRAM_OPTION_LABEL
 //
 // Note that header strings here should be prefixed with "PO_" to differentiate them from stellar/binary
@@ -1633,13 +1633,13 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ANG_MOM_CONSERVATION_DURING_CIRCULARISATION,              { TYPENAME::BOOL,       "PO_Conserve_AngMom@Circ",                   "Flag",       0, 0 }},
 
     { PROGRAM_OPTION::BLACK_HOLE_KICKS_MODE,                                    { TYPENAME::INT,        "PO_BH_Kicks_Mode",                          "-",          4, 1 }},
-    
+
     { PROGRAM_OPTION::CASE_BB_STABILITY_PRESCRIPTION,                           { TYPENAME::INT,        "PO_BB_Mass_xFer_Stblty_Prscrptn",           "-",          4, 1 }},
-    
+
     { PROGRAM_OPTION::CHECK_PHOTON_TIRING_LIMIT,                                { TYPENAME::BOOL,       "PO_Check_Photon_Tiring_Limit",              "Flag",       0, 0 }},
 
     { PROGRAM_OPTION::CHE_MODE,                                                 { TYPENAME::INT,        "PO_CHE_Mode",                               "-",          4, 1 }},
-      
+
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                             { TYPENAME::BOOL,       "PO_Circularise@MT",                         "Flag",       0, 0 }},
 
     { PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA,                                    { TYPENAME::DOUBLE,     "PO_CE_Alpha",                               "-",         24, 15}},
@@ -1758,7 +1758,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MT_CRIT_MR_HE_MS_NON_DEGENERATE_ACCRETOR,                 { TYPENAME::DOUBLE,     "PO_MT_Crit_MR_HE_MS_NonDeg_Acc",            "-",         24, 15}},
     { PROGRAM_OPTION::MT_CRIT_MR_WD_DEGENERATE_ACCRETOR,                        { TYPENAME::DOUBLE,     "PO_MT_Crit_MR_WD_Deg_Acc",                  "-",         24, 15}},
     { PROGRAM_OPTION::MT_CRIT_MR_WD_NONDEGENERATE_ACCRETOR,                     { TYPENAME::DOUBLE,     "PO_MT_Crit_MR_WD_NonDeg_Acc",               "-",         24, 15}},
-    
+
     { PROGRAM_OPTION::MT_FRACTION_ACCRETED,                                     { TYPENAME::DOUBLE,     "PO_MT_Fraction_Accreted",                   "-",         24, 15}},
     { PROGRAM_OPTION::MT_JLOSS,                                                 { TYPENAME::DOUBLE,     "PO_MT_JLoss",                               "-",         24, 15}},
     { PROGRAM_OPTION::MT_JLOSS_LINEAR_FRACTION_DEGEN,                           { TYPENAME::DOUBLE,     "PO_MT_JLoss_Linear_Frac_Degen",             "-",         24, 15}},
@@ -1770,7 +1770,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MULLER_MANDEL_KICK_MULTIPLIER_NS,                         { TYPENAME::DOUBLE,     "PO_MM_Kick_Multiplier_NS",                  "-",         24, 15}},
     { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_BH,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_BH",                          "-",         24, 15}},
     { PROGRAM_OPTION::MULLER_MANDEL_SIGMA_KICK_NS,                              { TYPENAME::DOUBLE,     "PO_MM_Sigma_Kick_NS",                          "-",         24, 15}},
-    
+
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_ASSUMPTION_BH,                         { TYPENAME::INT,        "PO_Neutrino_Mass_Loss_Assmptn",             "-",          4, 1 }},
     { PROGRAM_OPTION::NEUTRINO_MASS_LOSS_VALUE_BH,                              { TYPENAME::DOUBLE,     "PO_Neutrino_Mass_Loss_Value",               "-",         24, 15}},
 
@@ -1811,7 +1811,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::RANDOM_SEED_CMDLINE,                                      { TYPENAME::ULONGINT,   "PO_SEED(CMDLINE)",                          "-",         12, 1 }},
 
     { PROGRAM_OPTION::REMNANT_MASS_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Remnant_Mass_Prscrptn",                  "-",          4, 1 }},
-    
+
     { PROGRAM_OPTION::RESPONSE_TO_SPIN_UP,                                { TYPENAME::INT,        "PO_Response_To_Spin_Up",                           "-",          4, 1 }},
 
     { PROGRAM_OPTION::ROCKET_KICK_MAGNITUDE_1,                                  { TYPENAME::DOUBLE,     "PO_Rocket_Kick_Magnitude(1)",               "kms^-1",    24, 15}},
@@ -1825,7 +1825,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY,                                     { TYPENAME::DOUBLE,     "PO_Rotational_Frequency",                   "Hz",        24, 15}},
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_1,                                   { TYPENAME::DOUBLE,     "PO_Rotational_Frequency(1)",                "Hz",        24, 15}},
     { PROGRAM_OPTION::ROTATIONAL_FREQUENCY_2,                                   { TYPENAME::DOUBLE,     "PO_Rotational_Frequency(2)",                "Hz",        24, 15}},
-   
+
     { PROGRAM_OPTION::SCALE_CHE_MASS_LOSS_SURF_HE_ABUNDANCE,                    { TYPENAME::BOOL,       "PO_Scale_CHE_Mass_Loss_Surf_He_Abundance",  "flag",       0,  0}},
     { PROGRAM_OPTION::SCALE_TERMINAL_WIND_VEL_METALLICITY_POWER,                { TYPENAME::DOUBLE,     "PO_Scale_Terminal_Wind_Vel_Metallicity_Power", "-",      24, 15}},
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS,                                          { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis",                        "AU",        24, 15}},
@@ -1836,7 +1836,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_Tides_Prscrptn",                         "-",          4, 1 }},
-    
+
     { PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER,                        { TYPENAME::BOOL,       "PO_USSN_Kicks_Override_Mandel_Muller",  "flag",       0,  0}},
 
     { PROGRAM_OPTION::WR_FACTOR,                                                { TYPENAME::DOUBLE,     "PO_WR_Factor",                              "-",         24, 15}},
@@ -1961,8 +1961,8 @@ enum class SSE_SYSTEM_SNAPSHOT_RECORD_TYPE: unsigned int {                      
 // these must be left as default values - their order can be changed with the caveat that the sentinel "SENTINEL" must stay at the end
 // it's a bit of a hack, but it lets me iterate over the enum
 enum class RUN_DETAILS_COLUMNS: int { COMPAS_VERSION,
-                                      RUN_START, 
-                                      RUN_END, 
+                                      RUN_START,
+                                      RUN_END,
                                       OBJECTS_REQUESTED,
                                       OBJECTS_CREATED,
                                       CLOCK_TIME,
@@ -2163,16 +2163,16 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
 //
 const ANY_PROPERTY_VECTOR BSE_DOUBLE_COMPACT_OBJECTS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
-    BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION, 
+    BINARY_PROPERTY::SEMI_MAJOR_AXIS_AT_DCO_FORMATION,
     BINARY_PROPERTY::ECCENTRICITY_AT_DCO_FORMATION,
     STAR_1_PROPERTY::MASS,
     STAR_1_PROPERTY::STELLAR_TYPE,
-    STAR_2_PROPERTY::MASS, 
+    STAR_2_PROPERTY::MASS,
     STAR_2_PROPERTY::STELLAR_TYPE,
     BINARY_PROPERTY::TIME_TO_COALESCENCE,
     BINARY_PROPERTY::TIME,
-    BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME, 
-    STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,  
+    BINARY_PROPERTY::MERGES_IN_HUBBLE_TIME,
+    STAR_1_PROPERTY::RECYCLED_NEUTRON_STAR,
     STAR_2_PROPERTY::RECYCLED_NEUTRON_STAR
 };
 
@@ -2267,7 +2267,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     SUPERNOVA_PROPERTY::SUPERNOVA_THETA,
     SUPERNOVA_PROPERTY::SUPERNOVA_PHI,
     SUPERNOVA_PROPERTY::SN_TYPE,
-    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,  
+    BINARY_PROPERTY::ECCENTRICITY_PRE_SUPERNOVA,
     BINARY_PROPERTY::ECCENTRICITY,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_PRE_SUPERNOVA_RSOL,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_RSOL,
@@ -2291,7 +2291,7 @@ const ANY_PROPERTY_VECTOR BSE_SUPERNOVAE_REC = {
     COMPANION_PROPERTY::SPEED,
     BINARY_PROPERTY::SYSTEMIC_SPEED,
     SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR,
-    BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE, 
+    BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE,
     BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_X,
     BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Y,
     BINARY_PROPERTY::ORBITAL_ANGULAR_MOMENTUM_VECTOR_Z,
@@ -2502,7 +2502,7 @@ const ANY_PROPERTY_VECTOR SSE_SUPERNOVAE_REC = {
     STAR_PROPERTY::DRAWN_KICK_MAGNITUDE,
     STAR_PROPERTY::KICK_MAGNITUDE,
     STAR_PROPERTY::FALLBACK_FRACTION,
-    STAR_PROPERTY::MEAN_ANOMALY,				
+    STAR_PROPERTY::MEAN_ANOMALY,
     STAR_PROPERTY::SN_TYPE,
     STAR_PROPERTY::TOTAL_MASS_AT_COMPACT_OBJECT_FORMATION,
     STAR_PROPERTY::TOTAL_RADIUS_AT_COMPACT_OBJECT_FORMATION,

@@ -22,20 +22,20 @@
 #
 # The duration from the birth of the binary until the merger as a double compact object (DCO) can range from a few million years (lifetime of the stars) to more than 100 giga years depending on the evolution of the system.
 #
-# Hence, 
+# Hence,
 # 1. DCOs merge at different redshifts
 # 2. Multiple DCOs merging at a specific redshift could have formed at different times.
-#     
+#
 # We thus need to know the star formation that went into forming a single system. However, the star formation rate is non-constant over the lifetime of the universe. Furthermore, star formation is heavily dependent on the metallicity of the star forming gas, which also changes over the lifetime of the universe. Combined, we call this the metallicity-specific star formation rate (MSSFR).
 #
 # **The cosmic-integration code predicts the merger rate of DCOs along a grid of redshifts and chirp-masses, assuming a model for the MSSFR.**
-# This tutorial covers how to use the COMPAS Cosmic Integration python tools (see [Neijssel et al. 2020](https://arxiv.org/abs/1906.08136) for derivations). 
+# This tutorial covers how to use the COMPAS Cosmic Integration python tools (see [Neijssel et al. 2020](https://arxiv.org/abs/1906.08136) for derivations).
 #
 #
 
 # ## Load COMPAS BBHs
 #
-# To run the Cosmic-integrator, we need a COMPAS data set with non-constant (preferably, randomly-sampled) metallicity and some number of double compact objects. 
+# To run the Cosmic-integrator, we need a COMPAS data set with non-constant (preferably, randomly-sampled) metallicity and some number of double compact objects.
 #
 # In this tutorial we make a mock-COMPAS dataset. Some realistic example data can be downloaded from our [Zenodo database](https://zenodo.org/communities/compas/?page=1&size=20).
 #
@@ -157,7 +157,7 @@ fig = detection_matrix.plot()
 
 # ## Bootstrapping
 #
-# You may want to generate $N$ detection-rate matrices using bootstrap samples from the original BBH population. This can be done with: 
+# You may want to generate $N$ detection-rate matrices using bootstrap samples from the original BBH population. This can be done with:
 
 detection_matrix.compute_bootstrapped_rate_matrices(
     bbh_population, cosmological_model=cosmological_model, snr_grid=snr_grid,

@@ -61,10 +61,10 @@ void EAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
  *
  *
  * double CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop)
- * 
+ *
  * @param   [IN]    p_MassIndex                 Mass index
  * @param   [IN]    p_StellarPop                The stellar population for metallicity (POP I or POP II)
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const {
@@ -397,7 +397,7 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
  *
  * @param   [IN]    p_Mass                      Mass
  * @param   [IN]    p_Metallicity               Metallicity
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double EAGB::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -907,7 +907,7 @@ double EAGB::CalculateMassLossRateHurley() {
     double rateKR = CalculateMassLossRateKudritzkiReimers();
     double rateVW = CalculateMassLossRateVassiliadisWood();
     double rateWR = CalculateMassLossRateWolfRayet(m_Mu);
-    
+
     m_DominantMassLossRate = MASS_LOSS_TYPE::GB;
     double dominantRate    = std::max(rateNJ, rateKR);
            dominantRate    = std::max(rateVW, dominantRate);
@@ -1046,7 +1046,7 @@ STELLAR_TYPE EAGB::ResolveEnvelopeLoss(bool p_Force) {
 
         m_Age = HeGB::CalculateAgeOnPhase_Static(m_Mass, m_COCoreMass, timescales(tHeMS), m_GBParams);
 
-        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXiHurley(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams); 
+        HeHG::CalculateGBParams_Static(m_Mass0, m_Mass, LogMetallicityXiHurley(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, m_GBParams);
         m_Luminosity = HeGB::CalculateLuminosityOnPhase_Static(m_COCoreMass, gbParams(B), gbParams(D));
 
         double R1, R2;

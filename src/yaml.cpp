@@ -14,7 +14,7 @@
  *
  * Code to create a new YAML file based on current COMPAS defaults and any user-input option values.
  * See yaml.h for description of the YAML template.
- * 
+ *
  * There is no doubt that some of the code here is not the most efficient way of doing this, but realistically
  * this will be run once or twice every not very often - and it runs in a fraction of a second - so I'm not going
  * to engage in premature optimisation...
@@ -27,10 +27,10 @@ namespace yaml {
      *
      * Read YAML template from file passed in p_YAMLtemplateName.
      * Replace content of default template 'yamlTemplate' declared in yaml.h if read ok.
-     * 
-     * 
+     *
+     *
      * int ReadYAMLtemplate(const std::string p_YAMLtemplateName)
-     * 
+     *
      * @param   [IN]    p_YAMLtemplateName          Filename to be read - should be fully qualified
      * @return                                      Integer result:
      *                                                -1 indicates IO error
@@ -45,7 +45,7 @@ namespace yaml {
 
             std::ifstream yamlTemplateFile(p_YAMLtemplateName);                                                 // yes - open the file
             if (yamlTemplateFile.is_open()) {                                                                   // open ok?
- 
+
                 std::vector<std::string> yamlTemplateContent;                                                   // yes - file content
 
                 std::string rec;                                                                                // record read from file
@@ -62,7 +62,7 @@ namespace yaml {
         }
         else result = 0;                                                                                        // no - YAML template file does not exist
 
-        return result;     
+        return result;
     }
 
 
@@ -71,10 +71,10 @@ namespace yaml {
      *
      * Writes YAML file content passed in p_YAMLcontent to file passed in p_YAMLname.
      * Will prompt user for overwrite if file already exists.
-     * 
-     * 
+     *
+     *
      * int WriteYAMLfile(const std::string p_YAMLname, const std::vector<std::string> p_YAMLcontent)
-     * 
+     *
      * @param   [IN]    p_YAMLname                  Filename to be written - should be fully qualified
      * @param   [IN]    p_YAMLcontent               YAML content to be written - vector of strings
      * @return                                      Integer result:
@@ -101,7 +101,7 @@ namespace yaml {
                     ch = std::cin.get();                                                                        // get response character (one character at a time)
                     charsInput++;                                                                               // count of characters input
                 } while (ch != "\n");                                                                           // while not newline
-                ch = charsInput == 2 ? lastCh : "";                                                             // we want just 1 character + newline - character prior to newline          
+                ch = charsInput == 2 ? lastCh : "";                                                             // we want just 1 character + newline - character prior to newline
                 if (!ch.empty()) response = utils::ToLower(ch);                                                 // set user response
             } while (response != "y" && response != "n");                                                       // while not valid response
             doWrite = response == "y";                                                                          // set write flag
@@ -131,12 +131,12 @@ namespace yaml {
      * Constructs YAML file content based on YAML template read from file passed in
      * p_YAMLtemplateName.  If no filename passed in p_YAMLtemplateName, the default
      * template from yaml.h is used.
-     * 
+     *
      * Constructed content is written to file passed in p_YAMLfilename.
-     * 
-     * 
+     *
+     *
      * void MakeYAMLfile(const std::string p_YAMLfilename, const std::string p_YAMLtemplateName)
-     * 
+     *
      * @param   [IN]    p_YAMLfilename          Filename to be written - should be fully qualified
      * @param   [IN]    p_YAMLtemplateName      Template filename to be read - should be fully qualified
      */
@@ -187,7 +187,7 @@ namespace yaml {
                     case TYPENAME::LONGDOUBLE: { long double v = std::stold(p_Str);         ss << std::fixed << std::setprecision(v < 100 ? 6 : 2) << v;     } break;
                     case TYPENAME::BOOL      : { std::string s = p_Str; s = utils::trim(s); ss << (s == "1" || utils::Equals(s, "true") ? "True" : "False"); } break;
                     case TYPENAME::STRING    : {
-                            bool vecType = (p_detailedType == "VECTOR<STRING>");                                            // vector of strings? 
+                            bool vecType = (p_detailedType == "VECTOR<STRING>");                                            // vector of strings?
                             size_t len = p_Str.length();                                                                    // str length
                             if (len == 0) {                                                                                 // empty str?
                                 ss << (vecType ? "{ }" : "''");                                                             // yes - just quotes/braces (for vector)
@@ -201,7 +201,7 @@ namespace yaml {
 
                                 if (!vecType) {                                                                             // VECTOR<STRING> ?
                                     if (p_Str[0] != '\'' || p_Str[len - 1] != '\'') { ss << "'"; ss << p_Str;  ss << "'"; } // no - add quotes if necessary
-                                    else ss << p_Str;                                                                       // has quotes - just pass through                                                                         
+                                    else ss << p_Str;                                                                       // has quotes - just pass through
                                 }
                                 else {                                                                                      // yes - string vector - parse and format string
                                     std::string str = p_Str;                                                                // string to be formatted
@@ -216,7 +216,7 @@ namespace yaml {
                                             if (v.length() > 0) {                                                           // skip empty substring
                                                 if (!first) ss << ", ";                                                     // add comma if not first element
                                                 if (v[0] != '\'' || v[len - 1] != '\'') { ss << "'"; ss << v; ss << "'"; }  // add quotes if necessary
-                                                else ss << v;                                                               // has quotes - just pass through                                 
+                                                else ss << v;                                                               // has quotes - just pass through
                                             }
                                             start = end + 1;                                                                // for next space
                                             first = false;                                                                  // not first element
@@ -225,13 +225,13 @@ namespace yaml {
                                         if (v.length() > 0) {                                                               // anything there?
                                             if (!first) ss << ", ";                                                         // yes - add comma if not first element (shouldn't be, but just in case...)
                                             if (v[0] != '\'' || v[len - 1] != '\'') { ss << "'"; ss << v; ss << "'"; }      // add quotes if necessary
-                                            else ss << v;                                                                   // has quotes - just pass through                                                                         
+                                            else ss << v;                                                                   // has quotes - just pass through
                                         }
                                         if (str[0] != '{' || str[len - 1] != '}') ss << " }";                               // add close brace if necessary
                                     }
                                     else ss << p_Str;                                                                       // has braces - just pass it through
                                 }
-                            }   
+                            }
                         } break;
                     default: ss << p_Str;                                                                                   // just pass it through
                 }
@@ -311,7 +311,7 @@ namespace yaml {
                                                                                                                             // no...
                 // we have no template - this should never happen (we've got a default template in the code,
                 // but we need to deal with that being missing just in case) - so we'll just write the COMPAS
-                // options alphabetically within the datatype categories (booleanChoices, numericalChoices, 
+                // options alphabetically within the datatype categories (booleanChoices, numericalChoices,
                 // stringChoices, listChoices)
 
                 std::cerr << "*WARNING* No YAML template - will write COMPAS options alphabetically.\n";                    // announce warning
@@ -331,11 +331,11 @@ namespace yaml {
                     for (size_t optionIdx = 0; optionIdx < optionDetails.size(); optionIdx++) {                             // for each COMPAS option
 
                         if (optionDetails[optionIdx].dataType == TYPENAME::BOOL) {                                          // boolean option?
-                            if (category != "booleanChoices") continue;                                                     // skip if this category is not booleanChoices 
+                            if (category != "booleanChoices") continue;                                                     // skip if this category is not booleanChoices
                         }
                         else if (optionDetails[optionIdx].dataType == TYPENAME::STRING) {                                   // string, or vector of strings, option?
                             if (optionDetails[optionIdx].typeStr == "VECTOR<STRING>") {                                     // ... vector of strings
-                                if (category != "listChoices") continue;                                                    // skip if this category is not listChoices 
+                                if (category != "listChoices") continue;                                                    // skip if this category is not listChoices
                             }
                             else {                                                                                          // ... string
                                 if (category != "stringChoices") continue;                                                  // skip if this category is not stringChoices
@@ -352,8 +352,8 @@ namespace yaml {
                                       optionDetails[optionIdx].defaultStr,                                                  // option default string
                                       "",                                                                                   // no comment
                                       utils::Equals(optionDetails[optionIdx].sourceStr, "user_supplied"),                   // user specified option value?
-                                      optionDetails[optionIdx].dataType,                                                    // option (short) data type  
-                                      optionDetails[optionIdx].typeStr);                                                    // option (detailed) data type  
+                                      optionDetails[optionIdx].dataType,                                                    // option (short) data type
+                                      optionDetails[optionIdx].typeStr);                                                    // option (detailed) data type
                     }
                 }
             }
@@ -445,7 +445,7 @@ namespace yaml {
                         for (std::size_t optionIdx = 0; optionIdx < optionDetails.size(); optionIdx++) {                    // for each COMPAS option
 
                             std::string compasOptionStr = optionDetails[optionIdx].optionStr;                               // COMPAS option name string
-                            if (utils::Equals(optionDetails[optionIdx].sourceStr, "calculated")) continue;                  // ignore calculated options                                         
+                            if (utils::Equals(optionDetails[optionIdx].sourceStr, "calculated")) continue;                  // ignore calculated options
                             if (utils::Equals(compasOptionStr, templateOptionStr)) {                                        // match?
 
                                 found = true;                                                                               // yes
@@ -455,15 +455,15 @@ namespace yaml {
                                               optionDetails[optionIdx].defaultStr,                                          // option default string
                                               commentStr,                                                                   // comment string (as written in the YAML template)
                                               utils::Equals(optionDetails[optionIdx].sourceStr, "user_supplied"),           // user specified option value?
-                                              optionDetails[optionIdx].dataType,                                            // option (short) data type  
+                                              optionDetails[optionIdx].dataType,                                            // option (short) data type
                                               optionDetails[optionIdx].typeStr);                                            // option (detailed) data type
                                 break;                                                                                      // we're done
                             }
                         }
 
                         if (!found) {                                                                                       // matching COMPAS option string found?
-                            std::cerr << "*WARNING* Option '" 
-                                      << templateOptionStr 
+                            std::cerr << "*WARNING* Option '"
+                                      << templateOptionStr
                                       << "' in YAML template is not a valid COMPAS option - ignored.\n";                    // no - announce warning
                         }
                     }
@@ -477,11 +477,11 @@ namespace yaml {
 
                 std::string compasOptionStr = optionDetails[optionIdx].optionStr;                                           // option name string
 
-                if (utils::Equals(optionDetails[optionIdx].sourceStr, "calculated")) continue;                              // ignore calculated options    
-                if (utils::Equals(compasOptionStr, "help")) continue;                                                       // ignore 'help' option          
-                if (utils::Equals(compasOptionStr, "version")) continue;                                                    // ignore 'version' option          
-                if (utils::Equals(compasOptionStr, "create-YAML-file")) continue;                                           // ignore 'create-yaml-file' option          
-                if (utils::Equals(compasOptionStr, "YAML-template")) continue;                                              // ignore 'YAML-template' option          
+                if (utils::Equals(optionDetails[optionIdx].sourceStr, "calculated")) continue;                              // ignore calculated options
+                if (utils::Equals(compasOptionStr, "help")) continue;                                                       // ignore 'help' option
+                if (utils::Equals(compasOptionStr, "version")) continue;                                                    // ignore 'version' option
+                if (utils::Equals(compasOptionStr, "create-YAML-file")) continue;                                           // ignore 'create-yaml-file' option
+                if (utils::Equals(compasOptionStr, "YAML-template")) continue;                                              // ignore 'YAML-template' option
 
                 bool match = false;
                 for (size_t yamlIdx = 0; yamlIdx < yamlOptionStrings.size(); yamlIdx++) {                                   // for each YAML option name
@@ -494,7 +494,7 @@ namespace yaml {
                 if (!match) {                                                                                               // COMPAS option in YAML options?
                     if (!extra) {                                                                                           // no - first extra record?
                         extra = true;                                                                                       // yes - flag it
-                        SET_STRINGS("\n\n### Additional COMPAS options not found in YAML template ###", "", "", "", "", "");// header record for YAML file output                     
+                        SET_STRINGS("\n\n### Additional COMPAS options not found in YAML template ###", "", "", "", "", "");// header record for YAML file output
                     }
                     ProcessOption(compasOptionStr,                                                                          // option name string (as written in the COMPAS OPTIONS class)
                                   optionDetails[optionIdx].valueStr,                                                        // option value string
@@ -502,7 +502,7 @@ namespace yaml {
                                   optionDetails[optionIdx].defaultStr,                                                      // option default string
                                   "",                                                                                       // no comment
                                   utils::Equals(optionDetails[optionIdx].sourceStr, "user supplied"),                       // user specified option value?
-                                  optionDetails[optionIdx].dataType,                                                        // option (short) data type  
+                                  optionDetails[optionIdx].dataType,                                                        // option (short) data type
                                   optionDetails[optionIdx].typeStr);                                                        // option (detailed) data type
                 }
             }
@@ -534,7 +534,7 @@ namespace yaml {
             size_t commentPos = allowedPos + maxAllowedStrLen + 4;                                                          // position of comment string
             for (size_t idx = 0; idx < yamlRecords.size(); idx++) {                                                         // for each YAML record
                 std::string s = yamlRecords[idx];                                                                           // start with partially constructed record
-                    
+
                 if (yamlRecords[idx].substr(0, 3) == "OPT") {                                                               // option record?
                                                                                                                             // yes - header and blank records skipped here
                     size_t len = s.length();                                                                                // current length of record
@@ -561,7 +561,7 @@ namespace yaml {
             int writeResult = WriteYAMLfile(p_YAMLfilename, yamlRecords);                                                   // write records to file
             if (writeResult < 0) std::cerr << "*ERROR* File '" << p_YAMLfilename << "' not written: IO error.\n";           // announce IO error
             else if (writeResult == 0) std::cout << "File '" << p_YAMLfilename << "' not written - file already exists.\n"; // announce already exists
-            else std::cout << "File '" << p_YAMLfilename << "' written.\n";                                                 // announce success                
+            else std::cout << "File '" << p_YAMLfilename << "' written.\n";                                                 // announce success
         }
     }
     #undef SET_STRINGS
