@@ -22,9 +22,9 @@ public:
 
 
     // member functions
-    static  double  CalculateLuminosityOnPhase_Static(const double p_Mass, 
-                                                      const double p_Time, 
-                                                      const double p_Metallicity, 
+    static  double  CalculateLuminosityOnPhase_Static(const double p_Mass,
+                                                      const double p_Time,
+                                                      const double p_Metallicity,
                                                       const double p_BaryonNumber);
 
     static  double  CalculateRadiusOnPhase_Static(const double p_Mass);
@@ -32,7 +32,7 @@ public:
     MT_CASE         DetermineMassTransferTypeAsDonor() const                                { return MT_CASE::OTHER; }                                  // Not A, B, C, or NONE
 
     ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorThermalMassLossRate, const bool p_HeRich);                                            // Get the current accretion regime. Can also change m_HeShellDetonation and m_OffCenterIgnition flags.
-    
+
     void            ResolveShellChange(const double p_AccretedMass);
 
 
@@ -49,7 +49,7 @@ protected:
             bool             m_IsSubChandrasekharTypeIa;                                                                                                // Flag for SubCh SN of HeWD
             double           m_XRitter;                                                                                                                 // Assumed hydrogen-mass fraction of material being accreted by He WD, as in Ritter 1999, table 2.
             ACCRETION_REGIME m_AccretionRegime;
-            
+
             // member functions - alphabetically
             double           CalculateAccretionRegime(const bool   p_DonorIsHeRich,
                                                       const bool   p_DonorIsGiant,
@@ -62,14 +62,14 @@ protected:
             double          CalculateCriticalMassRatioGeEtAl(const QCRIT_PRESCRIPTION p_qCritPrescription,
                                                      const double p_massTransferEfficiencyBeta)                 { return CalculateCriticalMassRatioHurleyHjellmingWebbink(); }
             double           CalculateCriticalMassRatioHurleyHjellmingWebbink() const       { return HURLEY_HJELLMING_WEBBINK_QCRIT_WD; }
-        
+
             double           CalculateCOCoreMassOnPhase() const                             { return m_COCoreMass; }                                    // NO-OP
 
             double           CalculateHeCoreMassOnPhase() const                             { return m_HeCoreMass; }                                    // NO-OP
 
             double           CalculateHeliumAbundanceCoreOnPhase() const                    { return 0.0; }
             double           CalculateHeliumAbundanceSurfaceOnPhase() const                 { return 0.0; }
-            
+
             double           CalculateHydrogenAbundanceCoreOnPhase() const                  { return 0.0; }
             double           CalculateHydrogenAbundanceSurfaceOnPhase() const               { return 0.0; }
 
@@ -82,7 +82,7 @@ protected:
             double           Calculatel0Ritter() const                                      { return (m_Metallicity > 0.01) ? L0_RITTER_HIGH_Z : L0_RITTER_LOW_Z; }
 
             DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                         const bool   p_IsHeRich);          
+                                                         const bool   p_IsHeRich);
             DBL_DBL          CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                          const double p_AccretorMassRate,
                                                          const bool   p_IsHeRich)           { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }
@@ -99,11 +99,11 @@ protected:
 
             ENVELOPE         DetermineEnvelopeType() const                                  { return ENVELOPE::CONVECTIVE; }                            // Always CONVECTIVE
 
-            bool             IsMassAboveChandrasekhar() const                               { return (utils::Compare(m_Mass, MCH) > 0); }               // Mass exceeds Chandrasekhar limit 
+            bool             IsMassAboveChandrasekhar() const                               { return (utils::Compare(m_Mass, MCH) > 0); }               // Mass exceeds Chandrasekhar limit
 
-            STELLAR_TYPE     ResolveAIC();  
-            STELLAR_TYPE     ResolveSNIa();  
-            STELLAR_TYPE     ResolveHeSD();  
+            STELLAR_TYPE     ResolveAIC();
+            STELLAR_TYPE     ResolveSNIa();
+            STELLAR_TYPE     ResolveHeSD();
             STELLAR_TYPE     ResolveSupernova()                                             { return EvolveToNextPhase(); }                             // SNe for WDs are handled internally to each WD type
 
             ACCRETION_REGIME WhiteDwarfAccretionRegime() const                              { return m_AccretionRegime; }

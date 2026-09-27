@@ -17,7 +17,7 @@ class HeGB: virtual public BaseStar, public HeHG {
 public:
 
     HeGB() { m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH; };
-    
+
     HeGB(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeHG(p_BaseStar, false) {
         STELLAR_TYPE currentStellarType = m_StellarType;                                                                                                                // Stellar type evolving from
         m_StellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;                                                                                                   // Set stellar type
@@ -25,15 +25,15 @@ public:
     }
 
     HeGB* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HeGB* clone = new HeGB(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HeGB* clone = new HeGB(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static HeGB* Clone(HeGB& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HeGB* clone = new HeGB(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HeGB* clone = new HeGB(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -66,13 +66,13 @@ protected:
 
     double      CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const;
     double      CalculateRadiusOnPhase() const                                                                      { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
-    
-    double          CalculateZetaEquilibrium()                                                                      { return 0.0; }                                         // At lowest order, giants with a convective envelope have radii that are insensitive to mass loss 
+
+    double          CalculateZetaEquilibrium()                                                                      { return 0.0; }                                         // At lowest order, giants with a convective envelope have radii that are insensitive to mass loss
 
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase(const double p_Mass, const double p_Luminosity) const;
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                                  { return CalculateRadiusAndStellarTypeOnPhase(m_Mass, m_Luminosity); }
-            
-    ENVELOPE    DetermineEnvelopeType() const                                                                       { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE    
+
+    ENVELOPE    DetermineEnvelopeType() const                                                                       { return ENVELOPE::CONVECTIVE; }                        // Always CONVECTIVE
 };
 
 #endif // __HeGB_h__

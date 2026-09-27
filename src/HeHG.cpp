@@ -81,17 +81,17 @@ void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
  *
  * This function exists to facilitate the calculation of gbParams in EAGB::ResolveEnvelopeLoss() for the
  * stellar type to which the star will evolve.  The calculations of some of the stellar attributes there
- * depend on new gbParams.  
+ * depend on new gbParams.
  * JR: This really needs to be revisited one day - these calculations should really be performed after
- *     switching to the new stellar type, but other calculations are done (in the legacy code) before the 
+ *     switching to the new stellar type, but other calculations are done (in the legacy code) before the
  *     switch (see evolveOneTimestep() in star.cpp for EAGB stars in the legacy code).
  *
  *
- * void CalculateGBParams_Static(const double      p_Mass0, 
- *                               const double      p_Mass, 
- *                               const double      p_LogMetallicityXi, 
- *                               const DBL_VECTOR &p_MassCutoffs, 
- *                               const DBL_VECTOR &p_AnCoefficients, 
+ * void CalculateGBParams_Static(const double      p_Mass0,
+ *                               const double      p_Mass,
+ *                               const double      p_LogMetallicityXi,
+ *                               const DBL_VECTOR &p_MassCutoffs,
+ *                               const DBL_VECTOR &p_AnCoefficients,
  *                               const DBL_VECTOR &p_BnCoefficients,
  *                                     DBL_VECTOR &p_GBParams)
  *
@@ -103,16 +103,16 @@ void HeHG::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
  * @param   [IN]        p_BnCoefficients        b(n) coefficients
  * @param   [IN/OUT]    p_GBParams              Giant Branch Parameters - calculated here
  */
-void HeHG::CalculateGBParams_Static(const double      p_Mass0, 
-                                    const double      p_Mass, 
-                                    const double      p_LogMetallicityXi, 
-                                    const DBL_VECTOR &p_MassCutoffs, 
-                                    const DBL_VECTOR &p_AnCoefficients, 
-                                    const DBL_VECTOR &p_BnCoefficients, 
+void HeHG::CalculateGBParams_Static(const double      p_Mass0,
+                                    const double      p_Mass,
+                                    const double      p_LogMetallicityXi,
+                                    const DBL_VECTOR &p_MassCutoffs,
+                                    const DBL_VECTOR &p_AnCoefficients,
+                                    const DBL_VECTOR &p_BnCoefficients,
                                           DBL_VECTOR &p_GBParams) {
 
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-    
+
     GiantBranch::CalculateGBParams_Static(p_Mass, p_LogMetallicityXi, p_MassCutoffs, p_AnCoefficients, p_BnCoefficients, p_GBParams);                                     // calculate common values (actually, all)
 
     // recalculate HeHG specific values
@@ -128,7 +128,7 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
     // should return to this and understand desired behavior - *ILYA*
     gbParams(p) = CalculateCoreMass_Luminosity_p_Static(p_Mass, p_MassCutoffs);
     gbParams(q) = CalculateCoreMass_Luminosity_q_Static(p_Mass, p_MassCutoffs);
-    
+
 	gbParams(McBAGB) = p_Mass0;
 	gbParams(McBGB)  = GiantBranch::CalculateCoreMassAtBGB_Static(p_Mass, p_MassCutoffs, p_AnCoefficients, p_GBParams);
 
@@ -160,7 +160,7 @@ double HeHG::CalculateLuminosityOnPhase() const {
  * Uses Helium Giant Branch radius
  *
  *
- * double CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) 
+ * double CalculateRadiusOnPhase(double p_Mass, double p_Luminosity)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
  * @param   [IN]    p_Luminosity                Luminosity in Lsol
@@ -181,7 +181,7 @@ double HeHG::CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const {
  *
  * Hurley et al. 2000, eqs 85, 86, 87 & 88
  *
- * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.  
+ * Calls CalculateRadiusOnPhase_Static() and returns the minimum of R1 and R2.
  * Returns stellar type to which star should evolve based on radius calculated.
  *
  *
@@ -200,7 +200,7 @@ std::tuple <double, STELLAR_TYPE> HeHG::CalculateRadiusAndStellarTypeOnPhase(con
     std::tie(R1, R2) = HeGB::CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity);
 
     radius = std::min(R1, R2);
-    
+
     if (utils::Compare(R1, R2) >= 0) {
         stellarType = STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH;
     }
@@ -277,7 +277,7 @@ double HeHG::CalculateRemnantRadius() const {
  *
  * @param   [IN]    p_Mass                      Mass
  * @param   [IN]    p_Metallicity               Metallicity
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -308,25 +308,25 @@ double HeHG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
 ENVELOPE HeHG::DetermineEnvelopeType() const {
-    
+
     ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type
-    
+
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
             envelope = ENVELOPE::RADIATIVE;                                                          // default treatment
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
             // eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual
             // growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             envelope =  utils::Compare(Temperature() *  TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;  // Envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
             // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
             double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
@@ -342,9 +342,9 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error                
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error
     }
-    
+
     return envelope;
 }
 
@@ -357,19 +357,19 @@ ENVELOPE HeHG::DetermineEnvelopeType() const {
  * Assumes this star is the donor; relevant accretor details are passed as parameters.
  * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
- * double HeHG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
+ * double HeHG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate)
  *
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Critical mass ratio for unstable MT 
+ * @return                                      Critical mass ratio for unstable MT
  */
 double HeHG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
     double qCrit;
-                                                                                                                            
+
     qCrit = p_AccretorIsDegenerate
                 ? OPTIONS->MassTransferCriticalMassRatioHeliumHGDegenerateAccretor()        // degenerate accretor
                 : OPTIONS->MassTransferCriticalMassRatioHeliumHGNonDegenerateAccretor();    // non-degenerate accretor
-                                                                                                                        
+
     return qCrit;
 }
 
@@ -445,9 +445,9 @@ bool HeHG::ShouldEvolveOnPhase() const {
 STELLAR_TYPE HeHG::ResolveEnvelopeLoss(bool p_Force) {
 
     STELLAR_TYPE stellarType = m_StellarType;
-    
+
     if (ShouldEnvelopeBeExpelledByPulsations()) m_EnvelopeJustExpelledByPulsations = true;
-    
+
     if (p_Force || utils::Compare(m_CoreMass, m_Mass) >= 0 || m_EnvelopeJustExpelledByPulsations) {         // Envelope lost - determine what type of star to form
 
         m_Mass       = std::min(m_CoreMass, m_Mass);
@@ -477,7 +477,7 @@ bool HeHG::IsSupernova() const {
     if (utils::Compare(m_CoreMass, m_Mass) == 0) {      // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
         return (utils::Compare(m_Mass, MECS) > 0);
     }
-        
+
     return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
 }
 

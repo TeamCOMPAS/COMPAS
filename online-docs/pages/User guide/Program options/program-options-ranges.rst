@@ -13,7 +13,7 @@ where `range-specifier` is defined as:
     range-identifier[start,count,increment]
 
     .. list-table::
-       :widths: 19 81 
+       :widths: 19 81
        :header-rows: 0
        :class: aligned-text
 
@@ -42,7 +42,7 @@ and with no grid file, would type any of the following::
     ./COMPAS --metallicity [0.0001,5,0.0013]
 
     ./COMPAS --metallicity r[0.0001,5,0.0013]
-    
+
     ./COMPAS --metallicity range[0.0001,5,0.0013]
 
 In each of the examples above the user has specified, by the use of the `range-specifier`, that five binary stars
@@ -59,5 +59,3 @@ and COMPAS would evolve a grid of 50 binaries using the 10 metallicity values an
 Note that when a range is, or ranges are, specified on the command line, the ``--number-of-systems`` command-line option is ignored.
 This is to avoid multiple systems with identical initial values being evolved.  Ranges and sets can be mixed with grid files, and
 in that case ranges and sets specified on the command line will be played out for each grid file line.
-
-   

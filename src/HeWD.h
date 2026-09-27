@@ -17,22 +17,22 @@ class HeWD: virtual public BaseStar, public WhiteDwarfs {
 public:
 
     HeWD() { m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF; };
-    
+
     HeWD(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), WhiteDwarfs(p_BaseStar) {
         m_StellarType = STELLAR_TYPE::HELIUM_WHITE_DWARF;               // Set stellar type
         if (p_Initialise) Initialise();                                 // Initialise if required
     }
 
     HeWD* Clone(const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HeWD* clone = new HeWD(*this, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HeWD* clone = new HeWD(*this, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
     static HeWD* Clone(HeWD& p_Star, const OBJECT_PERSISTENCE p_Persistence, const bool p_Initialise = true) {
-        HeWD* clone = new HeWD(p_Star, p_Initialise); 
-        clone->SetPersistence(p_Persistence); 
-        return clone; 
+        HeWD* clone = new HeWD(p_Star, p_Initialise);
+        clone->SetPersistence(p_Persistence);
+        return clone;
     }
 
 
@@ -53,10 +53,10 @@ protected:
         m_L0Ritter                 = Calculatel0Ritter();
         m_XRitter                  = CalculateXRitter();
         m_LambdaRitter             = CalculateLambdaRitter();
-        m_IsSubChandrasekharTypeIa = false; 
+        m_IsSubChandrasekharTypeIa = false;
         m_ShouldRejuvenate         = false;
         m_AccretionRegime          = ACCRETION_REGIME::ZERO;
-        
+
         EvolveOnPhase(0.0);
     }
 
@@ -64,10 +64,10 @@ protected:
     // member functions - alphabetically
     double          CalculateHeliumAbundanceCoreOnPhase() const                                             { return 1.0 - m_Metallicity; }
     double          CalculateHeliumAbundanceSurfaceOnPhase() const                                          { return 1.0 - m_Metallicity; }
-    
+
     double          CalculateHydrogenAbundanceCoreOnPhase() const                                           { return 0.0; }
     double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                        { return 0.0; }
-    
+
     double          CalculateLambdaDewi() const                                                             { return BaseStar::CalculateLambdaDewi(); }
     double          CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const  { return BaseStar::CalculateLambdaNanjingStarTrack(0.0, 0.0); }
     double          CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const { return CalculateLambdaNanjingStarTrack(0.0, 0.0); }
@@ -77,7 +77,7 @@ protected:
     double          CalculateLuminosityOnPhase() const                                                      { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age, m_Metallicity); }     // Use class member variables
 
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
-                                                const bool   p_IsHeRich);  
+                                                const bool   p_IsHeRich);
     DBL_DBL         CalculateMassAcceptanceRate(const double p_DonorMassRate,
                                                 const double p_AccretorMassRate,
                                                 const bool   p_IsHeRich)                                    { return CalculateMassAcceptanceRate(p_DonorMassRate, p_IsHeRich); }            // Ignore the input accretion rate for WDs
@@ -88,8 +88,8 @@ protected:
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                          { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
 
     STELLAR_TYPE    EvolveToNextPhase();                                                                                                                                                    // Allow evolution, either SN or Rejuvenation
-    bool            IsSupernova() const                                                                     { return m_IsSubChandrasekharTypeIa; }                                          // Go supernova if mass and He shell are large enough;                                                           
-    bool            ShouldEvolveOnPhase() const                                                             { return m_ShouldRejuvenate ? false : !IsSupernova(); }              
+    bool            IsSupernova() const                                                                     { return m_IsSubChandrasekharTypeIa; }                                          // Go supernova if mass and He shell are large enough;
+    bool            ShouldEvolveOnPhase() const                                                             { return m_ShouldRejuvenate ? false : !IsSupernova(); }
 
 };
 

@@ -13,13 +13,13 @@ from .runSubmit import pythonProgramOptions
 # TODO add in functionality for alternative runSubmit names and locations
 
 #######################################################
-### 
+###
 ### For User Instructions, see 'docs/sampling.md'
-### 
+###
 #######################################################
 
 
-### Include options from local runSubmit + compasConfigDefault files      
+### Include options from local runSubmit + compasConfigDefault files
 userunSubmit = False #If false, use stroopwafel defaults
 
 ### Set default stroopwafel inputs - these are overwritten by any command-line arguments
@@ -29,7 +29,7 @@ num_systems = 1000                  # Number of binary systems to evolve        
 output_folder = 'output/'           # Location of output folder (relative to cwd)                                     # Note: overrides runSubmit + compasConfigDefault.yaml value
 random_seed_base = 0                # The initial random seed to increment from                                       # Note: overrides runSubmit + compasConfigDefault.yaml value
 
-num_cores = 4                       # Number of cores to parallelize over 
+num_cores = 4                       # Number of cores to parallelize over
 num_per_core = 250                  # Number of binaries per batch
 mc_only = True                      # Exclude adaptive importance sampling (currently not implemented, leave set to True)
 run_on_hpc = False                  # Run on slurm based cluster HPC
@@ -41,7 +41,7 @@ def create_dimensions():
     """
     This Function that will create all the dimensions for stroopwafel, a dimension is basically one of the variables you want to sample
     Invoke the Dimension class to create objects for each variable. Look at the Dimension class definition in classes.py for more.
-    It takes the name of the dimension, its max and min value. 
+    It takes the name of the dimension, its max and min value.
     The Sampler class will tell how to sample this dimension. Similarly, prior tells it how it calculates the prior. You can find more of these in their respective modules
     OUT:
         As Output, this should return a list containing all the instances of Dimension class.
@@ -60,11 +60,11 @@ def create_dimensions():
 
 def update_properties(locations, dimensions):
     """
-    This function is not mandatory, it is required only if you have some dependent variable. 
+    This function is not mandatory, it is required only if you have some dependent variable.
     For example, if you want to sample Mass_1 and q, then Mass_2 is a dependent variable which is product of the two.
     Similarly, you can assume that Metallicity_2 will always be equal to Metallicity_1
     IN:
-        locations (list(Location)) : A list containing objects of Location class in classes.py. 
+        locations (list(Location)) : A list containing objects of Location class in classes.py.
         You can play with them and update whatever fields you like or add more in the property (which is a dictionary)
     OUT: Not Required
     """
@@ -98,7 +98,7 @@ def configure_code_run(batch):
     This function tells stroopwafel what program to run, along with its arguments.
     IN:
         batch(dict): This is a dictionary which stores some information about one of the runs. It has an number key which stores the unique id of the run
-            It also has a subprocess which will run under the key process. Rest, it depends on the user. User is free to store any information they might need later 
+            It also has a subprocess which will run under the key process. Rest, it depends on the user. User is free to store any information they might need later
             for each batch run in this dictionary. For example, here I have stored the 'output_container' and 'grid_filename' so that I can read them during discovery of interesting systems below
     OUT:
         compas_args (list(String)) : This defines what will run. It should point to the executable file along with the arguments.
@@ -123,7 +123,7 @@ def interesting_systems(batch):
         batch (dict): As input you will be given the current batch which just finished its execution. You can take in all the keys you defined in the configure_code_run method above
     OUT:
         Number of interesting systems
-        In the below example, I define all the NSs as interesting, so I read the files, get the SEED from the system_params file and define the key is_hit in the end for all interesting systems 
+        In the below example, I define all the NSs as interesting, so I read the files, get the SEED from the system_params file and define the key is_hit in the end for all interesting systems
     """
     try:
         folder = os.path.join(output_folder, batch['output_container'])

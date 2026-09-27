@@ -18,7 +18,7 @@ public:
      *
      * Parameter p_Seed is the seed for the random number generator - see main.cpp for an
      * explanation of how p_Seed is derived.
-     * 
+     *
      * Parameter p_Id is the id of the binary - effectively an index - which is added as
      * a suffix to the filenames of any detailed output files created.
      */

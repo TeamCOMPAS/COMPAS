@@ -22,7 +22,7 @@ double BH::CalculateNeutrinoMassLoss_Static(const double p_BaryonicMass) {
         case NEUTRINO_MASS_LOSS_PRESCRIPTION::FIXED_MASS:                                               // FIXED MASS
             gravitationalMass = p_BaryonicMass - OPTIONS->NeutrinoMassLossValueBH();
             break;
-    
+
         default:                                                                                        // unknown prescription
             // the only way this can happen is if someone added a NEUTRINO_MASS_LOSS_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
@@ -88,7 +88,7 @@ DBL_DBL_DBL BH::CalculateCoreCollapseSNParams_Static(const double p_Mass) {
         case BLACK_HOLE_KICKS_MODE::REDUCED : vK = p_vK * NEUTRON_STAR_MASS / p_BlackHoleMass; break;   // kick is reduced by the ratio of the neutron star mass to the black hole mass
 
         case BLACK_HOLE_KICKS_MODE::FALLBACK: vK = p_vK * (1.0 - p_FallbackFraction); break;            // using the so-called 'fallback' mode for BH kicks
-    
+
         default:                                                                                        // unknown mode
             // the only way this can happen is if someone added a BLACK_HOLE_KICKS_MODE
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.

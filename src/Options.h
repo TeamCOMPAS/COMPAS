@@ -44,7 +44,7 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 // Getter functions return the value of the class member variable - the class
 // member variable is set to a value depending upon the value of the corresponding
 // option entered by the user.
-// 
+//
 // Since users specify grid line values using options, getter functions need to
 // know which option value to return - the one specified on the commandline (if in
 // fact the option was specified on the commandline), or the one specified on the
@@ -59,18 +59,18 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 // that value, and if the option was not specified on the grid line, it will return
 // either the default value for the option (if the 'fallback' parameter is 'false'),
 // or the commandline value (if the 'fallback' parameter is 'true').  Note that the
-// commandline value for an option will be the value specified by the user on the 
+// commandline value for an option will be the value specified by the user on the
 // commandline if in fact the option was specified on the commandline, and it will be
 // the default value for the option if the option was not specified on the commandline.
 //
 // To reiterate: by using the OPT_VALUE macro, the value of the option returned will
 // be (in order of priority):
 //
-//    1. the value specified on the grid line IFF the user specified the option on the 
+//    1. the value specified on the grid line IFF the user specified the option on the
 //       grid line
 //
 //    2. if 'fallback' is 'true':
-//           the value specified on the commandline if the user did not specify the 
+//           the value specified on the commandline if the user did not specify the
 //           option on the grid line (regardless of whether they specified the option
 //           on the commandline).  In this case, if the user did not specify a value on
 //           the commandline, the commandline value is set according to the default
@@ -90,8 +90,8 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 // so that we fallback to the commandline value for an option if the user did not
 // specify the option on the grid line, but there may be options for which we may not
 // want to fall back to the commandline value, even if the user did not specify a value
-// on the grid line - we may instead want to return the default value for the option 
-// rather than return the value specified on the commandline (if any).  For those 
+// on the grid line - we may instead want to return the default value for the option
+// rather than return the value specified on the commandline (if any).  For those
 // options, the getter should use
 //
 //     OPT_VALUE("option-name", m_OptionVar, false)
@@ -138,8 +138,8 @@ const std::string NOT_PROVIDED_STR(1, static_cast<char>(NOT_PROVIDED_CHAR));
 //     (c) FALSE if `optName` is not found in the stored list of valid option names
 //         (i.e not a valid option name)
 //
-// In the (a) and (b) cases the boost defaulted() function (and so this macro) is a valid proxy for 
-// Option::OptionSpecified(), but in the (c) case, while the result is technically correct (i.e the 
+// In the (a) and (b) cases the boost defaulted() function (and so this macro) is a valid proxy for
+// Option::OptionSpecified(), but in the (c) case, while the result is technically correct (i.e the
 // default value was not set for the option), it is not a valid proxy for Option::OptionSpecified()
 // (in this case, Option::OptionSpecified() would return FALSE)
 //
@@ -175,14 +175,14 @@ private:
     //
     // The vectors below need to be updated whenever we deprecate an option or an option value,
     // and the option (or value) eventually removed when the deprecation notice period is over.
-    // 
+    //
     //
     // "deprecatedOptionStrings" vector
     // --------------------------------
     //
     // Each tuple in the "deprecatedOptionStrings" vector records an option that has been deprecated,
     // but is still available for users to specify.  The tuple entries are:
-    // 
+    //
     //     - the option string for the deprecated option (just the option string - no leading "--")
     //     - the option string for any replacement for the deprecated option (just the option string,
     //       no leading "--").  If there is no replacement (i.e. the deprecated option will be removed
@@ -195,7 +195,7 @@ private:
     //     - datestring indicating the date the option string was deprecated.  Deprecated option strings
     //       should be manually removed from the "deprecatedOptionStrings" vector 12 months (too long?)
     //       after the deprecation date.  Datestring format is yyyymmdd (e.g.20251107 indicates November 07, 2025).
-    // 
+    //
     //
     // "deprecatedOptionValues" vector
     // -------------------------------
@@ -203,10 +203,10 @@ private:
     // Sometimes we may want to deprecate an option value (e.g. one of the possible mass loss prescriptions).
     // We may want to do this to rename an option value, or we might want to remove it completely (without
     // replacement).
-    // 
+    //
     // Each tuple in the "deprecatedOptionValues" vector records an option value that has been deprecated,
     // but is still available for users to specify.  The tuple entries are:
-    // 
+    //
     //     - the option string for which a value is to be deprecated (just the option string - no leading "--")
     //     - the value string for the value to be deprecated (e.g. for the value QCRIT_PRESCRIPTION::CLAEYS for
     //       the option "critical-mass-ratio-prescription", specify "CLAEYS" in the vector)
@@ -230,9 +230,9 @@ private:
         { "initial-mass-min",                                      "initial-mass-function-min",                         false, "20250808" },
         { "initial-mass-power",                                    "initial-mass-function-power",                       false, "20250808" },
         { "use-mass-loss",                                         "mass-loss-prescription",                            false, "20250809" },
-        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",         false, "20250819" }, 
-        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen",     false, "20250819" },   
-        { "scale-mass-loss-with-surface-helium-abundance",         "scale-CHE-mass-loss-with-surface-helium-abundance", false, "20251209" },    
+        { "mass-transfer-jloss-macleod-linear-fraction-degen",     "mass-transfer-jloss-linear-fraction-degen",         false, "20250819" },
+        { "mass-transfer-jloss-macleod-linear-fraction-non-degen", "mass-transfer-jloss-linear-fraction-non-degen",     false, "20250819" },
+        { "scale-mass-loss-with-surface-helium-abundance",         "scale-CHE-mass-loss-with-surface-helium-abundance", false, "20251209" },
     };
 
     std::vector<std::tuple<std::string, std::string, std::string, bool, std::string>> deprecatedOptionValues = {
@@ -294,9 +294,9 @@ private:
     // for final parsing.  If any option strings not in this vector are specified using
     // shorthand notation, boost will parse them as usual and likely (though not necessarily)
     // complain (boost will only complain if the option/value pair is malformed or unknown,
-    // which would almost certainly be the case - but it isn't guaranteed to be). 
+    // which would almost certainly be the case - but it isn't guaranteed to be).
 
-    
+
     union ShorthandDefault_t {
         char*  strVal = nullptr;
         double dblVal;
@@ -329,11 +329,11 @@ private:
 
     // m_GridLineExcluded records option strings that may not be specified on a grid line
     //
-    // This vector is checked when the grid line is parsed - if any option strings are 
+    // This vector is checked when the grid line is parsed - if any option strings are
     // specified but excluded from the grid line, a warning will be issued and the option
-    // ignored (processing will continue). The reasons we might exclude options from the 
-    // grid file should be obvious upon reading the list of excluded options.  I can't 
-    // think of a good reason to exclude options from the commandline, so I haven't 
+    // ignored (processing will continue). The reasons we might exclude options from the
+    // grid file should be obvious upon reading the list of excluded options.  I can't
+    // think of a good reason to exclude options from the commandline, so I haven't
     // implemented that functionality (though it wouldn't be too difficult to add it).
     //
     // I could probably have done this using a different set of options in Boost for
@@ -367,7 +367,7 @@ private:
         "help", "h",
         "hmxr-binaries",
 
-        "log-level", 
+        "log-level",
         "log-classes",
 
         "logfile-common-envelopes",
@@ -402,7 +402,7 @@ private:
         "population-data-printing",
         "print-bool-as-string",
 
-        "quiet", 
+        "quiet",
 
         "rlof-printing",
 
@@ -414,7 +414,7 @@ private:
         "yaml-template"
     };
 
-    
+
     // m_SSEOnly records option strings that apply to SSE only
     // m_BSEOnly records option strings that apply to BSE only
     //
@@ -432,7 +432,7 @@ private:
     // SSE code will happily ignore the option, but unless we know not to, we will
     // still play out the range of values (only for them to be ignored) - so we will
     // evolve as many stars as there are values in the range, and they will all be
-    // the same (because the SSE code will ignore the BSE-only option each time 
+    // the same (because the SSE code will ignore the BSE-only option each time
     // through the loop while the range is playing out).
     //
     // To get around this we specify in the following vectors the names of any
@@ -465,12 +465,12 @@ private:
 
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
-        "angular-momentum-conservation-during-circularisation", 
+        "angular-momentum-conservation-during-circularisation",
 
         "case-BB-stability-prescription",
         "circularise-binary-during-mass-transfer",
         "common-envelope-allow-main-sequence-survive",
-        "common-envelope-alpha", 
+        "common-envelope-alpha",
         "common-envelope-alpha-thermal",
         "common-envelope-formalism",
         "common-envelope-lambda",
@@ -550,8 +550,8 @@ private:
 
         "rocket-kick-magnitude-1",
         "rocket-kick-magnitude-2",
-        "rocket-kick-phi-1", 
-        "rocket-kick-phi-2", 
+        "rocket-kick-phi-1",
+        "rocket-kick-phi-2",
         "rocket-kick-theta-1",
         "rocket-kick-theta-2",
 
@@ -561,7 +561,7 @@ private:
         "semi-major-axis-min",
     };
 
-    
+
     // m_RangeExcluded records option strings that cannot be ranges
     // m_SetExcluded records option strings that cannot be sets
     //
@@ -571,7 +571,7 @@ private:
     // increment be...).  Sets can be specified for options of all data types,
     // but sets (and ranges) don't make sense for some options (things like "help",
     // "quiet", logfile names etc....)
-  
+
     STR_VECTOR m_RangeExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
@@ -628,11 +628,11 @@ private:
         "initial-mass-function", "i",
 
         "kick-direction-distribution",
-        "kick-magnitude-distribution", 
+        "kick-magnitude-distribution",
 
         "LBV-mass-loss-prescription",
 
-        "log-level", 
+        "log-level",
         "log-classes",
 
         "logfile-common-envelopes",
@@ -686,7 +686,7 @@ private:
         "pulsational-pair-instability",
         "pulsational-pair-instability-prescription",
 
-        "quiet", 
+        "quiet",
 
         "RSG-mass-loss-prescription",
         "radial-change-fraction",
@@ -720,7 +720,7 @@ private:
 
         "yaml-template"
     };
-    
+
     STR_VECTOR m_SetExcluded = {
 
         // trying to keep entries alphabetical so easier to find specific entries
@@ -749,7 +749,7 @@ private:
         "hmxr-binaries",
 
         "log-classes",
-        "log-level", 
+        "log-level",
 
         "logfile-common-envelopes",
         "logfile-common-envelopes-record-types",
@@ -806,7 +806,7 @@ private:
 
 
 public:
-    
+
     // The OptionsValues class holds the values for the options.  This allows the Options class
     // to hold values for both the commandline options (the options specified by the user on the
     // commandline) and the grid file options (the options specified by the user on a grid file
@@ -822,12 +822,12 @@ public:
 
         private:
 
-            template <typename T> 
-            struct ENUM_OPT { 
-                std::string typeString; 
-                T           type; 
-            }; 
-            
+            template <typename T>
+            struct ENUM_OPT {
+                std::string typeString;
+                T           type;
+            };
+
             // member variables - alphabetically in groups (sort of...)
 
             bool                                                m_AllowNonStrippedECSN;                                         // Indicates whether single stars should undergo ECSNe if they were not stripped by a companion
@@ -878,12 +878,12 @@ public:
             int                                                 m_ObjectsToEvolve;                                              // Number of stars (SSE) or binaries (BSE) to evolve
             bool                                                m_FixedRandomSeed;                                              // Whether to use a fixed random seed given by options.randomSeed (set to true if --random-seed is passed on command line)
             unsigned long int                                   m_RandomSeed;                                                   // Random seed to use
-    
+
             double                                              m_MaxEvolutionTime;                                             // Maximum time to evolve a binary by
             unsigned long int                                   m_MaxNumberOfTimestepIterations;                                // Maximum number of timesteps to evolve binary for before giving up
             double                                              m_TimestepMultiplier;                                           // Multiplier for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
             DBL_VECTOR                                          m_TimestepMultipliers;                                          // Phase-dependent multipliers for time step size (<1 -- shorter timesteps, >1 -- longer timesteps)
-   
+
             double m_MassChangeFraction;                                                                                        // Approximate goal for fractional radial change per timestep
             double m_RadialChangeFraction;                                                                                      // Approximate goal for fractional radial change per timestep
 
@@ -971,7 +971,7 @@ public:
             double                                              m_MullerMandelSigmaKickBH;                                      // Scatter for BH kicks per Mandel and Mueller, 2020
             double                                              m_MullerMandelSigmaKickNS;                                      // Scatter for NS kicks per Mandel and Mueller, 2020
             bool                                                m_USSNKicksOverrideMandelMuller;                                // Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe
-        
+
 
             // Black hole kicks
             ENUM_OPT<BLACK_HOLE_KICKS_MODE>                     m_BlackHoleKicksMode;                                           // Which black hole kicks mode
@@ -983,7 +983,7 @@ public:
             double                                              m_RocketKickPhi2;                                               // Rocket kick phi angle secondary
             double                                              m_RocketKickTheta1;                                             // Rocket kick theta angle primary
             double                                              m_RocketKickTheta2;                                             // Rocket kick theta angle secondary
-                                                                                                                                
+
             // CHE - Chemically Homogeneous Evolution
             ENUM_OPT<CHE_MODE>                                  m_CheMode;                                                      // Which Chemically Homogeneous Evolution mode
             bool                                                m_EnhanceCHELifetimesLuminosities;                              // Whether to enhance the lifetimes and luminosities of CHE stars relative to SSE MS stars
@@ -998,8 +998,8 @@ public:
             double                                              m_NeutrinoMassLossValueBH;                                      // Value (corresponding to assumption) for neutrino mass loss for BH formation
 
 
-            double                                              m_Fryer22fmix;                                                  // Parameter describing the mixing growth time when using Fryer 2022 remnant mass presc. 
-            double                                              m_Fryer22Mcrit;                                                 // Critical mass for black hole formation when using Fryer 2022 remnant mass presc. 
+            double                                              m_Fryer22fmix;                                                  // Parameter describing the mixing growth time when using Fryer 2022 remnant mass presc.
+            double                                              m_Fryer22Mcrit;                                                 // Critical mass for black hole formation when using Fryer 2022 remnant mass presc.
 
             // Fixed uk options
             bool                                                m_UseFixedUK;                                                   // Whether to fix uk to a certain value (default is to NOT fix uk)
@@ -1015,7 +1015,7 @@ public:
             double                                              m_PulsationalPairInstabilityUpperLimit;                         // Minimum core mass leading to PPI
 
             double                                              m_PulsationalPairInstabilityCOCoreShiftHendriks;                // Shift in CO Core mass for PPI from Hendriks+23
-            
+
             ENUM_OPT<PPI_PRESCRIPTION>                          m_PulsationalPairInstabilityPrescription;                       // Which PPI prescription
 
 	        double                                              m_MaximumNeutronStarMass;						                // Maximum mass of a neutron star allowed, set to default in StarTrack
@@ -1036,9 +1036,9 @@ public:
             double                                              m_WolfRayetFactor;                                              // Multiplicitive factor for Wolf-Rayet (WR) wind mass loss rates
 
             ENUM_OPT<OB_MASS_LOSS_PRESCRIPTION>                 m_OBMassLossPrescription;                                       // Which OB mass loss prescrioption
-            ENUM_OPT<VMS_MASS_LOSS_PRESCRIPTION>                m_VMSMassLossPrescription;                                      // Which VMS mass loss prescription for M > 100 Msol        
-            ENUM_OPT<RSG_MASS_LOSS_PRESCRIPTION>                m_RSGMassLossPrescription;                                      // Which RSG mass loss prescription to use for RSG       
-            ENUM_OPT<WR_MASS_LOSS_PRESCRIPTION>                 m_WRMassLossPrescription;                                       // Which WR mass loss prescription to use for WR       
+            ENUM_OPT<VMS_MASS_LOSS_PRESCRIPTION>                m_VMSMassLossPrescription;                                      // Which VMS mass loss prescription for M > 100 Msol
+            ENUM_OPT<RSG_MASS_LOSS_PRESCRIPTION>                m_RSGMassLossPrescription;                                      // Which RSG mass loss prescription to use for RSG
+            ENUM_OPT<WR_MASS_LOSS_PRESCRIPTION>                 m_WRMassLossPrescription;                                       // Which WR mass loss prescription to use for WR
 
 
             // Mass transfer options
@@ -1047,14 +1047,14 @@ public:
 	        bool                                                m_AngularMomentumConservationDuringCircularisation;			    // Whether to conserve angular momentum while circularising or circularise to periastron (default = false)
             double                                              m_ConvectiveEnvelopeMassThreshold;                              // The mass fraction of envelope that should be convective for the envelope to be labeled convective
             double                                              m_ConvectiveEnvelopeTemperatureThreshold;                       // The boundary between convective and radiative envelopes for HG and Giant stars
-        
+
             bool                                                m_ExpelConvectiveEnvelopeAboveLuminosityThreshold;              // Whether to expel the convective envelope in a pulsation when log_10(L/M) reaches the threshold defined by m_LuminosityToMassThreshold
             double                                              m_LuminosityToMassThreshold;                                    // Threshold value of log_10(L/M) above which the convective envelope is expelled in a pulsation
-        
+
             bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
 
             ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
-        
+
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
 
@@ -1069,8 +1069,8 @@ public:
 	        ENUM_OPT<MT_THERMALLY_LIMITED_VARIATION>            m_MassTransferThermallyLimitedVariation;                        // Choose how to deal with mass transfer if it is set as thermally limited.
 
             double                                              m_MassTransferJloss;                                            // Specific angular momentum of the material leaving the system (not accreted)
-            double                                              m_MassTransferJlossLinearFractionDegen;                         // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
-            double                                              m_MassTransferJlossLinearFractionNonDegen;                      // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear) 
+            double                                              m_MassTransferJlossLinearFractionDegen;                         // Linear interpolation fraction for jloss for degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear)
+            double                                              m_MassTransferJlossLinearFractionNonDegen;                      // Linear interpolation fraction for jloss for non-degenerate accretors, between accretor and L2 position (either Macleod or Klencki linear)
             ENUM_OPT<MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION>     m_MassTransferAngularMomentumLossPrescription;                  // Which mass transfer angular momentum loss prescription
 
             // Mass transfer rejuvenation prescription
@@ -1117,7 +1117,7 @@ public:
             bool                                                m_AllowMainSequenceStarToSurviveCommonEnvelope;                 // Whether or not to allow a main sequence star to survive a common envelope event
             bool                                                m_AllowRadiativeEnvelopeStarToSurviveCommonEnvelope;            // Whether or not to allow a radiative-envelope star to survive a common envelope event
             bool                                                m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope;              // Whether or not to allow Roche Lobe Overflow immediately after a CE to survive a common envelope event
-    
+
             // Prescription for envelope state (radiative or convective)
             ENUM_OPT<ENVELOPE_STATE_PRESCRIPTION>               m_EnvelopeStatePrescription;
 
@@ -1129,7 +1129,7 @@ public:
 
             // Common envelope formalism
             ENUM_OPT<CE_FORMALISM>                              m_CommonEnvelopeFormalism;                                      // Formalism for CE evolution
-        
+
 	        // Common envelope lambda prescription
 	        ENUM_OPT<CE_LAMBDA_PRESCRIPTION>                    m_CommonEnvelopeLambdaPrescription;							    // Prescription to use for CE lambda
 
@@ -1139,7 +1139,7 @@ public:
 	        double                                              m_CommonEnvelopeRecombinationEnergyDensity;					    // Factor using to calculate the binding energy depending on the mass of the envelope. (default = 1.5x10^13 erg/g)
 
             ENUM_OPT<RESPONSE_TO_SPIN_UP>                       m_ResponseToSpinUp;                                             // Response to super-critical spin-up prescription
-        
+
             // Tides
             ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
@@ -1257,7 +1257,7 @@ public:
             void        Initialise();
 
             template<class T>
-            void ModifyVariableMap(std::map<std::string, po::variable_value>& vm, const std::string& opt, const T& val) { 
+            void ModifyVariableMap(std::map<std::string, po::variable_value>& vm, const std::string& opt, const T& val) {
                 vm[opt].value() = boost::any(val);
             }
 
@@ -1296,14 +1296,14 @@ public:
         unsigned long ulVal;    // UNSIGNED LONG (INT)
         long          lVal;     // LONG (INT)
         int           iVal;     // INT
-    } RangeParameterT; 
+    } RangeParameterT;
 
     typedef struct RangeOrSetDescriptor {
         COMPLEX_TYPE                 type;                                              // RANGE or SET
         TYPENAME                     dataType;                                          // the option datatype
         STR_VECTOR                   parameters;                                        // the range or set parameters
         std::vector<RangeParameterT> rangeParms;                                        // range parameters numerical values
-        int                          currPos;                                           // current position of iterator - count for RANGE, pos for SET                                             
+        int                          currPos;                                           // current position of iterator - count for RANGE, pos for SET
     } RangeOrSetDescriptorT;
 
     typedef std::vector<std::tuple<std::string, RangeOrSetDescriptorT>> COMPLEX_OPTION_VALUES;
@@ -1313,13 +1313,13 @@ public:
     typedef STR_STR_STR_STR OPTIONSTR;                                                  // option strings for specified options: <asEntered, asEnteredDownshifted, longName, shortName>
 
     // we have two structs:
-    //    one for the commandline (program-level) options, and 
+    //    one for the commandline (program-level) options, and
     //    one for the grid file line (evolving object-level) options
     //
     // each struct contains:
     //
     //    an OPTIONS_ORIGIN variable to indicate whether this struct is for command-line or grid file options (so the struct can be queried)
-    //    an OptionValues object - holds the values of the options 
+    //    an OptionValues object - holds the values of the options
     //    a  Boost options_descriptions object
     //    a  COMPLEX_OPTION_VALUES object - holds the complex option values (ranges, sets)
     //    a  struct containing the option strings of the specified options
@@ -1419,9 +1419,9 @@ public:
 
 
     BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true); }
-    
+
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
-    
+
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
 
     CHE_MODE                                    CHEMode() const                                                         { return OPT_VALUE("chemically-homogeneous-evolution-mode", m_CheMode.type, true); }
@@ -1431,7 +1431,7 @@ public:
     std::vector<OptionDetailsT>                 CmdLineOptionsDetails() const                                           { return m_CmdLineOptionsDetails; }
 
     bool                                        CommandLineGrid() const                                                 { return m_CmdLine.complexOptionValues.size() != 0; }
-    
+
     double                                      CommonEnvelopeAlpha() const                                             { return OPT_VALUE("common-envelope-alpha", m_CommonEnvelopeAlpha, true); }
     double                                      CommonEnvelopeAlphaThermal() const                                      { return OPT_VALUE("common-envelope-alpha-thermal", m_CommonEnvelopeAlphaThermal, true); }
     CE_FORMALISM                                CommonEnvelopeFormalism() const                                         { return OPT_VALUE("common-envelope-formalism", m_CommonEnvelopeFormalism.type, true); }
@@ -1465,7 +1465,7 @@ public:
     bool                                        EnhanceCHELifetimesLuminosities() const                                 { return OPT_VALUE("enhance-CHE-lifetimes-luminosities", m_EnhanceCHELifetimesLuminosities, false); }
     bool                                        EnableWarnings() const                                                  { return m_CmdLine.optionValues.m_EnableWarnings; }
     bool                                        ErrorsToFile() const                                                    { return m_CmdLine.optionValues.m_ErrorsToFile; }
-    
+
     double                                      Eccentricity() const                                                    { return OPT_VALUE("eccentricity", m_Eccentricity, true); }
     ECCENTRICITY_DISTRIBUTION                   EccentricityDistribution() const                                        { return OPT_VALUE("eccentricity-distribution", m_EccentricityDistribution.type, true); }
     double                                      EccentricityDistributionMax() const                                     { return OPT_VALUE("eccentricity-distribution-max", m_EccentricityDistributionMax, true); }
@@ -1586,19 +1586,19 @@ public:
     LOGFILETYPE                                 LogfileType() const                                                     { return m_CmdLine.optionValues.m_LogfileType.type; }
     std::string                                 LogfileTypeString() const                                               { return m_CmdLine.optionValues.m_LogfileType.typeString; }
     int                                         LogLevel() const                                                        { return m_CmdLine.optionValues.m_LogLevel; }
-    
+
     double                                      LuminosityToMassThreshold() const                                       { return OPT_VALUE("luminosity-to-mass-threshold", m_LuminosityToMassThreshold, true); }
 
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
-    
+
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
 
     double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
     MALTSEV_MODE                                MaltsevMode() const                                                     { return OPT_VALUE("maltsev-mode", m_MaltsevMode.type, true); }
-    
+
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
-    
+
     MASS_LOSS_PRESCRIPTION                      MassLossPrescription() const                                            { return OPT_VALUE("mass-loss-prescription", m_MassLossPrescription.type, true); }
 
     double                                      MassRatio() const                                                       { return OPT_VALUE("mass-ratio", m_MassRatio, true); }
@@ -1662,7 +1662,7 @@ public:
     STR_VECTOR                                  Notes() const                                                           { return OPT_VALUE("notes", m_Notes, true); }
     std::string                                 NotesHdrs(const size_t p_Idx) const                                     { return m_CmdLine.optionValues.m_NotesHdrs[p_Idx]; }
     STR_VECTOR                                  NotesHdrs() const                                                       { return m_CmdLine.optionValues.m_NotesHdrs; }
- 
+
     size_t                                      nObjectsToEvolve() const                                                { return m_CmdLine.optionValues.m_ObjectsToEvolve; }
     OB_MASS_LOSS_PRESCRIPTION                   OBMassLossPrescription() const                                          { return OPT_VALUE("OB-mass-loss-prescription", m_OBMassLossPrescription.type, true); }
     bool                                        OptimisticCHE() const                                                   { return CHEMode() == CHE_MODE::OPTIMISTIC; }
@@ -1704,26 +1704,26 @@ public:
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }
     double                                      PulsationalPairInstabilityUpperLimit() const                            { return OPT_VALUE("PPI-upper-limit", m_PulsationalPairInstabilityUpperLimit, true); }
     double                                      PulsationalPairInstabilityCOCoreShiftHendriks() const                   { return OPT_VALUE("PPI-CO-Core-Shift-Hendriks", m_PulsationalPairInstabilityCOCoreShiftHendriks, true); }
-    
+
     QCRIT_PRESCRIPTION                          QCritPrescription() const                                               { return OPT_VALUE("critical-mass-ratio-prescription", m_QCritPrescription.type, true); }
 
     bool                                        Quiet() const                                                           { return m_CmdLine.optionValues.m_Quiet; }
 
     double                                      RadialChangeFraction() const                                            { return m_CmdLine.optionValues.m_RadialChangeFraction; }
-    
+
     unsigned long int                           RandomSeed() const                                                      { return OPT_VALUE("random-seed", m_RandomSeed, true); }
     unsigned long int                           RandomSeedCmdLine() const                                               { return m_CmdLine.optionValues.m_RandomSeed; }
     unsigned long int                           RandomSeedGridLine() const                                              { return m_GridLine.optionValues.m_RandomSeed; }
 
     REMNANT_MASS_PRESCRIPTION                   RemnantMassPrescription() const                                         { return OPT_VALUE("remnant-mass-prescription", m_RemnantMassPrescription.type, true); }
-    
+
     bool                                        RequestedHelp() const                                                   { return m_CmdLine.optionValues.m_VM["help"].as<bool>(); }
     bool                                        RequestedVersion() const                                                { return m_CmdLine.optionValues.m_VM["version"].as<bool>(); }
-    
+
     RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
-    
+
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
-    
+
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 
     double                                      RocketKickMagnitude1() const                                            { return OPT_VALUE("rocket-kick-magnitude-1", m_RocketKickMagnitude1, true); }

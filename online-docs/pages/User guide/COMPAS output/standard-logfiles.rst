@@ -1,13 +1,13 @@
 Standard log files
 ==================
 
-COMPAS defines several standard log files that may be produced depending upon the simulation mode (Single Star Evolution (SSE), 
+COMPAS defines several standard log files that may be produced depending upon the simulation mode (Single Star Evolution (SSE),
 or Binary Star Evolution (BSE), see the ``--mode`` program option), and the value of various program options.
 
 The standard log files are:
 
     .. list-table::
-       :widths: 32 68 
+       :widths: 32 68
        :header-rows: 0
        :class: aligned-text
 
@@ -33,7 +33,7 @@ The standard log files are:
          -
        * - SwitchLog
          - Records detailed information for all stars, or binary stars, at the time of each stellar type switch during evolution.
-       * - 
+       * -
          - Enable with program option ``--switch-log``.
        * -
          -
@@ -53,5 +53,5 @@ The standard log files are:
          -
        * - RLOF
          - Records detailed information RLOF events during BSE.
-       * - 
+       * -
          - Enable with program option ``--rlof-printing``.

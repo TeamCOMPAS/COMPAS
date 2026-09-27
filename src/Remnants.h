@@ -17,14 +17,14 @@ class Remnants: virtual public BaseStar, public HeGB {
 public:
 
     Remnants(){};
-    
+
     Remnants(const BaseStar &p_BaseStar, const bool p_Initialise = true) : BaseStar(p_BaseStar), HeGB(p_BaseStar, false) { }
 
-    
+
     // member functions
-    
+
     static  double  CalculateRemnantMass_Static(const double p_COCoreMass)                                      {  return utils::Compare(p_COCoreMass, 7.0)< 0 ? 1.17 + (0.09 * p_COCoreMass) : p_COCoreMass; }                                                                                  // Hurley et al., eq 92; Hurley says that a >7.0 CO core leads to a collapse into a BH, but is ambiguous about the BH mass in this case -- we will assume it's just the CO core
-    
+
             double  CalculateRemnantRadius() const                                                              { return Radius(); }
 
 
@@ -47,15 +47,15 @@ protected:
                                                      const double p_massTransferEfficiencyBeta)                 { return 0.0; }
     double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const                                    { return 0.0; }
 
-    void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch  
+    void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams)                              { GiantBranch::CalculateGBParams(p_Mass, p_GBParams); }                 // Default to GiantBranch
     void            CalculateGBParams()                                                                         { CalculateGBParams(m_Mass0, m_GBParams); }                             // Use class member variables
 
     double          CalculateHeliumAbundanceCoreOnPhase() const                                                 { return 0.0; };
     double          CalculateHeliumAbundanceSurfaceOnPhase() const                                              { return 0.0; };
-    
+
     double          CalculateHydrogenAbundanceCoreOnPhase() const                                               { return 0.0; };
     double          CalculateHydrogenAbundanceSurfaceOnPhase() const                                            { return 0.0; };
-    
+
     double          CalculateHeCoreMassOnPhase() const                                                          { return m_Mass; }                                                      // Return m_Mass
 
     DBL_DBL_DBL_DBL CalculateImKnmDynamical(const double p_Omega, const double p_SemiMajorAxis, const double p_M2) const   { return std::make_tuple(0.0, 0.0, 0.0, 0.0); }              // Default is no tidal response
@@ -74,16 +74,16 @@ protected:
 
     double          CalculateMassLossRateHurley()                                                               { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }
     double          CalculateMassLossRateBelczynski2010()                                                       { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }
-    double          CalculateMassLossRateMerritt2025()                                                          { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }                                                         // 
+    double          CalculateMassLossRateMerritt2025()                                                          { m_DominantMassLossRate = MASS_LOSS_TYPE::NONE ; return 0.0; }                                                         //
 
     double          CalculatePerturbationMuOnPhase() const                                                      { return m_Mu; }                                                        // NO-OP
 
     double          CalculateRadialExtentConvectiveEnvelope() const                                             { return 0.0; }         // WD stars don't have a convective envelope
 
     std::tuple <double, STELLAR_TYPE> CalculateRadiusAndStellarTypeOnPhase() const                              { return BaseStar::CalculateRadiusAndStellarTypeOnPhase(); }
-    
+
     double          CalculateTauOnPhase() const                                                                 { return m_Tau; }                                                       // NO-OP
-   
+
     double          CalculateThermalTimescale(const double p_Radius = 1.0) const                                { return CalculateDynamicalTimescale(); }                               // Parameter is ignored
     double          CalculateThermalTimescale() const                                                           { return CalculateThermalTimescale(m_Radius); }                         // Use inheritance hierarchy
 
@@ -93,11 +93,11 @@ protected:
     void            CalculateTimescales()                                                                       { CalculateTimescales(m_Mass0, m_Timescales); }                         // Use class member variables
 
     double          CalculateZetaConstantsByEnvelope(ZETA_PRESCRIPTION p_ZetaPrescription)                      { return 0.0; }                                                         // Should never be called...
-    
+
     double          CalculateZetaEquilibrium()                                      { return -std::numeric_limits<double>::infinity(); }                                         // Nuclear timescale MT should be impossible from remnant stars; should never be called
 
     double          ChooseTimestep(const double p_Time) const;
-    
+
     ENVELOPE        DetermineEnvelopeType() const                                                               { return ENVELOPE::REMNANT; }                                           // Always REMNANT
 
     void            EvolveOneTimestepPreamble()                                                                 { BaseStar::EvolveOneTimestepPreamble(); }                              // Default to BaseStar
@@ -121,7 +121,7 @@ protected:
 
     STELLAR_TYPE    ResolveSkippedPhase()                                                                       { return BaseStar::ResolveSkippedPhase(); }                             // Default to BaseStar
                                                                                                                                                                                         //
-    void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                                 // NO-OP 
+    void            ResolveShellChange(const double p_AccretedMass) { }                                                                                                                 // NO-OP
                                                                                                                                                                                         //
     STELLAR_TYPE    ResolveSupernova()                                                                          { return BaseStar::ResolveSupernova(); }                                // Default to BaseStar
 

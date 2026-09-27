@@ -19,7 +19,7 @@
 
 # ## Introduction
 #
-# Welcome to the post-processing documentation of the COMPAS code. In here, you will find scripts used to manipulate the data and calculate rates/weights/samples to place the results of the simulation into a scientific context. 
+# Welcome to the post-processing documentation of the COMPAS code. In here, you will find scripts used to manipulate the data and calculate rates/weights/samples to place the results of the simulation into a scientific context.
 #
 # We provide a series of jupyter/ipython notebooks and 'raw' python scripts. The notebooks show how to call the python scripts and the involved syntax. All notebooks are made into html pages for easy reading and indexing of available material.
 #
@@ -44,6 +44,6 @@
 # ### [Basic Data Analysis in Python:](DataAnalysis.ipynb)
 # Slicing, binning, plotting
 #
-#         
+#
 # ### [Implementing Cosmic Integration:](CosmicIntegration.ipynb)
 # Merger rates, redshift, MSSFR

@@ -8,12 +8,12 @@ LOG_IF() macro
 Writes a log record to the log file specified by ``id`` if the condition given by ``cond`` is met. Usage::
 
     LOG_IF(id, cond, string)                // writes 'string' to the log file if 'cond' is TRUE.
-    
-    LOG_IF(id, cond, level, string)         // writes 'string' to the log file if 'cond' is TRUE and 
+
+    LOG_IF(id, cond, level, string)         // writes 'string' to the log file if 'cond' is TRUE and
                                             // 'level' <= 'p_LogLevel' in Log::Start().
-    
-    LOG_IF(id, cond, class, level, string)  // writes 'string' to the log file if 'cond' is TRUE, 
-                                            // 'class' is in 'p_LogClasses' in Log::Start(), and 
+
+    LOG_IF(id, cond, class, level, string)  // writes 'string' to the log file if 'cond' is TRUE,
+                                            // 'class' is in 'p_LogClasses' in Log::Start(), and
                                             // 'level' <= 'p_LogLevel' in Log::Start().
 
 Default class is ””; default level is 0.

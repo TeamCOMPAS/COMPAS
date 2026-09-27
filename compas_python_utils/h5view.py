@@ -1,6 +1,6 @@
 '''
 
-h5view.py 
+h5view.py
 
 This program displays summary, header and content information for specified COMPAS HDF5 file(s).
 It's fairly rudimetary - the HDF5 package provide h5dump and h5ls which have far more options
@@ -49,7 +49,7 @@ Functionality overview
 
 Displays summary, header and content information for specified COMPAS HDF5 file(s).  If none
 of --summary [-S], --headers [-H], or --contents [-C] are specified, --summary is assumed.
-If any of --summary [-S], --headers [-H], or --contents [-C] are specified, then only the 
+If any of --summary [-S], --headers [-H], or --contents [-C] are specified, then only the
 option(s) specified are actioned.
 
 
@@ -113,7 +113,7 @@ Run_Details_Filename = 'Run_Details'
 def getDataType(dType = ''):
 
     dataType = 'UNKNOWN'
-    
+
     if   dType == 'uint8'  : dataType = 'BOOL'
     elif dType == 'uint16' : dataType = 'UNSIGNED_SHORT_INT'
     elif dType == 'uint32' : dataType = 'UNSIGNED_INT'
@@ -121,9 +121,9 @@ def getDataType(dType = ''):
     elif dType == 'int16'  : dataType = 'SHORT_INT'
     elif dType == 'int32'  : dataType = 'INT'
     elif dType == 'int64'  : dataType = 'LONG_INT'
-    elif dType == 'float32': dataType = 'FLOAT' 
+    elif dType == 'float32': dataType = 'FLOAT'
     elif dType == 'float64': dataType = 'DOUBLE'
-    elif dType[0:2] == '|S': 
+    elif dType[0:2] == '|S':
         strLen = int(dType[2:len(dType)]) - 1       # strip null terminator
         dataType = 'STRING(' + str(strLen) + ')'
 
@@ -143,7 +143,7 @@ def getDataType(dType = ''):
 def printSummary(h5name = None, h5file = None, excludeList = ''):
 
     ok = True                                                                                       # result
-  
+
     try:
 
         mtime = os.path.getmtime(h5name)                                                            # time file last modified
@@ -158,7 +158,7 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
         print('\nFile size    :', strFileSize.strip(), 'GB')
         print('Last modified:', lastModified)
 
-        # get widths for columns to be displayed - it's a bit more work, 
+        # get widths for columns to be displayed - it's a bit more work,
         # and a bit redundant, but it is neater... (and we don't have thousands of files...)
         maxFilenameLen  = -1
         maxColumns      = -1
@@ -248,13 +248,13 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
 #       - column (dataset) name
 #       - actual number of entries in the column (dataset)
 #       - the COMPAS data type of the column (dataset)
-#       - the units for the column (dataset) (except for the Run_Deatils file - 
+#       - the units for the column (dataset) (except for the Run_Deatils file -
 #         columns (datasets) in the Run-Details file have no units)
 
 def printHeaders(h5name = None, h5file = None, excludeList = ''):
 
     ok = True                                                                                       # result
-  
+
     try:
 
         print('\n\nHeaders for HDF5 file', h5name)
@@ -427,7 +427,7 @@ def printHeaders(h5name = None, h5file = None, excludeList = ''):
 def printContents(h5name = None, h5file = None, excludeList = '', count = sys.maxsize, seeds = []):
 
     ok = True                                                                                   # result
-  
+
     if count == 0: return ok                                                                    # nothing to do
 
     try:
@@ -444,19 +444,19 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
             columns = list(h5file.keys())
 
             hdr = ''
-            for column in columns: 
+            for column in columns:
                 if hdr == '': hdr += column                                                     # add value to hdr (first value)
                 else        : hdr += ', ' + column                                              # add value to hdr (subsequent values)
 
-            print(hdr)  
-            
+            print(hdr)
+
             rows = len(h5file[columns[0]])
             rowsPrinted = 0
-            for idx in range(rows):           
+            for idx in range(rows):
 
                 printIt = True
 
-                index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
+                index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file
 
                 row = ''
                 for column in h5file.keys():
@@ -475,7 +475,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                     if dataType[0:6] == 'STRING':                                               # string?
                         if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
                         if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
-                        value = value.strip()                                                   # strip leading and trailing blanks 
+                        value = value.strip()                                                   # strip leading and trailing blanks
 
                     if row == '': row += str(value)                                             # add value to output row (first value)
                     else        : row += ', ' + str(value)                                      # add value to outputrow (subsequent values)
@@ -504,17 +504,17 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                 columns = list(h5file[Run_Details_Filename].keys())
 
                 hdr = ''
-                for column in columns: 
+                for column in columns:
                     if hdr == '': hdr += column                                                     # add value to hdr (first value)
                     else        : hdr += ', ' + column                                              # add value to hdr (subsequent values)
 
-                print(hdr)  
-            
+                print(hdr)
+
                 rows = len(h5file[Run_Details_Filename][columns[0]])
                 rowsPrinted = 0
                 for idx in range(rows):
 
-                    index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
+                    index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file
 
                     row = ''
                     for column in h5file[Run_Details_Filename].keys():
@@ -529,7 +529,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                         if dataType[0:6] == 'STRING':                                               # string?
                             if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
                             if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
-                            value = value.strip()                                                   # strip leading and trailing blanks 
+                            value = value.strip()                                                   # strip leading and trailing blanks
 
                         if row == '': row += str(value)                                             # add value to output row (first value)
                         else        : row += ', ' + str(value)                                      # add value to outputrow (subsequent values)
@@ -542,7 +542,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
 
                 print()
 
-        
+
             # do remaining files (groups)
             for group in h5file.keys():
                 if group in excludeList: continue                                                   # skip if excludedd
@@ -557,19 +557,19 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                 columns = list(h5file[group].keys())
 
                 hdr = ''
-                for column in columns: 
+                for column in columns:
                     if hdr == '': hdr += column                                                     # add value to hdr (first value)
                     else        : hdr += ', ' + column                                              # add value to hdr (subsequent values)
 
-                print(hdr)  
-            
+                print(hdr)
+
                 rows = len(h5file[group][columns[0]])
                 rowsPrinted = 0
-                for idx in range(rows):           
+                for idx in range(rows):
 
                     printIt = True
 
-                    index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file       
+                    index = rows - idx - 1 if count < 0 else idx                                    # correct index - head or tail of file
 
                     row = ''
                     for column in h5file[group].keys():
@@ -588,7 +588,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                         if dataType[0:6] == 'STRING':                                               # string?
                             if value[0:1] == "'": value = value[1:]                                 # yes - strip leading quote if present
                             if value[len(value)-1:len(value)] == "'": value = value[:-1]            # strip trailing quote if present
-                            value = value.strip()                                                   # strip leading and trailing blanks 
+                            value = value.strip()                                                   # strip leading and trailing blanks
 
                         if row == '': row += str(value)                                             # add value to output row (first value)
                         else        : row += ', ' + str(value)                                      # add value to outputrow (subsequent values)
@@ -603,7 +603,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
                 print()
 
         print('\n')
-        
+
     except Exception as e:                                                                      # error occurred accessing the input file
         print('printContents: Error accessing HDF5 file', h5name, ':', str(e))
         ok = False
@@ -625,7 +625,7 @@ def printContents(h5name = None, h5file = None, excludeList = '', count = sys.ma
 def viewHDF5File(path, excludeList = '', summary = True, headers = False, count = sys.maxsize, seeds = []):
 
     ok = True                                                                                                                       # result
-  
+
     try:
         with h5.File(path, 'r') as srcFile:                                                                                         # open the input HDF5 file
 
@@ -653,14 +653,14 @@ def viewHDF5File(path, excludeList = '', summary = True, headers = False, count 
 # Processes file and directories in directory specified by 'path' parameter
 # Recursion is controlled by 'recursive' and 'depth' parameters
 
-def processDirectory(path, 
-                     recursive   = 0, 
-                     fileFilter  = '*.h5', 
-                     stopOnError = False, 
-                     depth       = 0, 
+def processDirectory(path,
+                     recursive   = 0,
+                     fileFilter  = '*.h5',
+                     stopOnError = False,
+                     depth       = 0,
                      excludeList = '',
-                     summary     = True, 
-                     headers     = False, 
+                     summary     = True,
+                     headers     = False,
                      count       = sys.maxsize,
                      seeds       = []):
 
@@ -675,7 +675,7 @@ def processDirectory(path,
 
             for filename in filenames:                                  # for each filename
                 if fnmatch(filename, fileFilter):                       # filename matches filter?
-                    ok = viewHDF5File(absDirpath + '/' + filename, 
+                    ok = viewHDF5File(absDirpath + '/' + filename,
                                       excludeList = excludeList,
                                       summary     = summary,
                                       headers     = headers,
@@ -690,11 +690,11 @@ def processDirectory(path,
                 depth += 1                                              # increment recursion depth
 
                 for dirname in dirnames:                                # for each directory
-                    processDirectory(absDirpath + '/' + dirname, 
-                                     recursive   = recursive, 
-                                     fileFilter  = fileFilter, 
-                                     stopOnError = stopOnError, 
-                                     depth       = depth, 
+                    processDirectory(absDirpath + '/' + dirname,
+                                     recursive   = recursive,
+                                     fileFilter  = fileFilter,
+                                     stopOnError = stopOnError,
+                                     depth       = depth,
                                      excludeList = excludeList,
                                      summary     = summary,
                                      headers     = headers,
@@ -742,23 +742,23 @@ def main():
         if os.path.exists(thisFullPath):                                                                    # path exists?
             if os.path.isfile(thisFullPath):                                                                # yes - is it a file?
                 if fnmatch(thisPath, fileFilter):                                                           # yes - filename matches filter?
-                    ok = viewHDF5File(thisFullPath, 
+                    ok = viewHDF5File(thisFullPath,
                                       excludeList = excludeList,
-                                      summary     = args.summary, 
-                                      headers     = args.headers, 
+                                      summary     = args.summary,
+                                      headers     = args.headers,
                                       count       = args.contents,
                                       seeds       = args.seed_list)                                         # yes - view it
                 else:                                                                                       # no - does not match filter
                     print('Warning:', thisPath, 'does not match file filter (', fileFilter, '): ignored')   # show warning
             elif os.path.isdir(thisFullPath):                                                               # not a file - directory?
                                                                                                             # yes - process directory
-                ok = processDirectory(thisFullPath, 
-                                      recursive   = args.recursion_depth, 
-                                      fileFilter  = fileFilter, 
-                                      stopOnError = args.stop_on_error, 
+                ok = processDirectory(thisFullPath,
+                                      recursive   = args.recursion_depth,
+                                      fileFilter  = fileFilter,
+                                      stopOnError = args.stop_on_error,
                                       excludeList = excludeList,
-                                      summary     = args.summary, 
-                                      headers     = args.headers, 
+                                      summary     = args.summary,
+                                      headers     = args.headers,
                                       count       = args.contents,
                                       seeds       = args.seed_list)
             else:                                                                                           # not a file or directory

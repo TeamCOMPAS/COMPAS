@@ -1,7 +1,7 @@
 function ComparisonPlots(filename1, name1, filename2, name2)
 % Carries out some basic analysis and makes plots comparing two COMPAS runs
 %
-% USAGE: 
+% USAGE:
 % ComparisonPlots(filename1, name1, filename2, name2)
 %
 % INPUTS:
@@ -9,16 +9,16 @@ function ComparisonPlots(filename1, name1, filename2, name2)
 %   name1: name of data set 1 for plot legends
 %   filename2: name of population synthesis input file 2 in COMPAS h5 format
 %   name2: name of data set 2 for plot legends
-%   
-% the last two arguments are optional; as single output can be plotted 
+%
+% the last two arguments are optional; as single output can be plotted
 % by running ComparisonPlots(filename1, name1)
 %
-% example: 
+% example:
 %       ComparisonPlots('~/Work/COMPASresults/runs/Zsolaralpha1-031803.h5', 'Default', ...
 %       '~/Work/COMPASresults/runs/Zsolar2stage-031803.h5', '2 stage')
 %
 % Warning: --switch-log must be used for all runs to be analysed
-% It is recommended, but not required, to use the same random seed for the 
+% It is recommended, but not required, to use the same random seed for the
 % runs being compared in order to compare individual binary evolution
 
 
@@ -31,7 +31,7 @@ function ComparisonPlots(filename1, name1, filename2, name2)
     %Plot DCO mass distribution, BNS P-e distribution, chirp mass vs period
     %at DCO formation, BH mass vs secondary core mass for 2->1 CEs leading
     %to merging BBH formation
-    figure(1); clf(1); figure(2); clf(2); figure(3); clf(3); figure(4); clf(4); figure(5); clf(5); 
+    figure(1); clf(1); figure(2); clf(2); figure(3); clf(3); figure(4); clf(4); figure(5); clf(5);
     [BNS,NSBH,BBH,BNSCE,NSBHCE,BBHCE,CEBBH1]=DCOplot(filename1, name1, 1, 'r', 40);
     fprintf('\nDCOs:\t\t#Merging DNS\t#Merging NSBH\t#Merging BBH\t%% BNS via CE\t%% NSBH via CE\t%% BBH via CE\t%% BBH via CE with BH primary\n');
     fprintf('%s:\t%d\t\t%d\t\t%d\t\t%.0f\t\t%.0f\t\t%.0f\t\t%.0f\n', ...
@@ -42,16 +42,16 @@ function ComparisonPlots(filename1, name1, filename2, name2)
             name2, BNS, NSBH, BBH, BNSCE/BNS*100, NSBHCE/NSBH*100, BBHCE/BBH*100, CEBBH1/BBH*100);
     end;
     figure(1), hold off; figure(2), hold off; figure(3), hold off; figure(4), hold off;
-    figure(1), set(gca,'FontSize',20), xlabel('$M_1$ (M$_\odot$)', 'Interpreter', 'latex'), 
+    figure(1), set(gca,'FontSize',20), xlabel('$M_1$ (M$_\odot$)', 'Interpreter', 'latex'),
         ylabel('$M_2$ (M$_\odot$)', 'Interpreter', 'latex'), title('Merging DCO masses');  legend;
     figure(2), set(gca,'FontSize',20), xlabel('$\log_{10}$ (Orbital period/hr)', 'Interpreter', 'latex');
     ylabel('Eccentricity'), title('DNS at formation'); legend;
-    figure(3), set(gca,'FontSize',20), xlabel('Chirp Mass (M$_\odot$)', 'Interpreter', 'latex'), 
+    figure(3), set(gca,'FontSize',20), xlabel('Chirp Mass (M$_\odot$)', 'Interpreter', 'latex'),
         ylabel('$\log_{10} (P_\mathrm{orb}/\mathrm{d})$', 'Interpreter', 'latex'), title('Merging BBH at formation'); legend;
-    figure(4), set(gca,'FontSize',20); xlabel('$M_1$ (M$_\odot$)', 'Interpreter', 'latex'), 
+    figure(4), set(gca,'FontSize',20); xlabel('$M_1$ (M$_\odot$)', 'Interpreter', 'latex'),
         ylabel('$M_{\textrm{core},2}$ (M$_\odot$)', 'Interpreter', 'latex'), title('CE from 2->1 en route to merging BBH'), legend;
-    figure(5), set(gca,'FontSize',20); xlabel('$q \equiv M_2/M_1$', 'Interpreter', 'latex'), 
-        ylabel('CDF'), title('CDF of merging BBH'), legend;        
+    figure(5), set(gca,'FontSize',20); xlabel('$q \equiv M_2/M_1$', 'Interpreter', 'latex'),
+        ylabel('CDF'), title('CDF of merging BBH'), legend;
     fignumber=6;
 
     %Plot BH HMXBs
@@ -85,7 +85,7 @@ function ComparisonPlots(filename1, name1, filename2, name2)
         fprintf('%s:\t%d\t\t%d\t\t%f\n', name2, LMXBcount, NSLMXBcount, meanduration);
     end;
     figure(fignumber), hold off; set(gca,'FontSize', 20); legend; title('LMXB on first MT onto CO');
-    xlabel('Compact object mass (M$_\odot$)', 'Interpreter', 'latex'), ylabel('Companion mass (M$_\odot$)', 'Interpreter', 'latex'); 
+    xlabel('Compact object mass (M$_\odot$)', 'Interpreter', 'latex'), ylabel('Companion mass (M$_\odot$)', 'Interpreter', 'latex');
     fignumber=fignumber+1;
 
     %Plot DWDs (just as a sanity check)
@@ -95,7 +95,7 @@ function ComparisonPlots(filename1, name1, filename2, name2)
         DWDplot(filename2, name2, fignumber, 'b', 'g', 5);
     end;
     figure(fignumber); hold off;  axis([-3 5 -3 5]); set(gca,'FontSize',20); title('Double White Dwarfs'); legend;
-    xlabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ ZAMS', 'Interpreter', 'latex'); 
+    xlabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ ZAMS', 'Interpreter', 'latex');
     ylabel('$log_{10}(M*a) [M_\odot * R_\odot]$ @ end', 'Interpreter', 'latex');
 
 
@@ -154,7 +154,7 @@ function ComparisonPlots(filename1, name1, filename2, name2)
     fprintf('Of these, stripped by winds, no RLOF:\t%d\t\t%d\n', strippedwindscount1, strippedwindscount2);
     fprintf('Of these, # stripped by RLOF:\t\t%d\t\t%d\n', strippedRLOFcount1, strippedRLOFcount2);
     fprintf('Of these, previous CE:\t\t\t%d\t\t%d\n', strippedCEcount1, strippedCEcount2);
-    fprintf('Or double-core CE simultaneous with SN:\t%d\t\t%d\n', CESNcount1, CESNcount2);        
+    fprintf('Or double-core CE simultaneous with SN:\t%d\t\t%d\n', CESNcount1, CESNcount2);
     end;
 
 end %end of ComparisonPlots
@@ -200,18 +200,18 @@ function [BNScount, NSBHcount, BBHcount, BNSCE, NSBHCE, BBHCE, CEBBH1count] = ..
     %Merging DCO mass distribution
     figure(fignumber), hold on;
     scatter(mass1(mergingDCO & isCE & OKCE), mass2(mergingDCO & isCE & OKCE), point, ...
-        'filled', colour, 'DisplayName', ['CE, ', name]); 
+        'filled', colour, 'DisplayName', ['CE, ', name]);
     scatter(mass1(mergingDCO & ~isCE), mass2(mergingDCO & ~isCE), point, colour,  'DisplayName', ['Stable, ', name]);
     %P-e of Galactic DNS at formation
     P=2*pi*(a*AU).^(3/2)./sqrt(G*Msunkg*(mass1+mass2))/3600; %orbital period at DCO, in hours
-    figure(fignumber+1), hold on; 
+    figure(fignumber+1), hold on;
     scatter(log10(P(BNS & isCE & OKCE)), e(BNS & isCE & OKCE), point, 'filled', colour, ...
          'DisplayName', ['CE, ', name]); hold on;
     scatter(log10(P(BNS & ~isCE)), e(BNS & ~isCE), point, colour,  'DisplayName', ['Stable, ', name]);
     %Chirp mass vs period at BBH formation
     figure(fignumber+2), hold on;
     scatter(chirpmass(mergingDCO & isCE & OKCE), log10(P(mergingDCO & isCE & OKCE)/24), point, ...
-        'filled', colour, 'DisplayName', ['CE, ', name]); 
+        'filled', colour, 'DisplayName', ['CE, ', name]);
     scatter(chirpmass(mergingDCO & ~isCE), log10(P(mergingDCO & ~isCE)/24), point, colour,  'DisplayName', ['Stable, ', name]);
     %Masses at the time of CE
     figure(fignumber+3), hold on;
@@ -241,11 +241,11 @@ function HMXBplot(file, name, fignumberHMXB, colour, point)
     %if this is zero (no such systems), can ignore this possibility, focus on the other one
     if(sum(relevantbinaryFrom1)>0) fprintf('Number of HMXBs with second-born BH is non-zero (%d), please check\n', sum(relevantbinaryFrom1)); end;
     relevantbinaryFrom2=(isinRLOF2RLOF & ~wasinRLOF1RLOF & ~wasinRLOF2RLOF & star2RLOF==1 & M2RLOF>15 & star1RLOF==14);
-    MBH=[M1RLOF(relevantbinaryFrom2); M2RLOF(relevantbinaryFrom1)]; 
+    MBH=[M1RLOF(relevantbinaryFrom2); M2RLOF(relevantbinaryFrom1)];
     MO=[M2RLOF(relevantbinaryFrom2); M1RLOF(relevantbinaryFrom1)];
-    %this misses binaries in which the companion overflows its RL shortly after 
-    %evolving onto the HG; 
-    %Now check the binaries at the time of the switch onto the HG, are they 
+    %this misses binaries in which the companion overflows its RL shortly after
+    %evolving onto the HG;
+    %Now check the binaries at the time of the switch onto the HG, are they
     %at least 80% RL filling at that point, if so, include them
     M1Switch=h5read(file,'/BSE_Switch_Log/Mass(1)');
     M2Switch=h5read(file,'/BSE_Switch_Log/Mass(2)');
@@ -283,9 +283,9 @@ function BeXRBplot(file, name, fignumberBeXRB, colour, point)
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
     timeCE=h5read(file,'/BSE_Common_Envelopes/Time');
     [experiencedRLOF,indexRLOF]=ismember(seedSN,seedRLOF);
-    precededbyRLOF=false(size(indexRLOF)); 
+    precededbyRLOF=false(size(indexRLOF));
     for(i=1:length(indexRLOF)), if(experiencedRLOF(i)), precededbyRLOF(i)=(timeRLOF(indexRLOF(i))<timeSN(i)); end; end;
-    [isCE,indexCE]=ismember(seedSN,seedCE); 
+    [isCE,indexCE]=ismember(seedSN,seedCE);
     for(i=1:length(isCE)), if(isCE(i)), isCE(i)=(timeCE(indexCE(i)) < timeSN(i)); end; end;
     relevantbinary=starSNSN==13 & starCPSN==1 & MCPSN>3 & ~unboundSN & experiencedRLOF & precededbyRLOF; %haven't checked direction of RLOF
     figure(fignumberBeXRB), scatter(MCPSN(relevantbinary & isCE), timeSN(relevantbinary & isCE), ...
@@ -326,11 +326,11 @@ function [LMXBcount, NSLMXBcount, meanduration] = LMXBplot(file, name, fignumber
     duration=timeRLOF(indexlistlast)-timeRLOF(indexlist);
     meanduration=mean(duration);
     [isCE,CEIndex]=ismember(uniqueseeds,seedCE);  %doesn't check if CE happened before or after
-    precededbyCE=false(size(indexlist)); 
+    precededbyCE=false(size(indexlist));
     for(i=1:length(indexlist)), if(isCE(i)), precededbyCE(i)=(timeCE(CEIndex(i)) < timeRLOF(indexlist(i))); end; end;
     figure(fignumberLMXB), hold on;
     scatter(MCO(precededbyCE), Mcomp(precededbyCE), point, 'filled', colour, 'DisplayName', ['CE, ', name]);
-    scatter(MCO(~precededbyCE), Mcomp(~precededbyCE), point, colour, 'DisplayName', ['Stable, ', name]); 
+    scatter(MCO(~precededbyCE), Mcomp(~precededbyCE), point, colour, 'DisplayName', ['Stable, ', name]);
 end %end of LMXBplot
 
 
@@ -386,18 +386,18 @@ function [binariescount, SNcount, BHcompletecount, SNbothcount, SNonecount, ...
     seedCE=h5read(file,'/BSE_Common_Envelopes/SEED');
     timeCE=h5read(file,'/BSE_Common_Envelopes/Time');
     seedAll=h5read(file, '/BSE_System_Parameters/SEED');
-    [isCE,indexCE]=ismember(seedSN,seedCE); 
+    [isCE,indexCE]=ismember(seedSN,seedCE);
     [isCE,lastindexCE]=ismember(seedSN,seedCE,'legacy'); %last index of CE seed matching given SN seed (for binaries with 2+ CE events)
-    simultaneouswithCE = false(size(indexCE)); 
-    simultaneouswithCE(isCE) = (timeCE(indexCE(isCE)) == timeSN(isCE)) | (timeCE(lastindexCE(isCE)) == timeSN(isCE)); 
+    simultaneouswithCE = false(size(indexCE));
+    simultaneouswithCE(isCE) = (timeCE(indexCE(isCE)) == timeSN(isCE)) | (timeCE(lastindexCE(isCE)) == timeSN(isCE));
     %Note: could (very rarely) miss a coincidence if >2 CE events and only intermediate CE matches SN in time
-    precedingCE = false(size(indexCE)); 
-    precedingCE(isCE) = (timeCE(indexCE(isCE)) < timeSN(isCE)); 
+    precedingCE = false(size(indexCE));
+    precedingCE(isCE) = (timeCE(indexCE(isCE)) < timeSN(isCE));
     [experiencedRLOF,indexRLOF]=ismember(seedSN,seedRLOF);
     [experiencedRLOF,lastindexRLOF]=ismember(seedSN,seedRLOF, 'legacy');
-    simultaneouswithRLOF = false(size(indexRLOF)); 
+    simultaneouswithRLOF = false(size(indexRLOF));
     simultaneouswithRLOF(experiencedRLOF) = (timeRLOF(indexRLOF(experiencedRLOF)) == timeSN(experiencedRLOF) ...
-                                            | timeRLOF(lastindexRLOF(experiencedRLOF)) == timeSN(experiencedRLOF)); 
+                                            | timeRLOF(lastindexRLOF(experiencedRLOF)) == timeSN(experiencedRLOF));
     %Note: could miss a coincidence if >2 RLOF events and only intermediate RLOF matches SN in time
     binariescount=length(seedAll);
     SNcount=length(seedSN);

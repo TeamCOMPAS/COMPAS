@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include <memory>
-#include <stdexcept> 
+#include <stdexcept>
 #include <cstring>
 #include <execinfo.h>
 
@@ -49,38 +49,38 @@ OBJECT_ID m_ObjectId     = 0;                                   // object id for
 
 /*
  * SIGFPE signal handler
- * 
+ *
  * Only handles SIGFPE.
- * 
+ *
  * SIGFPE is a system generated signal raised when floating-point errors occur and
  * floating-point traps are enabled.
- * 
+ *
  * We implement two active modes for floating-point error handling: ON and DEBUG (the
  * third mode is OFF):
- * 
+ *
  *     OFF  : we just ignore the signal.
- * 
+ *
  *     ON   : we throw a runtime_error exception, with the what string set to "FPE",
  *            which is the caught by catch blocks throughout the code and handled there.
- *          
+ *
  *     DEBUG: we construct and display a stack trace, then halt the program by calling
  *            std::exit(1)
- * 
- * 
+ *
+ *
  * void SIGFPEhandler(int p_Sig)
- * 
+ *
  * @param   [IN]        p_Sig                   The signal intercepted
- *  
+ *
  */
 void SIGFPEhandler(int p_Sig) {
     if (p_Sig == SIGFPE) {                                                              // SIGFPE?
-                                                                                        // yes  
+                                                                                        // yes
         FP_ERROR_MODE fpErrorMode = OPTIONS->FPErrorMode();                             // mode = ON or DEBUG?
         if (fpErrorMode == FP_ERROR_MODE::ON) throw std::runtime_error("FPE");          // mode = ON
         else if (fpErrorMode == FP_ERROR_MODE::DEBUG) {                                 // mode = DEBUG?
             std::cerr << "\nFloating-point error encountered: program terminated\n";    // announce error
             utils::ShowStackTrace();                                                    // construct and show stack trace
-        }        
+        }
     }
     else {                                                                              // not SIGFPE - can't jump back from here, so...
         std::cerr << "\nUnexpected signal encountered: program terminated\n";           // announce error
@@ -95,10 +95,10 @@ class BinaryStar;
 
 
 // The following global variables support the BSE Switch Log file
-// Ideally, rather than be declared as globals, they would be in maybe the 
-// LOGGING service singleton, but the Log class knows nothing about the 
+// Ideally, rather than be declared as globals, they would be in maybe the
+// LOGGING service singleton, but the Log class knows nothing about the
 // BinaryStar class...
-// (maybe we could put them in the new CONSTANTS service singleton if we 
+// (maybe we could put them in the new CONSTANTS service singleton if we
 // implement it)
 
 BinaryStar* evolvingBinaryStar      = NULL;             // pointer to the currently evolving Binary Star
@@ -106,44 +106,44 @@ bool        evolvingBinaryStarValid = false;            // flag to indicate whet
 
 /*
  * SIGUSR1 signal handler
- * 
+ *
  * Only handles SIGUSR1.
- * 
+ *
  * SIGUSR1 is a user generated signal - the system should not generate this signal,
  * though it is possible to send the signal to a process via the Un*x kill command,
- * or some other user-developed program that sends signals.  This code does some 
+ * or some other user-developed program that sends signals.  This code does some
  * rudimentary sanity checks, but it is possible that sending a SIGUSR1 signal to a
- * running COMPAS process via the Un*x kill command, or otherwise, might cause a 
+ * running COMPAS process via the Un*x kill command, or otherwise, might cause a
  * spurious entry in the BSE Switch Log file - c'est la vie.
- * 
- * We use SIGUSR1 in the Star class to signal when a Star object switches stellar 
- * type. We use a signal because the Star class knows nothing about binary stars, 
- * so can't call a binary star function to log binary star variables to the BSE 
- * Switch Log file. By raising a signal in the Star class and catching it here we 
- * can call the appropriate binary star class function to write the binary star 
+ *
+ * We use SIGUSR1 in the Star class to signal when a Star object switches stellar
+ * type. We use a signal because the Star class knows nothing about binary stars,
+ * so can't call a binary star function to log binary star variables to the BSE
+ * Switch Log file. By raising a signal in the Star class and catching it here we
+ * can call the appropriate binary star class function to write the binary star
  * variables to the log file.
- * 
- * The signal is raised in the Star::SwitchTo() function if OPTIONS->BSESwitchLog() 
- * is true, so the signal will be received here for every stellar type switch of 
+ *
+ * The signal is raised in the Star::SwitchTo() function if OPTIONS->BSESwitchLog()
+ * is true, so the signal will be received here for every stellar type switch of
  * every star.
- * 
- * We only process the signal here if the global variable evolvingBinaryStarValid 
- * is true. The global variable evolvingBinaryStarValid is only set true after a 
- * binary star has been constructed and is ready to evolve - so if the signal is 
- * raised, it will be ignored for SSE switches, and it will be ignored for switches 
+ *
+ * We only process the signal here if the global variable evolvingBinaryStarValid
+ * is true. The global variable evolvingBinaryStarValid is only set true after a
+ * binary star has been constructed and is ready to evolve - so if the signal is
+ * raised, it will be ignored for SSE switches, and it will be ignored for switches
  * inside the constructor of the binary star (and so its constituent stars).
- * 
+ *
  * This signal handler is installed in EvolveBinaryStars(), so it is installed only
  * if we're evolving binaries - signals will be ignored (by our code - the system
  * will still receive and handle them) if we're evolving single stars.
  *
- * 
+ *
  * void SIGUSR1handler(int p_Sig)
- * 
+ *
  * @param   [IN]        p_Sig                   The signal intercepted
- * 
+ *
  */
-void SIGUSR1handler(int p_Sig) {   
+void SIGUSR1handler(int p_Sig) {
     if (p_Sig == SIGUSR1) {                                         // SIGUSR1?  Just silently ignore anything else...
         if (evolvingBinaryStarValid && OPTIONS->SwitchLog()) {      // yes - do we have a valid binary star, and are we logging switches?
             (void)evolvingBinaryStar->PrintSwitchLog();             // yes - assume SIGUSR1 is a binary constituent star switching...
@@ -154,36 +154,36 @@ void SIGUSR1handler(int p_Sig) {
 
 /*
  * SIGUSR2 signal handler
- * 
+ *
  * Only handles SIGUSR2.
- * 
+ *
  * SIGUSR2 is a user generated signal - the system should not generate this signal,
  * though it is possible to send the signal to a process via the Un*x kill command,
- * or some other user-developed program that sends signals.  This code does some 
+ * or some other user-developed program that sends signals.  This code does some
  * rudimentary sanity checks, but it is possible that sending a SIGUSR2 signal to
  * running COMPAS process via the Un*x kill command, or otherwise, might cause the
  * program to dump a stack trace and halt - c'est la vie.
- * 
+ *
  * This signal handler, upon receipt of a SIGUSR2 signal, will construct and display
  * a stack trace, then halt the program by calling std::exit(1).  This is useful for
  * debugging code and the code path to a particular location in the code is not
  * obvious.  Inserting a
- * 
+ *
  *     raise(SIGUSR2);
- * 
+ *
  * statement at the location will, when that statement is executed, cause a SIGUSR2
  * signal to be raised, and that will invoke this signal handler which will then
  * construct and display a stack trace, and halt the program.
  *
  * void SIGUSR2handler(int p_Sig)
- * 
+ *
  * @param   [IN]        p_Sig                   The signal intercepted
- *  
+ *
  */
 void SIGUSR2handler(int p_Sig) {
     if (p_Sig == SIGUSR2) {                                      // SIGUSR2?  Just silently ignore anything else...
         std::cerr << "\nSIGUSR2 raised: program terminated\n";
-        utils::ShowStackTrace(); 
+        utils::ShowStackTrace();
         std::exit(1);
     }
 }
@@ -194,7 +194,7 @@ void SIGUSR2handler(int p_Sig) {
  *
  *
  * std::tuple<int, int> EvolveSingleStars()
- * 
+ *
  * @return                                      Tuple: <number of stars requested, actual number of stars created>
  */
 std::tuple<int, int> EvolveSingleStars() {
@@ -235,19 +235,19 @@ std::tuple<int, int> EvolveSingleStars() {
                     (void)feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);                           // enable FE traps (don't trap FE_INEXACT - would trap on almost all FP operations...)
                 }
                 else (void)fedisableexcept(FE_ALL_EXCEPT);                                                                  // disable all FE traps
-                
+
                 bool doneGridLine = false;                                                                                  // initially
                 if (usingGrid) {                                                                                            // using grid file?
                     gridLineVariation = 0;                                                                                  // yes - first variation of this grid line
-                    int gridResult = OPTIONS->ApplyNextGridLine();                                                          // set options according to specified values in grid file              
+                    int gridResult = OPTIONS->ApplyNextGridLine();                                                          // set options according to specified values in grid file
                     ERROR error;
                     switch (gridResult) {                                                                                   // handle result of grid file read
                         case -1:                                                                                            // error - unexpected end of grid file
                         case -2:                                                                                            // error - read error for grid file
                         case -3: {                                                                                          // error - invalid value in grid file
                             switch (gridResult) {
-                                case -1: error = ERROR::UNEXPECTED_END_OF_FILE; break;  
-                                case -2: error = ERROR::FILE_READ_ERROR; break;  
+                                case -1: error = ERROR::UNEXPECTED_END_OF_FILE; break;
+                                case -2: error = ERROR::FILE_READ_ERROR; break;
                                 case -3: error = ERROR::INVALID_VALUE_IN_FILE; break;
                                 default: error = ERROR::FILE_READ_ERROR; break;
                             }
@@ -291,9 +291,9 @@ std::tuple<int, int> EvolveSingleStars() {
 
                 while (!doneGridLine && evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                    // while all ok and not done
 
-                    // Single stars (in SSE) are provided with a random seed that is used to seed the random 
-                    // number generator.  The random number generator is re-seeded for each star.  Here we 
-                    // generate the seed for the star being evolved - by this point we have picked up the 
+                    // Single stars (in SSE) are provided with a random seed that is used to seed the random
+                    // number generator.  The random number generator is re-seeded for each star.  Here we
+                    // generate the seed for the star being evolved - by this point we have picked up the
                     // option value from either the commandline or the grid file.
                     //
                     // There are three scenarios:
@@ -302,17 +302,17 @@ std::tuple<int, int> EvolveSingleStars() {
                     // record, we use a randomly chosen seed, based on the system time.
                     //
                     // if the user specified a random seed on the commandline, and not in the grid file for
-                    // the current star, the random seed specified on the commandline is used - and the offset 
-                    // applied (the index of the star being evolved).  The index of the star being evolved 
+                    // the current star, the random seed specified on the commandline is used - and the offset
+                    // applied (the index of the star being evolved).  The index of the star being evolved
                     // starts at 0 for the first star, and increments by 1 for each subsequent star evolved
-                    // (so the base random seed specified by the user is also the initial random seed - the 
+                    // (so the base random seed specified by the user is also the initial random seed - the
                     // random seed of the first star evolved)
                     //
                     // if the user specified a random seed in the grid file for the current star, regardless of
                     // whether a random seed was specified on the commandline, the random seed from the grid
                     // file is used, and an offset is added if the grid line also specified ranges or sets for
                     // and options (if no ranges or sets were specified on the grid line then no offset is added
-                    // (i.e. the random seed specified is used as is)).  Note that in this scenario it is the 
+                    // (i.e. the random seed specified is used as is)).  Note that in this scenario it is the
                     // user's responsibility to ensure that there is no duplication of seeds.
 
                     std::string       errorStr;                                                                             // error string
@@ -320,7 +320,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
                     if (OPTIONS->FixedRandomSeedGridLine()) {                                                               // user specified a random seed in the grid file for this binary?
                                                                                                                             // yes - use it (indexed)
-                        randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;                  // random seed               
+                        randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;                  // random seed
                         errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                        // set it
                         if (!errorStr.empty()) {                                                                            // ok?
                             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
@@ -329,7 +329,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     }
                     else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                           // no - user specified a random seed on the commandline?
                                                                                                                             // yes - use it (indexed)
-                        randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                               // random seed               
+                        randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index;                               // random seed
                         errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                        // set it
                         if (!errorStr.empty()) {                                                                            // ok?
                             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
@@ -338,7 +338,7 @@ std::tuple<int, int> EvolveSingleStars() {
                     }
                     else {                                                                                                  // no
                                                                                                                             // use default seed (based on system time) + id (index)
-                        randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                        // random seed               
+                        randomSeed = RAND->DefaultSeed() + (unsigned long int)index;                                        // random seed
                         errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                        // set it
                         if (!errorStr.empty()) {                                                                            // ok?
                             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                      // no - set status
@@ -351,31 +351,31 @@ std::tuple<int, int> EvolveSingleStars() {
                         randomSeed = RAND->CurrentSeed();                                                                   // current random seed - to pass to star object
 
                         // the initial mass of the star is supplied - this is to allow binary stars to initialise
-                        // the masses of their constituent stars (rather than have the constituent stars sample 
-                        // their own mass).  Here we use the mass supplied by the user via the program options or, 
+                        // the masses of their constituent stars (rather than have the constituent stars sample
+                        // their own mass).  Here we use the mass supplied by the user via the program options or,
                         // if no mass was supplied by the user, sample the mass from the IMF.
 
                         double initialMass = OPTIONS->OptionSpecified("initial-mass")                                       // user specified mass?
                                                 ? OPTIONS->InitialMass()                                                    // yes, use it
                                                 : utils::SampleInitialMass(OPTIONS->InitialMassFunction(),                  // no, sample it
-                                                                           OPTIONS->InitialMassFunctionMax(), 
-                                                                           OPTIONS->InitialMassFunctionMin(), 
+                                                                           OPTIONS->InitialMassFunctionMax(),
+                                                                           OPTIONS->InitialMassFunctionMin(),
                                                                            OPTIONS->InitialMassFunctionPower());
 
                         // the metallicity of the star is supplied - this is to allow binary stars to initialise
-                        // the metallicity of their constituent stars (rather than have the constituent stars sample 
+                        // the metallicity of their constituent stars (rather than have the constituent stars sample
                         // their own metallicity).  Here we use the mmetallicityass supplied by the user via the program
                         // options or, if no metallicity was supplied by the user, sample the metallicity.
 
                         double metallicity = OPTIONS->OptionSpecified("metallicity")                                        // user specified metallicity?
                                                 ? OPTIONS->Metallicity()                                                    // yes, use it
-                                                : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(), 
-                                                                           OPTIONS->MetallicityDistributionMax(), 
+                                                : utils::SampleMetallicity(OPTIONS->MetallicityDistribution(),
+                                                                           OPTIONS->MetallicityDistributionMax(),
                                                                            OPTIONS->MetallicityDistributionMin());          // no, sample it
 
-                        // Single stars (in SSE) are provided with a kick structure that specifies the 
+                        // Single stars (in SSE) are provided with a kick structure that specifies the
                         // values of the random number to be used to generate to kick magnitude, and the
-                        // actual kick magnitude specified by the user via program option --kick-magnitude       
+                        // actual kick magnitude specified by the user via program option --kick-magnitude
                         //
                         // See typedefs.h for the kick structure.
                         //
@@ -392,7 +392,7 @@ std::tuple<int, int> EvolveSingleStars() {
                         kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
                         kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude");
                         kickParameters.magnitude                = OPTIONS->KickMagnitude();
-                       
+
                         // create the star
                         delete star; star = nullptr;                                                                        // so we don't leak...
                         star = OPTIONS->OptionSpecified("rotational-frequency")                                             // user specified rotational frequency?
@@ -400,14 +400,14 @@ std::tuple<int, int> EvolveSingleStars() {
                                 : new Star(randomSeed, initialMass, metallicity, kickParameters);                           // no - let it be calculated
 
                         thisStarStatus = EVOLUTION_STATUS::STARTED;
-                        
+
                         thisStarStatus = star->Evolve(index);                                                               // evolve the star
 
                         // announce the result
                         if (!OPTIONS->Quiet()) {                                                                            // quiet mode?
                             SAY(index                                     <<                                                // announce result of evolving the star
                                 ": "                                      <<
-                                EVOLUTION_STATUS_LABEL.at(thisStarStatus) <<                  
+                                EVOLUTION_STATUS_LABEL.at(thisStarStatus) <<
                                 ": RandomSeed = "                         <<
                                 star->RandomSeed()                        <<
                                 ", Initial Mass = "                       <<
@@ -438,12 +438,12 @@ std::tuple<int, int> EvolveSingleStars() {
                                 doneGridLine = true;                                                                        // yes - we're done
                             }
                         }
-                        else doneGridLine = true;                                                                           // not using grid file - done    
+                        else doneGridLine = true;                                                                           // not using grid file - done
                     }
                 }
             }
             delete star; star = nullptr;                                                                                    // so we don't leak...
-    
+
             if (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                            // ok?
                 int optionsStatus = OPTIONS->AdvanceCmdLineOptionValues();                                                  // yes - apply next commandline options (ranges/sets)
                 if (optionsStatus < 0) {                                                                                    // ok?
@@ -517,8 +517,8 @@ std::tuple<int, int> EvolveSingleStars() {
     int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                           // minutes
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                          // seconds
 
-    SAY("Wall time  = " << std::setfill('0') << std::setw(2) << wallHH << ":" << 
-                           std::setfill('0') << std::setw(2) << wallMM << ":" << 
+    SAY("Wall time  = " << std::setfill('0') << std::setw(2) << wallHH << ":" <<
+                           std::setfill('0') << std::setw(2) << wallMM << ":" <<
                            std::setfill('0') << std::setw(2) << wallSS << " (hh:mm:ss)");
 
     return std::make_tuple(nStarsRequested, index);
@@ -530,7 +530,7 @@ std::tuple<int, int> EvolveSingleStars() {
  *
  *
  * std::tuple<int, int> EvolveBinaryStars()
- * 
+ *
  * @return                                      Tuple: <number of binaries requested, actual number of binaries created>
  */
 std::tuple<int, int> EvolveBinaryStars() {
@@ -615,15 +615,15 @@ std::tuple<int, int> EvolveBinaryStars() {
 
                 while (!doneGridLine && (evolutionStatus == EVOLUTION_STATUS::CONTINUE)) {                              // while all ok and not done
 
-                    // we only need to pass the index number to the binary - we let the BinaryStar class do the work 
+                    // we only need to pass the index number to the binary - we let the BinaryStar class do the work
                     // wrt setting the parameters for each of the constituent stars
                     // (The index is really only needed for legacy comparison, so can probably be removed at any time)
 
                     // create the binary
 
-                    // Binary stars (in BSE) are provided with a random seed that is used to seed the random 
-                    // number generator.  The random number generator is re-seeded for each binary.  Here we 
-                    // generate the seed for the binary being evolved - by this point we have picked up the 
+                    // Binary stars (in BSE) are provided with a random seed that is used to seed the random
+                    // number generator.  The random number generator is re-seeded for each binary.  Here we
+                    // generate the seed for the binary being evolved - by this point we have picked up the
                     // option value from either the commandline or the grid file.
                     //
                     // there are three scenarios:
@@ -632,19 +632,19 @@ std::tuple<int, int> EvolveBinaryStars() {
                     // record, we use a randomly chosen seed, based on the system time.
                     //
                     // if the user specified a random seed on the commandline, and not in the grid file for
-                    // the current binary, the random seed specified on the commandline is used - and the offset 
-                    // applied (the index of the binary being evolved).  The index of the binary being evolved 
+                    // the current binary, the random seed specified on the commandline is used - and the offset
+                    // applied (the index of the binary being evolved).  The index of the binary being evolved
                     // starts at 0 for the first binary, and increments by 1 for each subsequent binary evolved
-                    // (so the base random seed specified by the user is also the initial random seed - the 
+                    // (so the base random seed specified by the user is also the initial random seed - the
                     // random seed of the first binary evolved)
                     //
                     // if the user specified a random seed in the grid file for the current binary, regardless of
                     // whether a random seed was specified on the commandline, the random seed from the grid
                     // file is used, and an offset is added if the grid line also specified ranges or sets for
                     // and options (if no ranges or sets were specified on the grid line then no offset is added
-                    // (i.e. the random seed specified is used as is)).  Note that in this scenario it is the 
+                    // (i.e. the random seed specified is used as is)).  Note that in this scenario it is the
                     // user's responsibility to ensure that there is no duplication of seeds.
-             
+
                     unsigned long int thisId = index + gridLineVariation;                                               // set the id for the binary
 
                     std::string       errorStr;                                                                         // error string
@@ -652,7 +652,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     OPTIONS_ORIGIN    optsOrigin = processingGridLine ? OPTIONS_ORIGIN::GRIDFILE : OPTIONS_ORIGIN::CMDLINE; // indicate which set of program options we're using
                     if (OPTIONS->FixedRandomSeedGridLine()) {                                                           // user specified a random seed in the grid file for this binary?
                                                                                                                         // yes - use it (indexed)
-                        randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed               
+                        randomSeed = OPTIONS->RandomSeedGridLine() + (unsigned long int)gridLineVariation;              // random seed
                         errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
                         if (!errorStr.empty()) {                                                                        // ok?
                             THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_GRIDLINE_OPTIONS, errorStr);                     // throw error
@@ -660,7 +660,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     }
                     else if (OPTIONS->FixedRandomSeedCmdLine()) {                                                       // no - user specified a random seed on the commandline?
                                                                                                                         // yes - use it (indexed)
-                        randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
+                        randomSeed = OPTIONS->RandomSeedCmdLine() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed
                         errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
                         if (!errorStr.empty()) {                                                                        // ok?
                             THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                      // throw error
@@ -668,7 +668,7 @@ std::tuple<int, int> EvolveBinaryStars() {
                     }
                     else {                                                                                              // no
                                                                                                                         // use default seed (based on system time) + id (index)
-                        randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed               
+                        randomSeed = RAND->DefaultSeed() + (unsigned long int)index + (unsigned long int)gridLineVariation; // random seed
                         errorStr   = OPTIONS->SetRandomSeed(randomSeed, optsOrigin);                                    // set it
                         if (!errorStr.empty()) {                                                                        // ok?
                             THROW_ERROR_STATIC(ERROR::ERROR_PROCESSING_CMDLINE_OPTIONS, errorStr);                      // throw error
@@ -691,19 +691,19 @@ std::tuple<int, int> EvolveBinaryStars() {
                             // any error caught here has already been displayed to the user, so we just catch all
                             haveBinary = false;                                                                         // binary not constructed
                             thisBinaryStatus = EVOLUTION_STATUS::BINARY_ERROR;                                          // error with binary
-                                        
+
                             // announce result
                             if (!OPTIONS->Quiet()) {                                                                    // quiet mode?
                                 SAY(thisId << ": " << EVOLUTION_STATUS_LABEL.at(thisBinaryStatus) << ": not evolved");  // no - announce result of (not) evolving the binary
                             }
                         }
-                        
+
                         if (haveBinary) {                                                                               // binary constructed ok?
                             evolvingBinaryStar      = binary;                                                           // yes - set global pointer to evolving binary (for BSE Switch Log)
                             evolvingBinaryStarValid = true;                                                             // indicate that the global pointer is now valid (for BSE Switch Log)
 
                             thisBinaryStatus = binary->Evolve();                                                        // evolve the binary
-                                        
+
                             // announce result
                             if (!OPTIONS->Quiet()) {                                                                    // quiet mode?
                                                                                                                         // no - announce result of evolving the binary
@@ -780,7 +780,7 @@ std::tuple<int, int> EvolveBinaryStars() {
             evolutionStatus = EVOLUTION_STATUS::ERROR;                                                                  // evolution terminated
         }
     }
-    
+
     int nBinariesRequested = evolutionStatus == EVOLUTION_STATUS::DONE ? index : (usingGrid ? -1 : OPTIONS->nObjectsToEvolve());
 
     SAY("\nGenerated " << std::to_string(index) << " of " << (nBinariesRequested < 0 ? "<INCOMPLETE GRID>" : std::to_string(nBinariesRequested)) << " binaries requested");
@@ -814,8 +814,8 @@ std::tuple<int, int> EvolveBinaryStars() {
     int wallMM = (int)((wallSeconds.count() - ((double)wallHH * 3600.0)) / 60.0);                                       // minutes
     int wallSS = (int)(wallSeconds.count() - ((double)wallHH * 3600.0) - ((double)wallMM * 60.0));                      // seconds
 
-    SAY("Wall time  = " << std::setfill('0') << std::setw(4) << wallHH << ":" << 
-                           std::setfill('0') << std::setw(2) << wallMM << ":" << 
+    SAY("Wall time  = " << std::setfill('0') << std::setw(4) << wallHH << ":" <<
+                           std::setfill('0') << std::setw(2) << wallMM << ":" <<
                            std::setfill('0') << std::setw(2) << wallSS << " (hhhh:mm:ss)");
 
     return std::make_tuple(nBinariesRequested, index);
@@ -863,7 +863,7 @@ int main(int argc, char * argv[]) {
             yaml::MakeYAMLfile(OPTIONS->YAMLfilename(), OPTIONS->YAMLtemplate());                   // create YAML file
             programStatus = PROGRAM_STATUS::SUCCESS;                                                // don't evolve anything
         }
-    
+
         if (programStatus == PROGRAM_STATUS::CONTINUE) {
 
             if (OPTIONS->FPErrorMode() != FP_ERROR_MODE::OFF) {                                     // floating-point error handling mode on/debug?
@@ -899,7 +899,7 @@ int main(int argc, char * argv[]) {
             (void)utils::SplashScreen();                                                            // announce ourselves
 
             if (!LOGGING->Enabled()) programStatus = PROGRAM_STATUS::LOGGING_FAILED;                // logging failed to start
-            else {   
+            else {
 
                 if (!OPTIONS->GridFilename().empty()) {                                             // have grid filename?
                     ERROR error = OPTIONS->OpenGridFile(OPTIONS->GridFilename());                   // yes - open grid file
@@ -923,7 +923,7 @@ int main(int argc, char * argv[]) {
                     }
 
                     programStatus = PROGRAM_STATUS::SUCCESS;                                        // set program status, and...
-                }                
+                }
             }
 
             LOGGING->Stop(std::make_tuple(objectsRequested, objectsCreated));                       // stop the logging service if necessary and cleanup

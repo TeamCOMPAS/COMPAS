@@ -30,7 +30,7 @@ namespace utils {
      *
      * @param   [IN]    p_Arr               Sorted array to search over
      * @param   [IN]    p_x                 Value to search for
-     * 
+     *
      * @return                              Vector containing indices of the lower and upper
      *                                      bin edges containing x. If x < min(Arr), return
      *                                      {-1, 0}. If x > max(Arr), return {0, -1}. If x
@@ -62,8 +62,8 @@ namespace utils {
      * Calculate the value of the CDF of the Kroupa (2001) IMF at p_Mass
      *
      * If p_Mass is outside the bounds of the IMF (< p_Min or >= p_Max), the returned CDF value will be 0.0
-     * 
-     * 
+     *
+     *
      * double CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min)
      *
      * @param   [IN]    p_Mass                      Mass value (in Msol) at which to calculate the CDF
@@ -74,7 +74,7 @@ namespace utils {
     double CalculateCDFKroupa(const double p_Mass, const double p_Max, const double p_Min) {
 
         if ((p_Mass < p_Min) || (p_Mass >= p_Max)) return 0.0;      // return 0.0 if mass is out of bounds of function
-    
+
         double CDF = 0.0;
 
         if (p_Min <= KROUPA_BREAK_1 &&
@@ -182,7 +182,7 @@ namespace utils {
      * If p_Tolerance is > 0.0 it will be used in preference to the global tolerance values
      * If p_Tolerance is > 0.0, then p_Absolute determines if p_Tolerance should be treated as an absolute
      * tolerance (p_Absolute = true), or a relative tolerance (p_Absolute = false).
-     * 
+     *
      *
      * int Compare(const double p_X, const double p_Y)
      *
@@ -233,12 +233,12 @@ namespace utils {
     /*
      * Draw the angular components of the supernova kick theta and phi.
      *
-     * 
+     *
      * DBL_DBL DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower)
-     * 
+     *
      * @param   [IN]    p_KickDirectionDistribution The kick direction distribution to use - program option
      * @param   [IN]    p_KickDirectionPower        Exponent for power law - program option
-     * @return                                      Tuple containing theta and phi 
+     * @return                                      Tuple containing theta and phi
      */
     DBL_DBL DrawKickDirection(const KICK_DIRECTION_DISTRIBUTION p_KickDirectionDistribution, const double p_KickDirectionPower) {
 
@@ -469,23 +469,23 @@ namespace utils {
      * (as defined by Boost)
      *
      * In this context (the Boost context), a valid boolean is one of:
-     * 
+     *
      *     - 0|1        ("0" or "1")
      *     - true|false ("true" or "false" - case insensitive)
      *     - yes|no     ("yes" or "no" - case insensitive)
      *     - on|off     ("on" or "off" - case insensitive)
      *
      * The function will retiurn one of {0, 1, 2, 3, 4, -1, -2, -3, -4} to indicate the result:
-     * 
+     *
      *     0 = not a valid boolean
      *     1 = valid: 0|1
      *     2 = valid: true|false
      *     3 = valid: yes|no
      *     4 = valid: on|off
-     * 
+     *
      *     A positive return value indicates the boolean value is TRUE; a negative, FALSE
-     * 
-     * 
+     *
+     *
      * int IsBOOL(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -513,8 +513,8 @@ namespace utils {
      *
      * In this context, to be a valid DOUBLE the string must convert to a
      * double successfully via the std::stod() function
-     * 
-     * 
+     *
+     *
      * int IsDOUBLE(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -545,8 +545,8 @@ namespace utils {
      *
      * In this context, to be a valid FLOAT the string must convert to a
      * double successfully via the std::stof() function
-     * 
-     * 
+     *
+     *
      * int IsFLOAT(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -577,8 +577,8 @@ namespace utils {
      *
      * In this context, to be a valid INT the string must convert to an
      * integer successfully via the std::stoi() function
-     * 
-     * 
+     *
+     *
      * int IsINT(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -609,8 +609,8 @@ namespace utils {
      *
      * In this context, to be a valid LONG DOUBLE the string must convert to a
      * long double successfully via the std::stold() function
-     * 
-     * 
+     *
+     *
      * int IsLONGDOUBLE(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -641,8 +641,8 @@ namespace utils {
      *
      * In this context, to be a valid LONG INT the string must convert to a
      * long integer successfully via the std::stol() function
-     * 
-     * 
+     *
+     *
      * int IsLONGINT(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -673,8 +673,8 @@ namespace utils {
      *
      * In this context, to be a valid UNSIGNED LONG INT the string must convert to a
      * unsigned long integer successfully via the std::stoul() function
-     * 
-     * 
+     *
+     *
      * int IsULONGINT(const std::string p_Str)
      *
      * @param   [IN]    p_Str                       String to check
@@ -1046,7 +1046,7 @@ namespace utils {
                     double term1 = ONE_OVER_KROUPA_POWER_1_PLUS1 * (KROUPA_BREAK_1_PLUS1_1 - PPOW(p_Min, KROUPA_POWER_PLUS1_1));
                     double term2 = ONE_OVER_KROUPA_POWER_2_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * (KROUPA_BREAK_2_PLUS1_2 - KROUPA_BREAK_1_PLUS1_2);
                     double term3 = ONE_OVER_KROUPA_POWER_3_PLUS1 * KROUPA_BREAK_1_POWER_1_2 * KROUPA_BREAK_2_POWER_2_3 * (PPOW(p_Max, KROUPA_POWER_PLUS1_3) - KROUPA_BREAK_2_PLUS1_3);
-                    
+
                     double C1    = 1.0 / (term1 + term2 + term3);
                     double C2    = C1 * KROUPA_BREAK_1_POWER_1_2;
                     double C3    = C2 * KROUPA_BREAK_2_POWER_2_3;
@@ -1170,10 +1170,10 @@ namespace utils {
 
     /*
      * Draw orbital period from the distribution specified by the user
-     * 
-     * 
-     * double SampleOrbitalPeriodDistribution(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, 
-     *                                        const double                      p_PdistMax, 
+     *
+     *
+     * double SampleOrbitalPeriodDistribution(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist,
+     *                                        const double                      p_PdistMax,
      *                                        const double                      p_PdistMin)
      *
      * @param   [IN]    p_Pdist                     The distribution to use to draw orbital period
@@ -1181,8 +1181,8 @@ namespace utils {
      * @param   [IN]    p_PdistMin                  Orbital period distribution minimum
      * @return                                      Orbital period in days
      */
-    double SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist, 
-                               const double                      p_PdistMax, 
+    double SampleOrbitalPeriod(const ORBITAL_PERIOD_DISTRIBUTION p_Pdist,
+                               const double                      p_PdistMax,
                                const double                      p_PdistMin) {
 
         double orbitalPeriod;
@@ -1204,15 +1204,15 @@ namespace utils {
 
     /*
      * Draw semi-major axis from the distribution specified by the user
-     * 
-     * 
-     * std::tuple<ERROR, double> SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-     *                                               const double                       p_AdistMax, 
-     *                                               const double                       p_AdistMin, 
-     *                                               const double                       p_AdistPower, 
-     *                                               const double                       p_PdistMax, 
-     *                                               const double                       p_PdistMin, 
-     *                                               const double                       p_Mass1, 
+     *
+     *
+     * std::tuple<ERROR, double> SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist,
+     *                                               const double                       p_AdistMax,
+     *                                               const double                       p_AdistMin,
+     *                                               const double                       p_AdistPower,
+     *                                               const double                       p_PdistMax,
+     *                                               const double                       p_PdistMin,
+     *                                               const double                       p_Mass1,
      *                                               const double                       p_Mass2)
      *
      * @param   [IN]    p_Adist                     The distribution to use to draw semi-major axis
@@ -1231,13 +1231,13 @@ namespace utils {
      *                                                  ERROR::UNKNOWN_SEMI_MAJOR_AXIS_DISTRIBUTION the SEMI_MAJOR_AXIS_DISTRIBUTION
      *                                                  passed in p_Adist is unknown, and the returned semi-major axis will be 0.0
      */
-    std::tuple<ERROR, double> SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist, 
-                                                  const double                       p_AdistMax, 
-                                                  const double                       p_AdistMin, 
-                                                  const double                       p_AdistPower, 
-                                                  const double                       p_PdistMax, 
-                                                  const double                       p_PdistMin, 
-                                                  const double                       p_Mass1, 
+    std::tuple<ERROR, double> SampleSemiMajorAxis(const SEMI_MAJOR_AXIS_DISTRIBUTION p_Adist,
+                                                  const double                       p_AdistMax,
+                                                  const double                       p_AdistMin,
+                                                  const double                       p_AdistPower,
+                                                  const double                       p_PdistMax,
+                                                  const double                       p_PdistMin,
+                                                  const double                       p_Mass1,
                                                   const double                       p_Mass2) {
 
         ERROR error = ERROR::NONE;
@@ -1300,7 +1300,7 @@ namespace utils {
 
     /*
      * Returns a single SN type based on the SN_EVENT parameter passed
-     * 
+     *
      * Returns (in priority order):
      *
      *    SN_EVENT::NONE    iff no bits are set
@@ -1313,7 +1313,7 @@ namespace utils {
      *    SN_EVENT::SNIA    iff SNIA  bit is set and HeSD bit is not set
      *    SN_EVENT::HeSD    iff HeSD  bit is set
      *    SN_EVENT::UNKNOWN otherwise
-     * 
+     *
      *
      * @param   [IN]    p_SNEvent                   SN_EVENT mask to check for SN event type
      * @return                                      SN_EVENT
@@ -1354,7 +1354,7 @@ namespace utils {
      *                                                  ERROR::NONE if no error occurred
      *                                                  ERROR::NO_CONVERGENCE if the Newton-Raphson iteration did not converge
      *                                                  ERROR::OUT_OF_BOUNDS if the eccentric anomaly returned is < 0 or > 2pi
-     *                                              If the error returned is not ERROR:NONE, use the eccentric anomaly and 
+     *                                              If the error returned is not ERROR:NONE, use the eccentric anomaly and
      *                                              true anomaly returned at your own risk
      */
     std::tuple<ERROR, double, double> SolveKeplersEquation(const double p_MeanAnomaly, const double p_Eccentricity) {
@@ -1439,10 +1439,10 @@ namespace utils {
      * Tolerance for Boost bracket_and_solve_root()
      *
      * Determines if the brackets around the root are within the COMPAS defined tolerance.
-     * 
-     * 
+     *
+     *
      * bool BracketTolerance(const double p_Bracket1, const double p_Bracket2)
-     * 
+     *
      * @param   [IN]    p_Bracket1                Bracket bound 1
      * @param   [IN]    p_Bracket2                Bracket bound 2
      * @return                                    Boolean indicating if the brackets bounds are within tolerance
@@ -1456,19 +1456,19 @@ namespace utils {
 
     /*
      * Announce COMPAS
-     * 
+     *
      * Constructs and returns a splash string.  Prints string to stdout if required.
      *
      *
      * std::string SplashScreen(const bool p_Print)
-     * 
+     *
      * @param   [IN]    p_Print             Boolean indicating whether splash string should be printed.  Default is TRUE
      * @return                              Splash string
      */
     std::string SplashScreen(const bool p_Print) {
 
         // Construct the splash string
-        std::string splashString = "\nCOMPAS v" + 
+        std::string splashString = "\nCOMPAS v" +
                                    VERSION_STRING + " (gsl v" + GetGSLVersion() + ", boost v" + GetBOOSTVersion() + ", HDF5 v" + GetHDF5Version() + ")" +
                                    "\nCompact Object Mergers: Population Astrophysics and Statistics"
                                    "\nby Team COMPAS (http://compas.science/index.html)"
@@ -1487,10 +1487,10 @@ namespace utils {
      *
      * Timesteps file is expected to be an ascii file with one timestep per record.
      * Timesteps must be > 0.0
-     *  
-     * 
+     *
+     *
      * std::tuple<ERROR, DBL_VECTOR> ReadTimesteps(const std::string p_TimestepsFileName)
-     * 
+     *
      * @param   [IN]    p_TimestepsFileName       Filename to be read - should be fully qualified
      * @return                                    Tuple containing error value and timesteps vector
      *                                            The error value returned will be:
@@ -1507,7 +1507,7 @@ namespace utils {
     std::tuple<ERROR, DBL_VECTOR> ReadTimesteps(const std::string p_TimestepsFileName) {
 
         ERROR error = ERROR::NONE;                                                                                  // error - initially NONE
- 
+
         DBL_VECTOR timesteps;                                                                                       // timesteps vector
 
         if (p_TimestepsFileName.empty()) {                                                                          // timesteps filename empty?
@@ -1537,7 +1537,7 @@ namespace utils {
 
                             rec = trim(rec);                                                                        // remove leading and trailing blanks
 
-                            if (!(rec.empty() || rec[0] == '#')) {                                                  // blank record or comment?                                 
+                            if (!(rec.empty() || rec[0] == '#')) {                                                  // blank record or comment?
                                 try {                                                                               // no - process it
                                     size_t lastChar;
                                     long double v = std::stold(rec, &lastChar);                                     // try conversion
@@ -1553,7 +1553,7 @@ namespace utils {
                                     else {                                                                          // ok - timestep >= 0.0
                                         timesteps.push_back(v);                                                     // add timestep to timesteps vector
                                     }
-                    
+
                                     numTimesteps++;                                                                 // increment number of timesteps read
                                     if (numTimesteps >= ABSOLUTE_MAXIMUM_TIMESTEPS) {                               // number of timesteps exceeds maximum?
                                         error = ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE;                        // yes - fail
@@ -1602,12 +1602,12 @@ namespace utils {
      * would just create the directories as necessary and not report which directories in the path were pre-existing
      * and which were newly created.  We want to be able to clean up any directories we created but didn't use (because
      * we had an error somewhere perhaps...), and to do that we need to know which directories were actually created.
-     * 
+     *
      * Returns a vector of paths not created.
-     * 
-     * 
+     *
+     *
      * std::tuple<ERROR, std::string, STR_VECTOR> CreateDirectory(const std::string p_Path)
-     * 
+     *
      * @param   [IN]    p_Path                    Path specifying directories to be created
      * @return                                    Tuple containing error value, error string, and vector of directories created
      *                                                The error value returned will be:
@@ -1643,12 +1643,12 @@ namespace utils {
                     else  {                                                                     // not ok...
                         error  = ERROR::UNABLE_TO_CREATE_DIRECTORY;                             // set error
                         errStr = path;                                                          // ... and error string
-                    }            
+                    }
                 }
                 catch (...) {                                                                   // unhandled problem...
                     error  = ERROR::UNABLE_TO_CREATE_DIRECTORY;                                 // set error
                     errStr = path;                                                              // ... and error string
-                }                
+                }
             }
 
             if (error != ERROR::NONE) {                                                         // problem?
@@ -1665,13 +1665,13 @@ namespace utils {
      * Remove directories if they are empty
      *
      * Iterate in reverse order over the vector of paths passed (i.e. walk up the directory tree from the leaf) and
-     * remove empty directories - but stop at the first non-empty directory (or error).  
-     * 
+     * remove empty directories - but stop at the first non-empty directory (or error).
+     *
      * Returns a vector of paths not removed.
-     * 
-     * 
+     *
+     *
      * std::tuple<ERROR, std::string, STR_VECTOR> RemoveDirectories(const STR_VECTOR p_Paths)
-     * 
+     *
      * @param   [IN]    p_Path                    Vector of paths to be removed
      * @return                                    Tuple containing error value, error string, and vector of directories not removed
      *                                                The error value returned will be:
@@ -1715,7 +1715,7 @@ namespace utils {
                     error  = ERROR::UNABLE_TO_REMOVE_DIRECTORY;                                                             // set error
                     errStr = path;                                                                                          // ... and error string
                     break;
-                }                
+                }
             }
             else {                                                                                                          // problem...
                 // either the directory does not exist or is not empty
@@ -1734,26 +1734,26 @@ namespace utils {
     /*
      * Constructs a vector of strings that represent the stack trace for the current thread
      * (COMPAS is single-threaded, so in our case, the current process executing COMPAS).
-     * 
+     *
      * We use the gcc library functions to construct the stack trace (gcc calls this a "backtrace"):
-     * 
+     *
      *     - backtrace(), which provides a list of pointers to each of the functions that make
      *       up the stack trace (the functions called, all the way from main() to the current
      *       point of execution - this is an instantaneous list, not historic).
-     * 
-     * 
+     *
+     *
      *     - backtrace_symbols(), translates the function pointers obtained from backtrace() into
      *       an array of strings that are the function names.  This typically only works for COMPAS
      *       functions (because we build COMPAS with debug info included).  We most likely won't have
      *       symbols for libraries (e.g. libc), so for non-COMPAS functions we insert the string
      *       "~~LIBFUNC~~" as the function name so users can identify non-COMPAS entries and handle
      *       them accordingly.
-     * 
+     *
      * Returns a vector of strings representing the function names that comprise the stack trace.
-     * 
-     * 
+     *
+     *
      * STR_VECTOR GetStackTrace()
-     * 
+     *
      * @return                                    Vector of strings representing the function names that comprise the stack trace
      */
     STR_VECTOR GetStackTrace() {
@@ -1763,7 +1763,7 @@ namespace utils {
         void*       trace[MAX_STACK_TRACE_SIZE];                                                                    // stack trace
         char**      strings = (char **)NULL;                                                                        // stack trace strings
         std::size_t traceSize = 0;                                                                                  // stack trace size
-        
+
         traceSize = backtrace(trace, MAX_STACK_TRACE_SIZE);                                                         // get stack trace size
         strings   = backtrace_symbols(trace, traceSize);                                                            // get stack trace with symbols
 
@@ -1825,9 +1825,9 @@ namespace utils {
     /*
      * Returns gsl version string
      *
-     * 
+     *
      * std::string GetGSLVersion()
-     * 
+     *
      * @return                                    String containing GSL version in format MM.mm.rr
      *                                            Will be "Not available" if not able to retrieve the actual value
      */
@@ -1850,9 +1850,9 @@ namespace utils {
     /*
      * Returns HDF5 library version string
      *
-     * 
+     *
      * std::string GetHDF5Version()
-     * 
+     *
      * @return                                    String containing HDF5 library version in format MM.mm.rr
      *                                            Will be "Not available" if not able to retrieve the actual value
      */

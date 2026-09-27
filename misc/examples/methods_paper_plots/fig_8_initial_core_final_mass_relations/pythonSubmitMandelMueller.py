@@ -6,7 +6,7 @@ import ntpath
 from subprocess import call
 
 #### DISCLAIMER: This script uses the `pythonSubmit.py` format
-#### that has been replaced by the `runSubmit.py` and 
+#### that has been replaced by the `runSubmit.py` and
 #### `compasConfigDefault.yaml` combo as of v02.25.10.
 #### The `pythonSubmit.py` format will eventually become deprecated.
 
@@ -26,13 +26,13 @@ class pythonProgramOptions:
     # if COMPAS_EXECUTABLE_PATH is not set (== None) we assume this is an
     # interactive run with python3
     # if COMPAS_EXECUTABLE_PATH is set (!= None) we assume this is a run
-    # inside a docker container - we have different directories inside a 
+    # inside a docker container - we have different directories inside a
     # docker container (src, obj, bin), and the COMPAS executable resides
     # in the bin directory (rather than the src directory)
     compas_executable_override = os.environ.get('COMPAS_EXECUTABLE_PATH')
 
     if (compas_executable_override is None):
-        
+
         # we should fix this one day - we should not assume that the COMPAS executable
         # is in the 'src' directory.  The standard is to put the object files created
         # by the compile into the 'obj' directory, and the executable files created by
@@ -45,7 +45,7 @@ class pythonProgramOptions:
         compas_root_dir = os.environ.get('COMPAS_ROOT_DIR')
         assert compas_root_dir is not None, "Unable to locate the COMPAS executable: check that the environment variable COMPAS_ROOT_DIR is set correctly, and the COMPAS executable exists."
 
-        # construct path to executable 
+        # construct path to executable
         #
         # ideally we wouldn't have the 'src' directory name (or any other directory name)
         # prepended to the executable name - if we just execute the executable name on its
@@ -112,7 +112,7 @@ class pythonProgramOptions:
     if grid_filename != None:
         # if the grid filename supplied is already fully-qualified, leave it as is
         head, tail = ntpath.split(grid_filename)                # split into pathname and base filename
-        
+
         if head == '' or head == '.':                           # no path (or CWD) - add path as required
             grid_filename = tail or ntpath.basename(head)
             if compas_input_path_override == None:
@@ -125,7 +125,7 @@ class pythonProgramOptions:
     if logfile_definitions != None:
         # if the grid filename supplied is already fully-qualified, leave it as is
         head, tail = ntpath.split(logfile_definitions)          # split into pathname and base filename
-        
+
         if head == '' or head == '.':                           # no path (or CWD) - add path as required
             logfile_definitions = tail or ntpath.basename(head)
             if compas_input_path_override == None:
@@ -318,7 +318,7 @@ class pythonProgramOptions:
     # set the logfile names here
     #
     # set to None (e.g. logfile_BSE_supernovae = None) to use the default filename
-    # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename 
+    # set to a string (e.g. logfile_BSE_supernovae = 'mySNfilename') to use that string as the filename
     # set to empty string (e.g. logfile_BSE_supernovae = '""') to disable logging for that file (the file will not be created)
     #
     # We don't really need the 'BSE' or 'SSE' prefixes any more - they were put there because
@@ -326,7 +326,7 @@ class pythonProgramOptions:
     # created by a COMPAS run - especially the detailed output files.  Now that the output
     # files are created inside a containing folder for each run there is really no need for
     # the prefixes - and if we don't have the prefixes we can share some of the options
-    # (e.g. specifying the supernovae filename doesn't need to have separate options for 
+    # (e.g. specifying the supernovae filename doesn't need to have separate options for
     # SSE and BSE - we really just need one (we only ever run in one mode or the other))
     #
     # For now though, I'll leave them as is - we can change this when (if) we decide to
@@ -707,10 +707,10 @@ class pythonProgramOptions:
 
     def generateCommandLineOptionsDict(self):
         """
-        This function generates a dictionary mapping COMPAS options to their specified 
+        This function generates a dictionary mapping COMPAS options to their specified
         values (or empty strings for boolean options). These can be combined into a string
         and run directly as a terminal command, or passed to the stroopwafel interface
-        where some of them may be overwritten. Options not to be included in the command 
+        where some of them may be overwritten. Options not to be included in the command
         line should be set to pythons None (except booleans, which should be set to False)
 
         Parameters

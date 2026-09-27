@@ -14,4 +14,3 @@ The contents and use of these headers files are described here:
    ./logtypedefs-dot-h
    ./enumhash-dot-h
    ./errorcatalog-dot-h
-   

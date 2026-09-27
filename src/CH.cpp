@@ -3,15 +3,15 @@
 
 /*
  * Calculate the helium abundance in the core of the star
- * 
- * Currently just a simple linear model from the initial helium abundance to 
+ *
+ * Currently just a simple linear model from the initial helium abundance to
  * the maximum helium abundance (assuming that all hydrogen is converted to
- * helium). 
- * 
+ * helium).
+ *
  * Should be updated to match detailed models.
  *
  * double CalculateHeliumAbundanceCoreOnPhase(const double p_Tau)
- * 
+ *
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  *
  * @return                                      Helium abundance in the core (Y_c)
@@ -25,11 +25,11 @@ double CH::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
 
 /*
  * Calculate the helium abundance at the surface of the star
- * 
+ *
  * Since the star is homogeneous, the core and the surface have the same abundances
- * 
+ *
  * double CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau)
- * 
+ *
  * @param   [IN]    p_Tau                      Fraction of main sequence lifetime
  *
  * @return                                     Helium abundance at the surface (Y_s)
@@ -44,14 +44,14 @@ double CH::CalculateHeliumAbundanceSurfaceOnPhase(const double p_Tau) const {
 
 /*
  * Calculate the hydrogen abundance in the core of the star
- * 
- * Currently just a simple linear model. Assumes that hydrogen in the core of 
- * the star is burned to helium at a constant rate throughout the lifetime. 
- * 
+ *
+ * Currently just a simple linear model. Assumes that hydrogen in the core of
+ * the star is burned to helium at a constant rate throughout the lifetime.
+ *
  * Should be updated to match detailed models.
  *
  * double CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau)
- * 
+ *
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
  *
  * @return                                      Hydrogen abundance in the core (X_c)
@@ -63,13 +63,13 @@ double CH::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
 
 /*
  * Calculate the hydrogen abundance at the surface of the star
- * 
+ *
  * Since the star is homogeneous, the core and the surface have the same abundances
  *
  * double CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau)
- * 
+ *
  * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
- * 
+ *
  * @return                                      Hydrogen abundance at the surface (X_s)
  */
 double CH::CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau) const {
@@ -79,11 +79,11 @@ double CH::CalculateHydrogenAbundanceSurfaceOnPhase(const double p_Tau) const {
 
 /*
  * Calculate the log of the ratio of the lifetimes of a CH star and a normal star of the same mass (log(t_CHE/t_MS))
- * 
+ *
  * Polynomial fit derived using IZw18 and IZw18CHE BOoST models from Szecsi et al. 2020 (https://arxiv.org/abs/2004.08203)
  *
  * double CalculateLogLifetimeRatio(const double p_Mass)
- * 
+ *
  * @param   [IN]    p_Mass                      Mass in Msol
  *
  * @return                                      Log of the ratio of the lifetimes (log(t_CHE/t_MS)) of a CHE star to a normal star of the same mass
@@ -132,7 +132,7 @@ double CH::CalculateLifetimeRatio(const double p_Mass) const {
  * Calculate the ratio of the log luminosities (logL_CH / logL_MS) of a CH star and a normal star of the same mass
  *
  * Polynomial fit derived using IZw18 and IZw18CHE BOoST models from Szecsi et al. 2020 (https://arxiv.org/abs/2004.08203)
- * 
+ *
  * double CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau)
  *
  * @param   [IN]    p_Mass                      Mass in Msol
@@ -141,13 +141,13 @@ double CH::CalculateLifetimeRatio(const double p_Mass) const {
  * @return                                      Ratio of log luminosities of a CHE star to a normal star of the same mass and age
  */
 double CH::CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) const {
-    
+
     // Define some variables
     double logLuminosityRatio = 1.0;   // log(L_CH) / log(L_MS)
 
     // If user wants to increase CH MS luminosity, calculate the ratio of CH to MS luminosity
     if (OPTIONS->EnhanceCHELifetimesLuminosities()) {
-        
+
         // Polynomial fits to the ratio of logL in models from Szecsi et al., derived using np.polynomial.Polynomial
         double x  = log10(p_Mass);
         double x2 = x * x;
@@ -164,17 +164,17 @@ double CH::CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) 
 
     // Make enhancement grow from 1 to logLuminosityRatio over main-sequence
     logLuminosityRatio = 1.0 + (logLuminosityRatio - 1.0) * p_Tau * p_Tau;
-    
+
     return logLuminosityRatio;
 }
 
 
 /*
  * Calculate the luminosity of a CH star on the main sequence
- * 
+ *
  * Start with the luminosity of a 'normal' (non-CH) star of the same mass/metallicity etc.
- * Then multiply that luminosity by the ratio of luminosities 
- * 
+ * Then multiply that luminosity by the ratio of luminosities
+ *
  * double CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS)
  *
  * @param   [IN]    p_Time                      Time (after ZAMS) in Myr
@@ -184,7 +184,7 @@ double CH::CalculateLogLuminosityRatio(const double p_Mass, const double p_Tau) 
  */
 double CH::CalculateLuminosityOnPhase(const double p_Time, const double p_Mass, const double p_LZAMS) const {
 
-    // First, calculate the standard main sequence luminosity 
+    // First, calculate the standard main sequence luminosity
     double MSluminosity       = MainSequence::CalculateLuminosityOnPhase(p_Time, p_Mass, p_LZAMS);
 
     // Then, calculate the ratio of the standard luminosity to the CHE luminosity [log(L_CH) / log(L_MS)]
@@ -280,7 +280,7 @@ void CH::UpdateAgeAfterMassLoss() {
     tMSprime  *= lifetimeRatio;
 
     m_Age *= tMSprime / tMS;
-    
+
     CalculateTimescales(m_Mass, m_Timescales);
 }
 
@@ -317,13 +317,13 @@ double CH::CalculateMassLossFractionOB(const double p_HeAbundanceSurface) const 
 
 
 /*
- * Calculate the dominant mass loss mechanism and associated rate for the star 
+ * Calculate the dominant mass loss mechanism and associated rate for the star
  * at the current evolutionary phase
- * 
+ *
  * According to Belczynski et al. 2010 prescription - based on implementation in StarTrack
  *
  * Modifications for CH stars
- * 
+ *
  * double CalculateMassLossRateBelczynski2010()
  *
  * @return                                      Mass loss rate in Msol per year
@@ -364,15 +364,15 @@ double CH::CalculateMassLossRateBelczynski2010() {
 
 
 /*
- * Calculate the dominant mass loss mechanism and associated rate for the star 
+ * Calculate the dominant mass loss mechanism and associated rate for the star
  * at the current evolutionary phase
- * 
+ *
  * According to Merritt et al. 2024 prescription
  *
  * Modifications for CH stars
- * 
+ *
  * double CalculateMassLossRateMerritt2025()
- * 
+ *
  * @return                                      Mass loss rate in Msol per year
  */
 double CH::CalculateMassLossRateMerritt2025() {
@@ -384,7 +384,7 @@ double CH::CalculateMassLossRateMerritt2025() {
     double fractionOB = 1.0;    // Initialised to 1.0 to allow us to use the OB mass loss rate by default
 
     // Calculate OB mass loss rate according to the chosen prescription
-    MdotOB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());  
+    MdotOB = BaseStar::CalculateMassLossRateOB(OPTIONS->OBMassLossPrescription());
 
     // If user wants to transition between OB and WR mass loss rates
     if (OPTIONS->ScaleCHEMassLossWithSurfaceHeliumAbundance()) {
@@ -393,8 +393,8 @@ double CH::CalculateMassLossRateMerritt2025() {
         // cloning it, so that we can ask it what its mass loss rate would be if it were
         // a HeMS star
         HeMS *clone = HeMS::Clone((HeMS&)static_cast<const CH&>(*this), OBJECT_PERSISTENCE::EPHEMERAL, false);  // Do not initialise so that we can use same mass, luminosity, radius etc
-        MdotWR      = clone->CalculateMassLossRateMerritt2025();                                                // Calculate WR mass loss rate              
-        delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone  
+        MdotWR      = clone->CalculateMassLossRateMerritt2025();                                                // Calculate WR mass loss rate
+        delete clone; clone = nullptr;                                                                          // return the memory allocated for the clone
 
         // Calculate weight for combining these into total mass-loss rate
         fractionOB = CalculateMassLossFractionOB(m_HeliumAbundanceSurface);
@@ -420,7 +420,7 @@ STELLAR_TYPE CH::EvolveToNextPhase() {
     if (m_Age < m_Timescales[static_cast<int>(TIMESCALE::tMS)]) {           // evolving off because of age?
         stellarType = STELLAR_TYPE::MS_GT_07;                               // no - must have spun down - evolve as MS star now
         m_CHE       = false;                                                // evolved CH->MS
-        
+
         // if BRCEK core mass calculations enabled, initialise the core mass based on current mass and central helium fraction
         if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
             m_MainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_Mass, m_HeliumAbundanceCore);

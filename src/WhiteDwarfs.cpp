@@ -3,15 +3,15 @@
 
 
 
-/* Calculate eta_hydrogen from Claeys+ 2014, appendix B. This parameter depends 
- * on three regimes for the mass transfer rate, which here are distinguished by the 
+/* Calculate eta_hydrogen from Claeys+ 2014, appendix B. This parameter depends
+ * on three regimes for the mass transfer rate, which here are distinguished by the
  * thresholds logMdotUppH and logMdotLowH. In Claeys+ 2014, the mass transfer rate is
- * \dot{M}_{tr} and the thresholds are \dot{M}_{cr,H} and \dot{M}_{cr,H}/8, respectively. 
+ * \dot{M}_{tr} and the thresholds are \dot{M}_{cr,H} and \dot{M}_{cr,H}/8, respectively.
  *
- * However, we have used improved thresholds from Nomoto+ 2007 in which the 
- * lower boundary is \dot{M}_{stable} and the upper boundary is \dot{M}_{RG}. 
+ * However, we have used improved thresholds from Nomoto+ 2007 in which the
+ * lower boundary is \dot{M}_{stable} and the upper boundary is \dot{M}_{RG}.
  * More precisely, we implemented quadratic fits to the values in Nomoto+ 2007,
- * table 5, as described in the second COMPAS methods paper (in prep). 
+ * table 5, as described in the second COMPAS methods paper (in prep).
  *
  * double CalculateEtaH(const double p_MassTransferRate)
  *
@@ -26,15 +26,15 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
     double m_Mass_2            = m_Mass * m_Mass;
 
     // The following coefficients come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
-    double logMdotUppH = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 * m_Mass_2; 
+    double logMdotUppH = WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_0 + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_1 * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_REDGIANT_2 * m_Mass_2;
     double logMdotLowH = WD_LOG_MT_LIMIT_NOMOTO_STABLE_0   + WD_LOG_MT_LIMIT_NOMOTO_STABLE_1   * m_Mass + WD_LOG_MT_LIMIT_NOMOTO_STABLE_2   * m_Mass_2;
-    
+
     if (utils::Compare(logMassTransferRate, logMdotUppH) >= 0) {
         etaH = PPOW(10, logMdotUppH - logMassTransferRate);
-    } 
+    }
     else if (utils::Compare(logMassTransferRate, logMdotLowH) >= 0) {
         etaH = 1.0;
-    } 
+    }
 
     return etaH;
 }
@@ -43,13 +43,13 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
 /* Calculate eta_helium from Claeys+ 2014, appendix B. Similarly to CalculateEtaH
  * above, this parameter depends on four regimes for the mass transfer rate, distinguished
  * here by logMdotUppHe, logMdotMidHe, and logMdotLowHe. In Claeys+ 2014, these thresholds
- * are \dot{M}_{up}, \dot{M}_{cr,He}, and \dot{M}_{low}, respectively. 
+ * are \dot{M}_{up}, \dot{M}_{cr,He}, and \dot{M}_{low}, respectively.
  *
  * However, we have again updated the thresholds to those described in Piersanti+ 2014,
- * table A1. The thresholds here are named by the boundaries RG/SS, SS/MF, and SF/Dt, 
- * respectively (see text for details). Note that the different flashes regimes from 
- * Piersanti+ 2014 have been merged into one, i.e we omit the MF/SF boundary, and 
- * the accumulation regime has been changed so we can get double detonations. Finally, 
+ * table A1. The thresholds here are named by the boundaries RG/SS, SS/MF, and SF/Dt,
+ * respectively (see text for details). Note that the different flashes regimes from
+ * Piersanti+ 2014 have been merged into one, i.e we omit the MF/SF boundary, and
+ * the accumulation regime has been changed so we can get double detonations. Finally,
  * eta_KH04 has also been updated with the accretion efficiency values from Piersanti+ 2014.
  *
  * double CalculateEtaHe(const double p_MassTransferRate)
@@ -60,7 +60,7 @@ double WhiteDwarfs::CalculateEtaH(const double p_MassTransferRate) {
 double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
 
     double etaHe = 1.0;                                     // default return value - so we can have double detonations
-    
+
     double logMassTransferRate = log10(p_MassTransferRate / MYR_TO_YEAR);
 
     // The following coefficients in massTransfer limits come from table A1 in Piersanti+ 2014.
@@ -70,13 +70,13 @@ double WhiteDwarfs::CalculateEtaHe(const double p_MassTransferRate) {
 
     if (utils::Compare(logMassTransferRate, logMdotUppHe) >= 0) {
         etaHe = PPOW(10, logMdotUppHe - logMassTransferRate);
-    } 
+    }
     else if (utils::Compare(logMassTransferRate, logMdotMidHe) >= 0) {
         etaHe = 1.0;
-    } 
+    }
     else if (utils::Compare(logMassTransferRate, logMdotLowHe) >= 0) {
         etaHe = CalculateEtaPTY(p_MassTransferRate);
-    } 
+    }
 
     return etaHe;
 }
@@ -104,16 +104,16 @@ double WhiteDwarfs::CalculateEtaPTY(const double p_MassTransferRate) {
     // Limits on each conditional statement come from masses from each model in Piersanti+ 2014. The final etaPTY value is based on table A3.
     if (utils::Compare(m_Mass, 0.6) <= 0) {
         etaPTY = WD_PIERSANTI_M060_G0 + WD_PIERSANTI_M060_G1 * massRate + WD_PIERSANTI_M060_G2 * massRate_2 - WD_PIERSANTI_M060_G3 * massRate_3;
-    } 
+    }
     else if  (utils::Compare(m_Mass, 0.7) <= 0) {
         etaPTY = -WD_PIERSANTI_M070_G0 + WD_PIERSANTI_M070_G1 * massRate - WD_PIERSANTI_M070_G2 * massRate_2 + WD_PIERSANTI_M070_G3 * massRate_3;
-    } 
+    }
     else if (utils::Compare(m_Mass, 0.81) <= 0) {
         etaPTY = WD_PIERSANTI_M081_G0 + WD_PIERSANTI_M081_G1 * massRate + WD_PIERSANTI_M081_G2 * massRate_2 - WD_PIERSANTI_M081_G3 * massRate_3;
-    } 
-    else if (utils::Compare(m_Mass, 0.92) <= 0) { 
+    }
+    else if (utils::Compare(m_Mass, 0.92) <= 0) {
         etaPTY = -WD_PIERSANTI_M092_G0 + WD_PIERSANTI_M092_G1 * massRate + WD_PIERSANTI_M092_G2 * massRate_2 - WD_PIERSANTI_M092_G3 * massRate_3;
-    } 
+    }
     else {
         etaPTY = -WD_PIERSANTI_M102_G0 + WD_PIERSANTI_M102_G1 * massRate - WD_PIERSANTI_M102_G2 * massRate_2 + WD_PIERSANTI_M102_G3 * massRate_3;
     }
@@ -149,8 +149,8 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  * Currently used for COWDs and ONeWDs
  *
  * For a given mass transfer rate, this function computes the amount of mass a WD would retain after
- * flashes, as given by appendix B of Claeys+ 2014. 
- * https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract 
+ * flashes, as given by appendix B of Claeys+ 2014.
+ * https://ui.adsabs.harvard.edu/abs/2014A%26A...563A..83C/abstract
  *
  *
  * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich)
@@ -161,8 +161,8 @@ double WhiteDwarfs::CalculateLuminosityOnPhase_Static(const double p_Mass, const
  */
 DBL_DBL WhiteDwarfs::CalculateMassAcceptanceRate(const double p_DonorMassRate, const bool p_IsHeRich) {
 
-    m_AccretionRegime = DetermineAccretionRegime(p_DonorMassRate, p_IsHeRich); 
-                                                                               
+    m_AccretionRegime = DetermineAccretionRegime(p_DonorMassRate, p_IsHeRich);
+
     double acceptanceRate   = 0.0;                                                       // acceptance mass rate - default = 0.0
     double fractionAccreted = 0.0;                                                       // accretion fraction - default = 0.0
 
@@ -191,14 +191,14 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
 
     // sanity check for mass - just return 0.0 if mass <= 0
     if (utils::Compare(p_Mass, 0.0) <= 0) return 0.0;
-    
+
     if (utils::Compare(p_Mass, MCH) >= 0) return NEUTRON_STAR_RADIUS;                               // only expected to come up if asking for the core or remnant radius of a giant star
-    
-    const double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass); 
+
+    const double MCH_Mass_one_third  = std::cbrt(MCH / p_Mass);
     const double MCH_Mass_two_thirds = MCH_Mass_one_third * MCH_Mass_one_third;
-    
+
     double MP_Mass = WD_MP / p_Mass;
-    double MP_Mass_two_thirds = MP_Mass / std::cbrt(WD_MP / p_Mass); 
+    double MP_Mass_two_thirds = MP_Mass / std::cbrt(WD_MP / p_Mass);
 
     double firstFactor = std::sqrt((MCH_Mass_two_thirds - 1.0 / MCH_Mass_two_thirds));
     double preSecondFactor = 1.0 + 3.5 * MP_Mass_two_thirds + MP_Mass;
@@ -208,7 +208,7 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
 }
 
 
-/* 
+/*
  * Determine the WD accretion regime based on the MT rate and whether the donor is He rich. Also,
  * initialize He-Shell detonation or Off-center ignition when necessary, by changing the value
  * of m_HeShellDetonation or m_OffCenterIgnition (respectively).
@@ -217,7 +217,7 @@ double WhiteDwarfs::CalculateRadiusOnPhase_Static(const double p_Mass) {
  *
  * Note that we have merged the different flashes regimes from Piersanti+ 2014 into a single regime.
  *
- * ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich) 
+ * ACCRETION_REGIME DetermineAccretionRegime(const double p_DonorMassLossRate, const bool p_HeRich)
  *
  * @param   [IN]    p_DonorMassLossRate      Donor mass loss rate, in units of Msol / Myr
  * @param   [IN]    p_HeRich                 Whether the accreted material is helium-rich or not
@@ -236,24 +236,24 @@ ACCRETION_REGIME WhiteDwarfs::DetermineAccretionRegime(const double p_DonorMassL
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             if (utils::Compare(logMdot, logMassTransferDetonation) > 0) {
                 regime = ACCRETION_REGIME::HELIUM_FLASHES;
-            } 
+            }
             else {
                 regime = ACCRETION_REGIME::HELIUM_ACCUMULATION;
                 if ((utils::Compare(m_Mass, MASS_DOUBLE_DETONATION_CO) >= 0) && (utils::Compare(m_HeShell, WD_HE_SHELL_MCRIT_DETONATION) >= 0)) {
                     m_HeShellDetonation = true;
                 }
             }
-        } 
+        }
         else if (utils::Compare(logMdot, logMassTransferCrit) > 0) {
             regime = ACCRETION_REGIME::HELIUM_OPT_THICK_WINDS;
-        } 
+        }
         else {
             regime = ACCRETION_REGIME::HELIUM_STABLE_BURNING;
             if ((utils::Compare(logMdot, COWD_LOG_MDOT_MIN_OFF_CENTER_IGNITION) > 0) && (utils::Compare(m_Mass, COWD_MASS_MIN_OFF_CENTER_IGNITION) > 0)) {
                 m_OffCenterIgnition = true;
             }
         }
-    } 
+    }
     else {
         // The following coefficients in logMassTransfer limits come from quadratic fits to Nomoto+ 2007 results (table 5) in Mass vs log10 Mdot space, to cover the low-mass end.
         double m_Mass_2 = m_Mass * m_Mass;
@@ -262,10 +262,10 @@ ACCRETION_REGIME WhiteDwarfs::DetermineAccretionRegime(const double p_DonorMassL
 
         if (utils::Compare(logMdot, logMassTransferStable) < 0) {
             regime = ACCRETION_REGIME::HYDROGEN_FLASHES;
-        } 
+        }
         else if (utils::Compare(logMdot, logMassTransferCrit) > 0) {
             regime = ACCRETION_REGIME::HYDROGEN_OPT_THICK_WINDS;
-        } 
+        }
         else {
             regime = ACCRETION_REGIME::HYDROGEN_STABLE_BURNING;
         }
@@ -275,7 +275,7 @@ ACCRETION_REGIME WhiteDwarfs::DetermineAccretionRegime(const double p_DonorMassL
 }
 
 
-/* 
+/*
  * Increase shell size after mass transfer episode. Hydrogen and helium shells are kept separately.
  * Only applies the full mass increase from accretion to one of the shells. Does not account for, e.g,
  * the H layer burning and building up the He layer, which may be desired in the future. - RTW 9/14/22
@@ -285,7 +285,7 @@ ACCRETION_REGIME WhiteDwarfs::DetermineAccretionRegime(const double p_DonorMassL
  * @param   [IN]    p_AccretedMass              Mass accreted
  */
 void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
-    
+
     switch (m_AccretionRegime) {
 
         case ACCRETION_REGIME::HELIUM_ACCUMULATION:
@@ -305,7 +305,7 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
 	        m_HShell += p_AccretedMass;
             break;
 
-        case ACCRETION_REGIME::NONE:    // DEPRECATED June 2024 - remove end 2024 
+        case ACCRETION_REGIME::NONE:    // DEPRECATED June 2024 - remove end 2024
         case ACCRETION_REGIME::ZERO:
             SHOW_WARN(ERROR::UNEXPECTED_ACCRETION_REGIME, "No mass added to shell");        // show warning
             break;
@@ -331,15 +331,15 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
  *
  * Following Hurley et al. 2000, Section 6.2.1
  *
- * An AIC of a WD results in a NS, which we are 
+ * An AIC of a WD results in a NS, which we are
  * here assuming to have a low mass equal to the ECSN
- * remnant NS mass, and no natal kick. 
+ * remnant NS mass, and no natal kick.
  *
- * STELLAR_TYPE ResolveAIC() 
+ * STELLAR_TYPE ResolveAIC()
  *
  * @return                                      Stellar type of remnant (STELLAR_TYPE::NEUTRON_STAR if SN, otherwise current type)
  */
-STELLAR_TYPE WhiteDwarfs::ResolveAIC() { 
+STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
@@ -347,10 +347,10 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
     m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
     m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
     m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
-    SetSNHydrogenContent();                                                             // SN to be H-poor. 
+    SetSNHydrogenContent();                                                             // SN to be H-poor.
 
     m_Mass                                = MECS_REM;                                   // defined in constants.h
-    
+
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
 
@@ -362,15 +362,15 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
 
 
 /*
- * Resolve Type 1a Supernova 
+ * Resolve Type 1a Supernova
  *
  * A Type 1a SN results in a massless remnant.
  *
- * STELLAR_TYPE ResolveSNIa() 
+ * STELLAR_TYPE ResolveSNIa()
  *
  * @return                                      Stellar type of remnant (STELLAR_TYPE::MASSLESS_REMNANT if SN, otherwise current type)
  */
-STELLAR_TYPE WhiteDwarfs::ResolveSNIa() { 
+STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
@@ -378,8 +378,8 @@ STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
     m_SupernovaDetails.HeCoreMassAtCOFormation = m_HeCoreMass;
     m_SupernovaDetails.COCoreMassAtCOFormation = m_COCoreMass;
     m_SupernovaDetails.coreMassAtCOFormation   = m_CoreMass;
-    SetSNHydrogenContent();                                                             // SN to be H-poor. 
-        
+    SetSNHydrogenContent();                                                             // SN to be H-poor.
+
     m_Mass       = 0.0;
     m_Radius     = 0.0;
     m_Luminosity = 0.0;
@@ -396,15 +396,15 @@ STELLAR_TYPE WhiteDwarfs::ResolveSNIa() {
 
 
 /*
- * Resolve Double Detonation     
+ * Resolve Double Detonation
  *
  * A double detonation results in a massless remnant.
  *
- * STELLAR_TYPE ResolveHeSD() 
+ * STELLAR_TYPE ResolveHeSD()
  *
  * @return                                      Stellar type of remnant (STELLAR_TYPE::MASSLESS_REMNANT if SN, otherwise current type)
  */
-STELLAR_TYPE WhiteDwarfs::ResolveHeSD() { 
+STELLAR_TYPE WhiteDwarfs::ResolveHeSD() {
 
     if (!IsSupernova()) return m_StellarType;                                           // shouldn't be here if no SN
 
@@ -412,7 +412,7 @@ STELLAR_TYPE WhiteDwarfs::ResolveHeSD() {
     m_Radius     = 0.0;
     m_Luminosity = 0.0;
     m_Age        = 0.0;
-    
+
     m_SupernovaDetails.drawnKickMagnitude = 0.0;
     m_SupernovaDetails.kickMagnitude      = 0.0;
 

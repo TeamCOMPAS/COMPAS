@@ -35,15 +35,15 @@ namespace stellarUtils {
  * instantiated.  This is primarily so functions pertaining to the stellar type can be
  * called when only the stellar type is known, and there is no object of that stellar type
  * available.
- * 
+ *
  * Currently the new star is not initialised via the Initialise() function of the relevant
  * class - some ov the Initialise() functions depend on class member variables carried over
  * from a prior stellar type, so until we resolve that, this star cannot be initialised in
  * that way.
- * 
+ *
  * This function returns a pointer.  It is the responsibility of the caller to return the
  * memory allocation for the new star after use.  e.g.:
- * 
+ *
  *     BaseStar* CHeBstar       = stellarUtils::NewStar(STELLAR_TYPE::CORE_HELIUM_BURNING);    // create new CHeB star
  *     MT_CASE massTransferCase = CHeBstar->DetermineMassTransferTypeAsDonor();                // get MT type as donor of CHeB star
  *     delete CHeBstar; CHeBstar = nullptr;                                                    // free memory allocated for CHeBstar

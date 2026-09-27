@@ -18,9 +18,9 @@ public:
 
     BinaryConstituentStar() : Star() { };
 
-    BinaryConstituentStar(const unsigned long int p_RandomSeed, 
-                          const double            p_Mass, 
-                          const double            p_Metallicity, 
+    BinaryConstituentStar(const unsigned long int p_RandomSeed,
+                          const double            p_Mass,
+                          const double            p_Metallicity,
                           const KickParameters    p_KickParameters,
                           const double            p_RotationalVelocity = -1.0) : Star(p_RandomSeed, p_Mass, p_Metallicity, p_KickParameters, p_RotationalVelocity) {
 
@@ -50,7 +50,7 @@ public:
         m_CEDetails.postCEE.radialExpansionTimescale = DEFAULT_INITIAL_DOUBLE_VALUE;
 
         m_Flags.recycledNS                           = false;
-        
+
         m_MassLossDiff                               = DEFAULT_INITIAL_DOUBLE_VALUE;
         m_MassTransferDiff                           = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -97,34 +97,34 @@ public:
 
     /*
      * This function should be used to clone a BinaryConstituentStar.
-     * 
+     *
      * Important:
-     * 
+     *
      * This function returns a pointer, created by the 'new' operator.  The 'new' operator dynamically allocates
      * memory on the heap, not the stack, which is why it is available to the caller of this function after this
      * function has exited and its stack frame collapsed.  It is the responsibility of the caller of this function
      * to delete the pointer returned when it is no longer required so that the allocated memory is return to the
      * pool of available memory - failing to do so will cause a memory leak and the program will eventually exhaust
      * available memory and fail.  The preferred usage pattern is:
-     * 
+     *
      *     T* ptr = Clone(obj, persistence)
      *     ...
      *     ...
      *     delete ptr; ptr = nullptr;
-     * 
-     * 
+     *
+     *
      * template <class T1>
      * static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star, const OBJECT_PERSISTENCE p_Persistence)
-     * 
+     *
      * @param   [IN]    p_Star                      (address of) The star to be cloned
      * @param   [IN]    p_Persistence               Specifies the object persistence to be assigned to the cloned star.
      *                                              If the cloned star is intended to be used temporarily (e.g. for hypothesis testing),
      *                                              persistence should be EPHEMERAL, otherwise PERMANENT.
      * @return                                      (pointer to) The cloned star
      */
-    static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star, const OBJECT_PERSISTENCE p_Persistence) { 
-        BinaryConstituentStar* ptr = new BinaryConstituentStar(p_Star); 
-        ptr->SetPersistence(p_Persistence); 
+    static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star, const OBJECT_PERSISTENCE p_Persistence) {
+        BinaryConstituentStar* ptr = new BinaryConstituentStar(p_Star);
+        ptr->SetPersistence(p_Persistence);
         return ptr;
     }
     static BinaryConstituentStar* Clone(BinaryConstituentStar& p_Star) { return Clone(p_Star, p_Star.ObjectPersistence()); }
@@ -211,8 +211,8 @@ public:
                                                                                                                                                        m_Companion->Radius(),
                                                                                                                                                        m_Companion->MassPreCEE() - m_Companion->CoreMassAtCEE());
                                                                                              ResolveAccretion(m_MassTransferDiff);
-                                                     
-                                                                                           }  
+
+                                                                                           }
 
     void            SetPostCEEValues();
     void            SetPreCEEValues();
@@ -223,9 +223,9 @@ public:
 
     void            UpdateMagneticFieldAndSpin(const bool   p_CommonEnvelope,
                                                const double p_Stepsize,
-                                               const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope, 
-                                                                                                                           ExperiencedRecycledNS(), 
-                                                                                                                           p_Stepsize, 
+                                               const double p_Epsilon)                  { Star::UpdateMagneticFieldAndSpin(p_CommonEnvelope,
+                                                                                                                           ExperiencedRecycledNS(),
+                                                                                                                           p_Stepsize,
                                                                                                                            m_MassTransferDiff * MSOL_TO_G,
                                                                                                                            p_Epsilon); }
 
@@ -261,7 +261,7 @@ private:
     BinaryConstituentStar  *m_Companion;
 
 
-	// member functions - alphabetically 
+	// member functions - alphabetically
 };
 
 #endif // __BinaryConstituentStar_h__

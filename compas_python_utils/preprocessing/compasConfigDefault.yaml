@@ -293,7 +293,7 @@ stringChoices:
 #    --pulsar-birth-spin-period-distribution: 'NORMAL'                     # Default: 'NORMAL'                      # Options: ['NORMAL','UNIFORM']
 #    --remnant-mass-prescription: 'MULLERMANDEL'                           # Default: 'MULLERMANDEL'                # Options: ['MALTSEV2024','SCHNEIDER2020ALT','SCHNEIDER2020','MULLERMANDEL','MULLER2016','FRYER2022','FRYER2012','BELCZYNSKI2002','HURLEY2000']
 
-    ### LOGFILES AND OUTPUTS 
+    ### LOGFILES AND OUTPUTS
 #    --logfile-type: 'HDF5'                                                # Default: 'HDF5'                        # Options: ['TXT','TSV','CSV','HDF5']
 #    --logfile-name-prefix: ''                                             # Default: ''
 #    --logfile-definitions: ''                                             # Default: ''
@@ -309,7 +309,7 @@ stringChoices:
 #    --output-path: '.'                                                    # Default: '.'
 
 
-listChoices: 
+listChoices:
 
 #    --log-classes: { }                                                    # Default: { }
 #    --debug-classes: { }                                                  # Default: { }

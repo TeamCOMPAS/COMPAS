@@ -24,7 +24,7 @@ Note that the SSE SwitchLog file has the following columns automatically appende
 **SWITCHING_FROM**
 
 .. list-table::
-   :widths: 20 80 
+   :widths: 20 80
    :header-rows: 0
    :class: aligned-text
 
@@ -40,7 +40,7 @@ Note that the SSE SwitchLog file has the following columns automatically appende
 **SWITCHING_TO**
 
 .. list-table::
-   :widths: 20 80 
+   :widths: 20 80
    :header-rows: 0
    :class: aligned-text
 
@@ -53,5 +53,5 @@ Note that the SSE SwitchLog file has the following columns automatically appende
    * - Header String:
      - "SWITCHING_TO"
 
-These columns will always be automatically appended to each SSE Switch Log record: they cannot be removed via the log file record 
+These columns will always be automatically appended to each SSE Switch Log record: they cannot be removed via the log file record
 specifications file.

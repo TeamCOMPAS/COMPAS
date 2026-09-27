@@ -1,8 +1,8 @@
 h5view.py
 =========
 
-This program displays summary, header, and content information for specified COMPAS ``HDF5`` file(s). It's fairly rudimetary - the 
-``HDF5`` package provides ``h5dump`` and ``h5ls`` which have far more options than this program - but this program is somewhat 
+This program displays summary, header, and content information for specified COMPAS ``HDF5`` file(s). It's fairly rudimetary - the
+``HDF5`` package provides ``h5dump`` and ``h5ls`` which have far more options than this program - but this program is somewhat
 COMPAS aware.
 
 
@@ -50,7 +50,7 @@ Example
 Typing::
 
     python3 h5view.py compas-output-file.h5
-    
+
 will result in summary output of the ``HDF5`` file `compas-output-file.h5` that looks something like this::
 
     Summary of HDF5 file /d/compas/h5out.h5
@@ -78,7 +78,7 @@ h5view functionality overview
 -----------------------------
 
 ``h5view.py`` displays summary, header and content information for specified COMPAS ``HDF5`` file(s). If none of the command-line
-options ``--summary [-S]``, ``--headers [-H]``, or ``--contents [-C]`` are specified, ``--summary [-s]`` is assumed. If any of 
+options ``--summary [-S]``, ``--headers [-H]``, or ``--contents [-C]`` are specified, ``--summary [-s]`` is assumed. If any of
 ``--summary [-S]``, ``--headers [-H]``, or ``--contents [-C]`` are specified, then only the option(s) specified are actioned.
 
 Displaying summary information
@@ -110,15 +110,15 @@ Contents information displays, for each COMPAS file in the ``HDF5`` file:
 
    The contents display can be limited in two ways:
 
-      (a) The ``--contents [-C]`` option takes and optional argument: an integer number of rows to display. The argument to 
-          ``--contents [-C]`` can be positive or negative: a positive value indicates that the number of rows specified by the 
+      (a) The ``--contents [-C]`` option takes and optional argument: an integer number of rows to display. The argument to
+          ``--contents [-C]`` can be positive or negative: a positive value indicates that the number of rows specified by the
           argument should be displayed from the start of the file; a negative value indicates that the number of rows specified
-          by the (absolute value of the) argument should be displayed from the end of the file.  The +ve and -ve arguments to 
+          by the (absolute value of the) argument should be displayed from the end of the file.  The +ve and -ve arguments to
           the ``--contents [-C]`` option are akin the the Unix ``head`` and ``tail`` commands.
 
-      (b) The ``--seeds [-V]`` option allows the user to specify a list of SEED values that should be printed. If the 
-          ``--seeds [-V]`` option is specified, only rows containing the seeds specified by the user will be printed - and only 
+      (b) The ``--seeds [-V]`` option allows the user to specify a list of SEED values that should be printed. If the
+          ``--seeds [-V]`` option is specified, only rows containing the seeds specified by the user will be printed - and only
           if they are in the entries printed if limited by the ``--contents [-C]`` argument  described in (a).
 
-          Note that printing only seeds specified in a list of seeds could be slow - we effectively have to look through the 
+          Note that printing only seeds specified in a list of seeds could be slow - we effectively have to look through the
           entire dataset looking for the seeds required.

@@ -28,7 +28,7 @@ Refer to ``EnumHash.h`` for the definition of the type alias ``COMPASUnorderedMa
 Note that the values allowed for variables of type ``CE_ACCRETION_PRESCRIPTION`` are limited to ``ZERO``, ``CONSTANT``, ``UNIFORM``, and
 ``MACLEOD`` – anything else will cause a compilation error.
 
-The unordered map ``CE_ACCRETION_PRESCRIPTION_LABEL`` declares a string label for each ``CE_ACCRETION_PRESCRIPTION``, and is indexed by 
+The unordered map ``CE_ACCRETION_PRESCRIPTION_LABEL`` declares a string label for each ``CE_ACCRETION_PRESCRIPTION``, and is indexed by
 ``CE_ACCRETION_PRESCRIPTION``. The strings declared in ``CE_ACCRETION_PRESCRIPTION_LABEL`` are used by the Options service to match user
 input to the required ``CE_ACCRETION_PRESCRIPTION``. These strings can also be used if an English description of the value of a variable
 is required: instead of just printing an integer value that maps to a ``CE_ACCRETION_PRESCRIPTION``, the string label associated with the

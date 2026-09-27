@@ -92,5 +92,5 @@ The ``ResolveEndOfPhase()`` function does the following::
     10. Calculate Temperature
     11. Evolve star to next phase
 
-Each of the calculations in the ``ResolveEndOfPhase()`` function is performed in the context of the star evolving off its current 
+Each of the calculations in the ``ResolveEndOfPhase()`` function is performed in the context of the star evolving off its current
 phase to the next phase. The remainder of the code (in general terms) supports these main driver functions.

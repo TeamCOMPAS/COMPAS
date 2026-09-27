@@ -15,7 +15,7 @@
 
 # # Introduction
 #
-# COMPAS simulations produce all output by default in the form of an [HDF5 file](https://www.hdfgroup.org/solutions/hdf5/), which is a compact and memory efficient, but non-human-readable data file format. In order to interact with these output files, we use the python module `h5py`. 
+# COMPAS simulations produce all output by default in the form of an [HDF5 file](https://www.hdfgroup.org/solutions/hdf5/), which is a compact and memory efficient, but non-human-readable data file format. In order to interact with these output files, we use the python module `h5py`.
 #
 # Within each file are a variety of HDF5 Groups, representing a specific common event in binary evolution, e.g Roche-Lobe Overflow or Supernovae. These are described throughout the post-processing jupyter notebooks.
 
@@ -23,16 +23,16 @@
 #
 # ### [1) Producing HDF5 output ](#1.-Producing-HDF5-output)
 # How to run default COMPAS and produce a simple output file.
-#         
+#
 # ### [2) Reading HDF5 files ](#2.-Reading-HDF5-files)
 # The basics and syntax of loading an HDF5 file.
-#         
+#
 # ### [3) Rewriting HDF5 files ](#3.-Rewriting-HDF5-files)
 # How to rewrite/reduce the HDF5 data.
 
 
 
-# ### For the following sections, you will need to have the following python packages installed. 
+# ### For the following sections, you will need to have the following python packages installed.
 # ### `numpy, h5py, pandas`
 #
 
@@ -41,7 +41,7 @@ import os, sys    # for handling paths
 import h5py as h5  #for handling data format
 
 # Import COMPAS root and python script directories
-compasRootDir = os.environ['COMPAS_ROOT_DIR'] 
+compasRootDir = os.environ['COMPAS_ROOT_DIR']
 tutorialDir = compasRootDir + '/postProcessing/Tutorial/'
 
 # Import COMPAS specific scripts
@@ -76,7 +76,7 @@ print()
 #
 # ## Here we show the basic h5 file syntax for how to load and close the file, and extract/inspect the data.
 #
-# While working with this notebook, feel free to change the data file used to see how it affects the output. For the purpose of consistency and ensuring that our examples work properly, the default data file `'COMPAS_Output_tutorial.h5'` has been pre-run using precisely chosen input parameters, specified in `'tutorial_grid.txt'`. 
+# While working with this notebook, feel free to change the data file used to see how it affects the output. For the purpose of consistency and ensuring that our examples work properly, the default data file `'COMPAS_Output_tutorial.h5'` has been pre-run using precisely chosen input parameters, specified in `'tutorial_grid.txt'`.
 #
 # If the default data file is accidentally deleted, it can be reconstructed by running:
 #
@@ -87,7 +87,7 @@ print()
 # +
 # Set the appropriate path to the data file
 
-pathToH5 = tutorialDir + 'COMPAS_Tutorial_Output.h5' 
+pathToH5 = tutorialDir + 'COMPAS_Tutorial_Output.h5'
 Data  = h5.File(pathToH5)
 # -
 
@@ -119,7 +119,7 @@ print(mZams1[:3])                    # the values of the first 3 entries
 # ## Closing the Data
 #
 # Accessing a single h5file from multiple scripts is not always possible.
-# With notebooks, sometimes closing the notebook is not enough to have it 
+# With notebooks, sometimes closing the notebook is not enough to have it
 # close the h5data. Therefore we recommend to close the h5file explicitly after
 # the calculations are done
 #
@@ -136,14 +136,14 @@ Data.close()
 # ## Here we show how you can reduce your data. You need to decide:
 #
 # ### - Which data categories (or HDF5 groups) you want to include
-# ### - Which seeds and parameters from each data category. 
+# ### - Which seeds and parameters from each data category.
 
 # ## Load the Data
 
 # +
 # Set the appropriate paths to the input and output data files
 pathToDataInput = pathToH5 # use the output from the run above
-pathToDataOutput = tutorialDir + '/COMPAS_Output/COMPAS_Output_reduced.h5' 
+pathToDataOutput = tutorialDir + '/COMPAS_Output/COMPAS_Output_reduced.h5'
 
 Data  = h5.File(pathToDataInput)
 print("The main files I have at my disposal are:\n",list(Data.keys()))
@@ -157,15 +157,15 @@ print("The main files I have at my disposal are:\n",list(Data.keys()))
 
 # ### Hypothetical Example
 #
-# Suppose you are studying Double Neutron Star systems, and you want to know the initial parameters of both components. Suppose you are separately curious about the eccentricity of systems following a Supernova that leaves the binary intact, and you want to use the same COMPAS run to save on CPU*hours. 
+# Suppose you are studying Double Neutron Star systems, and you want to know the initial parameters of both components. Suppose you are separately curious about the eccentricity of systems following a Supernova that leaves the binary intact, and you want to use the same COMPAS run to save on CPU*hours.
 #
-# To be safe, you should probably keep the entire BSE_System_Parameters file, which contains all of the initial system settings. 
+# To be safe, you should probably keep the entire BSE_System_Parameters file, which contains all of the initial system settings.
 #
 # To get information about only Double Neutron Stars, you will need to create a mask for them from the BSE_Double_Compact_Objects file.
 #
-# Information on post-SN eccentricity and whether or not the system disrupted is found in the BSE_Supernovae file. 
+# Information on post-SN eccentricity and whether or not the system disrupted is found in the BSE_Supernovae file.
 #
-# You will not need any other files. You will also want to grab the system 'SEED's column from any file, since that is the unique identifier of the binaries. 
+# You will not need any other files. You will also want to grab the system 'SEED's column from any file, since that is the unique identifier of the binaries.
 
 # +
 ### For each data category, give a list of parameters you want to include
@@ -206,7 +206,7 @@ seedsIntact  = seedsSN[isIntact]
 
 
 
-### Create seedsOfInterest dictionary 
+### Create seedsOfInterest dictionary
 seedsOfInterest   = {'BSE_System_Parameters':      seedsSP,
                      'BSE_Double_Compact_Objects': seedsDNS,
                      'BSE_Supernovae':             seedsIntact

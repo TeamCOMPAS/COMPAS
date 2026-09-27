@@ -79,7 +79,7 @@ double HG::CalculateLambdaDewi() const {
  * @return                                      Common envelope lambda parameter
  */
 double HG::CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassLoss) const {
-    
+
     // find closest metallicity covered by Loveridge et al. 2011
     // (see LOVERIDGE_METALLICITY and LOVERIDGE_METALLICITYValue)
 
@@ -133,7 +133,7 @@ double HG::CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassL
 
     logBindingEnergy += 33.29866;                                                           // + logBE0
     double bindingEnergy = PPOW(10.0, logBindingEnergy);
-    
+
     double lambda = utils::Compare(bindingEnergy, 0.0) > 0 && utils::Compare(1.0 / bindingEnergy, 0.0) > 0 && utils::Compare(p_EnvMass, MAXIMUM_MASS_LOSS_FRACTION * m_Mass) > 0
             ? (G_CGS * m_Mass * MSOL_TO_G * p_EnvMass * MSOL_TO_G) / (m_Radius * RSOL_TO_AU * AU_TO_CM * bindingEnergy)
             : 1.0;                                                                          // default to 1.0 (usual lambda default) if binding energy is not sensible [sometimes can be infinite if logBindingEnergy is too high] or if envelope mass is too low to reliably evaluate lambda [can be zero]
@@ -149,10 +149,10 @@ double HG::CalculateLambdaLoveridge(const double p_EnvMass, const bool p_IsMassL
  *
  *
  * double CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop)
- * 
+ *
  * @param   [IN]    p_MassIndex                 Mass index
  * @param   [IN]    p_StellarPop                The stellar population for metallicity (POP I or POP II)
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double HG::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_POPULATION p_StellarPop) const {
@@ -478,7 +478,7 @@ double HG::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR_P
  *
  * @param   [IN]    p_Mass                      Mass
  * @param   [IN]    p_Metallicity               Metallicity
- * 
+ *
  * @return                                      Nanjing lambda for use in common envelope
  */
 double HG::CalculateLambdaNanjingStarTrack(const double p_Mass, const double p_Metallicity) const {
@@ -891,7 +891,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
-    double RTMS;  
+    double RTMS;
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
         // p_Mass generally has the value of m_Mass0, but since m_Mass is used for radius calculations on the MS and m_Mass0
         // is updated to a new value when BRCEK prescription is used, we need to use m_Mass here to keep radius continuous
@@ -907,7 +907,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
                                                                                                                     // yes
         // rMinHe is Hurley et al. 2000, eq 55 - first part (M >= MHeF)
         double m_b28 = PPOW(p_Mass, b[28]);                                                                         // pow() is slow - do it once only
-        double rMinHe = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);             // this is 'rmin' in Hurley sse 
+        double rMinHe = ((b[24] * p_Mass) + (PPOW((b[25] * p_Mass), b[26]) * m_b28)) / (b[27] + m_b28);             // this is 'rmin' in Hurley sse
 
         double lum = GiantBranch::CalculateLuminosityAtHeIgnition_Static(p_Mass, m_Alpha1, massCutoffs(MHeF), b);
 
@@ -916,9 +916,9 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 
         // calculate radius at He ignition for MFGB < p_Mass < HM
         // Hurley et al. 2000, eq 50
-        
+
         rx = std::min(rMinHe, ry);
-        
+
         if (utils::Compare(p_Mass, HIGH_MASS_THRESHOLD) < 0) {
             double mu = log10(p_Mass / HIGH_MASS_THRESHOLD) / log10(massCutoffs(MFGB) / HIGH_MASS_THRESHOLD);
             rx        = rMinHe * PPOW(RGB / rMinHe, mu);
@@ -1020,13 +1020,13 @@ double HG::CalculateCoreMassOnPhase(const double p_Mass, const double p_Time) co
  */
 double HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass, const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
-    
+
     double McEHG = CalculateCoreMassAtPhaseEnd(p_Mass);
     double rhoHG = CalculateRho(p_Mass);
     double tau   = (p_Time - timescales(tMS)) / (timescales(tBGB) - timescales(tMS));
-    
+
     return (((1.0 - tau) * rhoHG) + tau) * McEHG;
-    
+
 #undef timescales
 }
 
@@ -1039,10 +1039,10 @@ double HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(const double p_Mass,
  * Assumes this star is the donor; relevant accretor details are passed as parameters.
  * Critical mass ratio is defined as qCrit = mAccretor/mDonor.
  *
- * double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) 
+ * double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate)
  *
  * @param   [IN]    p_AccretorIsDegenerate      Boolean indicating if accretor in degenerate (true = degenerate)
- * @return                                      Critical mass ratio for unstable MT 
+ * @return                                      Critical mass ratio for unstable MT
  */
 double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate) const {
 
@@ -1051,7 +1051,7 @@ double HG::CalculateCriticalMassRatioClaeys14(const bool p_AccretorIsDegenerate)
     qCrit = p_AccretorIsDegenerate
                 ? OPTIONS->MassTransferCriticalMassRatioHGDegenerateAccretor()              // degenerate accretor
                 : OPTIONS->MassTransferCriticalMassRatioHGNonDegenerateAccretor();          // non-degenerate accretor
-                                                                                                                        
+
     return qCrit;
 }
 
@@ -1100,7 +1100,7 @@ void HG::UpdateAgeAfterMassLoss() {
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass0, tBGBprime);
 
     m_Age = tMSprime + (((tBGBprime - tMSprime) / (tBGB - tMS)) * (m_Age - tMS));
-    
+
     CalculateTimescales(m_Mass0, m_Timescales);
 }
 
@@ -1124,26 +1124,26 @@ void HG::UpdateAgeAfterMassLoss() {
  * @return                                      ENVELOPE::{ RADIATIVE, CONVECTIVE, REMNANT }
  */
 ENVELOPE HG::DetermineEnvelopeType() const {
- 
+
     ENVELOPE envelope = ENVELOPE::RADIATIVE;                                                         // default envelope type
-    
+
     switch (OPTIONS->EnvelopeStatePrescription()) {                                                  // which envelope prescription?
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::LEGACY:
             envelope = ENVELOPE::RADIATIVE;
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::HURLEY:
             // eq. (39,40) of Hurley+ (2002) and end of section 7.2 of Hurley+ (2000) describe gradual
             // growth of convective envelope over HG, but we approximate it as already convective here
             envelope = ENVELOPE::CONVECTIVE;
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::FIXED_TEMPERATURE:
             // envelope is radiative if temperature exceeds fixed threshold, otherwise convective
             envelope =  utils::Compare(Temperature() * TSOL, OPTIONS->ConvectiveEnvelopeTemperatureThreshold()) > 0 ? ENVELOPE::RADIATIVE : ENVELOPE::CONVECTIVE;
             break;
-            
+
         case ENVELOPE_STATE_PRESCRIPTION::CONVECTIVE_MASS_FRACTION:
             // envelope is labeled convective when the convective mass exceeds a fixed fraction of the envelope mass
             double convectiveEnvelopeMass, convectiveEnvelopeMassMax;
@@ -1159,9 +1159,9 @@ ENVELOPE HG::DetermineEnvelopeType() const {
             // The correct fix for this is to add code for the missing prescription or, if the missing
             // prescription is superfluous, remove it from the option.
 
-            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error               
+            THROW_ERROR(ERROR::UNKNOWN_ENVELOPE_STATE_PRESCRIPTION);                                // throw error
     }
-    
+
     return envelope;
 }
 
@@ -1181,7 +1181,7 @@ double HG::ChooseTimestep(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double dtk = 0.05 * (timescales(tBGB) - timescales(tMS));
-    double dte = timescales(tBGB) - p_Time;    
+    double dte = timescales(tBGB) - p_Time;
 
     return std::max(std::min(dtk, dte), NUCLEAR_MINIMUM_TIMESTEP);
 
@@ -1238,7 +1238,7 @@ STELLAR_TYPE HG::ResolveEnvelopeLoss(bool p_Force) {
             stellarType  = STELLAR_TYPE::NAKED_HELIUM_STAR_MS;
 
             m_Mass0      = m_Mass;
-            m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);          
+            m_Radius     = HeMS::CalculateRadiusAtZAMS_Static(m_Mass);
             m_Luminosity = HeMS::CalculateLuminosityAtZAMS_Static(m_Mass);
             m_Age        = 0.0;                                                 // can't use Hurley et al. 2000, eq 76 here - timescales(tHe) not calculated yet
         }
@@ -1269,7 +1269,7 @@ STELLAR_TYPE HG::EvolveToNextPhase() {
     }
     else {
         stellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;
-    }    
+    }
 
     return stellarType;
 

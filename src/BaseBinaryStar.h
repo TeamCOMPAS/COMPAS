@@ -48,7 +48,7 @@ public:
         m_Unbound                          = p_Star.m_Unbound;
 
         m_DCOFormationTime                 = p_Star.m_DCOFormationTime;
-        
+
         m_Dt                               = p_Star.m_Dt;
 
         m_Eccentricity                     = p_Star.m_Eccentricity;
@@ -58,7 +58,7 @@ public:
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
 
         m_Flags                            = p_Star.m_Flags;
-        
+
         m_FractionAccreted                 = p_Star.m_FractionAccreted;
 
         m_CosIPrime                        = p_Star.m_CosIPrime;
@@ -71,14 +71,14 @@ public:
 
         m_MassEnv1                         = p_Star.m_MassEnv1;
         m_MassEnv2                         = p_Star.m_MassEnv2;
-        
+
         m_MassLossRateInRLOF               = p_Star.m_MassLossRateInRLOF;
 
         m_aMassLossDiff                    = p_Star.m_aMassLossDiff;
 
         m_MassTransfer                     = p_Star.m_MassTransfer;
         m_aMassTransferDiff                = p_Star.m_aMassTransferDiff;
-        
+
         m_MassTransferTimescale            = p_Star.m_MassTransferTimescale;
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
@@ -103,8 +103,8 @@ public:
         m_SystemicVelocity                 = p_Star.m_SystemicVelocity;
         m_NormalizedOrbitalAngularMomentumVector = p_Star.m_NormalizedOrbitalAngularMomentumVector;
         m_ThetaE                           = p_Star.m_ThetaE;
-        m_PhiE                             = p_Star.m_PhiE;  
-        m_PsiE                             = p_Star.m_PsiE;  
+        m_PhiE                             = p_Star.m_PhiE;
+        m_PsiE                             = p_Star.m_PsiE;
 
         m_Time                             = p_Star.m_Time;
         m_TimePrev                         = p_Star.m_TimePrev;
@@ -310,7 +310,7 @@ private:
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
     double              m_CircularizationTimescale;
-   
+
     bool                m_Unbound;                                                          // Binary unbound?
 
     double              m_Dt;                                                               // Timestep
@@ -336,7 +336,7 @@ private:
     double	            m_FractionAccreted;	                                                // Fraction of mass accreted from the donor during mass transfer
 
     double              m_CosIPrime;
-    double              m_IPrime;  
+    double              m_IPrime;
 
     double	            m_JLoss;			                                                // Specific angular momentum with which mass is lost during non-conservative mass transfer
 
@@ -345,14 +345,14 @@ private:
 
     double              m_MassEnv1;                                                         // Star1 envelope mass in Msol
     double              m_MassEnv2;                                                         // Star2 envelope mass in Msol
-    
+
     double              m_MassLossRateInRLOF;                                               // Rate of mass loss from donor during mass transfer (Msol/Myr)
 
     double              m_aMassLossDiff;
 
     bool                m_MassTransfer;
     double              m_aMassTransferDiff;
-    
+
     MT_TIMESCALE        m_MassTransferTimescale;
 
     MT_TRACKING         m_MassTransferTrackerHistory;
@@ -375,9 +375,9 @@ private:
     Vector3d            m_SystemicVelocity;                                                 // Systemic velocity vector, relative to ZAMS Center of Mass
     Vector3d            m_NormalizedOrbitalAngularMomentumVector;                           // Orbital AM vector postSN, in preSN frame
     double              m_ThetaE;                                                           // Euler Theta
-    double              m_PhiE;                                                             // Euler Phi                
+    double              m_PhiE;                                                             // Euler Phi
     double              m_PsiE;                                                             // Euler Psi
-    
+
     double              m_Time;                                                             // Physical simulation time
     double              m_TimePrev;                                                         // Previous simulation time
     double              m_TimeToCoalescence;                                                // Coalescence time
@@ -439,7 +439,7 @@ private:
     double  CalculateDEccentricityTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     double  CalculateDOmegaTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
     double  CalculateDSemiMajorAxisTidalDt(const DBL_DBL_DBL_DBL p_ImKnm, const BinaryConstituentStar* p_Star);
-    
+
     static double CalculateGammaAngularMomentumLoss_Static(const double p_DonorMass, const double p_AccretorMass, const bool p_IsAccretorDegenerate, const bool p_IsCommonEnvelope);
     double  CalculateGammaAngularMomentumLoss(const double p_DonorMass, const double p_AccretorMass) { return CalculateGammaAngularMomentumLoss_Static(p_DonorMass, p_AccretorMass, m_Accretor->IsDegenerate(), false); }
     double  CalculateGammaAngularMomentumLoss()                                 { return CalculateGammaAngularMomentumLoss(m_Donor->Mass(), m_Accretor->Mass()); }
@@ -454,15 +454,15 @@ private:
                                        const double                 p_FractionAccreted,
                                        const bool                   p_IsCommonEnvelope);
 
-    
+
     double  CalculateMassTransferOrbit(const double                 p_DonorMass,
-                                       const double                 p_DeltaMassDonor, 
-                                             BinaryConstituentStar& p_Accretor, 
+                                       const double                 p_DeltaMassDonor,
+                                             BinaryConstituentStar& p_Accretor,
                                        const double                 p_FractionAccreted,
                                        const bool                   p_IsCommonEnvelope) { return CalculateMassTransferOrbit(p_DonorMass, p_DeltaMassDonor, p_Accretor.Mass(), p_Accretor.IsDegenerate(), p_FractionAccreted, p_IsCommonEnvelope); }
 
-    
-    
+
+
     void    CalculateWindsMassLoss(double p_Dt);
     void    InitialiseMassTransfer();
 
@@ -504,8 +504,8 @@ private:
     void    ResolveMainSequenceMerger();
     void    ResolveMassChanges();
     void    ResolveSupernova();
-    
-    
+
+
 
 
     void    SetInitialValues(const unsigned long int p_Seed, const long int p_Id);
@@ -523,10 +523,10 @@ private:
                             const double p_RocheLobe2to1);
 
     bool    ShouldResolveNeutrinoRocketMechanism() const                        { return (OPTIONS->RocketKickMagnitude1() > 0) || (OPTIONS->RocketKickMagnitude2() > 0); }
-    
+
     void    StashRLOFProperties(const MT_TIMING p_Which);
 
-    void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; } 
+    void    UpdateSystemicVelocity(Vector3d p_newVelocity)                      { m_SystemicVelocity += p_newVelocity; }
 
     // printing functions
 
@@ -543,35 +543,35 @@ private:
     }
 
     bool PrintRLOFParameters(const RLOF_RECORD_TYPE p_RecordType = RLOF_RECORD_TYPE::DEFAULT);
-    
-    bool PrintSystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const { 
+
+    bool PrintSystemParameters(const BSE_SYSPARMS_RECORD_TYPE p_RecordType = BSE_SYSPARMS_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESystemParameters(this, p_RecordType);
     }
-    
-    bool PrintSystemSnapshotLog(const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType = BSE_SYSTEM_SNAPSHOT_RECORD_TYPE::DEFAULT) const { 
+
+    bool PrintSystemSnapshotLog(const BSE_SYSTEM_SNAPSHOT_RECORD_TYPE p_RecordType = BSE_SYSTEM_SNAPSHOT_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESystemSnapshotLog(this, p_RecordType);
     }
-    
+
     bool PrintDetailedOutput(const long int p_Id, const BSE_DETAILED_RECORD_TYPE p_RecordType) const {
         return OPTIONS->DetailedOutput() ? LOGGING->LogBSEDetailedOutput(this, p_Id, p_RecordType) : true;
     }
-    
+
     bool PrintDoubleCompactObjects(const DCO_RECORD_TYPE p_RecordType = DCO_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogDoubleCompactObject(this, p_RecordType);
     }
-    
+
     bool PrintCommonEnvelope(const CE_RECORD_TYPE p_RecordType = CE_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
     }
-    
+
     bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType) const {
         return OPTIONS->EvolvePulsars() ? LOGGING->LogBSEPulsarEvolutionParameters(this, p_RecordType) : true;
     }
-    
+
     bool PrintSupernovaDetails(const BSE_SN_RECORD_TYPE p_RecordType = BSE_SN_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogBSESupernovaDetails(this, p_RecordType);
     }
-    
+
     /*
      * Functor for MassLossToFitInsideRocheLobe()
      *
@@ -585,13 +585,13 @@ private:
      * @param   [IN]    p_FractionAccreted          The fraction of the donated mass accreted by the accretor (if known in advance, otherwise zero)
      * @param   [IN]    p_Dt                        Time step duration (relevant for nuclear timescale mass transfer)
      * @param   [IN]    p_Error                     (Address of variable to record) Error encountered in functor
-     * 
+     *
      * Function: calculate radius difference after mass loss
      * T RadiusEqualsRocheLobeFunctor(double const& p_dM)
-     * 
+     *
      * @param   [IN]    p_dM                        Mass to be donated
      * @return                                      Difference between star's Roche Lobe radius and radius after mass loss
-     */    
+     */
     template <class T>
     struct RadiusEqualsRocheLobeFunctor {
         RadiusEqualsRocheLobeFunctor(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_Dt, ERROR *p_Error) {
@@ -613,22 +613,22 @@ private:
             double accretorMass  = m_Accretor->Mass();
             // use stale value of accretor RL radius -- this is only relevant for nuclear timescale MT, when the change in accretor RL radius should be small
             double accretorRLradius = CalculateRocheLobeRadius_Static(accretorMass, donorMass) * AU_TO_RSOL * m_Binary->SemiMajorAxis() * (1.0 - m_Binary->Eccentricity());
-            
+
             // beta is the actual accretion efficiency; if p_FractionAccreted is negative (placeholder
             // for nuclear timescale accretion efficiency, for which the total accretion mass over the
             // duration of the timestep is known), then must estimate it on the fly for consistency
             double beta = m_FractionAccreted;
             if (utils::Compare(beta, 0.0) < 0) {
                 std::tie(std::ignore, beta) = m_Accretor->CalculateMassAcceptanceRate(p_dM / m_Dt,
-                                              m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), 
+                                              m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius),
                                               m_Donor->IsOneOf(He_RICH_TYPES));
             }
-            
+
             double semiMajorAxis = m_Binary->CalculateMassTransferOrbit(donorMass, -p_dM , *m_Accretor, beta, false);
             double RLRadius      = semiMajorAxis * (1.0 - m_Binary->Eccentricity()) * CalculateRocheLobeRadius_Static(donorMass - p_dM, accretorMass + (beta * p_dM)) * AU_TO_RSOL;
-            
+
             double radiusAfterMassLoss = m_Donor->CalculateRadiusOnMassChange(-p_dM);
-            
+
             return (RLRadius - radiusAfterMassLoss);
         }
     private:
@@ -642,9 +642,9 @@ private:
 
 
     double MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, BinaryConstituentStar *p_Donor, BinaryConstituentStar *p_Accretor, double p_FractionAccreted, double p_MaximumAccretedMass);
-    
+
     double OmegaAfterSynchronisation(const double p_M1, const double p_M2, const double p_I1, const double p_I2, const double p_Ltot, const double p_Guess);
-    
+
 };
 
 #endif // __BaseBinaryStar_h__

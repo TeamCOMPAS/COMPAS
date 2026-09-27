@@ -1,9 +1,9 @@
 h5copy.py
 =========
 
-This program copies ``COMPAS_Output.h5`` ``HDF5`` file(s) [but not ``Detailed_Ouput`` files] to a designated output ``HDF5`` file. 
-If the output file is an existing ``HDF5`` file, the user can specify whether the existing content should be erased before copying 
-begins, or whether the copied data should be appended to the existing data. If multiple files are given as input files, the 
+This program copies ``COMPAS_Output.h5`` ``HDF5`` file(s) [but not ``Detailed_Ouput`` files] to a designated output ``HDF5`` file.
+If the output file is an existing ``HDF5`` file, the user can specify whether the existing content should be erased before copying
+begins, or whether the copied data should be appended to the existing data. If multiple files are given as input files, the
 resultant ``HDF5`` file is the concatenation of the input files.
 
 Use this program either with:
@@ -71,8 +71,8 @@ h5copy usage
         list of input groups to be excluded (default is all groups will be copied)
 
 
-    Note: if the -x option is specified, it should be specified at the end of the options 
-          list (i.e. the list of input files can't follow the -x option or the list of input 
+    Note: if the -x option is specified, it should be specified at the end of the options
+          list (i.e. the list of input files can't follow the -x option or the list of input
           files will be subsumed by the list of groups to be excluded)
 
 
@@ -82,20 +82,20 @@ h5copy functionality overview
 Output file
 ~~~~~~~~~~~
 
-- If the specified ``HDF5`` output file does not exist, it will be created, and data from the input file(s) will be appended 
+- If the specified ``HDF5`` output file does not exist, it will be created, and data from the input file(s) will be appended
   to the new output file.
 
-- If the specified ``HDF5`` output file does exist, and the ``--erase-ouput [-e]`` command-line option is not specified, the 
-  existing output file will be preserved and data from the input file(s) will be appended to the existing output file if the 
-  output file was created with chunking enabled (see :ref:`HDF5-chunking` - only files that were created with chunking enabled 
+- If the specified ``HDF5`` output file does exist, and the ``--erase-ouput [-e]`` command-line option is not specified, the
+  existing output file will be preserved and data from the input file(s) will be appended to the existing output file if the
+  output file was created with chunking enabled (see :ref:`HDF5-chunking` - only files that were created with chunking enabled
   can be extended).
 
-  Attempting to append data to an existing ``HDF5`` file that was not created with chunking enabled will result in the following 
+  Attempting to append data to an existing ``HDF5`` file that was not created with chunking enabled will result in the following
   message being displayed for each dataset::
 
       Only chunked datasets can be resized
 
-  If that happens, using ``h5copy.py`` to copy the output file to a new file will copy the existing data and create the new file 
+  If that happens, using ``h5copy.py`` to copy the output file to a new file will copy the existing data and create the new file
   with chunking enabled - the newly created file can then be used as a base file to which other files can be appended.
 
 - If the specified ``HDF5`` output file does exist, and the ``--erase-ouput [-e]`` command-line option is specified, the existing
@@ -106,39 +106,39 @@ Output file
 Appending data
 ##############
 
-   (a) if a group in an input file already exists in the output file, then the group data (the datasets within the group) will only 
-       be copied if the number of datasets in the input file group matches the number of datasets in the output file group. If there 
-       is a mismatch a warning will be issued and the group will not be copied (but the file copy will continue, just as though the 
-       group had been excluded) 
-   
-   (b) if a dataset in an input file does not exist in the output file, the dataset will be created, otherwise the data copied will 
+   (a) if a group in an input file already exists in the output file, then the group data (the datasets within the group) will only
+       be copied if the number of datasets in the input file group matches the number of datasets in the output file group. If there
+       is a mismatch a warning will be issued and the group will not be copied (but the file copy will continue, just as though the
+       group had been excluded)
+
+   (b) if a dataset in an input file does not exist in the output file, the dataset will be created, otherwise the data copied will
        be appended to the existing dataset.
 
 
 Input files
 ~~~~~~~~~~~
 
-A list of input filenames and or directory names must be supplied. The list can be a single name. Each name in the list is processed 
-in order. If a name is the name of a file with the file extension `.h5`, the contents of the file will be copied to the output file, 
-otherwise it will be ignored. If a name is the name of a directory and the specified recursion level requires that the directory be 
-processed (see command-line option ``--recursive [-r]``), the program will descend into the directory and process all files and 
-directories there (directories will be processed depending upon the value of the ``--recursive [-r]`` option), otherwise it will be 
+A list of input filenames and or directory names must be supplied. The list can be a single name. Each name in the list is processed
+in order. If a name is the name of a file with the file extension `.h5`, the contents of the file will be copied to the output file,
+otherwise it will be ignored. If a name is the name of a directory and the specified recursion level requires that the directory be
+processed (see command-line option ``--recursive [-r]``), the program will descend into the directory and process all files and
+directories there (directories will be processed depending upon the value of the ``--recursive [-r]`` option), otherwise it will be
 ignored.
 
-The command-line option ``--recursive [-r]`` specifies whether recursion is enabled for directory processing, and if it is, to what 
+The command-line option ``--recursive [-r]`` specifies whether recursion is enabled for directory processing, and if it is, to what
 depth:
 
-    - If the ``--recursive [-r]`` option is not specified, recursion is not enabled and only files in the specified working directory 
+    - If the ``--recursive [-r]`` option is not specified, recursion is not enabled and only files in the specified working directory
       will be candidates for copying.
 
-    - if ``--recursive [-r]`` is specified with no ``depth`` value, recursion is enabled and the depth is not limited - that is, all 
-      files in the specified working directory, and all files in all directories below the specified working directory, will be 
+    - if ``--recursive [-r]`` is specified with no ``depth`` value, recursion is enabled and the depth is not limited - that is, all
+      files in the specified working directory, and all files in all directories below the specified working directory, will be
       candidates for copying.
-    
+
     - If ``--recursive [-r]`` is specified with a specified ``depth`` value, recursion is enabled and the depth is limited to the
       depth specified - that is, all files in the specified working directory, and all files in all directories `depth` levels below
       the specified working directory, will be candidates for copying.
-    
+
 
 #####################
 Input filename filter
@@ -163,7 +163,7 @@ files.  If ``--exclude [-x]`` is not specified, all groups in all candidate file
 Erase output
 ~~~~~~~~~~~~
 
-If the ``--erase-ouput [-e]`` command-line option is specified and the output file (specified or default) exists, it will be erased before 
+If the ``--erase-ouput [-e]`` command-line option is specified and the output file (specified or default) exists, it will be erased before
 copying begins.  The ``--erase-ouput [-e]`` command-line option is ignored if the output file does not exist.
 
 If ``--erase-ouput [-e]`` is not specified and the output file (specified or default) exists, the existing content will be preserved and any
