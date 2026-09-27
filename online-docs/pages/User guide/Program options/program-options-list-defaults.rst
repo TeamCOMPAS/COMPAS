@@ -207,6 +207,15 @@ Default = ZERO
 Recombination energy density (erg g−1). |br|
 Default = :math:`1.5 \times 10^{13}`
 
+**common-envelope-second-stage-beta** |br|
+The fraction of the mass lost during the second stage of a 2-stage common envelope that is accreted. |br|
+Default = 0
+ 
+**--common-envelope-second-stage-gamma-prescription** |br|
+The specific angular momentum prescription for mass lost during the second stage of a 2-stage common envelope event. |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, KLENCKI_LINEAR, MACLEOD_LINEAR, ARBITRARY, MIN } |br|
+Default = ISOTROPIC
+
 **--common-envelope-slope-kruckow** |br|
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
@@ -894,7 +903,7 @@ Default = THERMAL
 
 **--mass-transfer-angular-momentum-loss-prescription** |br|
 Mass Transfer Angular Momentum Loss prescription. |br|
-Options: { JEANS, ISOTROPIC, CIRCUMBINARY, KLENCKI_LINEAR, MACLEOD_LINEAR, ARBITRARY } |br|
+Options: { JEANS, ISOTROPIC, CIRCUMBINARY, KLENCKI_LINEAR, MACLEOD_LINEAR, ARBITRARY, MIN } |br|
 Default = ISOTROPIC
 
 **--mass-transfer-fa** |br|
@@ -1571,7 +1580,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive, 
 --common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, 
 --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, 
---revised-energy-formalism-nandez-ivanova
+--revised-energy-formalism-nandez-ivanova, common-envelope-second-stage-beta, common-envelope-second-stage-gamma-prescription
 
 :ref:`Back to Top <options-props-top>`
 

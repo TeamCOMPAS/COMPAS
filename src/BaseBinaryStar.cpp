@@ -1864,6 +1864,8 @@ double BaseBinaryStar::CalculateGammaAngularMomentumLoss_Static(const double p_D
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::JEANS                : gamma = p_AccretorMass / p_DonorMass; break;             // vicinity of the donor 
 
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ISOTROPIC_RE_EMISSION: gamma = p_DonorMass / p_AccretorMass; break;             // vicinity of the accretor
+            
+        case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::MIN:                   gamma = std::min(p_AccretorMass / p_DonorMass, p_DonorMass / p_AccretorMass); break; // the smaller of isotropic re-emission and Jeans mode mass loss
         
         case MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION::ARBITRARY            : gamma = OPTIONS->MassTransferJloss(); break;
 
@@ -2179,6 +2181,15 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 massDiffDonor     = -envMassDonor;
                 isEnvelopeRemoved = true;
             }
+            if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL && OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && m_Donor->DetermineEnvelopeType() == ENVELOPE::CONVECTIVE) {
+                // check if pulsations remove envelope in the middle of mass transfer; if so, only remove envelope up to that point during mass transfer, leave pulsation itself to next time step
+                double massPulsation    = m_Donor->Luminosity() / PPOW(10.0, OPTIONS->LuminosityToMassThreshold());     // mass at which the pulsation threshold would be passed, log_10 (L/M) = LuminosityToMassThreshold, assumes unchanged L
+                if(massPulsation > m_Donor->CoreMass()) {
+                    massDiffDonor = m_Donor->Mass() - massPulsation;
+                    isEnvelopeRemoved = false;
+                }
+            }
+                
             else
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
         }
@@ -2626,7 +2637,7 @@ void BaseBinaryStar::ResolveMassChanges() {
     // assume the entire envelope was lost on timescales long relative to the orbit
     if (m_Star1->EnvelopeJustExpelledByPulsations() || m_Star2->EnvelopeJustExpelledByPulsations()) {
         // update separation in response to pulsational mass loss
-        m_SemiMajorAxis /= (2.0 - ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (m_Star1->Mass() + m_Star2->Mass())));
+        m_SemiMajorAxis *= ((m_Star1->MassPrev() + m_Star2->MassPrev()) / (m_Star1->Mass() + m_Star2->Mass())); // conserve a*M
         m_Star1->ResetEnvelopeExpulsationByPulsations();
         m_Star2->ResetEnvelopeExpulsationByPulsations();
     }
