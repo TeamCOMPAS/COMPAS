@@ -5,6 +5,8 @@ repos:
     rev: v6.0.0
     hooks:
     -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+        exclude: '\.(md|bib)$'
 
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.4
