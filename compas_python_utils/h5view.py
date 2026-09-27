@@ -223,7 +223,7 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
 
                 try:
                     uniqueSeedsStr = str(len(np.unique(h5file[group]['SEED'])))
-                except Exception as e:
+                except Exception:
                     uniqueSeedsStr = " "
 
                 print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}   {:>' + str(max(12, widthEntries)) + '}')

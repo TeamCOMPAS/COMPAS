@@ -283,8 +283,6 @@ printCompasDetails(DCs, [1636090389, 1636091089, 1636091116])
 
 def calculateTotalMassesOptimized(pathData=None):
     Data  = h5.File(pathToData)
-    
-    totalMasses = []
         
     # Retrieve the categories
     SPs = Data['BSE_System_Parameters']
@@ -334,8 +332,6 @@ print(np.array_equal(mTotOld, mTotNew))
 
 def calculateTotalMassesDNS(pathToData=None):
     Data  = h5.File(pathToData)
-    
-    totalMasses = []
     
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
