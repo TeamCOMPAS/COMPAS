@@ -10,4 +10,3 @@ being described by a separate ``C++`` class.
 
    BSE-class-hierarchy
    BSE-evolution-model
-

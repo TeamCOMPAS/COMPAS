@@ -161,4 +161,3 @@ This should produce an output put similar to::
 
     Clock time = 0.0625 CPU seconds
     Wall time  = 0000:00:00 (hhhh:mm:ss)
-

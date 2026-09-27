@@ -132,4 +132,3 @@ respects.  See :doc:`./COMPAS-local-build` for a detailed description of the loc
 .. [#f9] https://docs.docker.com/engine/reference/builder/#copy
 .. [#f10] https://docs.docker.com/engine/reference/builder/#env
 .. [#f11] https://docs.docker.com/engine/reference/builder/#cmd
-

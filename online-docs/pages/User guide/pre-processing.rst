@@ -171,4 +171,3 @@ In the following example template:
 - The string beginning with *"# Default: "* and extending to the next *'#'* on line 0011 will not be preserved (but will be replaced by COMPAS).
 - The string beginning with *"# Options: "* and extending to the next *'#'* (or, in this case because there is no subsequent *'#'*, the end of the line) on line 0011 will not be preserved (but will be replaced by COMPAS).
 - The comment *"third comment"* on line 0011 will not be preserved - there is no *"# "* prefix, so it will be subsumed by the *"# Options: "* string (which extends from *"# Options: "* to the end of the line).
-

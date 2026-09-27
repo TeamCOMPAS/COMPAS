@@ -434,4 +434,3 @@ void BinaryConstituentStar::SetMassTransferDiffAndResolveWDShellChange(const dou
     m_MassTransferDiff = p_MassTransferDiff; 
     ResolveShellChange(p_MassTransferDiff);       // only applies to WDs
 }
-

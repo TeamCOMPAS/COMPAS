@@ -36,6 +36,3 @@ Open the notebook of interest and set the path to your personal COMPASOutput.h5
 
 
 Good luck.... 
-
-
-

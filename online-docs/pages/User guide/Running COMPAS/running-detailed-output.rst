@@ -41,4 +41,3 @@ This should produce a plot similar to :ref:`Figure 5 <fig-5>`:
     Figure 5 Example COMPAS run.
 
 COMPAS provides many tools for analysing and post-processing the data - see :doc:`../Post-processing/post-processing` for more details.
-

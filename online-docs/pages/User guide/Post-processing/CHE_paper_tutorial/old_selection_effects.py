@@ -298,4 +298,3 @@ def detection_probability_from_snr(snr_value, snr_threshold, n_thetas=1e6):
         # If the original arg was 0-dimensional (scalar), return a scalar.
         return detection_prob[0]
     return detection_prob.reshape(np.array(snr_value).shape)
-

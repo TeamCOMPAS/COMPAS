@@ -40,4 +40,3 @@ Default record definition for the BSE Supernovae log file::
         SUPERNOVA_PROPERTY::IS_HYDROGEN_POOR,
         BINARY_PROPERTY::SUPERNOVA_ORBIT_INCLINATION_ANGLE, 
     };
-

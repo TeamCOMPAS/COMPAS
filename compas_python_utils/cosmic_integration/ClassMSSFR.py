@@ -721,4 +721,3 @@ class MSSFR(object):
 
         self.customLogNormal = [Z0, alpha, sigma]
         """)
-

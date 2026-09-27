@@ -22,4 +22,3 @@ Default record definition for the SSE Detailed Output log file::
         STAR_PROPERTY::DOMINANT_MASS_LOSS_RATE,
         STAR_PROPERTY::TIMESCALE_MS
     };
-

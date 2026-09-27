@@ -156,4 +156,3 @@ function [h, Aeff, psiEff] = IMRSAWaveform (fVec, totalMass, eta, chi, startPhas
                 psi4*v.^4 + psi5*v.^5 + psi6*v.^6 + psi7*v.^7 + psi8*v.^8);
 
     h = Aeff.*exp(1i*(-psiEff)); 
-

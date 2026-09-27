@@ -3711,4 +3711,3 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
 
     return evolutionStatus;
 }
-

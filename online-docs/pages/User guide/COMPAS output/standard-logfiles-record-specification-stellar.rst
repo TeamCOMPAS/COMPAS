@@ -2451,4 +2451,3 @@ A convenience function (shown below) is provided in ``utils.cpp`` to interpret t
 
         return SN EVENT::NONE;
     }
-

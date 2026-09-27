@@ -544,4 +544,3 @@ Added mass accretion prescription during CE ``CHEVALIER`` for option ``--common-
 * Added Nanjing lambda option to switch between calculation using rejuvenated mass and true birth mass
 * Added Nanjing lambda mass and metallicity interpolation options
 * No change in default behaviour
-

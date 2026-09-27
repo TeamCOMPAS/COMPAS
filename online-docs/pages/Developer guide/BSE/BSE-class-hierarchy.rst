@@ -51,4 +51,3 @@ The ``BaseBinaryStar`` class is the main class for the underlying binary star ob
 class defines all member variables that pertain specifically to a binary star, and many member functions that provide binary-star specific 
 functionality. Internally, the ``BaseBinaryStar`` class maintains pointers to the two BinaryConstituentStar class objects that constitute the 
 binary star.
-

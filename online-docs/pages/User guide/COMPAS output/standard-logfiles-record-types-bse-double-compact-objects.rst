@@ -5,4 +5,3 @@ Following is a list of the BSE Double Compast Objects file record type numbers a
 
 1. DEFAULT |BR|
    Default BSE_DOUBLE_COMPACT_OBJECTS file record type
-

@@ -81,4 +81,3 @@ Standard log file names are supplied via program options (e.g. ``--logfile-syste
 The extended logging service always sets the log record ``class`` to the name of the standard log file being written to, and the
 log record ``level`` to 0.  See :doc:`./Base-level logging/services-base-level-logging` for details regarding log record ``class``
 and ``level``.
-

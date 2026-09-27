@@ -2095,4 +2095,3 @@ DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will s
      - Value of program option ``--zeta-radiative-envelope-giant``
    * - Header String:
      - PO_Zeta_Radiative_Envelope_Giant
-

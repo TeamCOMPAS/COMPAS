@@ -31,4 +31,3 @@
 
 .. role:: bolditalictext
   :class: bolditalictext
-

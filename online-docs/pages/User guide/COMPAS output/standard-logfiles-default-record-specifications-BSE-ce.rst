@@ -83,4 +83,3 @@ Default record definition for the BSE Common Envelopes log file::
         BINARY_PROPERTY::IMMEDIATE_RLOF_POST_COMMON_ENVELOPE,
         BINARY_PROPERTY::SIMULTANEOUS_RLOF
     };
-

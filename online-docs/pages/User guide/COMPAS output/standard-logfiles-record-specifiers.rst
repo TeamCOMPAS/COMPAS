@@ -27,4 +27,3 @@ in the detailed output files (BSE and SSE), and is currently unly used in those 
 all standard log files are printed to the log files by default, but records of specific record types can be enabled and disabled using the
 appropriate program option (see e.g. ``--logfile-detailed-output-record-types`` in :doc:`../Program options/program-options-list-defaults` for the 
 detailed output files).
-

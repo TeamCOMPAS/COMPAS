@@ -60,4 +60,3 @@ plain text - COMPAS will read the plain text and convert it to a floating-point 
 
 
 COMPAS imposes a hard limit of ``1,000,000`` timesteps in a timesteps file.
-

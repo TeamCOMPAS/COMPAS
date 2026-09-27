@@ -29,4 +29,3 @@ The ``THROW_ERROR*`` macros (see :doc:`../../Developer guide/Services/services-e
 A convenience function for retrieving the error text is #defined here:
 
     #define ERR_MSG(x) std::get<1>(ERROR_CATALOG.at(x))
-

@@ -185,4 +185,3 @@ log file(s). In such situations, it is likely that the annotation headers and st
 for each system in a grid file, and so will be recorded in the ``Run_Details`` file - so removing the ``PROGRAM_OPTION::NOTES`` property
 from the log file record specifications will prevent them from being repeated needlessly in the log files, and they can be retrieved as
 required from the ``Run_Details`` file.
-

@@ -440,6 +440,3 @@ function MakePlots(M1,M2,Z,Tdelay,zlistformation,Zlist,SFR,Zweight,...
 
 
 end %end of MakePlots
-
-
-

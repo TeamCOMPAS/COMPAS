@@ -589,4 +589,3 @@ double NS::ResolveCommonEnvelopeAccretion(const double p_FinalMass,
                                           const double p_CompanionEnvelope) {
     return CalculateMassAccretedForCO(Mass(), p_CompanionMass, p_CompanionRadius, p_CompanionEnvelope);
 }
-

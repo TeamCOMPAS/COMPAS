@@ -168,4 +168,3 @@ copying begins.  The ``--erase-ouput [-e]`` command-line option is ignored if th
 
 If ``--erase-ouput [-e]`` is not specified and the output file (specified or default) exists, the existing content will be preserved and any
 data copied to the file will be appended to the existing data.
-

@@ -23,4 +23,3 @@ SSE system parameters
         PROGRAM_OPTION::WR_FACTOR,
         PROGRAM_OPTION::NOTES
     };
-

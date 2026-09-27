@@ -122,4 +122,3 @@ Contents information displays, for each COMPAS file in the ``HDF5`` file:
 
           Note that printing only seeds specified in a list of seeds could be slow - we effectively have to look through the 
           entire dataset looking for the seeds required.
-
