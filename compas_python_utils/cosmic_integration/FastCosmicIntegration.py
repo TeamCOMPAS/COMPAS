@@ -250,7 +250,7 @@ def compute_snr_and_detection_grids(dco_type, sensitivity="O1", snr_threshold=8.
     """
     # If DCO type includes a WD, return empty arrays since we currently only support LVK sensitivity
     if dco_type in ["WDWD", "NSWD", "WDBH"]:
-        warnings.warn("!! Detected rate is not computed since DCO type {} doesn't work with LVK sensitivity {}".format(dco_type, sensitivity))
+        warnings.warn(f"!! Detected rate is not computed since DCO type {dco_type} doesn't work with LVK sensitivity {sensitivity}")
 
     # get interpolator given sensitivity
     interpolator = selection_effects.SNRinterpolator(sensitivity)
@@ -419,7 +419,7 @@ def find_detection_rate(path, dco_type="BHBH", merger_output_filename=None, weig
 
 
     for arg, arg_str in nonnegative_args:
-        assert arg >= 0.0, "{} must be nonnegative".format(arg_str)
+        assert arg >= 0.0, f"{arg_str} must be nonnegative"
 
     # warn if input is not advisable
     if redshift_step > max_redshift_detection:
@@ -570,7 +570,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
 
         #################################################
         # Create a new group where we will store data
-        new_rate_group = 'Rates_mu0{}_muz{}_alpha{}_sigma0{}_sigmaz{}'.format(mu0, muz, alpha, sigma0, sigmaz)
+        new_rate_group = f'Rates_mu0{mu0}_muz{muz}_alpha{alpha}_sigma0{sigma0}_sigmaz{sigmaz}'
         if append_binned_by_z:
             new_rate_group  = new_rate_group + '_zBinned'
 
@@ -656,11 +656,11 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
             if rate_list_names[i] in h_new[new_rate_group].keys():
                 del h_new[new_rate_group][rate_list_names[i]]
             # write rates as a new data set
-            dataNew     = h_new[new_rate_group].create_dataset(rate_list_names[i], data=data)
+            h_new[new_rate_group].create_dataset(rate_list_names[i], data=data)
 
     #Always close your files again ;)
     h_new.close()
-    print(('Done with append_rates :) your new files are here: {}'.format(path)))
+    print(f'Done with append_rates :) your new files are here: {path}')
 
 
 
@@ -684,12 +684,8 @@ def delete_rates(path, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0., a
     #Open hdf5 file that we will write on
     print('pathToData', path)
     with h5.File(path, 'r+') as h_new:
-        # The rate info is shaped as BSE_Double_Compact_Objects[COMPAS.DCOmask] , len(redshifts)
-        DCO             = h_new['BSE_Double_Compact_Objects']#
-
-        #################################################
         # Name of the group that has the data stored
-        new_rate_group = 'Rates_mu0{}_muz{}_alpha{}_sigma0{}_sigmaz{}'.format(mu0, muz, alpha, sigma0, sigmaz)
+        new_rate_group = f'Rates_mu0{mu0}_muz{muz}_alpha{alpha}_sigma0{sigma0}_sigmaz{sigmaz}'
         if append_binned_by_z:
             new_rate_group  = new_rate_group + '_zBinned'
 
@@ -699,7 +695,7 @@ def delete_rates(path, mu0=0.035, muz=-0.23, sigma0=0.39, sigmaz=0., alpha=0., a
             h_new.close()
             return
         else:
-            print('You want to remove this group, %s, from the hdf5 file, removing now..'%(new_rate_group))
+            print(f'You want to remove this group, {new_rate_group}, from the hdf5 file, removing now..')
             del h_new[new_rate_group]
             #Always close your files again ;)
             h_new.close()
@@ -777,13 +773,13 @@ def plot_rates(save_dir, formation_rate, merger_rate, detection_rate, redshifts,
     #Plotvalues
 
     # Add text upper left corner
-    axes[0,0].text(0.05, 0.8, "mu0=%s \nmuz=%s \nsigma0=%s \nsigmaz=%s \nalpha=%s"%(mu0,muz,sigma0,sigmaz,alpha), transform=axes[0,0].transAxes, size = fs) 
+    axes[0,0].text(0.05, 0.8, f"mu0={mu0} \nmuz={muz} \nsigma0={sigma0} \nsigmaz={sigmaz} \nalpha={alpha}", transform=axes[0,0].transAxes, size = fs) 
 
     for ax in axes.flatten():
         ax.tick_params(labelsize=0.9*fs)
 
     # Save and show :)
-    plt.savefig(save_dir +'Rate_Info'+"mu0%s_muz%s_alpha%s_sigma0%s_sigmaz%s"%(mu0,muz,alpha,sigma0, sigmaz)+'.png', bbox_inches='tight') 
+    plt.savefig(save_dir +'Rate_Info'+f"mu0{mu0}_muz{muz}_alpha{alpha}_sigma0{sigma0}_sigmaz{sigmaz}"+'.png', bbox_inches='tight') 
     if show_plot:
         plt.show()
     else:
@@ -863,7 +859,7 @@ def parse_cli_args():
 def set_cosmology(cosmology_name="Planck18"):
     # Set cosmology using astropy, print a warning if TNG fit is used with Planck18 cosmology (since TNG uses Planck15)
     if cosmology_name == "Planck18": print("USING PLANCK18 AS COSMOLOGY! If working with TNG fit, you may want to use Planck15 instead for self-consistency.")
-    else: print("Using %s as cosmology!"%cosmology_name)
+    else: print(f"Using {cosmology_name} as cosmology!")
 
     return getattr(importlib.import_module('astropy.cosmology'), cosmology_name)
 

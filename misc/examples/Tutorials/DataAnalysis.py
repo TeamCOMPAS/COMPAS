@@ -205,7 +205,7 @@ mTotOld = calculateTotalMassesNaive(pathData=pathToData)
 end     = time.time()
 timeDiffNaive = end-start
 
-print('%s seconds, using for loops.' %(timeDiffNaive)) 
+print(f'{timeDiffNaive} seconds, using for loops.') 
 # -
 
 # # Optimizing the above loop
@@ -273,7 +273,7 @@ print(mask)
 print(seedsDC)
 print(seedsSP[mask])
 print(m1Zams[mask])
-print("The occurrence rate of DCOs is {}/{}".format(sum(mask), len(mask)))
+print(f"The occurrence rate of DCOs is {sum(mask)}/{len(mask)}")
 # -
 
 printCompasDetails(DCs, [1636090389, 1636091089, 1636091116])
@@ -283,8 +283,6 @@ printCompasDetails(DCs, [1636090389, 1636091089, 1636091116])
 
 def calculateTotalMassesOptimized(pathData=None):
     Data  = h5.File(pathToData)
-    
-    totalMasses = []
         
     # Retrieve the categories
     SPs = Data['BSE_System_Parameters']
@@ -317,9 +315,9 @@ timeDiffOptimized = end-start
 nrDCOs = len(seedsDC)
 
 print('Compare')
-print('%s seconds, using For Loops.'     %(timeDiffNaive)) 
-print('%s seconds, using Optimizations.' %(timeDiffOptimized)) 
-print('Using %s DCO systems'             %(nrDCOs))
+print(f'{timeDiffNaive} seconds, using For Loops.') 
+print(f'{timeDiffOptimized} seconds, using Optimizations.') 
+print(f'Using {nrDCOs} DCO systems')
 # -
 
 # *Note:* The time difference will depend heavily on the number of systems under investigation, as well as the number of bypassed For Loops. If you used the path to the pre-generated tutorial data set (with few, intentionally specified systems), you should see very little improvement. 
@@ -334,8 +332,6 @@ print(np.array_equal(mTotOld, mTotNew))
 
 def calculateTotalMassesDNS(pathToData=None):
     Data  = h5.File(pathToData)
-    
-    totalMasses = []
     
     SPs = Data['BSE_System_Parameters']
     DCs = Data['BSE_Double_Compact_Objects']
@@ -371,7 +367,7 @@ timeDiffDNS = end-start
 # calculate number of DNS systems
 nrDNSs = len(mTotDNS)
     
-print('%s seconds for all %s DNS systems.' %(timeDiffDNS, nrDNSs)) 
+print(f'{timeDiffDNS} seconds for all {nrDNSs} DNS systems.') 
 # -
 
 # The `printCompasDetails` function can also optionally take a mask as argument. This is especially useful for those output categories which have multiple events for a single seed. Using both seeds and mask inputs can help to extract a specific type of event from several for the given seeds.

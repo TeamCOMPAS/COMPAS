@@ -6,7 +6,7 @@ from astropy import constants as c
 
 
 
-class calculate_spin(object):
+class calculate_spin:
     """
     This class calculates the Black Hole (BH) or Neutron Star (NS) spin based on a given spin prescription
     It returns the spin of the compact object M1, and compact object M2    
@@ -20,7 +20,7 @@ class calculate_spin(object):
         if (self.path is None):
             print("Warning: your hdf5 path is set to 'None'")
         elif not  os.path.isfile(data_path):
-            raise ValueError("h5 file not found. Wrong path given?", "path given = %s"%data_path)
+            raise ValueError("h5 file not found. Wrong path given?", f"path given = {data_path}")
         elif os.path.isfile(data_path):
             self.h5file           = h5.File(data_path)
             
@@ -350,7 +350,7 @@ class calculate_spin(object):
 
 
 
-class calculate_spin_olderCOMPASdata(object):
+class calculate_spin_olderCOMPASdata:
     """
     This class calculates the Black Hole (BH) or Neutron Star (NS) spin based on a given spin prescription
     It returns the spin of the compact object M1, and compact object M2    
@@ -364,7 +364,7 @@ class calculate_spin_olderCOMPASdata(object):
         if (self.path is None):
             print("Warning: your hdf5 path is set to 'None'")
         elif not  os.path.isfile(data_path):
-            raise ValueError("h5 file not found. Wrong path given?", "path given = %s"%data_path)
+            raise ValueError("h5 file not found. Wrong path given?", f"path given = {data_path}")
         elif os.path.isfile(data_path):
             self.h5file           = h5.File(data_path)
             
@@ -431,8 +431,6 @@ class calculate_spin_olderCOMPASdata(object):
         self.M1formedSecond =  (whichSN2==1) # mask that is 1 if the  compact object M1 formed first in the DCO
         # did M2 form in the first SN?
         self.M2formedSecond =  (whichSN2==2)  # mask that is 1 if the compact object M2 formed first in the DCO
-        mask_SN1not1or2 = (whichSN2!=1) & (whichSN2!=2)
-        
         
         self.mWR =  fSN['MassStarSN'][...].squeeze()[maskSNdco][1::2]   # obtain the CO core mass before the SNe
 

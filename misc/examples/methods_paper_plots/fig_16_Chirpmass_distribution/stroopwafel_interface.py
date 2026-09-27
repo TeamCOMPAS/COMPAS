@@ -180,7 +180,7 @@ def interesting_systems(batch):
         return sum(dns_mask) #len(dns)
 
     # You probably had no DCO's in your batch
-    except IOError as error:
+    except OSError as error:
         print('You ran into an error, ', error)
         return 0
 
@@ -222,7 +222,6 @@ def rejected_systems(locations, dimensions):
         num_rejected (int): number of systems which can be rejected
     """
     m1 = dimensions[0]
-    q = dimensions[1]
     a = dimensions[2]
     mass_1 = [location.dimensions[m1] for location in locations]
     mass_2 = [location.properties['--initial-mass-2'] for location in locations]
@@ -327,5 +326,6 @@ if __name__ == '__main__':
     sw_object.postprocess(distributions.Gaussian, only_hits = False) #Run it to create weights, if you want only hits in the output, then make only_hits = True
 
     end_time = time.time()
-    print ("Total running time = %d seconds" %(end_time - start_time))
+    elapsed_time = end_time - start_time
+    print (f"Total running time = {elapsed_time:.0f} seconds")
 

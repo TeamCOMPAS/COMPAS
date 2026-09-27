@@ -1,7 +1,7 @@
 import numpy as np
 import h5py
 from .gpu_utils import xp
-from typing import List, Optional
+from typing import Optional
 
 from ..totalMassEvolvedPerZ import (
     analytical_star_forming_mass_per_binary_using_kroupa_imf,
@@ -57,7 +57,7 @@ class BinaryPopulation:
             t_delay: np.ndarray,
             z_zams: np.ndarray,
             n_systems: int,
-            dcos_included: List[str],
+            dcos_included: list[str],
             m1_min: float = None,
             m1_max: float = None,
             m2_min: float = None,
@@ -94,7 +94,7 @@ class BinaryPopulation:
     def from_compas_h5(
             cls,
             path: str,
-            dcos_included: List[str] = ["BBH"],
+            dcos_included: list[str] = ["BBH"],
             m1_min: float = None,
             m1_max: float = None,
             m2_min: float = None,
@@ -148,7 +148,7 @@ class BinaryPopulation:
     @staticmethod
     def _generate_mask(
             path: str,
-            dcos_included: List[str],
+            dcos_included: list[str],
     ) -> xp.ndarray:
         type_mask = _generate_dco_mask(path, dcos_included)
 
@@ -258,7 +258,7 @@ class BinaryPopulation:
 
 def _generate_dco_mask(
         compas_path: str,
-        dcos_included: List[str]
+        dcos_included: list[str]
 ) -> xp.ndarray:
     # Load fundamental DCO variables
     t1, t2 = _load_data(
@@ -283,7 +283,7 @@ def _generate_dco_mask(
     return type_mask
 
 
-def _load_data(path: str, group: str, var_names: List[str], mask: Optional[xp.ndarray] = None):
+def _load_data(path: str, group: str, var_names: list[str], mask: Optional[xp.ndarray] = None):
     with h5py.File(path, "r") as f:
         data = [f[group][v][...].squeeze().flatten() for v in var_names]
     if mask is not None:

@@ -214,16 +214,16 @@ def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, use_
     ### Plot stellar types
     stellarTypes, useTypes, typeNameMap = getStellarTypes(Data)
 
-    handle1 = ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(1)'][()][mask]), linestyle='-', c='r',
+    ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(1)'][()][mask]), linestyle='-', c='r',
                        label='Stellar Type 1')
-    handle2 = ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(2)'][()][mask]), linestyle='-', c='b',
+    ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(2)'][()][mask]), linestyle='-', c='b',
                        label='Stellar Type 2')
     ax1.set_ylabel('Stellar Type')
     ax1.set_yticks(range(useTypes.shape[0]))
     ax1.set_yticklabels([stellarTypes[typeNum] for typeNum in useTypes])
 
     ### Plot eccentricity
-    handle3 = ax2.plot(Data['Time'][()][mask], Data['Eccentricity'][()][mask] - .01, linestyle='-', c='k',
+    ax2.plot(Data['Time'][()][mask], Data['Eccentricity'][()][mask] - .01, linestyle='-', c='k',
                        label='Eccentricity')  # the minor subtraction makes the curve easier to find
     ax2.set_ylabel('Eccentricity', labelpad=10)
     ax2.set_yticks([0, .25, .5, .75, 1.0])
@@ -272,7 +272,7 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
 
     # Add lines of const radii
     for R in np.logspace(-9, 5, 15):
-        exp = "{:.1e}".format(R)
+        exp = f"{R:.1e}"
         exp = exp[-3] + exp[-1]
         T_K = np.logspace(3, 7, 41)  # in K
         T = T_K / 6e3  # Tsol=6e3K
@@ -297,9 +297,9 @@ def plotHertzsprungRussell(ax=None, Data=None, events=None, mask=None, use_latex
         Lrgt = get_L(Trgt / 6e3)
         alpha = 0.4
         if use_latex:
-            str = r"$10^{{{exp}}}\,R_\odot$".format(exp=exp)
+            str = rf"$10^{{{exp}}}\,R_\odot$"
         else:
-            str = "10^{exp} Rsun".format(exp=exp)
+            str = f"10^{exp} Rsun"
         if (Tbot > Trgt) and (Tbot < xlim[1]):
             ax.text(x=Tbot, y=Lbot, s=str, alpha=alpha)
         elif (Lrgt > Lbot) and (Lrgt < ylim[1]):
@@ -435,7 +435,7 @@ def space_out(original_vals, min_separation=None):
 ###########################################################
 
 
-class Event(object):
+class Event:
 
     def __init__(self, Data, index, eventClass, stellarTypeMap, use_latex=True, **kwargs):
 
@@ -480,7 +480,7 @@ class Event(object):
         image_num = None
 
         if eventClass == 'Beg':
-            eventString = r'Zero-age main-sequence, metallicity Z={:5.4f}'.format(self.Z1)
+            eventString = rf'Zero-age main-sequence, metallicity Z={self.Z1:5.4f}'
             image_num = 2
 
         elif eventClass == 'MT':
@@ -521,19 +521,19 @@ class Event(object):
             elif mtValue == 6:
                 self.eventClass = 'End'
                 self.endState = 'Merger'
-                eventString = r'Stellar Merger: {}+{}'.format(self.stypeName1, self.stypeName2)
+                eventString = rf'Stellar Merger: {self.stypeName1}+{self.stypeName2}'
                 image_num = 37
             else:
-                raise ValueError("Unknown MT: {}".format(mtValue))
+                raise ValueError(f"Unknown MT: {mtValue}")
 
         elif eventClass == 'SN':
             whichStar = kwargs['whichStar']
-            remType = Data['Stellar_Type({})'.format(whichStar)][ii]
+            remType = Data[f'Stellar_Type({whichStar})'][ii]
             remnantTypeName = self.stellarTypeMap[remType]
-            compType = Data['Stellar_Type({})'.format(2 if whichStar == 1 else 1)][ii]
+            compType = Data[f'Stellar_Type({2 if whichStar == 1 else 1})'][ii]
             disrupted = (Data['Eccentricity'][ii] > 1 or Data['SemiMajorAxis'][ii] < 0)
             status = '. Orbit becomes unbound' if disrupted else ''
-            eventString = r'Star {} undergoes supernova and forms a {}{}'.format(whichStar, remnantTypeName, status)
+            eventString = rf'Star {whichStar} undergoes supernova and forms a {remnantTypeName}{status}'
             if disrupted:
                 if compType < 13:  # normal companion
                     if remType == 13:  # with NS
@@ -562,12 +562,12 @@ class Event(object):
 
         elif eventClass == 'Stype':
             whichStar = kwargs['whichStar']
-            stypePre = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii - 1]]
-            stypePost = self.stellarTypeMap[Data['Stellar_Type({})'.format(whichStar)][ii]]
+            stypePre = self.stellarTypeMap[Data[f'Stellar_Type({whichStar})'][ii - 1]]
+            stypePost = self.stellarTypeMap[Data[f'Stellar_Type({whichStar})'][ii]]
             if use_latex:
-                eventString = r'Star {}: {}-$>${}'.format(whichStar, stypePre, stypePost)
+                eventString = rf'Star {whichStar}: {stypePre}-$>${stypePost}'
             else:
-                eventString = 'Star {}: {}->{}'.format(whichStar, stypePre, stypePost)
+                eventString = f'Star {whichStar}: {stypePre}->{stypePost}'
 
         elif eventClass == 'End':
             state = kwargs['state']
@@ -588,7 +588,7 @@ class Event(object):
                 T0 = a ** 4 / 4 / beta
                 Tdelay = T0 * (1 - e ** 2) ** (7 / 2) * (
                         1 + 0.31 * e ** 10 + 0.27 * e ** 20 + 0.2 * e ** 1000) / 3.15e7 / 1e6
-                eventString = r'Double compact object ({}+{}) merging in {:.2e} Myr'.format(self.stypeName1, self.stypeName2, Tdelay)
+                eventString = rf'Double compact object ({self.stypeName1}+{self.stypeName2}) merging in {Tdelay:.2e} Myr'
                 self.time=self.time+Tdelay
 
                 if (stype1 == 13) and (stype2 == 13):
@@ -601,7 +601,7 @@ class Event(object):
                         rotate_image = True
 
             elif state == "Unbound":
-                eventString = r'Unbound: {}+{}'.format(self.stypeName1, self.stypeName2)
+                eventString = rf'Unbound: {self.stypeName1}+{self.stypeName2}'
                 if (stype1 == 13) and (stype2 < 13):
                     image_num = 19
                 elif (stype1 < 13) and (stype2 == 13):
@@ -616,11 +616,11 @@ class Event(object):
                     image_num = 23
 
             else:
-                eventString = r'Evolution ended by run duration: {}+{}'.format(self.stypeName1, self.stypeName2)
+                eventString = rf'Evolution ended by run duration: {self.stypeName1}+{self.stypeName2}'
                 image_num = 2
 
         else:
-            raise ValueError("Unknown event class: {}".format(self.eventClass))
+            raise ValueError(f"Unknown event class: {self.eventClass}")
 
         if image_num != None:
             self.eventImage = self.getEventImage(image_num, rotate_image)
@@ -640,7 +640,7 @@ class Event(object):
         return img
 
 
-class allEvents(object):
+class allEvents:
     def __init__(self, Data):
 
         self.Data = Data
@@ -743,8 +743,7 @@ def printEvolutionaryHistory(Data=None, events=None):
 def printFormattedEvolutionLine(time, event, m1, t1, m2, t2, a, e):
     # All values are floats except event which is a string and t1, t2 which are ints (stellar types)
     print(
-        "{:10.6f}   {:31}  {:7.3f}    {:2}    {:7.3f}    {:2}   {:8.3f}  {:5.3f}".format(time, event, m1, t1, m2, t2, a,
-                                                                                         e))
+        f"{time:10.6f}   {event:31}  {m1:7.3f}    {t1:2}    {m2:7.3f}    {t2:2}   {a:8.3f}  {e:5.3f}")
 
 
 def safe_save_figure(fig, filename, **kwargs):

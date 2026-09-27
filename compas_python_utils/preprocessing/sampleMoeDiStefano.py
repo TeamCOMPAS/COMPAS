@@ -509,7 +509,7 @@ def createParameterGridfile(gridname, nSamples, m1Min=5, m1Max=100, testing=Fals
                 continue # don't include in overall count
             nEntries += 1    
 
-            fwrite.write('--initial-mass-1 {} --initial-mass-2 {} --orbital-period {} --eccentricity {}\n'.format(m1, m2, P, e))
+            fwrite.write(f'--initial-mass-1 {m1} --initial-mass-2 {m2} --orbital-period {P} --eccentricity {e}\n')
 
 def parse_args(cli_args=[]):
     default_n = int(1e5)

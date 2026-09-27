@@ -8,7 +8,7 @@ def multiple_injections (path="/Users/ilyam/Work/COMPASresults/popsynth/Arash/",
                          filename="mergers.txt", dz=0.001, Tobs=1./365.25/24/60, T0=1234567):
     random.seed()
     #path="./"
-    input=open(path+filename, 'r')
+    input=open(path+filename)
     input.readline()
     input.readline()
     count=0
@@ -59,8 +59,8 @@ def one_injection (m1, m2, z, distance, T0, Tobs):
                               waveform_generator=waveform_generator)
 
 
-    for interferometer in interferometers:
-        signal = interferometer.get_detector_response(waveform_generator.frequency_domain_strain(), injection_parameters)
+    # for interferometer in interferometers:
+        # signal = interferometer.get_detector_response(waveform_generator.frequency_domain_strain(), injection_parameters)
         #interferometer.plot_data(signal=signal, outdir=path, label='DCO)
 
 

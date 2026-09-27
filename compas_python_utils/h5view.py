@@ -150,7 +150,7 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
         lastModified = datetime.datetime.fromtimestamp(mtime)                                       # ... formatted
 
         fileSize = os.path.getsize(h5name)                                                          # file size (in bytes)
-        strFileSize = ('{:<11.4f}').format(fileSize / 1024.0 / 1024.0 / 1024.0)                     # ... formatted in GB
+        strFileSize = (f'{fileSize / 1024.0 / 1024.0 / 1024.0:<11.4f}')                     # ... formatted in GB
 
         print('\n\nSummary of HDF5 file', h5name)
         print('='*(21 + len(h5name)))
@@ -223,7 +223,7 @@ def printSummary(h5name = None, h5file = None, excludeList = ''):
 
                 try:
                     uniqueSeedsStr = str(len(np.unique(h5file[group]['SEED'])))
-                except Exception as e:
+                except Exception:
                     uniqueSeedsStr = " "
 
                 print(('{:<' + str(maxFilenameLen) + '}   {:>' + str(max(7, widthColumns)) + '}   {:>' + str(max(7, widthEntries)) + '}   {:>' + str(max(12, widthEntries)) + '}')

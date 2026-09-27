@@ -4,7 +4,7 @@ This allows users to sample a COMPAS h5 file to contain a smaller set of systems
 or upsample a COMPAS h5 file (sample with replacements) to contain a larger set of systems.
 """
 import argparse
-from typing import Optional, List
+from typing import Optional
 import sys
 
 import h5py
@@ -177,7 +177,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def parse_args(args: List[str]) -> argparse.Namespace:
+def parse_args(args: list[str]) -> argparse.Namespace:
     return create_parser().parse_args(args)
 
 

@@ -517,7 +517,7 @@ def build_event_string(
             # event type: CEE, RLOF 2->1, RLOF 1->2
             char_m = '&' if is_mrg else '=' if is_cee else '<' if is_rl2 else '>'
         # event string for this star, _ is event separator
-        event_str += "{}{}{}_".format(char_l, char_m, char_r)
+        event_str += f"{char_l}{char_m}{char_r}_"
     # return event string for this star (pop the last underscore first)
     event_str = np.array(event_str[:-1], dtype=np.str_)
     return event_str
