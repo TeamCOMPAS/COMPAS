@@ -5,7 +5,7 @@ import os
 import old_totalMassEvolvedPerZ as MPZ
 import astropy.units as u
 
-class COMPASData(object):
+class COMPASData:
     def __init__(
         self,
         path=None,
@@ -20,7 +20,7 @@ class COMPASData(object):
         if self.path is None:
             print("Template COMPASData object created with no data path")
         elif not os.path.isfile(path):
-            raise ValueError( "h5 file not found. Wrong path given? {}".format(path))
+            raise ValueError( f"h5 file not found. Wrong path given? {path}")
 
         # Crucial values to be able to calculate MSSFR
         self.metallicityGrid = None

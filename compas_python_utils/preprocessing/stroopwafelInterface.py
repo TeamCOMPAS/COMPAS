@@ -146,7 +146,7 @@ def interesting_systems(batch):
             if sample.properties['SEED'] in interesting_systems_seeds:
                 sample.properties['is_hit'] = 1
         return len(dns)
-    except IOError as error:
+    except OSError as error:
         return 0
 
 def selection_effects(sw):
@@ -285,7 +285,8 @@ def main():
                           only_hits=False)  # Run it to create weights, if you want only hits in the output, then make only_hits = True
 
     end_time = time.time()
-    print("Total running time = %d seconds" % (end_time - start_time))
+    elapsed_time = end_time - start_time
+    print (f"Total running time = {elapsed_time:.0f} seconds")
 
 
 if __name__ == '__main__':

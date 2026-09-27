@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict
+from typing import Any
 
 import subprocess
 import h5py
@@ -46,7 +46,7 @@ def test_archive_dir():
     return TEST_ARCHIVE_DIR
 
 
-def get_compas_data(path: str) -> Dict[str, Any]:
+def get_compas_data(path: str) -> dict[str, Any]:
     """Reads in a COMPAS h5 file and returns a dict with some data from the file."""
     data = {}
     with h5py.File(path, "r") as f:

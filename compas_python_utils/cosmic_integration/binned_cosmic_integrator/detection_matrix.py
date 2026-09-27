@@ -1,6 +1,5 @@
 import numpy as np
 import os
-from typing import Dict, List
 import h5py as h5
 from tqdm.auto import trange
 
@@ -18,7 +17,7 @@ class DetectionMatrix:
     def __init__(
             self,
             compas_path: str,
-            cosmological_parameters: Dict,
+            cosmological_parameters: dict,
             rate_matrix: np.ndarray,
             chirp_mass_bins: np.array,
             redshift_bins: np.array,
@@ -26,7 +25,7 @@ class DetectionMatrix:
             n_dcos: int,
             outdir: str = None,
             sens: str = 'O1',
-            dcos_included: List[str] = ["BBH"],
+            dcos_included: list[str] = ["BBH"],
             bootstrapped_rate_matrices: np.ndarray = None
     ):
         self.compas_path = compas_path
@@ -57,7 +56,7 @@ class DetectionMatrix:
     def from_compas_output(
             cls,
             compas_path: str,
-            cosmological_parameters: Dict = dict(aSF=0.01, dSF=4.70, mu_z=-.23, sigma_z=0),
+            cosmological_parameters: dict = dict(aSF=0.01, dSF=4.70, mu_z=-.23, sigma_z=0),
             max_detectable_redshift: float = 1.0,
             chirp_mass_bins: int = None,
             redshift_bins: int = None,
@@ -65,7 +64,7 @@ class DetectionMatrix:
             save_plots: bool = False,
             n_bootstrapped_matrices: int = 0,
             sens: str = 'O1',
-            dcos_included: List[str] = ["BBH"],
+            dcos_included: list[str] = ["BBH"],
     ) -> "DetectionMatrix":
 
         dco_population = BinaryPopulation.from_compas_h5(compas_path, dcos_included=dcos_included)
@@ -126,7 +125,7 @@ class DetectionMatrix:
         with h5.File(f"{self.outdir}/{self.label}.h5", "w") as f:
             recursively_save_dict_contents_to_group(f, '/', self.to_dict())
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return dict(
             compas_path=self.compas_path,
             cosmological_parameters=self.cosmological_parameters,
