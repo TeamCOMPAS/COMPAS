@@ -5,14 +5,15 @@ WORKDIR /app/COMPAS
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    g++ \
-    libhdf5-serial-dev \
-    libboost-all-dev \
-    libgsl-dev \
-    python3 \
-    python3-pip \
-    zip \
+RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+    apt-get update && apt-get install -y \
+        g++ \
+        libhdf5-serial-dev \
+        libboost-all-dev \
+        libgsl-dev \
+        python3 \
+        python3-pip \
+        zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python packages
