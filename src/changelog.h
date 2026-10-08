@@ -1707,6 +1707,12 @@
 //                                       - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
 //  03.29.06  DH - September 23, 2026    - Defect repair:
 //                                       - Fix for issue #1484: reversed interpolation factors for mass transfer stability with Ge's model q_crit, in MainSequence and HeMS
+//  03.30.00  SS - October 8, 2026       - Enhancement:
+//                                       - Added magnetic braking: new options --magnetic-braking-prescription (NONE (default), RVJ83) and --magnetic-braking-gamma (default 4.0)
+//                                       - RVJ83: Rappaport, Verbunt & Joss (1983) law applied to MS, HG and giant-branch stars with convective envelopes, quenched by exp(1 - 0.02/qconv)
+//                                         for convective envelope mass fractions qconv < 0.02 (Podsiadlowski, Rappaport & Pfahl 2002); stars assumed tidally locked, angular momentum removed from the orbit
+//                                       - New functions BaseBinaryStar::CalculateMagneticBraking(), BaseBinaryStar::ApplyMagneticBraking() and BaseBinaryStar::CalculateMagneticBrakingTorque();
+//                                         timestep limited so that magnetic braking changes the semi-major axis by at most ~1% per step
 //
 
 // Version string format is MM.mm.rr, where
@@ -1718,7 +1724,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.29.06";
+const std::string VERSION_STRING = "03.30.00";
 
 
 # endif // __changelog_h__

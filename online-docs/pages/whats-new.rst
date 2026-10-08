@@ -19,6 +19,10 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
   - Added option ``--main-sequence-core-mass-brcek-minimum-mass`` (default 1.5): the ZAMS mass above which ``BRCEK`` is applied (previously the fixed constant ``BRCEK_LOWER_MASS_LIMIT``)
 * Defect repair: the binary mass transfer timescale (and the RLOF record luminosities, temperatures and previous time) are now initialised, so the first detailed output
   record no longer reports an uninitialised ``MassTransferTimescale``
+* Added magnetic braking of binaries, enabled with the new option ``--magnetic-braking-prescription`` (``NONE`` (default) or ``RVJ83``).
+  ``RVJ83`` is the Rappaport, Verbunt & Joss (1983) law, with the exponent of the stellar radius set by the new option ``--magnetic-braking-gamma`` (default 4.0),
+  quenched for stars with thin convective envelopes following Podsiadlowski, Rappaport & Pfahl (2002). Stars are assumed to be tidally locked, so the
+  angular momentum is removed from the orbit. With the default (``NONE``) results are unchanged.
 
 **03.29.00 January 30, 2026**
 * Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.

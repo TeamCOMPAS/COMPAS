@@ -346,6 +346,8 @@ void BaseBinaryStar::SetRemainingValues() {
 
     m_aMassTransferDiff                              = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_DaDtMB                                         = 0.0;
+
 	m_MassTransferTrackerHistory                     = MT_TRACKING::NO_MASS_TRANSFER;
     m_MassTransfer                                   = false;
     m_MassTransferTimescale                          = MT_TIMESCALE::NONE;
@@ -3194,6 +3196,137 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
 }
 
 
+/*
+ * Calculate the magnetic braking torque of a star in a tidally locked binary
+ *
+ * Magnetic braking removes angular momentum from a star with a convective envelope through its magnetised wind.
+ *
+ * RVJ83: Rappaport, Verbunt & Joss (1983), eq. 36:
+ *
+ *     dJ/dt = -3.8e-30 M Rsol^4 (R/Rsol)^gamma Omega^3   dyn cm   (cgs)
+ *
+ *     with gamma set by --magnetic-braking-gamma
+ *
+ * Magnetic braking requires a convective envelope.  Following Podsiadlowski, Rappaport & Pfahl (2002), the torque
+ * is reduced by a factor exp(1 - 0.02/qconv) when the fractional mass of the convective envelope, qconv, is below
+ * 0.02, which switches magnetic braking off smoothly for stars with (nearly) radiative envelopes.  The convective
+ * envelope mass is taken from the star's CalculateConvectiveEnvelopeMass() (Hurley et al. 2000 for MS stars,
+ * Picker et al. 2024 for giants).  Fully convective stars are not treated differently ("disrupted" magnetic
+ * braking is not implemented).
+ *
+ * Magnetic braking is applied to main sequence, Hertzsprung gap and giant branch (FGB, CHeB, EAGB, TPAGB) stars
+ * only - not to chemically homogeneous stars, naked helium stars or remnants.
+ *
+ *
+ * double CalculateMagneticBrakingTorque(BinaryConstituentStar* p_Star, const double p_Omega)
+ *
+ * @param   [IN]    p_Star                      (Pointer to) the star
+ * @param   [IN]    p_Omega                     Spin angular frequency of the star (rad yr^-1)
+ * @return                                      Rate of change of the star's angular momentum (Msol AU^2 yr^-2) - zero or negative
+ */
+double BaseBinaryStar::CalculateMagneticBrakingTorque(BinaryConstituentStar* p_Star, const double p_Omega) {
+
+    if (!p_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07,
+                           STELLAR_TYPE::MS_GT_07,
+                           STELLAR_TYPE::HERTZSPRUNG_GAP,
+                           STELLAR_TYPE::FIRST_GIANT_BRANCH,
+                           STELLAR_TYPE::CORE_HELIUM_BURNING,
+                           STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
+                           STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH })) return 0.0;              // no magnetic braking for other stellar types
+
+    double convectiveEnvelopeMass;
+    std::tie(convectiveEnvelopeMass, std::ignore) = p_Star->CalculateConvectiveEnvelopeMass();
+    double qConv = convectiveEnvelopeMass / p_Star->Mass();                                                     // fractional mass of the convective envelope
+    if (utils::Compare(qConv, 0.0) <= 0) return 0.0;                                                            // no convective envelope - no magnetic braking
+
+    double jDot = 0.0;                                                                                          // Msol AU^2 yr^-2
+
+    switch (OPTIONS->MagneticBrakingPrescription()) {                                                           // which prescription?
+
+        case MAGNETIC_BRAKING_PRESCRIPTION::NONE:                                                               // NONE - no magnetic braking
+            break;
+
+        case MAGNETIC_BRAKING_PRESCRIPTION::RVJ83: {                                                            // Rappaport, Verbunt & Joss (1983)
+            double omega    = p_Omega / SECONDS_IN_YEAR;                                                        // rad s^-1
+            double rSol_4   = RSOL_TO_CM * RSOL_TO_CM * RSOL_TO_CM * RSOL_TO_CM;                                // Rsol^4 in cm^4
+            double jDot_CGS = -MAGNETIC_BRAKING_RVJ83_COEFFICIENT * p_Star->Mass() * MSOL_TO_G * rSol_4 * PPOW(p_Star->Radius(), OPTIONS->MagneticBrakingGamma()) * omega * omega * omega; // dyn cm = g cm^2 s^-2
+            jDot            = jDot_CGS * SECONDS_IN_YEAR * SECONDS_IN_YEAR / (MSOL_TO_G * AU_TO_CM * AU_TO_CM);  // Msol AU^2 yr^-2
+        } break;
+
+        default:                                                                                                // unknown prescription
+            // the only way this can happen is if someone added a MAGNETIC_BRAKING_PRESCRIPTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR(ERROR::UNKNOWN_MAGNETIC_BRAKING_PRESCRIPTION);                                          // throw error
+    }
+
+    if (utils::Compare(qConv, MAGNETIC_BRAKING_QCONV_THRESHOLD) < 0) {                                          // thin convective envelope?
+        jDot *= std::exp(1.0 - MAGNETIC_BRAKING_QCONV_THRESHOLD / qConv);                                       // yes - quench magnetic braking (Podsiadlowski, Rappaport & Pfahl 2002)
+    }
+
+    return jDot;
+}
+
+
+/*
+ * Calculate the rate of change of the semi-major axis due to magnetic braking
+ *
+ * Both stars are assumed to be tidally locked to the orbit (as in Rappaport, Verbunt & Joss 1983), so the
+ * angular momentum removed by magnetic braking is ultimately drawn from the orbit.  At fixed masses and
+ * eccentricity, J_orb ~ a^(1/2), so
+ *
+ *     da/dt = 2 a (dJ_MB/dt) / J_orb
+ *
+ * The eccentricity and the stellar spins are not changed here.
+ *
+ * m_DaDtMB is updated so that it can be used to calculate the timestep dynamically.
+ *
+ *
+ * void CalculateMagneticBraking()
+ */
+void BaseBinaryStar::CalculateMagneticBraking() {
+
+    m_DaDtMB = 0.0;                                                                                             // default is no magnetic braking
+
+    if (OPTIONS->MagneticBrakingPrescription() == MAGNETIC_BRAKING_PRESCRIPTION::NONE) return;                  // magnetic braking not enabled - nothing to do
+
+    if (IsUnbound() || utils::Compare(m_SemiMajorAxis, 0.0) <= 0 || HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) return; // not a bound binary - nothing to do
+
+    double omega = OrbitalAngularVelocity();                                                                    // rad yr^-1 - stars are assumed to be tidally locked
+    double jDot  = CalculateMagneticBrakingTorque(m_Star1, omega) + CalculateMagneticBrakingTorque(m_Star2, omega); // Msol AU^2 yr^-2
+
+    if (utils::Compare(jDot, 0.0) >= 0) return;                                                                 // no angular momentum loss - nothing (else) to do
+
+    double jOrb = CalculateOrbitalAngularMomentum(m_Star1->Mass(), m_Star2->Mass(), m_SemiMajorAxis, m_Eccentricity); // Msol AU^2 yr^-1
+    m_DaDtMB    = 2.0 * m_SemiMajorAxis * jDot / jOrb * MYR_TO_YEAR;                                            // AU Myr^-1
+}
+
+
+/*
+ * Apply the change in semi-major axis due to magnetic braking calculated by BaseBinaryStar::CalculateMagneticBraking()
+ *
+ * Updates the semi-major axis and previous semi-major axis values (m_SemiMajorAxis and m_SemiMajorAxisPrev).
+ *
+ *
+ * void ApplyMagneticBraking(const double p_Dt)
+ *
+ * @param   [IN]    p_Dt                        timestep in Myr
+ */
+void BaseBinaryStar::ApplyMagneticBraking(const double p_Dt) {
+
+    if (utils::Compare(m_DaDtMB, 0.0) >= 0) return;                                                             // no magnetic braking - nothing to do
+
+    double aNew         = m_SemiMajorAxis + (m_DaDtMB * p_Dt);
+    m_SemiMajorAxis     = aNew < 0.0 ? 1.0E-20 : aNew;                                                          // if <0, set to arbitrarily small number
+
+    m_SemiMajorAxisPrev = m_SemiMajorAxis;                                                                      // save value as previous timestep
+}
+
+
 /* 
  * Choose a timestep based on the parameters of the binary.
  *
@@ -3230,6 +3363,10 @@ double BaseBinaryStar::ChooseTimestep(const double p_Factor) {
         
         if (OPTIONS->EmitGravitationalRadiation()) {                                        // emitting GWs?
             dt = std::min(dt, -1.0E-2 * m_SemiMajorAxis / m_DaDtGW);                        // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to GW emission
+        }
+
+        if (utils::Compare(m_DaDtMB, 0.0) < 0) {                                            // magnetic braking?
+            dt = std::min(dt, -MAGNETIC_BRAKING_MAXIMUM_ORBITAL_CHANGE_FRAC * m_SemiMajorAxis / m_DaDtMB); // yes - reduce timestep if necessary to ensure that the orbital separation does not change by more than ~1% per timestep due to magnetic braking
         }
     
         if (OPTIONS->TidesPrescription() == TIDES_PRESCRIPTION::KAPIL2026) {                // tides prescription = KAPIL2026
@@ -3479,6 +3616,9 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             // evolve the current binary up to the maximum evolution time (and number of steps)
 
             double dt;                                                                                                                  // timestep
+
+            CalculateMagneticBraking();                                                                                                 // calculate the effects of magnetic braking (if enabled) - before ChooseTimestep(), which uses them
+
             if (usingProvidedTimesteps) {                                                                                               // user-provided timesteps?
                 // get new timestep
                 //   - don't quantise
@@ -3505,6 +3645,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
             while (evolutionStatus == EVOLUTION_STATUS::CONTINUE) {                                                                     // perform binary evolution - iterate over timesteps until told to stop
 
                 if (OPTIONS->EmitGravitationalRadiation()) EmitGravitationalWave(dt);                                                   // emit gravitational wave if required
+
+                ApplyMagneticBraking(dt);                                                                                               // apply magnetic braking (no-op if not enabled)
 
                 if (OPTIONS->RLOFPrinting()) StashRLOFProperties(MT_TIMING::PRE_MT);                                                    // stash RLOF properties immediately pre-Mass Transfer if required
 
@@ -3653,6 +3795,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         //   - note that this is placed before the call to ChooseTimestep() because when
                         //     emitting GWs the timestep is a function of gravitational radiation                    
                         if (OPTIONS->EmitGravitationalRadiation()) CalculateGravitationalRadiation();
+
+                        CalculateMagneticBraking();                                                                                     // calculate the effects of magnetic braking (if enabled) - before ChooseTimestep(), which uses them
 
                         m_Star2->UpdatePreviousTimestepDuration();                                                                      // update stellar property for star2
                         m_Star1->UpdatePreviousTimestepDuration();                                                                      // update stellar property for star1

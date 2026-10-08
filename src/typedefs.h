@@ -851,6 +851,13 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
 };
 
 // maltsev remnant mass prescription variant
+// magnetic braking prescriptions
+enum class MAGNETIC_BRAKING_PRESCRIPTION: int { NONE, RVJ83 };
+const COMPASUnorderedMap<MAGNETIC_BRAKING_PRESCRIPTION, std::string> MAGNETIC_BRAKING_PRESCRIPTION_LABEL = {
+    { MAGNETIC_BRAKING_PRESCRIPTION::NONE,  "NONE" },
+    { MAGNETIC_BRAKING_PRESCRIPTION::RVJ83, "RVJ83" }
+};
+
 enum class MALTSEV_MODE: int { OPTIMISTIC, BALANCED, PESSIMISTIC };
 const COMPASUnorderedMap<MALTSEV_MODE, std::string> MALTSEV_MODE_LABEL = {
     { MALTSEV_MODE::OPTIMISTIC,  "OPTIMISTIC" },

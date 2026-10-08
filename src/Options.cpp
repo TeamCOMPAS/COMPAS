@@ -581,6 +581,12 @@ void Options::OptionValues::Initialise() {
     m_TidesPrescription.typeString                                  = TIDES_PRESCRIPTION_LABEL.at(m_TidesPrescription.type);
 
 
+    // Magnetic braking
+    m_MagneticBrakingPrescription.type                              = MAGNETIC_BRAKING_PRESCRIPTION::NONE;
+    m_MagneticBrakingPrescription.typeString                        = MAGNETIC_BRAKING_PRESCRIPTION_LABEL.at(m_MagneticBrakingPrescription.type);
+    m_MagneticBrakingGamma                                          = 4.0;                                                  // Rappaport, Verbunt & Joss (1983)
+
+
 	// Zetas
 	m_StellarZetaPrescription.type                                  = ZETA_PRESCRIPTION::SOBERMAN;
 	m_StellarZetaPrescription.typeString                            = ZETA_PRESCRIPTION_LABEL.at(m_StellarZetaPrescription.type);
@@ -1495,6 +1501,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "magnetic-braking-gamma",
+            po::value<double>(&p_Options->m_MagneticBrakingGamma)->default_value(p_Options->m_MagneticBrakingGamma),
+            ("Exponent gamma of the stellar radius in the RVJ83 magnetic braking law, dJ/dt ~ M R^gamma Omega^3 (default = " + std::to_string(p_Options->m_MagneticBrakingGamma) + ")").c_str()
+        )
+        (
             "main-sequence-core-mass-brcek-minimum-mass",
             po::value<double>(&p_Options->m_MainSequenceCoreMassBrcekMinimumMass)->default_value(p_Options->m_MainSequenceCoreMassBrcekMinimumMass),
             ("ZAMS mass above which (inclusive) the BRCEK main sequence core mass prescription is applied; lower-mass stars use the MANDEL prescription, in Msol (must be > 0.7; default = " + std::to_string(p_Options->m_MainSequenceCoreMassBrcekMinimumMass) + ")").c_str()
@@ -2055,6 +2066,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("LBV-mass-loss-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
         )
         (
+            "magnetic-braking-prescription",
+            po::value<std::string>(&p_Options->m_MagneticBrakingPrescription.typeString)->default_value(p_Options->m_MagneticBrakingPrescription.typeString),
+            ("Magnetic braking prescription (" + AllowedOptionValuesFormatted("magnetic-braking-prescription") + ", default = '" + p_Options->m_MagneticBrakingPrescription.typeString + "')").c_str()
+        )
+        (
             "main-sequence-core-hydrogen-prescription",
             po::value<std::string>(&p_Options->m_MainSequenceCoreHydrogenPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreHydrogenPrescription.typeString),
             ("Main Sequence core hydrogen depletion X_c(tau) and minimum core mass growth for stars not using the BRCEK core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-hydrogen-prescription") + ", default = '" + p_Options->m_MainSequenceCoreHydrogenPrescription.typeString + "')").c_str()
@@ -2537,6 +2553,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown LBV Mass Loss Prescription");
         }
         
+        if (!DEFAULTED("magnetic-braking-prescription")) {                                                                          // magnetic braking prescription
+            std::tie(found, m_MagneticBrakingPrescription.type) = utils::GetMapKey(m_MagneticBrakingPrescription.typeString, MAGNETIC_BRAKING_PRESCRIPTION_LABEL, m_MagneticBrakingPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Magnetic Braking Prescription");
+        }
+
         if (!DEFAULTED("main-sequence-core-mass-prescription")) {                                                                   // main sequence core mass prescription
             std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
@@ -2715,6 +2736,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_EccentricityDistributionMax <= m_EccentricityDistributionMin, "Maximum eccentricity (--eccentricity-max) must be > Minimum eccentricity (--eccentricity-min)");
 
         COMPLAIN_IF(m_EddingtonAccretionFactor < 0.0, "Eddington accretion factor (--eddington-accretion-factor) must be non-negative.");
+
+        COMPLAIN_IF(m_MagneticBrakingGamma < 0.0, "Magnetic braking gamma (--magnetic-braking-gamma) must be non-negative.");
 
         COMPLAIN_IF(m_GridStartLine < 0, "Grid file start line (--grid-start-line) < 0");
         COMPLAIN_IF(!DEFAULTED("grid-lines-to-process") && m_GridLinesToProcess < 1, "Grid file lines to process (--grid-lines-to-process) < 1");
@@ -2972,6 +2995,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);                  break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                                   break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
+        case _("magnetic-braking-prescription")                     : POPULATE_RET(MAGNETIC_BRAKING_PRESCRIPTION_LABEL);                break;
         case _("main-sequence-core-hydrogen-prescription")          : POPULATE_RET(CORE_HYDROGEN_PRESCRIPTION_LABEL);                   break;
         case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                       break;
         case _("maltsev-mode")                                      : POPULATE_RET(MALTSEV_MODE_LABEL);                             break;
@@ -5148,6 +5172,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
+
+        case PROGRAM_OPTION::MAGNETIC_BRAKING_GAMMA                         : value = MagneticBrakingGamma();                                               break;
+        case PROGRAM_OPTION::MAGNETIC_BRAKING_PRESCRIPTION                  : value = static_cast<int>(MagneticBrakingPrescription());                      break;
 
         case PROGRAM_OPTION::MALTSEV_FALLBACK                               : value = MaltsevFallback();                                                    break;                     
         case PROGRAM_OPTION::MALTSEV_MODE                                   : value = static_cast<int>(MaltsevMode());                                      break;                     

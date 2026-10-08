@@ -393,6 +393,7 @@ private:
 
     double              m_DaDtGW;                                                           // Change in semi-major axis per time due to gravitational radiation
     double              m_DeDtGW;                                                           // Change in eccentricity per time due to gravitational radiation
+    double              m_DaDtMB;                                                           // Change in semi-major axis per time due to magnetic braking (AU Myr^-1)
 
     double              m_OrbitalEnergyPrev;
     double              m_OrbitalEnergy;
@@ -431,6 +432,10 @@ private:
 
     void    CalculateGravitationalRadiation();
     void    EmitGravitationalWave(const double p_Dt);
+
+    void    ApplyMagneticBraking(const double p_Dt);
+    void    CalculateMagneticBraking();
+    double  CalculateMagneticBrakingTorque(BinaryConstituentStar* p_Star, const double p_Omega);
 
     double  ChooseTimestep(const double p_Factor = 1.0);
 

@@ -519,6 +519,8 @@ private:
         "logfile-rlof-parameters",
         "logfile-rlof-parameters-record-types",
 
+        "magnetic-braking-gamma",
+        "magnetic-braking-prescription",
         "maltsev-fallback",
         "mass-ratio", "q",
         "mass-ratio-max",
@@ -667,6 +669,7 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
+        "magnetic-braking-prescription",
         "main-sequence-core-hydrogen-prescription",
         "main-sequence-core-mass-prescription",
         "maltsev-mode",
@@ -1165,6 +1168,10 @@ public:
             // Tides
             ENUM_OPT<TIDES_PRESCRIPTION>                        m_TidesPrescription;                                            // Which tides prescription (default = NONE)
 
+            // Magnetic braking
+            ENUM_OPT<MAGNETIC_BRAKING_PRESCRIPTION>             m_MagneticBrakingPrescription;                                  // Which magnetic braking prescription (default = NONE)
+            double                                              m_MagneticBrakingGamma;                                         // Exponent of the stellar radius in the RVJ83 magnetic braking law
+
 
             // Zetas
             ENUM_OPT<ZETA_PRESCRIPTION>                         m_StellarZetaPrescription;                                 	    // Prescription to use for calculating stellar zetas (default = SOBERMAN)
@@ -1632,6 +1639,9 @@ public:
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
+    double                                      MagneticBrakingGamma() const                                            { return OPT_VALUE("magnetic-braking-gamma", m_MagneticBrakingGamma, true); }
+    MAGNETIC_BRAKING_PRESCRIPTION               MagneticBrakingPrescription() const                                     { return OPT_VALUE("magnetic-braking-prescription", m_MagneticBrakingPrescription.type, true); }
+
     CORE_HYDROGEN_PRESCRIPTION                  MainSequenceCoreHydrogenPrescription() const                            { return OPT_VALUE("main-sequence-core-hydrogen-prescription", m_MainSequenceCoreHydrogenPrescription.type, true); }
     double                                      MainSequenceCoreMassBrcekMinimumMass() const                            { return OPT_VALUE("main-sequence-core-mass-brcek-minimum-mass", m_MainSequenceCoreMassBrcekMinimumMass, true); }
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }

@@ -161,6 +161,9 @@ numericalChoices:
 #    --zeta-main-sequence: 2.000000                                        # Default: 2.000000
 #    --zeta-radiative-envelope-giant: 6.500000                             # Default: 6.500000
 
+    ### MAGNETIC BRAKING
+#    --magnetic-braking-gamma: 4.000000                                    # Default: 4.000000
+
     ### COMMON ENVELOPE
 #    --common-envelope-alpha: 1.000000                                     # Default: 1.000000
 #    --common-envelope-alpha-thermal: 1.000000                             # Default: 1.000000                                                                                                                                                                         # lambda = alpha_th*lambda_b + (1-alpha_th)*lambda_g
@@ -292,6 +295,9 @@ stringChoices:
 
     ### TIDES
 #    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['ZAHN1977','KAPIL2026','PERFECT','NONE']
+
+    ### MAGNETIC BRAKING
+#    --magnetic-braking-prescription: 'NONE'                               # Default: 'NONE'                        # Options: ['RVJ83','NONE']
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --black-hole-kicks-mode: 'FALLBACK'                                   # Default: 'FALLBACK'                    # Options: ['FALLBACK','ZERO','REDUCED','FULL']

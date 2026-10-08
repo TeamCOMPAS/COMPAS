@@ -169,6 +169,7 @@ enum class ERROR: int {
     UNKNOWN_LOGFILE,                                                // unknown log file
     UNKNOWN_LBV_MASS_LOSS_PRESCRIPTION,                             // unknown LBV mass loss prescription
     UNKNOWN_MALTSEV_MODE,                                           // unknown maltsev mode 
+    UNKNOWN_MAGNETIC_BRAKING_PRESCRIPTION,                          // unknown magnetic braking prescription
     UNKNOWN_MASS_LOSS_PRESCRIPTION,                                 // unknown mass loss prescription
     UNKNOWN_MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,                  // unknown MSP birth magnetic field distribution
     UNKNOWN_MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION,                     // unknown MSP birth spin period distribution
@@ -353,6 +354,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_MALTSEV_MODE,                                  { ERROR_SCOPE::ALWAYS,              "Unknown Maltsev remnant mass mode" }},
     { ERROR::UNKNOWN_MASS_LOSS_PRESCRIPTION,                        { ERROR_SCOPE::ALWAYS,              "Unknown mass loss prescription" }},
     { ERROR::UNKNOWN_MT_CASE,                                       { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer case" }},
+    { ERROR::UNKNOWN_MAGNETIC_BRAKING_PRESCRIPTION,             { ERROR_SCOPE::ALWAYS,              "Unknown magnetic braking prescription" }},
     { ERROR::UNKNOWN_MT_ACCRETION_EFFICIENCY_PRESCRIPTION,          { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer accretion efficiency prescription" }},
     { ERROR::UNKNOWN_MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION,         { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer angular momentum loss prescription" }},
     { ERROR::UNKNOWN_MT_REJUVENATION_PRESCRIPTION,                  { ERROR_SCOPE::ALWAYS,              "Unknown mass transfer rejuvenation prescription" }},

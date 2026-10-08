@@ -812,6 +812,17 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--magnetic-braking-gamma** |br|
+Exponent :math:`\gamma` of the stellar radius in the ``RVJ83`` magnetic braking law, :math:`\dot{J} \propto M R^{\gamma} \Omega^3`. Only used when ``--magnetic-braking-prescription`` is ``RVJ83``. |br|
+Default = 4.0
+
+**--magnetic-braking-prescription** |br|
+Magnetic braking prescription. |br|
+Options: { NONE, RVJ83 } |br|
+``NONE`` : no magnetic braking. |br|
+``RVJ83`` : Rappaport, Verbunt & Joss (1983), :math:`\dot{J} = -3.8\times10^{-30} M R_\odot^4 (R/R_\odot)^{\gamma} \Omega^3` (cgs), with :math:`\gamma` set by ``--magnetic-braking-gamma``. Applied to MS, HG and giant-branch stars with a convective envelope; quenched by :math:`\exp(1 - 0.02/q_{\rm conv})` when the convective envelope mass fraction :math:`q_{\rm conv} < 0.02` (Podsiadlowski, Rappaport & Pfahl 2002). Stars are assumed to be tidally locked, so the angular momentum is removed from the orbit; the stellar spins and eccentricity are not changed. |br|
+Default = NONE
+
 **--main-sequence-core-hydrogen-prescription** |br|
 Main sequence core hydrogen depletion and minimum core mass growth, for stars whose core composition is not evolved by the ``BRCEK`` core mass prescription. |br|
 Options: {LINEAR, MIST} |br|
@@ -1577,6 +1588,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
+--magnetic-braking-prescription, --magnetic-braking-gamma, 
 --response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,
