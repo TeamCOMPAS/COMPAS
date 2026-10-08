@@ -110,7 +110,6 @@ disabled with ``--mass-loss-prescription zero`` instead of ``use-mass-loss false
 **03.20.03 June 18, 2025**
 
 * Resolved an issue that appeared in 03.10.02 with some TPAGB stars in the ECSN range (but not satisfying ECSN conditions) exploding as core-collapse supernovae
->>>>>>> dev
 
 **03.20.01 May 26, 2025**
 
