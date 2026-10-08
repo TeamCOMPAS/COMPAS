@@ -465,7 +465,7 @@ void Options::OptionValues::Initialise() {
     // Core hydrogen prescription (stars not using BRCEK)
     m_MainSequenceCoreHydrogenPrescription.type                     = CORE_HYDROGEN_PRESCRIPTION::LINEAR;
     m_MainSequenceCoreHydrogenPrescription.typeString               = CORE_HYDROGEN_PRESCRIPTION_LABEL.at(m_MainSequenceCoreHydrogenPrescription.type);
-    m_RetainRemainingMainSequenceLifetime                           = false;
+    m_RetainExhaustedCoreEvolution                                  = false;
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -1040,9 +1040,9 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
-            "retain-remaining-main-sequence-lifetime",
-            po::value<bool>(&p_Options->m_RetainRemainingMainSequenceLifetime)->default_value(p_Options->m_RetainRemainingMainSequenceLifetime)->implicit_value(true),
-            ("Main sequence stars that lose mass after their core hydrogen is exhausted keep their remaining MS lifetime rather than their fractional age (only has an effect if core hydrogen is exhausted before the end of the MS, e.g. for low-mass stars with --main-sequence-core-hydrogen-prescription MIST) (default = " + std::string(p_Options->m_RetainRemainingMainSequenceLifetime ? "TRUE" : "FALSE") + ")").c_str()
+            "retain-exhausted-core-evolution",
+            po::value<bool>(&p_Options->m_RetainExhaustedCoreEvolution)->default_value(p_Options->m_RetainExhaustedCoreEvolution)->implicit_value(true),
+            ("Main sequence stars that lose mass after their core hydrogen is exhausted keep their remaining MS lifetime (rather than their fractional age), and their minimum core mass keeps growing over that lifetime to the hydrogen-processed mass at TAMS of the star at core hydrogen exhaustion (only has an effect if core hydrogen is exhausted before the end of the MS, e.g. for low-mass stars with --main-sequence-core-hydrogen-prescription MIST) (default = " + std::string(p_Options->m_RetainExhaustedCoreEvolution ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "revised-energy-formalism-nandez-ivanova",                     

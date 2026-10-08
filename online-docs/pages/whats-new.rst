@@ -14,8 +14,8 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
 * Main sequence core hydrogen and core mass memory of low-mass stars:
   - Added option ``--main-sequence-core-hydrogen-prescription`` (``LINEAR`` (default) or ``MIST``): ``MIST`` uses fits to MIST v2.5 tracks for the core hydrogen abundance :math:`X_c(\tau, M)`
     and for the growth of the ``MANDEL`` minimum core mass (:math:`\tau^k` instead of :math:`\tau`) of stars not evolved with ``BRCEK``
-  - Added option ``--retain-remaining-main-sequence-lifetime`` (default FALSE): MS stars that lose mass after their core hydrogen is exhausted keep their remaining MS lifetime
-    rather than their fractional age
+  - Added option ``--retain-exhausted-core-evolution`` (default FALSE): MS stars that lose mass after their core hydrogen is exhausted keep their remaining MS lifetime
+    rather than their fractional age, and their minimum core mass keeps growing to the hydrogen-processed mass at TAMS of the star at core hydrogen exhaustion
   - Added option ``--main-sequence-core-mass-brcek-minimum-mass`` (default 1.5): the ZAMS mass above which ``BRCEK`` is applied (previously the fixed constant ``BRCEK_LOWER_MASS_LIMIT``)
 * Defect repair: the binary mass transfer timescale (and the RLOF record luminosities, temperatures and previous time) are now initialised, so the first detailed output
   record no longer reports an uninitialised ``MassTransferTimescale``

@@ -712,7 +712,7 @@ private:
         "radial-change-fraction",
         "random-seed",
         "remnant-mass-prescription",
-        "retain-remaining-main-sequence-lifetime",
+        "retain-exhausted-core-evolution",
         "revised-energy-formalism-nandez-ivanova",
         "rlof-printing",
         "rotational-velocity-distribution",
@@ -1080,7 +1080,7 @@ public:
             ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
             double                                              m_MainSequenceCoreMassBrcekMinimumMass;                         // ZAMS mass (Msol) above which (inclusive) the BRCEK core mass prescription is applied
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
-            bool                                                m_RetainRemainingMainSequenceLifetime;                          // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime
+            bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
         
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
@@ -1794,7 +1794,7 @@ public:
     RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
     
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
-    bool                                        RetainRemainingMainSequenceLifetime() const                             { return OPT_VALUE("retain-remaining-main-sequence-lifetime", m_RetainRemainingMainSequenceLifetime, true); }
+    bool                                        RetainExhaustedCoreEvolution() const                                    { return OPT_VALUE("retain-exhausted-core-evolution", m_RetainExhaustedCoreEvolution, true); }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 

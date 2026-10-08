@@ -1278,8 +1278,13 @@ scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
 Default = TRUE |br|
 DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--main-sequence-core-mass-prescription MANDEL`` in future.
 
-**--retain-remaining-main-sequence-lifetime** |br|
-If TRUE, a main sequence star that loses mass after its core hydrogen is exhausted keeps its remaining MS lifetime, rather than its fractional age (Hurley et al. 2000): the rest of the MS is spent building up the hydrogen-exhausted core, which is set by the core rather than by the stripped envelope. Only has an effect if the core hydrogen is exhausted before the end of the MS, e.g. for low-mass stars with ``--main-sequence-core-hydrogen-prescription MIST``. |br|
+**--retain-exhausted-core-evolution** |br|
+If TRUE, a main sequence star that loses mass after its core hydrogen is exhausted evolves on its core rather than on its (stripped) envelope:
+it keeps its remaining MS lifetime, rather than its fractional age (Hurley et al. 2000), and its minimum core mass keeps growing linearly in time over that lifetime
+to the hydrogen-processed mass at TAMS of the star at core hydrogen exhaustion (a fit to MIST v2.5 tracks, :math:`0.081 + 0.0876 M`, with :math:`M` clamped to 0.7 - 1.3 :math:`M_\odot`).
+A donor stripped after core hydrogen exhaustion therefore leaves the MS with the core it would have had without stripping, or as a pure helium core if that exceeds its mass.
+Only has an effect if the core hydrogen is exhausted before the end of the MS, e.g. for low-mass stars with ``--main-sequence-core-hydrogen-prescription MIST``,
+and only for MS mass-transfer donors (``MANDEL`` core mass prescription, or ``BRCEK`` below ``--main-sequence-core-mass-brcek-minimum-mass``). |br|
 Default = FALSE
 
 **--revised-energy-formalism-nandez-ivanova** |br|
@@ -1567,7 +1572,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-remaining-main-sequence-lifetime, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 

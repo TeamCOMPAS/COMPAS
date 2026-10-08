@@ -92,7 +92,7 @@ namespace yaml {
             "    ### STELLAR PROPERTIES",
             "    --check-photon-tiring-limit",
             "    --main-sequence-degenerate-radius                               # SSE degenerate radius floor for low-mass MS stars",
-            "    --retain-remaining-main-sequence-lifetime",
+            "    --retain-exhausted-core-evolution",
             "    --enable-rotationally-enhanced-mass-loss",
             "    --enhance-CHE-lifetimes-luminosities",
             "    --expel-convective-envelope-above-luminosity-threshold",

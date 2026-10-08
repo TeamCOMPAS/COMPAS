@@ -938,8 +938,10 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
             // Calculate the minimum core mass of a main sequence star that loses mass through Case A mass transfer as the core mass of a TAMS star, scaled by the fractional age
             // (or, for --main-sequence-core-hydrogen-prescription MIST, by the hydrogen-processed mass relative to its value at TAMS; see CalculateMinimumCoreMassFraction())
             // Only applied to donors as part of binary evolution, not applied to SSE
-            if ((OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) && (p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0))
+            if ((OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) && (p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0)) {
                 mainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateMinimumCoreMassFraction(CalculateTauOnPhase(), m_Mass0) * TAMSCoreMass());
+                mainSequenceCoreMass = CalculateMinimumCoreMassAfterCoreHydrogenExhaustion(mainSequenceCoreMass);
+            }
             break;
         
         case CORE_MASS_PRESCRIPTION::BRCEK:
@@ -965,8 +967,10 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
             // MZAMS < the BRCEK minimum mass? MANDEL prescription used
             else {
                 // Only applied to donors as part of binary evolution, not applied to SSE
-                if ((p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0))
+                if ((p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0)) {
                     mainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateMinimumCoreMassFraction(CalculateTauOnPhase(), m_Mass0) * TAMSCoreMass());
+                    mainSequenceCoreMass = CalculateMinimumCoreMassAfterCoreHydrogenExhaustion(mainSequenceCoreMass);
+                }
             }
             break;
 
@@ -1060,14 +1064,52 @@ double MainSequence::CalculateMinimumCoreMassFraction(const double p_Tau, const 
 
 
 /*
+ * Calculate the minimum core mass of a MS donor whose core hydrogen is exhausted, for --retain-exhausted-core-evolution
+ *
+ * Once the core hydrogen of a (low-mass) MS star is exhausted, the remainder of the MS is spent building up the
+ * hydrogen-exhausted core by burning in a thick shell, at a rate set by the core rather than by the envelope.
+ * When core hydrogen exhaustion is first detected, the remaining MS lifetime and the hydrogen-processed mass at TAMS
+ * of the star at that time (MIST fit; see constants.h) are recorded. As the star loses mass its remaining MS lifetime
+ * is kept (see UpdateAgeAfterMassLoss()), and its minimum core mass grows linearly in time over that remaining
+ * lifetime to the recorded processed mass. A donor stripped after core hydrogen exhaustion therefore leaves the MS
+ * with the core it would have had without stripping (or as a pure helium core, if the core exceeds its mass).
+ *
+ *
+ * double CalculateMinimumCoreMassAfterCoreHydrogenExhaustion(const double p_MinimumCoreMass)
+ *
+ * @param   [IN]    p_MinimumCoreMass           Minimum core mass from the MANDEL prescription (Msol)
+ * @return                                      Minimum core mass (Msol)
+ */
+double MainSequence::CalculateMinimumCoreMassAfterCoreHydrogenExhaustion(const double p_MinimumCoreMass) {
+
+    if (!OPTIONS->RetainExhaustedCoreEvolution() || utils::Compare(m_HydrogenAbundanceCore, 0.0) > 0) return p_MinimumCoreMass;        // option not set or core hydrogen not exhausted - nothing to do
+
+    double remainingLifetime = m_Timescales[static_cast<int>(TIMESCALE::tMS)] - m_Age;
+
+    if (utils::Compare(m_ExhaustedCoreMassTarget, 0.0) < 0) {                                                                         // core hydrogen exhaustion first detected - record start, target and remaining lifetime
+        double mass = std::min(std::max(m_Mass0, MIST_RADIATIVE_CORE_MINIMUM_MASS), MIST_CONVECTIVE_CORE_MINIMUM_MASS);
+        m_ExhaustedCoreMassStart         = p_MinimumCoreMass;
+        m_ExhaustedCoreMassTarget        = std::max(p_MinimumCoreMass, MIST_PROCESSED_MASS_TAMS_COEFFICIENTS[0] + MIST_PROCESSED_MASS_TAMS_COEFFICIENTS[1] * mass);
+        m_ExhaustedCoreRemainingLifetime = remainingLifetime;
+    }
+
+    if (utils::Compare(m_ExhaustedCoreRemainingLifetime, 0.0) <= 0) return std::max(p_MinimumCoreMass, m_ExhaustedCoreMassTarget);
+
+    double fraction = std::min(1.0, std::max(0.0, 1.0 - remainingLifetime / m_ExhaustedCoreRemainingLifetime));                       // fraction of the remaining lifetime elapsed since exhaustion
+    return std::max(p_MinimumCoreMass, m_ExhaustedCoreMassStart + (m_ExhaustedCoreMassTarget - m_ExhaustedCoreMassStart) * fraction);
+}
+
+
+/*
  * Recalculates the star's age after mass loss
  *
  * Hurley et al. 2000, section 7.1: the fractional age tau is kept fixed
  *
- * If --retain-remaining-main-sequence-lifetime is set and the core hydrogen of a star that loses mass is already
+ * If --retain-exhausted-core-evolution is set and the core hydrogen of a star that loses mass is already
  * exhausted (which happens before the end of the MS for low-mass stars with --main-sequence-core-hydrogen-prescription MIST),
  * the remaining MS lifetime is kept fixed instead: the rest of the MS is then spent building up the hydrogen-exhausted
  * core by burning in a thick shell, which is set by the core rather than by the (stripped) envelope
+ * (see also CalculateMinimumCoreMassAfterCoreHydrogenExhaustion())
  *
  * Modifies attribute m_Age
  *
@@ -1081,7 +1123,7 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     double tBGBprime = CalculateLifetimeToBGB(m_Mass);
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
     
-    if (OPTIONS->RetainRemainingMainSequenceLifetime() &&                           // retain remaining MS lifetime after core hydrogen exhaustion?
+    if (OPTIONS->RetainExhaustedCoreEvolution() &&                                  // retain remaining MS lifetime after core hydrogen exhaustion?
         utils::Compare(m_HydrogenAbundanceCore, 0.0) <= 0 &&                        // core hydrogen exhausted (before this mass change)?
         utils::Compare(tMSprime, tMS) > 0) {                                        // star lost mass?
         m_Age = tMSprime - (tMS - m_Age);                                           // yes - keep remaining MS lifetime
@@ -1237,9 +1279,12 @@ double MainSequence::TAMSCoreMass() const {
 void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
-    m_Mass                 = p_Mass;
-    m_Mass0                = m_Mass;
-    m_MainSequenceCoreMass = 0.0;
+    m_Mass                           = p_Mass;
+    m_Mass0                          = m_Mass;
+    m_MainSequenceCoreMass           = 0.0;
+    m_ExhaustedCoreMassStart         = -1.0;                                                                     // merger product is rejuvenated - reset core hydrogen exhaustion records
+    m_ExhaustedCoreMassTarget        = -1.0;
+    m_ExhaustedCoreRemainingLifetime = -1.0;
     
     double initialHydrogenFraction = m_InitialHydrogenAbundance;
     

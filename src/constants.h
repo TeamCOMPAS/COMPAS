@@ -332,6 +332,9 @@ const DBL_VECTOR MIST_XC_RADIATIVE_Q_COEFFICIENTS       = { 1.3628, 0.1727, -0.6
 const DBL_VECTOR MIST_XC_CONVECTIVE_P_COEFFICIENTS      = { 1.2467, -0.1960 };                                      // c0, c1
 const DBL_VECTOR MIST_XC_CONVECTIVE_Q_COEFFICIENTS      = { 0.7074, 0.1585 };                                       // d0, d1
 const DBL_VECTOR MIST_PROCESSED_MASS_EXPONENT_COEFFICIENTS = { 1.15, 0.72, 1.4 };                                   // e0, e1, e2
+// Hydrogen-processed mass at TAMS, integral of L_H dt / (Q X_0) with Q = 6.3E18 erg/g (Msol): f0 + f1 M, fitted to MIST for M = 0.7 - 1.3 Msol (to within 5%), M clamped to that range
+// (used with --retain-exhausted-core-evolution; only needed for stars whose core hydrogen is exhausted before the end of the MS)
+const DBL_VECTOR MIST_PROCESSED_MASS_TAMS_COEFFICIENTS  = { 0.0810, 0.0876 };                                       // f0, f1
 // Maximum core mass to total mass ratio on the main sequence (when BRCEK core mass prescription is used)
 // Sets upper limit on the main-sequence convective core mass to prevent the star from becoming fully convective
 // Detailed models from MESA suggest that the convective core mass never exceeds ~90% of the total mass

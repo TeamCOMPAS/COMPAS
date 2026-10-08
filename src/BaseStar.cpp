@@ -131,6 +131,9 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_Tau                                      = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_Age                                      = 0.0;                                               // ensure age = 0.0 at construction (rather than default initial value)
     m_MainSequenceCoreMass                     = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_ExhaustedCoreMassStart                   = -1.0;
+    m_ExhaustedCoreMassTarget                  = -1.0;
+    m_ExhaustedCoreRemainingLifetime           = -1.0;
     m_Mass                                     = m_MZAMS;
     m_Mass0                                    = m_MZAMS;
     m_Luminosity                               = m_LZAMS;

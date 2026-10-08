@@ -442,6 +442,9 @@ protected:
     bool                    m_LBVphaseFlag;                             // Flag to know if the star satisfied the conditions, at any point in its evolution, to be considered a Luminous Blue Variable (LBV)
     double                  m_Luminosity;                               // Current luminosity (Lsol)
     double                  m_MainSequenceCoreMass;                     // Core mass of main sequence stars (Msol)
+    double                  m_ExhaustedCoreMassStart;                   // MS minimum core mass at core hydrogen exhaustion (Msol; < 0 if not set) - for --retain-exhausted-core-evolution
+    double                  m_ExhaustedCoreMassTarget;                  // MS minimum core mass at the end of the MS after core hydrogen exhaustion (Msol; < 0 if not set)
+    double                  m_ExhaustedCoreRemainingLifetime;           // Remaining MS lifetime at core hydrogen exhaustion (Myr; < 0 if not set)
     double                  m_Mass;                                     // Current mass (Msol)
     double                  m_Mass0;                                    // Current effective initial mass (Msol)
     double                  m_MinimumLuminosityOnPhase;                 // Only required for CHeB stars, but only needs to be calculated once per star

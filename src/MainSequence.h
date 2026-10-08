@@ -71,6 +71,7 @@ protected:
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
     double          CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass) const;
+    double          CalculateMinimumCoreMassAfterCoreHydrogenExhaustion(const double p_MinimumCoreMass);
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables
