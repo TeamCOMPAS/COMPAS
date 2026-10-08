@@ -2114,12 +2114,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             massDiffDonor = MassLossToFitInsideRocheLobe(this, m_Donor, m_Accretor, -1.0, m_Dt);            // use root solver to determine how much mass should be lost from the donor to allow it to fit within the Roche lobe, estimating accretion efficiency based on a mass donation rate of massDiffDonor/m_Dt for self-consistency
             std::tie(std::ignore, m_FractionAccreted) = m_Accretor->CalculateMassAcceptanceRate(massDiffDonor/m_Dt,
                                                                                                 m_Accretor->CalculateThermalMassAcceptanceRate(accretorRLradius), donorIsHeRich);
-
-            // Allow for inefficient mass transfer even for sub-Eddington accretion. 
-            // Jeff suggests that we could put this into a ::CalculateFractionAccreted function
-            if (m_Accretor->StellarType() == STELLAR_TYPE::NEUTRON_STAR){
-                m_FractionAccreted *= OPTIONS->NeutronStarAccretionEfficiencyParameter(); 
-            } 
+            // (inefficient accretion onto neutron stars, --neutron-star-accretion-efficiency-parameter, is applied in NS::CalculateMassAcceptanceRate())
         }
         
         // check that the star really would have consistently fit into the Roche lobe

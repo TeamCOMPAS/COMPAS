@@ -73,6 +73,12 @@ public:
 
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
 
+    DBL_DBL             CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                    const double p_AccretorMassRate);
+    DBL_DBL             CalculateMassAcceptanceRate(const double p_DonorMassRate,
+                                                    const double p_AccretorMassRate,
+                                                    const bool   p_IsHeRich)                    { return CalculateMassAcceptanceRate(p_DonorMassRate, p_AccretorMassRate); } // Ignore the He content for NSs
+
 
 protected:
     

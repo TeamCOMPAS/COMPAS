@@ -350,6 +350,34 @@ double NS::CalculateBirthMagneticField() {
 }
 
 /*
+ * Calculate the maximum mass acceptance rate and accretion efficiency of a neutron star
+ *
+ * Mdot_acc = min(f * Mdot_donor, Mdot_Edd), where f is --neutron-star-accretion-efficiency-parameter
+ *
+ * The efficiency f describes inefficient accretion at sub-Eddington supply rates (e.g. propeller phases and
+ * outflows in transient systems), so it applies to all stable mass transfer onto a NS, whether the donor
+ * transfers mass on a nuclear or a thermal timescale.  At supply rates above Mdot_Edd / f the accretion rate
+ * is Eddington-limited.  Implementing it here keeps the accretion efficiency consistent between the thermal
+ * and nuclear timescale branches of mass transfer and the root solver used to find the donor's mass loss.
+ *
+ *
+ * DBL_DBL CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate)
+ *
+ * @param   [IN]    p_DonorMassRate             Mass transfer rate of the donor
+ * @param   [IN]    p_AccretorMassRate          Thermal mass loss rate of the accretor (this star) - ignored here
+ * @return                                      Tuple containing the Maximum Mass Acceptance Rate and the Accretion Efficiency Parameter
+ */
+DBL_DBL NS::CalculateMassAcceptanceRate(const double p_DonorMassRate, const double p_AccretorMassRate) {
+
+    double efficiency       = OPTIONS->NeutronStarAccretionEfficiencyParameter();
+    double acceptanceRate   = std::min(efficiency * p_DonorMassRate, CalculateEddingtonCriticalRate());
+    double fractionAccreted = utils::Compare(p_DonorMassRate, 0.0) > 0 ? acceptanceRate / p_DonorMassRate : efficiency;
+
+    return std::make_tuple(acceptanceRate, fractionAccreted);
+}
+
+
+/*
  * Calculate the magnetic field decay due to accretion using user selected model
  * 
  * double CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain)

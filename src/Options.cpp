@@ -1639,7 +1639,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "neutron-star-accretion-efficiency-parameter",
             po::value<double>(&p_Options->m_NeutronStarAccretionEfficiencyParameter)->default_value(p_Options->m_NeutronStarAccretionEfficiencyParameter),
-            ("Neutron star accretion efficiency parameter during stable MT (default = " + std::to_string(p_Options->m_NeutronStarAccretionEfficiencyParameter) + ")").c_str()
+            ("Neutron star accretion efficiency f during stable MT: Mdot_acc = min(f * Mdot_transfer, Mdot_Edd) (default = " + std::to_string(p_Options->m_NeutronStarAccretionEfficiencyParameter) + ")").c_str()
         )
 
         (
