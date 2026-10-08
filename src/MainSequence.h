@@ -61,6 +61,7 @@ protected:
     double          CalculateHeliumAbundanceSurfaceOnPhase() const                          { return m_HeliumAbundanceSurface; }                                    // Use class member variables
     
     double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
+    double          CalculateHydrogenAbundanceCoreFraction(const double p_Tau, const double p_Mass) const;
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
     double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
     
@@ -68,6 +69,8 @@ protected:
     double          CalculateHydrogenAbundanceSurfaceOnPhase() const                        { return m_HydrogenAbundanceSurface; }                                  // Use class member variables
     
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
+
+    double          CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass) const;
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;
     double          CalculateLuminosityAtPhaseEnd() const                                   { return CalculateLuminosityAtPhaseEnd(m_Mass0); }                      // Use class member variables

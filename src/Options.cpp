@@ -459,6 +459,12 @@ void Options::OptionValues::Initialise() {
     // Core mass prescription
     m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
     m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
+    m_MainSequenceCoreMassBrcekMinimumMass                          = 1.5;                                                  // Must be > 0.7 Msol (BRCEK core initialised in MS_gt_07)
+
+    // Core hydrogen prescription (stars not using BRCEK)
+    m_MainSequenceCoreHydrogenPrescription.type                     = CORE_HYDROGEN_PRESCRIPTION::LINEAR;
+    m_MainSequenceCoreHydrogenPrescription.typeString               = CORE_HYDROGEN_PRESCRIPTION_LABEL.at(m_MainSequenceCoreHydrogenPrescription.type);
+    m_RetainRemainingMainSequenceLifetime                           = false;
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -1022,6 +1028,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "retain-remaining-main-sequence-lifetime",
+            po::value<bool>(&p_Options->m_RetainRemainingMainSequenceLifetime)->default_value(p_Options->m_RetainRemainingMainSequenceLifetime)->implicit_value(true),
+            ("Main sequence stars that lose mass after their core hydrogen is exhausted keep their remaining MS lifetime rather than their fractional age (only has an effect if core hydrogen is exhausted before the end of the MS, e.g. for low-mass stars with --main-sequence-core-hydrogen-prescription MIST) (default = " + std::string(p_Options->m_RetainRemainingMainSequenceLifetime ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "revised-energy-formalism-nandez-ivanova",                     
             po::value<bool>(&p_Options->m_RevisedEnergyFormalismNandezIvanova)->default_value(p_Options->m_RevisedEnergyFormalismNandezIvanova)->implicit_value(true),                            
             ("Enable revised energy formalism (default = " + std::string(p_Options->m_RevisedEnergyFormalismNandezIvanova ? "TRUE" : "FALSE") + ")").c_str()
@@ -1483,6 +1494,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Multiplicitive constant for LBV mass loss (default = " + std::to_string(p_Options->m_LuminousBlueVariableFactor) + ", use 10 for Mennekens & Vanbeveren 2014)").c_str()
         )
 
+        (
+            "main-sequence-core-mass-brcek-minimum-mass",
+            po::value<double>(&p_Options->m_MainSequenceCoreMassBrcekMinimumMass)->default_value(p_Options->m_MainSequenceCoreMassBrcekMinimumMass),
+            ("ZAMS mass above which (inclusive) the BRCEK main sequence core mass prescription is applied; lower-mass stars use the MANDEL prescription, in Msol (must be > 0.7; default = " + std::to_string(p_Options->m_MainSequenceCoreMassBrcekMinimumMass) + ")").c_str()
+        )
         (
             "maltsev-fallback",
             po::value<double>(&p_Options->m_MaltsevFallback)->default_value(p_Options->m_MaltsevFallback),
@@ -2039,6 +2055,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("LBV Mass loss prescription (" + AllowedOptionValuesFormatted("LBV-mass-loss-prescription") + ", default = '" + p_Options->m_LBVMassLossPrescription.typeString + "')").c_str()
         )
         (
+            "main-sequence-core-hydrogen-prescription",
+            po::value<std::string>(&p_Options->m_MainSequenceCoreHydrogenPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreHydrogenPrescription.typeString),
+            ("Main Sequence core hydrogen depletion X_c(tau) and minimum core mass growth for stars not using the BRCEK core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-hydrogen-prescription") + ", default = '" + p_Options->m_MainSequenceCoreHydrogenPrescription.typeString + "')").c_str()
+        )
+        (
             "main-sequence-core-mass-prescription",
             po::value<std::string>(&p_Options->m_MainSequenceCoreMassPrescription.typeString)->default_value(p_Options->m_MainSequenceCoreMassPrescription.typeString),
             
@@ -2520,6 +2541,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             std::tie(found, m_MainSequenceCoreMassPrescription.type) = utils::GetMapKey(m_MainSequenceCoreMassPrescription.typeString, CORE_MASS_PRESCRIPTION_LABEL, m_MainSequenceCoreMassPrescription.type);
             COMPLAIN_IF(!found, "Unknown Main Sequence Core Mass Prescription");
         }
+
+        if (!DEFAULTED("main-sequence-core-hydrogen-prescription")) {                                                               // main sequence core hydrogen prescription
+            std::tie(found, m_MainSequenceCoreHydrogenPrescription.type) = utils::GetMapKey(m_MainSequenceCoreHydrogenPrescription.typeString, CORE_HYDROGEN_PRESCRIPTION_LABEL, m_MainSequenceCoreHydrogenPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Main Sequence Core Hydrogen Prescription");
+        }
         
         if (!DEFAULTED("maltsev-mode")) {                                                                                 // mass loss prescription
             std::tie(found, m_MaltsevMode.type) = utils::GetMapKey(m_MaltsevMode.typeString, MALTSEV_MODE_LABEL, m_MaltsevMode.type);
@@ -2712,6 +2738,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
         
+        COMPLAIN_IF(m_MainSequenceCoreMassBrcekMinimumMass <= 0.7, "BRCEK minimum mass (--main-sequence-core-mass-brcek-minimum-mass) must be > 0.7 Msol");
+
         COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
 
         COMPLAIN_IF(m_MassChangeFraction <= 0.0, "Mass change fraction per timestep (--mass-change-fraction) <= 0");
@@ -2944,6 +2972,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("kick-magnitude-distribution")                       : POPULATE_RET(KICK_MAGNITUDE_DISTRIBUTION_LABEL);                  break;
         case _("logfile-type")                                      : POPULATE_RET(LOGFILETYPELabel);                                   break;
         case _("LBV-mass-loss-prescription")                        : POPULATE_RET(LBV_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
+        case _("main-sequence-core-hydrogen-prescription")          : POPULATE_RET(CORE_HYDROGEN_PRESCRIPTION_LABEL);                   break;
         case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                       break;
         case _("maltsev-mode")                                      : POPULATE_RET(MALTSEV_MODE_LABEL);                             break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                       break;

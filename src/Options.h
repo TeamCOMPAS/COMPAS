@@ -667,6 +667,7 @@ private:
         "logfile-system-parameters-record-types",
         "logfile-type",
 
+        "main-sequence-core-hydrogen-prescription",
         "main-sequence-core-mass-prescription",
         "maltsev-mode",
         "mass-change-fraction",
@@ -707,6 +708,7 @@ private:
         "radial-change-fraction",
         "random-seed",
         "remnant-mass-prescription",
+        "retain-remaining-main-sequence-lifetime",
         "revised-energy-formalism-nandez-ivanova",
         "rlof-printing",
         "rotational-velocity-distribution",
@@ -1071,6 +1073,9 @@ public:
             bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
 
             ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
+            double                                              m_MainSequenceCoreMassBrcekMinimumMass;                         // ZAMS mass (Msol) above which (inclusive) the BRCEK core mass prescription is applied
+            ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
+            bool                                                m_RetainRemainingMainSequenceLifetime;                          // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime
         
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
@@ -1627,6 +1632,8 @@ public:
     double                                      LuminousBlueVariableFactor() const                                      { return OPT_VALUE("luminous-blue-variable-multiplier", m_LuminousBlueVariableFactor, true); }
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
+    CORE_HYDROGEN_PRESCRIPTION                  MainSequenceCoreHydrogenPrescription() const                            { return OPT_VALUE("main-sequence-core-hydrogen-prescription", m_MainSequenceCoreHydrogenPrescription.type, true); }
+    double                                      MainSequenceCoreMassBrcekMinimumMass() const                            { return OPT_VALUE("main-sequence-core-mass-brcek-minimum-mass", m_MainSequenceCoreMassBrcekMinimumMass, true); }
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
 
     double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
@@ -1774,6 +1781,7 @@ public:
     RESPONSE_TO_SPIN_UP                         ResponseToSpinUp() const                                                { return OPT_VALUE("response-to-spin-up", m_ResponseToSpinUp.type, true); }
     
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
+    bool                                        RetainRemainingMainSequenceLifetime() const                             { return OPT_VALUE("retain-remaining-main-sequence-lifetime", m_RetainRemainingMainSequenceLifetime, true); }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 

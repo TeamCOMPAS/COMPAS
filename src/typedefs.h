@@ -395,6 +395,13 @@ const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIP
     { CORE_MASS_PRESCRIPTION::BRCEK,  "BRCEK" }
 };
 
+// main sequence core hydrogen prescription (for stars whose core composition is not evolved by the BRCEK core mass prescription)
+enum class CORE_HYDROGEN_PRESCRIPTION: int { LINEAR, MIST };
+const COMPASUnorderedMap<CORE_HYDROGEN_PRESCRIPTION, std::string> CORE_HYDROGEN_PRESCRIPTION_LABEL = {
+    { CORE_HYDROGEN_PRESCRIPTION::LINEAR, "LINEAR" },
+    { CORE_HYDROGEN_PRESCRIPTION::MIST,   "MIST" }
+};
+
 // logfile delimiters
 enum class DELIMITER: int { TAB, SPACE, COMMA };
 const COMPASUnorderedMap<DELIMITER, std::string> DELIMITERLabel = {         // labels

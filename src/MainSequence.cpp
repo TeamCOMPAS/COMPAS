@@ -13,14 +13,10 @@
 /*
  * Calculate the helium abundance in the core of the star
  * 
- * Currently just a simple linear model from the initial helium abundance to 
- * the maximum helium abundance (assuming that all hydrogen is converted to
- * helium). 
- * 
- * When tau = 0, heliumAbundanceCore = m_InitialHeliumAbundance
- * When tau = 1, heliumAbundanceCore = heliumAbundanceCoreMax = 1.0 - m_Metallicity
- * 
- * Should be updated to match detailed models.
+ * Unless the BRCEK core mass prescription is used, helium is assumed to replace the hydrogen burned in the core:
+ * Y_c = 1 - Z - X_c, with X_c given by CalculateHydrogenAbundanceCoreOnPhase()
+ * (for --main-sequence-core-hydrogen-prescription LINEAR this is a linear model from the initial helium abundance
+ * at tau = 0 to the maximum helium abundance 1 - Z at tau = 1)
  *
  * double CalculateHeliumAbundanceCoreOnPhase(const double p_Tau)
  * 
@@ -30,19 +26,20 @@
 double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) const {
     
     // If BRCEK core mass prescription is used, core helium abundance is calculated with the core mass
-    return ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
-            ? m_HeliumAbundanceCore
-            : ((1.0 - m_Metallicity - m_InitialHeliumAbundance) * p_Tau) + m_InitialHeliumAbundance;
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0))
+        return m_HeliumAbundanceCore;
+
+    return (OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::LINEAR)
+            ? ((1.0 - m_Metallicity - m_InitialHeliumAbundance) * p_Tau) + m_InitialHeliumAbundance
+            : 1.0 - m_Metallicity - CalculateHydrogenAbundanceCoreOnPhase(p_Tau);
 }
 
 
 /*
  * Calculate the hydrogen abundance in the core of the star
  * 
- * Currently just a simple linear model. Assumes that hydrogen in the core of 
- * the star is burned to helium at a constant rate throughout the lifetime. 
- * 
- * Should be updated to match detailed models.
+ * Unless the BRCEK core mass prescription is used, X_c = X_0 f(tau, M0), where f is given by
+ * CalculateHydrogenAbundanceCoreFraction() (f = 1 - tau for --main-sequence-core-hydrogen-prescription LINEAR)
  *
  * double CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau)
  * 
@@ -52,9 +49,61 @@ double MainSequence::CalculateHeliumAbundanceCoreOnPhase(const double p_Tau) con
 double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const {
     
     // If BRCEK core mass prescription is used, core helium abundance is calculated with the core mass
-    return ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
+    return ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0))
             ? 1.0 - m_HeliumAbundanceCore - m_Metallicity
-            : m_InitialHydrogenAbundance * (1.0 - p_Tau);
+            : m_InitialHydrogenAbundance * CalculateHydrogenAbundanceCoreFraction(p_Tau, m_Mass0);
+}
+
+
+/*
+ * Calculate the core hydrogen abundance relative to its initial value, X_c / X_0, for stars whose core composition
+ * is not evolved explicitly by the BRCEK core mass prescription
+ *
+ * LINEAR: X_c / X_0 = 1 - tau
+ *
+ * MIST:   fits to MIST v2.5 ([Fe/H] = 0, non-rotating) stellar tracks between ZAMS and TAMS (X_c = 1E-12); see constants.h
+ *         - radiative cores  (M <= 1.15 Msol): X_c / X_0 = max(0, 1 - tau / tau_0)^q
+ *           The core hydrogen is exhausted at tau = tau_0 (~0.9 at 0.7 Msol, ~0.66 at 1.15 Msol); the remainder of the MS is spent
+ *           building up the hydrogen-exhausted core by burning in a thick shell
+ *         - convective cores (M >= 1.30 Msol): X_c / X_0 = (1 - tau^p)^q
+ *         - linear interpolation in mass in between
+ *         The fits reproduce the MIST tracks (0.7 - 20 Msol) to within |delta X_c| <= 0.03 for M <= 1.15 Msol and M >= 1.5 Msol, and
+ *         < 0.04 for 1.3 - 1.5 Msol; MIST X_c(tau) is irregular for 1.15 - 1.3 Msol, where the interpolation is good to ~0.12
+ *
+ * Following Hurley et al. (2000), main sequence properties are functions of the effective initial mass (m_Mass0) and fractional age (tau)
+ *
+ *
+ * double CalculateHydrogenAbundanceCoreFraction(const double p_Tau, const double p_Mass)
+ *
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ * @param   [IN]    p_Mass                      (Effective initial) mass in Msol
+ * @return                                      Core hydrogen abundance relative to its initial value (X_c / X_0)
+ */
+double MainSequence::CalculateHydrogenAbundanceCoreFraction(const double p_Tau, const double p_Mass) const {
+
+    if (OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::LINEAR) return 1.0 - p_Tau;
+
+    double tau = std::min(std::max(p_Tau, 0.0), 1.0);
+
+    auto radiativeCoreFraction = [tau](const double p_M) {
+        double mass = std::min(std::max(p_M, MIST_RADIATIVE_CORE_MINIMUM_MASS), MIST_RADIATIVE_CORE_MAXIMUM_MASS);
+        double tau0 = MIST_XC_TAU0_COEFFICIENTS[0] + mass * (MIST_XC_TAU0_COEFFICIENTS[1] + mass * MIST_XC_TAU0_COEFFICIENTS[2]);
+        double q    = MIST_XC_RADIATIVE_Q_COEFFICIENTS[0] + mass * (MIST_XC_RADIATIVE_Q_COEFFICIENTS[1] + mass * MIST_XC_RADIATIVE_Q_COEFFICIENTS[2]);
+        return PPOW(std::max(0.0, 1.0 - tau / tau0), q);
+    };
+
+    auto convectiveCoreFraction = [tau](const double p_M) {
+        double s = PPOW(MIST_CONVECTIVE_CORE_MINIMUM_MASS / std::max(p_M, MIST_CONVECTIVE_CORE_MINIMUM_MASS), 3.0);
+        double p = MIST_XC_CONVECTIVE_P_COEFFICIENTS[0] + MIST_XC_CONVECTIVE_P_COEFFICIENTS[1] * s;
+        double q = MIST_XC_CONVECTIVE_Q_COEFFICIENTS[0] + MIST_XC_CONVECTIVE_Q_COEFFICIENTS[1] * s;
+        return PPOW(std::max(0.0, 1.0 - PPOW(tau, p)), q);
+    };
+
+    if (utils::Compare(p_Mass, MIST_RADIATIVE_CORE_MAXIMUM_MASS) <= 0) return radiativeCoreFraction(p_Mass);
+    if (utils::Compare(p_Mass, MIST_CONVECTIVE_CORE_MINIMUM_MASS) >= 0) return convectiveCoreFraction(p_Mass);
+
+    double weight = (p_Mass - MIST_RADIATIVE_CORE_MAXIMUM_MASS) / (MIST_CONVECTIVE_CORE_MINIMUM_MASS - MIST_RADIATIVE_CORE_MAXIMUM_MASS);
+    return (1.0 - weight) * radiativeCoreFraction(MIST_RADIATIVE_CORE_MAXIMUM_MASS) + weight * convectiveCoreFraction(MIST_CONVECTIVE_CORE_MINIMUM_MASS);
 }
 
 
@@ -289,9 +338,9 @@ double MainSequence::CalculateLuminosityOnPhase(const double p_Time, const doubl
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
     
     // If BRCEK core prescription is used, return luminosity from Shikauchi et al. (2024) during core hydrogen burning (valid for MZAMS >= 15 Msol) or
-    // luminosity that smoothly connects MS and HG during MS hook (valid for MZAMS >= BRCEK_LOWER_MASS_LIMIT); do not use Shikauchi luminosity
+    // luminosity that smoothly connects MS and HG during MS hook (valid for MZAMS >= the BRCEK minimum mass); do not use Shikauchi luminosity
     // prescription during CHE
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) && !m_CHE) {
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0) && !m_CHE) {
         if (utils::Compare(p_Time, 0.99 * timescales(tMS)) > 0)                                                                 // star in MS hook?
             return CalculateLuminosityTransitionToHG(p_Mass, p_Time, p_LZAMS);
         else {
@@ -379,7 +428,7 @@ double MainSequence::CalculateLuminosityTransitionToHG(const double p_Mass, cons
     double ageAtHookStart = 0.99 * timescales(tMS);
     
     double luminosityAtHookStart;
-    if (utils::Compare(m_MZAMS, std::max(15.0, BRCEK_LOWER_MASS_LIMIT)) >= 0)
+    if (utils::Compare(m_MZAMS, std::max(15.0, OPTIONS->MainSequenceCoreMassBrcekMinimumMass())) >= 0)
         luminosityAtHookStart = CalculateLuminosityShikauchi(m_MainSequenceCoreMass, m_HeliumAbundanceCore);                    // In the hook, core helium abundance fixed at 1-Z and core mass is not changing
     else
         luminosityAtHookStart = CalculateLuminosityOnPhase(ageAtHookStart, p_Mass, p_LZAMS);                                    // Do not use Shikauchi luminosity for MZAMS < 15 Msun
@@ -559,8 +608,8 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
 #define a m_AnCoefficients                                          // for convenience and readability - undefined at end of function
 
     // If BRCEK core prescription is used, return radius that smoothly connects the beginning of MS hook and the beginning of HG,
-    // valid for stars with MZAMS >= BRCEK_LOWER_MASS_LIMIT
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+    // valid for stars with MZAMS >= the BRCEK minimum mass
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)) {
         if (utils::Compare(p_Tau, 0.99) > 0)                                                                                        // star in MS hook?
             return CalculateRadiusTransitionToHG(p_Mass, p_Tau, p_RZAMS);
     }
@@ -599,7 +648,7 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
     radius = p_RZAMS * PPOW(10.0, logRMS_RZAMS);                                                                                    // rewrite Hurley et al. 2000, eq 13 for R(t)
     
     // If BRCEK prescription is used and star was stripped below its initial core mass, radius needs to be adjusted
-    if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
+    if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0) {
         
         double heliumAbundanceSurface = m_HeliumAbundanceSurface;
         if (utils::Compare(p_Mass, m_InitialMainSequenceCoreMass) < 0)
@@ -878,16 +927,17 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
             break;
         
         case CORE_MASS_PRESCRIPTION::MANDEL: 
-            // Calculate the minimum core mass of a main sequence star that loses mass through Case A mass transfer as the core mass of a TAMS star, scaled by the fractional age.
+            // Calculate the minimum core mass of a main sequence star that loses mass through Case A mass transfer as the core mass of a TAMS star, scaled by the fractional age
+            // (or, for --main-sequence-core-hydrogen-prescription MIST, by the hydrogen-processed mass relative to its value at TAMS; see CalculateMinimumCoreMassFraction())
             // Only applied to donors as part of binary evolution, not applied to SSE
             if ((OPTIONS->RetainCoreMassDuringCaseAMassTransfer()) && (p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0))
-                mainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateTauOnPhase() * TAMSCoreMass());
+                mainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateMinimumCoreMassFraction(CalculateTauOnPhase(), m_Mass0) * TAMSCoreMass());
             break;
         
         case CORE_MASS_PRESCRIPTION::BRCEK:
             // Set core mass following Shikauchi et al. (2024) and account for rejuvenation if core grows
-            // MZAMS >= BRCEK_LOWER_MASS_LIMIT? BRCEK prescription valid
-            if (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0) {
+            // MZAMS >= the BRCEK minimum mass? BRCEK prescription valid
+            if (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0) {
                 // Only proceed with calculations if star is not in MS hook (Yc < 1-Z) and time step is not zero
                 if ((utils::Compare(m_HeliumAbundanceCore, 1.0 - m_Metallicity) < 0) && (utils::Compare(p_Dt, 0.0) != 0)) {
                     // Update the core mass and central helium fraction only if the mass loss rate argument is equal to the total mass loss rate
@@ -904,11 +954,11 @@ void MainSequence::UpdateMainSequenceCoreMass(const double p_Dt, const double p_
                         age = (heliumAbundanceCore - m_InitialHeliumAbundance) / m_InitialHydrogenAbundance * 0.99 * timescales(tMS);
                 }
             }
-            // MZAMS < BRCEK_LOWER_MASS_LIMIT? MANDEL prescription used
+            // MZAMS < the BRCEK minimum mass? MANDEL prescription used
             else {
                 // Only applied to donors as part of binary evolution, not applied to SSE
                 if ((p_MassLossRate < 0.0) && (utils::Compare(p_MassLossRate, -m_Mdot) != 0))
-                    mainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateTauOnPhase() * TAMSCoreMass());
+                    mainSequenceCoreMass = std::max(m_MainSequenceCoreMass, CalculateMinimumCoreMassFraction(CalculateTauOnPhase(), m_Mass0) * TAMSCoreMass());
             }
             break;
 
@@ -977,9 +1027,39 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 
 
 /*
+ * Calculate the fraction of the TAMS core mass used for the minimum core mass of MS stars that lose mass
+ * (MANDEL core mass prescription, and BRCEK below the BRCEK minimum mass)
+ *
+ * LINEAR: tau
+ * MIST:   tau^k, k = 1.15 + 0.72 max(0, 1.4 - M), the hydrogen-processed mass (integral of L_H dt / (Q X_0)) relative to
+ *         its value at TAMS, fitted to MIST v2.5 ([Fe/H] = 0, non-rotating) tracks: to within 0.05 of the TAMS value for 0.7 - 5 Msol
+ *         and 0.065 for 5 - 20 Msol (cf. up to 0.19 for tau)
+ *
+ *
+ * double CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass)
+ *
+ * @param   [IN]    p_Tau                       Fraction of main sequence lifetime
+ * @param   [IN]    p_Mass                      (Effective initial) mass in Msol
+ * @return                                      Minimum core mass as a fraction of the TAMS core mass
+ */
+double MainSequence::CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass) const {
+
+    if (OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::LINEAR) return p_Tau;
+
+    double exponent = MIST_PROCESSED_MASS_EXPONENT_COEFFICIENTS[0] + MIST_PROCESSED_MASS_EXPONENT_COEFFICIENTS[1] * std::max(0.0, MIST_PROCESSED_MASS_EXPONENT_COEFFICIENTS[2] - p_Mass);
+    return PPOW(std::min(std::max(p_Tau, 0.0), 1.0), exponent);
+}
+
+
+/*
  * Recalculates the star's age after mass loss
  *
- * Hurley et al. 2000, section 7.1
+ * Hurley et al. 2000, section 7.1: the fractional age tau is kept fixed
+ *
+ * If --retain-remaining-main-sequence-lifetime is set and the core hydrogen of a star that loses mass is already
+ * exhausted (which happens before the end of the MS for low-mass stars with --main-sequence-core-hydrogen-prescription MIST),
+ * the remaining MS lifetime is kept fixed instead: the rest of the MS is then spent building up the hydrogen-exhausted
+ * core by burning in a thick shell, which is set by the core rather than by the (stripped) envelope
  *
  * Modifies attribute m_Age
  *
@@ -993,7 +1073,14 @@ void MainSequence::UpdateAgeAfterMassLoss() {
     double tBGBprime = CalculateLifetimeToBGB(m_Mass);
     double tMSprime  = MainSequence::CalculateLifetimeOnPhase(m_Mass, tBGBprime);
     
-    m_Age *= tMSprime / tMS;
+    if (OPTIONS->RetainRemainingMainSequenceLifetime() &&                           // retain remaining MS lifetime after core hydrogen exhaustion?
+        utils::Compare(m_HydrogenAbundanceCore, 0.0) <= 0 &&                        // core hydrogen exhausted (before this mass change)?
+        utils::Compare(tMSprime, tMS) > 0) {                                        // star lost mass?
+        m_Age = tMSprime - (tMS - m_Age);                                           // yes - keep remaining MS lifetime
+    }
+    else {
+        m_Age *= tMSprime / tMS;                                                    // keep fractional age
+    }
     CalculateTimescales(m_Mass, m_Timescales);                                      // must update timescales
 }
 
@@ -1161,7 +1248,7 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_HeliumAbundanceSurface   = m_HeliumAbundanceCore;                                         // abundances are the same throughout the star, assuming uniform mixing after merger
     m_HydrogenAbundanceSurface = m_HydrogenAbundanceCore;
     
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)) {
         m_InitialMainSequenceCoreMass = CalculateInitialMainSequenceCoreMass(p_Mass, m_HeliumAbundanceCore);           // update initial mixing core mass
         m_MainSequenceCoreMass        = m_InitialMainSequenceCoreMass;                                                 // update core mass
     }

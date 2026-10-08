@@ -308,9 +308,23 @@ constexpr double STARTRACK_PPISN_HE_CORE_MASS           = 45.0;                 
 
 constexpr double Q_CNO                                  = 9.9073E4;                                                 // Energy released per unit mass by hydrogen fusion via the CNO cycle in Lsol Myr Msol-1
 
-// Initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
-// Note that this value should always be > 0.7 Msol
-constexpr double BRCEK_LOWER_MASS_LIMIT                 = 1.5;
+// The initial mass of stars above which (including the limit) we allow convective core mass calculations from Shikauchi et al. (2024) and rejuvenation calculations
+// is set by program option --main-sequence-core-mass-brcek-minimum-mass (default 1.5 Msol; must be > 0.7 Msol)
+
+// Fits to the core hydrogen abundance and hydrogen-processed mass of MIST v2.5 ([Fe/H] = 0, [a/Fe] = 0, v/vcrit = 0) stellar tracks (https://mist.science)
+// between ZAMS and TAMS (X_c = 1E-12), used when --main-sequence-core-hydrogen-prescription = MIST (see MainSequence::CalculateHydrogenAbundanceCoreFraction())
+// Radiative cores    (M <= MIST_RADIATIVE_CORE_MAXIMUM_MASS):  X_c / X_0 = max(0, 1 - tau / tau_0)^q, tau_0 = a0 + a1 M + a2 M^2, q = b0 + b1 M + b2 M^2 (M >= MIST_RADIATIVE_CORE_MINIMUM_MASS)
+// Convective cores   (M >= MIST_CONVECTIVE_CORE_MINIMUM_MASS): X_c / X_0 = (1 - tau^p)^q, p = c0 + c1 s, q = d0 + d1 s, s = (MIST_CONVECTIVE_CORE_MINIMUM_MASS / M)^3
+// In between, X_c / X_0 is interpolated linearly in mass
+// Hydrogen-processed mass relative to its value at TAMS: tau^k, k = e0 + e1 max(0, e2 - M) (used to scale the MANDEL minimum core mass)
+constexpr double MIST_RADIATIVE_CORE_MINIMUM_MASS       = 0.7;                                                      // Radiative-core fit coefficients are evaluated at max(M, 0.7) Msol (lowest MIST mass fitted)
+constexpr double MIST_RADIATIVE_CORE_MAXIMUM_MASS       = 1.15;                                                     // Maximum mass (Msol) for which the radiative-core fit is used
+constexpr double MIST_CONVECTIVE_CORE_MINIMUM_MASS      = 1.30;                                                     // Minimum mass (Msol) for which the convective-core fit is used
+const DBL_VECTOR MIST_XC_TAU0_COEFFICIENTS              = { 0.5907, 1.0543, -0.8663 };                              // a0, a1, a2
+const DBL_VECTOR MIST_XC_RADIATIVE_Q_COEFFICIENTS       = { 1.3628, 0.1727, -0.6219 };                              // b0, b1, b2
+const DBL_VECTOR MIST_XC_CONVECTIVE_P_COEFFICIENTS      = { 1.2467, -0.1960 };                                      // c0, c1
+const DBL_VECTOR MIST_XC_CONVECTIVE_Q_COEFFICIENTS      = { 0.7074, 0.1585 };                                       // d0, d1
+const DBL_VECTOR MIST_PROCESSED_MASS_EXPONENT_COEFFICIENTS = { 1.15, 0.72, 1.4 };                                   // e0, e1, e2
 // Maximum core mass to total mass ratio on the main sequence (when BRCEK core mass prescription is used)
 // Sets upper limit on the main-sequence convective core mass to prevent the star from becoming fully convective
 // Detailed models from MESA suggest that the convective core mass never exceeds ~90% of the total mass

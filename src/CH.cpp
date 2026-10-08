@@ -422,7 +422,7 @@ STELLAR_TYPE CH::EvolveToNextPhase() {
         m_CHE       = false;                                                // evolved CH->MS
         
         // if BRCEK core mass calculations enabled, initialise the core mass based on current mass and central helium fraction
-        if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
+        if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0))
             m_MainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_Mass, m_HeliumAbundanceCore);
     }
     else {                                                                  // yes

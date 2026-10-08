@@ -11,6 +11,12 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
   - Added new option ``--neutron-star-accretion-efficiency-parameter`` to allow for inefficient sub-Eddington accretion on to neutron stars
   - Added birth distributions for the pulsar properties of MSPs born in AIC (``msp-birth-magnetic-field-distribution`` and ``msp-birth-spin-period-distribution``)
   - Added new option ``--pulsar-magnetic-field-decay-timescale-power`` and correspondingly changed how the magnetic field decay timescale is calculated in ``NS::CalculateMagneticFieldDecayTimescale``
+* Main sequence core hydrogen and core mass memory of low-mass stars:
+  - Added option ``--main-sequence-core-hydrogen-prescription`` (``LINEAR`` (default) or ``MIST``): ``MIST`` uses fits to MIST v2.5 tracks for the core hydrogen abundance :math:`X_c(\tau, M)`
+    and for the growth of the ``MANDEL`` minimum core mass (:math:`\tau^k` instead of :math:`\tau`) of stars not evolved with ``BRCEK``
+  - Added option ``--retain-remaining-main-sequence-lifetime`` (default FALSE): MS stars that lose mass after their core hydrogen is exhausted keep their remaining MS lifetime
+    rather than their fractional age
+  - Added option ``--main-sequence-core-mass-brcek-minimum-mass`` (default 1.5): the ZAMS mass above which ``BRCEK`` is applied (previously the fixed constant ``BRCEK_LOWER_MASS_LIMIT``)
 * Defect repair: the binary mass transfer timescale (and the RLOF record luminosities, temperatures and previous time) are now initialised, so the first detailed output
   record no longer reports an uninitialised ``MassTransferTimescale``
 

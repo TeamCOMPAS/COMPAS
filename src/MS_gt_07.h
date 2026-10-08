@@ -45,7 +45,7 @@ protected:
         // Initialise core mass, luminosity, radius, and temperature if Brcek core mass prescription is used
         // Only do this once - this should not be done if a CH star spins down and becomes a MS star (when using CHE_MODE::PESSIMISTIC)
         if (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&                                                             // Brcek core mass prescription?
-            utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0                         &&                                                             // ZAMS mass >= BRCEK_LOWER_MASS_LIMIT?
+            utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0 &&                                                             // ZAMS mass >= BRCEK minimum mass?
             m_Time <= 0.0) {                                                                                                                            // star not yet aged past creation?
                                                                                                                                                         // yes - initialise
             m_InitialMainSequenceCoreMass = MainSequence::CalculateInitialMainSequenceCoreMass(m_MZAMS, m_InitialHeliumAbundance);

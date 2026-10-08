@@ -1811,8 +1811,8 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     
     double finalHydrogenMass;
     if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) &&
-        (utils::Compare(m_Star1->MZAMS(), BRCEK_LOWER_MASS_LIMIT) >= 0)                &&
-        (utils::Compare(m_Star2->MZAMS(), BRCEK_LOWER_MASS_LIMIT) >= 0)) {
+        (utils::Compare(m_Star1->MZAMS(), OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)                &&
+        (utils::Compare(m_Star2->MZAMS(), OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)) {
         
         // total hydrogen masses (from the core, envelope, and the intermediate region between the core and envelope)
         double hydrogenMass1 = m_Star1->HydrogenAbundanceCore() * m_Star1->MainSequenceCoreMass() + (m_Star1->HydrogenAbundanceCore() + m_Star1->HydrogenAbundanceSurface()) * (std::min(m_Star1->InitialMainSequenceCoreMass(), m_Star1->Mass()) - m_Star1->MainSequenceCoreMass()) / 2.0 + m_Star1->HydrogenAbundanceSurface() * std::max(m_Star1->Mass() - m_Star1->InitialMainSequenceCoreMass(), 0.0);

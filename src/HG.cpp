@@ -892,7 +892,7 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]      // for convenience and readability - undefined at end of function
 
     double RTMS;  
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, BRCEK_LOWER_MASS_LIMIT) >= 0))
+    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) && (utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0))
         // p_Mass generally has the value of m_Mass0, but since m_Mass is used for radius calculations on the MS and m_Mass0
         // is updated to a new value when BRCEK prescription is used, we need to use m_Mass here to keep radius continuous
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(m_Mass, p_RZAMS);

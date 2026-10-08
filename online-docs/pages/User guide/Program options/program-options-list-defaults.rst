@@ -812,6 +812,17 @@ Default = 4.2
 
 :ref:`Back to Top <options-props-top>`
 
+**--main-sequence-core-hydrogen-prescription** |br|
+Main sequence core hydrogen depletion and minimum core mass growth, for stars whose core composition is not evolved by the ``BRCEK`` core mass prescription. |br|
+Options: {LINEAR, MIST} |br|
+``LINEAR`` : The core hydrogen abundance decreases linearly with fractional MS age, :math:`X_c = X_0 (1 - \tau)`, and the ``MANDEL`` minimum core mass grows as :math:`\tau` |br|
+``MIST``   : Fits to MIST v2.5 ([Fe/H] = 0, non-rotating) stellar tracks between ZAMS and TAMS (0.7 - 20 :math:`M_\odot`). For radiative cores (:math:`M \le 1.15\,M_\odot`) :math:`X_c = X_0 \max(0, 1 - \tau/\tau_0)^q`, so the core hydrogen is exhausted at :math:`\tau_0 \approx 0.66 - 0.9` and the rest of the MS is spent building up the hydrogen-exhausted core; for convective cores (:math:`M \ge 1.3\,M_\odot`) :math:`X_c = X_0 (1 - \tau^p)^q`, with linear interpolation in mass in between. The ``MANDEL`` minimum core mass grows as the hydrogen-processed mass, :math:`\tau^k` with :math:`k = 1.15 + 0.72 \max(0, 1.4 - M)`. Following Hurley et al. (2000), the fits are evaluated at the effective initial mass and fractional age of the star. |br|
+Default = LINEAR
+
+**--main-sequence-core-mass-brcek-minimum-mass** |br|
+ZAMS mass (:math:`M_\odot`) above which (inclusive) the ``BRCEK`` main sequence core mass prescription is applied when ``--main-sequence-core-mass-prescription BRCEK`` is used; lower-mass stars use the ``MANDEL`` prescription. Must be > 0.7. |br|
+Default = 1.5
+
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
 Options: {HURLEY, MANDEL, BRCEK} |br|
@@ -1252,6 +1263,10 @@ scaled by the fraction of the donor's MS lifetime at mass transfer. |br|
 Default = TRUE |br|
 DEPRECATION NOTICE: this option has been deprecated and will soon be removed. Please use ``--main-sequence-core-mass-prescription MANDEL`` in future.
 
+**--retain-remaining-main-sequence-lifetime** |br|
+If TRUE, a main sequence star that loses mass after its core hydrogen is exhausted keeps its remaining MS lifetime, rather than its fractional age (Hurley et al. 2000): the rest of the MS is spent building up the hydrogen-exhausted core, which is set by the core rather than by the stripped envelope. Only has an effect if the core hydrogen is exhausted before the end of the MS, e.g. for low-mass stars with ``--main-sequence-core-hydrogen-prescription MIST``. |br|
+Default = FALSE
+
 **--revised-energy-formalism-nandez-ivanova** |br|
 Enable revised energy formalism of Nandez & Ivanova. |br|
 Default = FALSE
@@ -1537,7 +1552,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-mass-prescription, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --retain-remaining-main-sequence-lifetime, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
