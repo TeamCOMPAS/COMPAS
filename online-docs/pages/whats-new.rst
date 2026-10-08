@@ -23,6 +23,8 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
   ``RVJ83`` is the Rappaport, Verbunt & Joss (1983) law, with the exponent of the stellar radius set by the new option ``--magnetic-braking-gamma`` (default 4.0),
   quenched for stars with thin convective envelopes following Podsiadlowski, Rappaport & Pfahl (2002). Stars are assumed to be tidally locked, so the
   angular momentum is removed from the orbit. With the default (``NONE``) results are unchanged.
+* Added option ``--main-sequence-degenerate-radius`` (default TRUE): low-mass (:math:`\le 0.7\,M_\odot`) main sequence stars get the SSE degenerate radius floor
+  :math:`R = \max(R, 0.0258 (1+X)^{5/3} M^{-1/3}) R_\odot`, so that donors stripped to very low mass expand as they lose mass rather than contracting.
 
 **03.29.00 January 30, 2026**
 * Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.

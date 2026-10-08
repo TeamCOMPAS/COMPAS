@@ -426,6 +426,7 @@ void Options::OptionValues::Initialise() {
 
     // Mass loss options
     m_CheckPhotonTiringLimit                                        = false;
+    m_MainSequenceDegenerateRadius                                  = true;
     
     m_EnableRotationallyEnhancedMassLoss                            = false;
     m_ExpelConvectiveEnvelopeAboveLuminosityThreshold               = false;
@@ -880,6 +881,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "check-photon-tiring-limit",
             po::value<bool>(&p_Options->m_CheckPhotonTiringLimit)->default_value(p_Options->m_CheckPhotonTiringLimit)->implicit_value(true),                            
             ("Check the photon tiring limit hasn't been exceeded by wind mass loss (default = " + std::string(p_Options->m_CheckPhotonTiringLimit ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "main-sequence-degenerate-radius",
+            po::value<bool>(&p_Options->m_MainSequenceDegenerateRadius)->default_value(p_Options->m_MainSequenceDegenerateRadius)->implicit_value(true),
+            ("Apply the SSE degenerate radius floor R = 0.0258 (1 + X)^(5/3) M^(-1/3) Rsol to main sequence stars of mass <= 0.7 Msol (default = " + std::string(p_Options->m_MainSequenceDegenerateRadius ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "circularise-binary-during-mass-transfer",                         
@@ -5175,6 +5181,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::MAGNETIC_BRAKING_GAMMA                         : value = MagneticBrakingGamma();                                               break;
         case PROGRAM_OPTION::MAGNETIC_BRAKING_PRESCRIPTION                  : value = static_cast<int>(MagneticBrakingPrescription());                      break;
+        case PROGRAM_OPTION::MAIN_SEQUENCE_DEGENERATE_RADIUS                : value = MainSequenceDegenerateRadius();                                       break;
 
         case PROGRAM_OPTION::MALTSEV_FALLBACK                               : value = MaltsevFallback();                                                    break;                     
         case PROGRAM_OPTION::MALTSEV_MODE                                   : value = static_cast<int>(MaltsevMode());                                      break;                     

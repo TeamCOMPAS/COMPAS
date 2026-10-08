@@ -25,6 +25,7 @@ booleanChoices:
 
     ### STELLAR PROPERTIES
 #    --check-photon-tiring-limit: False                                    # Default: False
+#    --main-sequence-degenerate-radius: True                               # Default: True
 #    --retain-remaining-main-sequence-lifetime: False                      # Default: False
 #    --enable-rotationally-enhanced-mass-loss: False                       # Default: False
 #    --enhance-CHE-lifetimes-luminosities: True                            # Default: True

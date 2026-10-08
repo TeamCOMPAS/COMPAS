@@ -660,6 +660,14 @@ double MainSequence::CalculateRadiusOnPhase(const double p_Mass, const double p_
         
         radius = radius + (p_RZAMS - radius) * surfaceAbundanceFactor;
     }
+
+    // Low-mass MS stars that have been stripped to very low mass become substantially degenerate (e.g. donors in CVs and LMXBs).
+    // As in SSE/BSE (Hurley et al. hrdiag.f, after C. Tout), the radius is not allowed to fall below R_deg = 0.0258 (1 + X)^(5/3) M^(-1/3) Rsol,
+    // so that a degenerate donor expands, rather than contracts, as it loses mass
+    if (OPTIONS->MainSequenceDegenerateRadius() && utils::Compare(p_Mass, MAIN_SEQUENCE_DEGENERATE_RADIUS_MAXIMUM_MASS) <= 0) {
+        double rDegenerate = MAIN_SEQUENCE_DEGENERATE_RADIUS_COEFFICIENT * PPOW(1.0 + CalculateInitialHydrogenAbundance(), 5.0 / 3.0) * PPOW(p_Mass, -1.0 / 3.0);
+        radius = std::max(radius, rDegenerate);
+    }
     
     return radius;
 

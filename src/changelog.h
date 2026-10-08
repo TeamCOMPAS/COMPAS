@@ -1713,6 +1713,8 @@
 //                                         for convective envelope mass fractions qconv < 0.02 (Podsiadlowski, Rappaport & Pfahl 2002); stars assumed tidally locked, angular momentum removed from the orbit
 //                                       - New functions BaseBinaryStar::CalculateMagneticBraking(), BaseBinaryStar::ApplyMagneticBraking() and BaseBinaryStar::CalculateMagneticBrakingTorque();
 //                                         timestep limited so that magnetic braking changes the semi-major axis by at most ~1% per step
+//                                       - Added option --main-sequence-degenerate-radius (default TRUE): SSE degenerate radius floor R = max(R, 0.0258 (1+X)^(5/3) M^(-1/3)) Rsol
+//                                         for MS stars of mass <= 0.7 Msol (as in SSE/BSE hrdiag.f), so very low-mass donors expand on mass loss
 //
 
 // Version string format is MM.mm.rr, where

@@ -842,6 +842,10 @@ Options: {HURLEY, MANDEL, BRCEK} |br|
 ``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
 Default = MANDEL
 
+**--main-sequence-degenerate-radius** |br|
+Apply a degenerate radius floor to low-mass main sequence stars, as in the SSE/BSE code (Hurley et al., after C. Tout): for MS stars of mass :math:`\le 0.7\,M_\odot`, :math:`R = \max(R, 0.0258 (1+X)^{5/3} M^{-1/3}) R_\odot`. Stars stripped to very low mass (e.g. donors in CVs and LMXBs) then expand as they lose mass instead of contracting. |br|
+Default = TRUE
+
 **--maltsev-fallback** |br|
 Fixed fallback fraction when using MALTSEV2024 remnant mass prescription (must be between 0 and 1). |br|
 A value of 0.0 means that fallback BHs get no fallback, only the mass of the proto-NS remnant (and will get flagged as NSs). |br|
@@ -1563,7 +1567,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --retain-remaining-main-sequence-lifetime, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-remaining-main-sequence-lifetime, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 

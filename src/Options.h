@@ -672,6 +672,7 @@ private:
         "magnetic-braking-prescription",
         "main-sequence-core-hydrogen-prescription",
         "main-sequence-core-mass-prescription",
+        "main-sequence-degenerate-radius",
         "maltsev-mode",
         "mass-change-fraction",
         "mass-loss-prescription",
@@ -1048,6 +1049,7 @@ public:
 
             // Mass loss options
             bool                                                m_CheckPhotonTiringLimit;                                       // Whether to check the photon tiring limit for wind mass loss
+            bool                                                m_MainSequenceDegenerateRadius;                                 // Whether to apply the SSE degenerate radius floor to low-mass MS stars
 
             // Can also have options for modifying strength of winds etc here
 
@@ -1645,6 +1647,7 @@ public:
     CORE_HYDROGEN_PRESCRIPTION                  MainSequenceCoreHydrogenPrescription() const                            { return OPT_VALUE("main-sequence-core-hydrogen-prescription", m_MainSequenceCoreHydrogenPrescription.type, true); }
     double                                      MainSequenceCoreMassBrcekMinimumMass() const                            { return OPT_VALUE("main-sequence-core-mass-brcek-minimum-mass", m_MainSequenceCoreMassBrcekMinimumMass, true); }
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
+    bool                                        MainSequenceDegenerateRadius() const                                    { return OPT_VALUE("main-sequence-degenerate-radius", m_MainSequenceDegenerateRadius, true); }
 
     double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }
     MALTSEV_MODE                                MaltsevMode() const                                                     { return OPT_VALUE("maltsev-mode", m_MaltsevMode.type, true); }

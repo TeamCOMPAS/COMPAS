@@ -299,6 +299,9 @@ constexpr int    TIDES_OMEGA_MAX_ITERATIONS             = 50;                   
 constexpr double TIDES_OMEGA_SEARCH_FACTOR_FRAC         = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::OmegaAfterCircularisation() (added to 1.0)
 constexpr double TIDES_MINIMUM_FRACTIONAL_EXTENT        = 1.0E-4;                                                   // Minimum fractional radius or mass of the stellar core or envelope, above which a given tidal dissipation mechanism is considered applicable
 constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                                                     // Maximum allowed change in orbital and spin properties due to KAPIL2026 tides in a single timestep - 1% expressed as a fraction
+constexpr double MAIN_SEQUENCE_DEGENERATE_RADIUS_COEFFICIENT = 0.0258;                                              // R_deg = 0.0258 (1 + X)^(5/3) M^(-1/3) Rsol for low-mass MS stars (SSE hrdiag.f, after C. Tout)
+constexpr double MAIN_SEQUENCE_DEGENERATE_RADIUS_MAXIMUM_MASS = 0.7;                                                // Maximum mass (Msol) for which the degenerate radius floor is applied (SSE applies it to kw = 0 stars)
+
 constexpr double MAGNETIC_BRAKING_MAXIMUM_ORBITAL_CHANGE_FRAC = 0.01;                                              // Maximum allowed fractional change in the semi-major axis due to magnetic braking in a single timestep
 constexpr double MAGNETIC_BRAKING_QCONV_THRESHOLD       = 0.02;                                                     // Convective envelope mass fraction below which magnetic braking is quenched by exp(1 - threshold/qconv) (Podsiadlowski, Rappaport & Pfahl 2002)
 constexpr double MAGNETIC_BRAKING_RVJ83_COEFFICIENT     = 3.8E-30;                                                  // Coefficient of the Rappaport, Verbunt & Joss (1983) magnetic braking law (cgs)
