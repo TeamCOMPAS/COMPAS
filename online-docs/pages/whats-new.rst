@@ -11,6 +11,8 @@ Following is a brief list of important updates to the COMPAS code.  A complete r
   - Added new option ``--neutron-star-accretion-efficiency-parameter`` to allow for inefficient sub-Eddington accretion on to neutron stars
   - Added birth distributions for the pulsar properties of MSPs born in AIC (``msp-birth-magnetic-field-distribution`` and ``msp-birth-spin-period-distribution``)
   - Added new option ``--pulsar-magnetic-field-decay-timescale-power`` and correspondingly changed how the magnetic field decay timescale is calculated in ``NS::CalculateMagneticFieldDecayTimescale``
+* Defect repair: the binary mass transfer timescale (and the RLOF record luminosities, temperatures and previous time) are now initialised, so the first detailed output
+  record no longer reports an uninitialised ``MassTransferTimescale``
 
 **03.29.00 January 30, 2026**
 * Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.

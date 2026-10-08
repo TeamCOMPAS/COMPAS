@@ -348,6 +348,7 @@ void BaseBinaryStar::SetRemainingValues() {
 
 	m_MassTransferTrackerHistory                     = MT_TRACKING::NO_MASS_TRANSFER;
     m_MassTransfer                                   = false;
+    m_MassTransferTimescale                          = MT_TIMESCALE::NONE;
 
     m_JLoss                                          = OPTIONS->MassTransferJloss();
 
@@ -418,6 +419,11 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props1.radius1                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.radius2                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_RLOFDetails.props1.temperature1                = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.temperature2                = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.luminosity1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.luminosity2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+
     m_RLOFDetails.props1.starToRocheLobeRadiusRatio1 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.starToRocheLobeRadiusRatio2 = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -427,9 +433,11 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props1.eventCounter                = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props1.time                        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.timePrev                    = DEFAULT_INITIAL_DOUBLE_VALUE;
     
     m_RLOFDetails.props1.accretionEfficiency         = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props1.massLossRateFromDonor       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props1.massTransferTimescale       = MT_TIMESCALE::NONE;
 
     m_RLOFDetails.props1.isRLOF1                     = false;
     m_RLOFDetails.props1.isRLOF2                     = false;
@@ -448,6 +456,11 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props2.radius1                     = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.radius2                     = DEFAULT_INITIAL_DOUBLE_VALUE;
 
+    m_RLOFDetails.props2.temperature1                = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.temperature2                = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.luminosity1                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.luminosity2                 = DEFAULT_INITIAL_DOUBLE_VALUE;
+
     m_RLOFDetails.props2.starToRocheLobeRadiusRatio1 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.starToRocheLobeRadiusRatio2 = DEFAULT_INITIAL_DOUBLE_VALUE;
 
@@ -458,9 +471,11 @@ void BaseBinaryStar::SetRemainingValues() {
     m_RLOFDetails.props2.eventCounter                = DEFAULT_INITIAL_ULONGINT_VALUE;
 
     m_RLOFDetails.props2.time                        = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.timePrev                    = DEFAULT_INITIAL_DOUBLE_VALUE;
     
     m_RLOFDetails.props2.accretionEfficiency         = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_RLOFDetails.props2.massLossRateFromDonor       = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_RLOFDetails.props2.massTransferTimescale       = MT_TIMESCALE::NONE;
 
     m_RLOFDetails.props2.isRLOF1                     = false;
     m_RLOFDetails.props2.isRLOF2                     = false;
