@@ -1715,6 +1715,14 @@
 //                                         timestep limited so that magnetic braking changes the semi-major axis by at most ~1% per step
 //                                       - Added option --main-sequence-degenerate-radius (default TRUE): SSE degenerate radius floor R = max(R, 0.0258 (1+X)^(5/3) M^(-1/3)) Rsol
 //                                         for MS stars of mass <= 0.7 Msol (as in SSE/BSE hrdiag.f), so very low-mass donors expand on mass loss
+//  03.30.01  SS - October 9, 2026       - Defect repair:
+//                                       - In BSE, a neutron star formed during a timestep was spun down (and its field decayed) over that whole timestep, which had been
+//                                         taken by its progenitor, so every pulsar track was offset in age by the length of the supernova timestep (median ~2 kyr,
+//                                         up to ~1 Myr). NS::UpdateMagneticFieldAndSpin() now leaves a neutron star of age 0 unchanged; the equivalent SSE spin-down
+//                                         in Star::EvolveOneTimestep() is guarded in the same way (SSE already formed the neutron star after its spin-down call)
+//                                       - Added loggable property PULSAR_BIRTH_MAGNETIC_FIELD ("Pulsar_Birth_Mag_Field", G)
+//                                       - Added PULSAR_BIRTH_MAGNETIC_FIELD and AGE to the default BSE and SSE pulsar evolution records. The record of the timestep in which a
+//                                         neutron star forms has Age = 0 but DT = the progenitor's timestep: weight records by min(DT, Age) for time-weighted samples
 //
 
 // Version string format is MM.mm.rr, where
@@ -1726,7 +1734,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.30.00";
+const std::string VERSION_STRING = "03.30.01";
 
 
 # endif // __changelog_h__

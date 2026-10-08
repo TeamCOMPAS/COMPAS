@@ -523,6 +523,7 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
  *    m_MomentOfInertia_CGS
  *    m_PulsarDetails.birthPeriod
  *    m_PulsarDetails.birthSpinDownRate
+ *    m_PulsarDetails.birthMagneticField
  *    m_PulsarDetails.magneticField
  *    m_PulsarDetails.spinDownRate
  *    m_PulsarDetails.spinFrequency
@@ -533,6 +534,7 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
 void NS::CalculateAndSetPulsarParameters() {
 
     m_PulsarDetails.magneticField     = PPOW(10.0, CalculateBirthMagneticField());                                                  // magnetic field in Gauss 
+    m_PulsarDetails.birthMagneticField = m_PulsarDetails.magneticField;
     m_PulsarDetails.spinPeriod        = CalculateBirthSpinPeriod();                                                                 // spin period in s
     m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
@@ -785,6 +787,9 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
  *      2.1).  Roche Lobe overflow, and 
  *      2.2).  Common Envelope 
  * 
+ * Note 3 : A neutron star formed during this timestep (age 0) is not updated: the timestep was taken by
+ *          its progenitor, so the neutron star keeps its birth values until the next timestep.
+ * 
  * Modifies the following class member variables:
  *
  *    m_AngularMomentum_CGS
@@ -808,6 +813,8 @@ double NS::DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6
  * @param   [IN]    p_Epsilon                   Uncertainty due to mass loss
  */
 void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_RecycledNS, double p_Stepsize, double p_MassGain, const double p_Epsilon) {
+
+    if (utils::Compare(m_Age, 0.0) <= 0) return;                                                                                                // formed during this timestep - keep birth values
 
     if ((!p_RecycledNS && !p_CommonEnvelope) || (!p_RecycledNS && utils::Compare(p_MassGain, 0.0) == 0 )) {                                 // 'classical' isolated pulsars
         // std::cout << "Isolated spindown 1" << std::endl;

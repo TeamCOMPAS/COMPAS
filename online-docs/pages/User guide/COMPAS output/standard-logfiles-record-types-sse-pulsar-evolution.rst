@@ -9,3 +9,9 @@ Following is a list of the SSE Pulsar Evolution file record type numbers and cor
    Record was logged immediately following a supernova event
 #. TIMESTEP_COMPLETED |BR|
    Record was logged immediately following the completion of the timestep (after all changes to the star)
+
+Each record describes the state at the end of a timestep, and ``DT`` is the length of that timestep. By default only
+the timestep records are written (``--logfile-pulsar-evolution-record-types`` = 4). In the timestep in which a neutron
+star forms, the timestep was taken by its progenitor: the record holds the pulsar's birth values and the neutron star's
+``Age`` is 0. To weight records by the time each pulsar has spent in that state (e.g. for a constant star formation rate
+snapshot), use :math:`\min(\mathrm{DT}, \mathrm{Age})` rather than ``DT``.

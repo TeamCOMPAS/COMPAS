@@ -375,7 +375,8 @@ void Star::EvolveOneTimestep(const double p_Dt) {
 
     (void)SwitchTo(stellarType);                                                                                // switch phase if required
 
-    if(OPTIONS->EvolvePulsars() && m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR){                        // if star is a neutron star and we are evolving pulsars
+    if(OPTIONS->EvolvePulsars() && m_Star->StellarType() == STELLAR_TYPE::NEUTRON_STAR &&                       // if star is a neutron star and we are evolving pulsars...
+       utils::Compare(m_Star->Age(), 0.0) > 0) {                                                                // ...and it was not formed during this timestep (age 0)
         (void)m_Star->SpinDownIsolatedPulsar(p_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, false);                      // update pulsar parameters due to spin down as an isolated pulsar; convert timestep to seconds for this function (uses cgs units)
     }
     

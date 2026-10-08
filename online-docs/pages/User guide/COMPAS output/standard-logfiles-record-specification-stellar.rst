@@ -42,7 +42,7 @@ Following is an alphabetical list of stellar properties available for inclusion 
    * - COMPAS variable:
      - BaseStar::m_Age
    * - Description:
-     - Effective age (changes with mass loss/gain) (Myr)
+     - Effective age (changes with mass loss/gain) (Myr). For a neutron star, the time since the neutron star formed.
    * - Header Strings:
      - Age, Age(1), Age(2), Age(SN), Age(CP)
 
@@ -1609,6 +1609,22 @@ the other is printed in any file, but not both. If both are printed then the fil
 .. _stellar-props-P:
 
 :ref:`Back to Top <stellar-props-top>`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **PULSAR_BIRTH_MAGNETIC_FIELD**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_PulsarDetails.birthMagneticField
+   * - Description:
+     - Pulsar magnetic field strength (G) at birth.
+   * - Header Strings:
+     - Pulsar_Birth_Mag_Field, Pulsar_Birth_Mag_Field(1), Pulsar_Birth_Mag_Field(2), Pulsar_Birth_Mag_Field(SN), Pulsar_Birth_Mag_Field(CP)
 
 .. flat-table::
    :widths: 25 75 1 1

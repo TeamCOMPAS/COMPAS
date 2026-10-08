@@ -211,6 +211,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.spinDownRate               = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.birthPeriod                = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.birthSpinDownRate          = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_PulsarDetails.birthMagneticField         = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.magneticRadius             = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.coRotationRadius           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.propellerMode              = DEFAULT_INITIAL_BOOLEAN_VALUE;
@@ -372,6 +373,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = PulsarSpinPeriod();                                     break;
         case ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD:                                value = PulsarBirthPeriod();                                    break;
         case ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE:                        value = PulsarBirthSpinDownRate();                              break;
+        case ANY_STAR_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD:                        value = PulsarBirthMagneticField();                             break;
         case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_RADIUS:                             value = PulsarMagneticRadius();                                 break;
         case ANY_STAR_PROPERTY::PULSAR_COROTATION_RADIUS:                           value = PulsarCoRotationRadius();                               break;
         case ANY_STAR_PROPERTY::PULSAR_PROPELLER_MODE:                              value = PulsarPropellerMode();                                  break;

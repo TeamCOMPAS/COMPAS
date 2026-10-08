@@ -3,6 +3,14 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.30.01 October 9, 2026**
+
+* Defect repair: in BSE, a neutron star formed during a timestep was spun down over that whole timestep (which its progenitor had taken), offsetting
+  each pulsar's evolution in age by the length of the supernova timestep. Neutron stars now keep their birth values in the timestep in which they form.
+* New loggable property ``PULSAR_BIRTH_MAGNETIC_FIELD``. The default BSE and SSE pulsar evolution records now include ``PULSAR_BIRTH_MAGNETIC_FIELD`` and ``AGE``
+  (for a neutron star, the time since it formed). For time-weighted samples, weight records by :math:`\min(\mathrm{DT}, \mathrm{Age})`: the record of the
+  timestep in which a neutron star forms has ``Age`` = 0 but ``DT`` equal to its progenitor's timestep.
+
 **03.30.00 July 21, 2026**
 
 * Updates relevant to formation of millisecond pulsars:

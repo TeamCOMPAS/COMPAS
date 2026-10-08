@@ -138,6 +138,7 @@ public:
     double              OmegaBreak() const                                              { return CalculateOmegaBreak(); }
     double              OmegaZAMS() const                                               { return m_OmegaZAMS; }
     COMPAS_VARIABLE     PropertyValue(const T_ANY_PROPERTY p_Property) const;
+    double              PulsarBirthMagneticField() const                                { return m_PulsarDetails.birthMagneticField; }
     double              PulsarBirthPeriod() const                                       { return m_PulsarDetails.birthPeriod; }
     double              PulsarBirthSpinDownRate() const                                 { return m_PulsarDetails.birthSpinDownRate; }
     double              PulsarCoRotationRadius() const                                  { return m_PulsarDetails.coRotationRadius; }
