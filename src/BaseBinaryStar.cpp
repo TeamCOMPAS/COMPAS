@@ -3680,7 +3680,8 @@ EVOLUTION_STATUS BaseBinaryStar::Evolve() {
                         }
                     }
 
-                    if (!OPTIONS->EvolveUnboundSystems() || IsDCO()) {                                                                  // should we evolve unbound systems?
+                    if (!OPTIONS->EvolveUnboundSystems() ||                                                                             // should we evolve unbound systems?
+                        (IsDCO() && !(OPTIONS->EvolvePulsars() && HasOneOf({ STELLAR_TYPE::NEUTRON_STAR })))) {                         // unbound DCOs only if evolving their pulsars
                         evolutionStatus = EVOLUTION_STATUS::UNBOUND;                                                                    // no - stop evolution
                     }
                 }

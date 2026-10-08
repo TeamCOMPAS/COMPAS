@@ -431,7 +431,8 @@ Evolve pulsar properties of Neutron Stars. |br|
 Default = FALSE
 
 **--evolve-unbound-systems** |br|
-Continue evolving stars even if the binary is disrupted. |br|
+Continue evolving stars even if the binary is disrupted. Disrupted double compact objects are not evolved further, unless
+``--evolve-pulsars`` is set and one of them is a neutron star. |br|
 Default = TRUE
 
 .. _options-props-F:

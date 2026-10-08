@@ -1723,6 +1723,11 @@
 //                                       - Added loggable property PULSAR_BIRTH_MAGNETIC_FIELD ("Pulsar_Birth_Mag_Field", G)
 //                                       - Added PULSAR_BIRTH_MAGNETIC_FIELD and AGE to the default BSE and SSE pulsar evolution records. The record of the timestep in which a
 //                                         neutron star forms has Age = 0 but DT = the progenitor's timestep: weight records by min(DT, Age) for time-weighted samples
+//  03.30.02  SS - October 9, 2026       - Defect repair:
+//                                       - Unbound double compact objects (e.g. a NS and a BH disrupted by the second supernova) stopped evolving even with
+//                                         --evolve-pulsars, so their pulsars were never followed or logged (~8% of NS-forming systems for 5-30 Msol primaries).
+//                                         With --evolve-unbound-systems and --evolve-pulsars, unbound DCOs containing a neutron star now keep evolving, as bound
+//                                         DCOs already did; they end with status TIMES_UP rather than UNBOUND. Without --evolve-pulsars nothing changes.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1734,7 +1739,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.30.01";
+const std::string VERSION_STRING = "03.30.02";
 
 
 # endif // __changelog_h__

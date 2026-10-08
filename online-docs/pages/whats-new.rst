@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.30.02 October 9, 2026**
+
+* Defect repair: with ``--evolve-pulsars`` (and ``--evolve-unbound-systems``, the default), double compact objects disrupted by a supernova now keep
+  evolving when they contain a neutron star, so their pulsars are followed and logged, as for bound double compact objects.
+
 **03.30.01 October 9, 2026**
 
 * Defect repair: in BSE, a neutron star formed during a timestep was spun down over that whole timestep (which its progenitor had taken), offsetting
