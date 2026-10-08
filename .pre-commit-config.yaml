@@ -6,3 +6,9 @@ repos:
     hooks:
     -   id: codespell # Spellchecker
         args: [--ignore-words=.dictionary.txt, --skip, '*.eps,*.svg,*.ipynb,./misc/*,paper.md,./online-docs/index.rst']
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.7
+    hooks:
+    -   id: ruff-check
+        args: ["--fix", "--show-fixes"]

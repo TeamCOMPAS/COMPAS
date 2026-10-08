@@ -1,5 +1,4 @@
 import os
-from typing import Any, Dict
 
 import h5py
 from conftest import get_compas_data
