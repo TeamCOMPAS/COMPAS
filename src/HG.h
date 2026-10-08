@@ -124,7 +124,10 @@ protected:
     double          CalculateTauAtPhaseEnd() const                                  { return 1.0; }                                                                             // tau = 1.0 at end of HG
     double          CalculateTauOnPhase() const;
     
-    double          CalculateZetaEquilibrium()                                      { return -std::numeric_limits<double>::infinity(); }                                         // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale
+    // Nuclear timescale MT should be impossible from HG stars that evolve on a thermal timescale (M0 >= MHeF).  Low-mass HG stars
+    // (M0 < MHeF, degenerate He cores) are on the subgiant branch: like FGB stars, their radii are set by the core and they expand
+    // on a nuclear timescale, so treat them as giants (zeta_eq = 0) - needed to recover the Porb-MWD relation for LMXBs (Tauris & Savonije 1999)
+    double          CalculateZetaEquilibrium()                                      { return utils::Compare(m_Mass0, m_MassCutoffs[static_cast<int>(MASS_CUTOFF::MHeF)]) < 0 ? 0.0 : -std::numeric_limits<double>::infinity(); }
 
     double          ChooseTimestep(const double p_Time) const;
 
