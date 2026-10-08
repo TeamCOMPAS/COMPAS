@@ -22,7 +22,7 @@ public:
 
         // set NS values based on options provided (so we don't need to do this every timestep)
         // JR: these are good candidates for the "globals/constants" singleton...
-        ALFVEN_CONST             = PPOW(2.0 * PI_2 / G_CGS, 1.0 / 7.0);
+        ALFVEN_CONST             = PPOW(1.0 / (8.0 * G_CGS), 1.0 / 7.0);                                                                                     // SI (2 pi^2 / (G mu0^2))^(1/7) in Gaussian units (mu0 -> 4 pi)
         NS_MAG_FIELD_LOWER_LIMIT = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField());
         NS_DECAY_MASS_SCALE      = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G;
         NS_DECAY_TIME_SCALE      = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
@@ -33,7 +33,7 @@ public:
 
         // set NS values based on options provided (so we don't need to do this every timestep)
         // JR: these are good candidates for the "globals/constants" singleton...
-        ALFVEN_CONST             = PPOW(2.0 * PI_2 / G_CGS, 1.0 / 7.0);
+        ALFVEN_CONST             = PPOW(1.0 / (8.0 * G_CGS), 1.0 / 7.0);                                                                                     // SI (2 pi^2 / (G mu0^2))^(1/7) in Gaussian units (mu0 -> 4 pi)
         NS_MAG_FIELD_LOWER_LIMIT = PPOW(10.0, OPTIONS->PulsarLog10MinimumMagneticField());
         NS_DECAY_MASS_SCALE      = OPTIONS->PulsarMagneticFieldDecayMassscale() * MSOL_TO_G;
         NS_DECAY_TIME_SCALE      = OPTIONS->PulsarMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR; 
@@ -60,7 +60,7 @@ public:
     // be aware that these variables are global (because they're static), and are shared amongst all NS instances
     // JR: these are good candidates for the "globals/constants" singleton...
 
-    static inline double ALFVEN_CONST { 0.0 };                                                                                                                  // Constant for calculating Alfven radius - CGS units (mu0 = 1.0)
+    static inline double ALFVEN_CONST { 0.0 };                                                                                                                  // Constant for calculating Alfven radius - CGS (Gaussian) units
     static inline double NS_MAG_FIELD_LOWER_LIMIT { 0.0 };
     static inline double NS_DECAY_MASS_SCALE { 0.0 };
     static inline double NS_DECAY_TIME_SCALE { 0.0 }; 
@@ -107,11 +107,12 @@ protected:
     static  double          CalculateLuminosityOnPhase_Static(const double p_Mass, const double p_Time);
             double          CalculateLuminosityOnPhase() const                  { return CalculateLuminosityOnPhase_Static(m_Mass, m_Age); }                    // Use class member variables
     
-    static  double          CalculateMagneticFieldDecayAccretion_Static(const double p_initialMagField, const double p_MassGain);                               // 
-    static  double          CalculateMagneticFieldDecayAccretionExponential_Static(const double p_initialMagField, const double p_MassGain);                    
-    static  double          CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_initialMagField, const double p_MassGain);
+    static  double          CalculateMagneticFieldDecayAccretion_Static(const double p_MagField, const double p_MagFieldPreAccretion, const double p_AccretedMass, const double p_MassGain);
+    static  double          CalculateMagneticFieldDecayAccretionExponential_Static(const double p_MagField, const double p_MassGain);
+    static  double          CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_MagFieldPreAccretion, const double p_TotalAccretedMass);
 
             double          CalculateMagneticFieldDecayTimescale();
+            double          CalculateMagneticFieldSquaredIntegral(const double p_Time, const double p_initialMagField);
             double          CalculateMagneticFieldStrengthOnPhase(const double p_Time, const double p_initialMagField);
 
             double          CalculateMassLossRate()                             { return 0.0; }                                                                 // Ensure that NSs don't lose mass in winds

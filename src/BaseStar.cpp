@@ -211,6 +211,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.magneticRadius             = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.coRotationRadius           = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.propellerMode              = DEFAULT_INITIAL_BOOLEAN_VALUE;
+    m_PulsarDetails.accretedMass               = 0.0;
+    m_PulsarDetails.magneticFieldPreAccretion  = DEFAULT_INITIAL_DOUBLE_VALUE;
 
 
     // Mass Transfer Donor Type History

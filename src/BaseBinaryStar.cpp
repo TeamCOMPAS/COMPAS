@@ -2208,10 +2208,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
             double massGainAccretor  = -massDiffDonor * m_FractionAccreted;                                                     // set accretor mass gain to mass loss * conservativeness
             double omegaDonor_pre_MT = m_Donor->Omega();                                                                        // used if full donor envelope is removed
 
-            std::cout << "massGainAccretor = " << massGainAccretor << std::endl;
-            std::cout << "massDiffDonor = " << massDiffDonor << std::endl;
-            std::cout << "m_FractionAccreted = " << m_FractionAccreted << std::endl << std::endl;
-
             m_Accretor->UpdateTotalMassLossRate(massGainAccretor / (p_Dt * MYR_TO_YEAR));                                       // update mass gain rate for MS accretor
             m_Accretor->UpdateMainSequenceCoreMass(p_Dt, massGainAccretor / (p_Dt * MYR_TO_YEAR));                              // update core mass for MS accretor
 
