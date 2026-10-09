@@ -242,6 +242,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     PULSAR_BIRTH_PERIOD,                             \
     PULSAR_BIRTH_SPIN_DOWN_RATE,                     \
     PULSAR_BIRTH_MAGNETIC_FIELD,                     \
+    PULSAR_INCLINATION,                              \
     PULSAR_SPIN_FREQUENCY,                           \
     PULSAR_SPIN_PERIOD,                              \
     PULSAR_MAGNETIC_RADIUS,                          \
@@ -399,6 +400,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                             "PULSAR_BIRTH_PERIOD" },
     { STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                     "PULSAR_BIRTH_SPIN_DOWN_RATE" },
     { STAR_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD,                     "PULSAR_BIRTH_MAGNETIC_FIELD" },
+    { STAR_PROPERTY::PULSAR_INCLINATION,                              "PULSAR_INCLINATION" },
     { STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                           "PULSAR_SPIN_FREQUENCY" },
     { STAR_PROPERTY::PULSAR_SPIN_PERIOD,                              "PULSAR_SPIN_PERIOD" },
     { STAR_PROPERTY::PULSAR_MAGNETIC_RADIUS,                          "PULSAR_MAGNETIC_RADIUS" },
@@ -1470,6 +1472,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD,                               { TYPENAME::DOUBLE,           "Pulsar_Birth_Period",             "s",                24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_SPIN_DOWN_RATE,                       { TYPENAME::DOUBLE,           "Pulsar_Birth_Spin_Down",          "s/s",              24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD,                       { TYPENAME::DOUBLE,           "Pulsar_Birth_Mag_Field",          "Gauss",            24, 15}},
+    { ANY_STAR_PROPERTY::PULSAR_INCLINATION,                                { TYPENAME::DOUBLE,           "Pulsar_Inclination",              "deg",              24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY,                             { TYPENAME::DOUBLE,           "Pulsar_Spin_Freq",                "rad/s",            24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD,                                { TYPENAME::DOUBLE,           "Pulsar_Spin_Period",              "s",                24, 15}},
     { ANY_STAR_PROPERTY::PULSAR_MAGNETIC_RADIUS,                            { TYPENAME::DOUBLE,           "Pulsar_Magnetic_Radius",          "cm",               24, 15}},

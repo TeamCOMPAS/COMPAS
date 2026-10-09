@@ -134,6 +134,10 @@ protected:
             double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const { return CalculateRadiusOnPhase(); }                               // not a meaningful calculation for NS, ignore arguments
 
             double          CalculateSpinDownRate(const double p_Omega, const double p_MomentOfInteria, const double p_MagField, const double p_Radius) const;
+            double          SpinDownTorqueFactor(const double p_Inclination) const;
+            PULSAR_INCLINATION_EVOLUTION InclinationEvolution() const;
+            void            ResetInclinationAtRecycling();
+            double          SpinDownTorqueFactor() const                        { return SpinDownTorqueFactor(m_PulsarDetails.inclination); }
             double          CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod);
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                              // not a meaningful calculation for NS and BH

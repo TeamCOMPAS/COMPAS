@@ -644,6 +644,16 @@ void Options::OptionValues::Initialise() {
     // Pulsar birth spin period distribution string
     m_PulsarBirthSpinPeriodDistribution.type                        = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::NORMAL;
     m_PulsarBirthSpinPeriodDistribution.typeString                  = PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL.at(m_PulsarBirthSpinPeriodDistribution.type);
+
+    // Pulsar inclination (obliquity) evolution
+    m_PulsarInclinationEvolution.type                               = PULSAR_INCLINATION_EVOLUTION::NONE;
+    m_PulsarInclinationEvolution.typeString                         = PULSAR_INCLINATION_EVOLUTION_LABEL.at(m_PulsarInclinationEvolution.type);
+    m_PulsarSpinDownTorque.type                                     = PULSAR_SPIN_DOWN_TORQUE::VACUUM;
+    m_PulsarSpinDownTorque.typeString                               = PULSAR_SPIN_DOWN_TORQUE_LABEL.at(m_PulsarSpinDownTorque.type);
+    m_PulsarRecycledInclinationEvolution.type                       = PULSAR_RECYCLED_INCLINATION_EVOLUTION::SAME;
+    m_PulsarRecycledInclinationEvolution.typeString                 = PULSAR_RECYCLED_INCLINATION_EVOLUTION_LABEL.at(m_PulsarRecycledInclinationEvolution.type);
+    m_PulsarResetInclinationAtRecycling                             = false;
+    m_PulsarAlignmentTimescale                                      = 50.0;                                                 // Myr; Johnston & Karastergiou (2017), after Tauris & Manchester (1998) and Weltevrede & Johnston (2008)
     m_PulsarBirthSpinPeriodDistributionMin                          = 10.0;
     m_PulsarBirthSpinPeriodDistributionMax                          = 100.0;
     m_PulsarBirthSpinPeriodDistributionMean                         = 75.0;
@@ -1768,6 +1778,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Standard deviation of normal or lognormal distribution for birth spin period (ms) (default = " + std::to_string(p_Options->m_PulsarBirthSpinPeriodDistributionSigma) + ")").c_str()
         )
         (
+            "pulsar-alignment-timescale",
+            po::value<double>(&p_Options->m_PulsarAlignmentTimescale)->default_value(p_Options->m_PulsarAlignmentTimescale),
+            ("e-folding timescale of the pulsar magnetic inclination for --pulsar-inclination-evolution EXPONENTIAL, in Myr (default = " + std::to_string(p_Options->m_PulsarAlignmentTimescale) + ")").c_str()
+        )
+        (
+            "pulsar-reset-inclination-at-recycling",
+            po::value<bool>(&p_Options->m_PulsarResetInclinationAtRecycling)->default_value(p_Options->m_PulsarResetInclinationAtRecycling)->implicit_value(true),
+            ("Redraw the pulsar magnetic inclination from an isotropic distribution at the onset of accretion onto a neutron star (only with --pulsar-inclination-evolution other than NONE) (default = " + std::string(p_Options->m_PulsarResetInclinationAtRecycling ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "pulsar-magnetic-field-decay-massscale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayMassscale)->default_value(p_Options->m_PulsarMagneticFieldDecayMassscale),                                                    
             ("Mass scale on which magnetic field decays during accretion, in Msol (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayMassscale) + ")").c_str()
@@ -2188,6 +2208,21 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-spin-period-distribution",                       
             po::value<std::string>(&p_Options->m_PulsarBirthSpinPeriodDistribution.typeString)->default_value(p_Options->m_PulsarBirthSpinPeriodDistribution.typeString),                                        
             ("Pulsar Birth Spin Period distribution (" + AllowedOptionValuesFormatted("pulsar-birth-spin-period-distribution") + ", default = '" + p_Options->m_PulsarBirthSpinPeriodDistribution.typeString + "')").c_str()
+        )
+        (
+            "pulsar-recycled-inclination-evolution",
+            po::value<std::string>(&p_Options->m_PulsarRecycledInclinationEvolution.typeString)->default_value(p_Options->m_PulsarRecycledInclinationEvolution.typeString),
+            ("Pulsar magnetic inclination evolution after the onset of accretion: SAME = as --pulsar-inclination-evolution; NONE = inclination fixed (orthogonal-vacuum torque); MHD = MHD torque and the alignment it implies, on ~ the spin-down time (" + AllowedOptionValuesFormatted("pulsar-recycled-inclination-evolution") + ", default = '" + p_Options->m_PulsarRecycledInclinationEvolution.typeString + "')").c_str()
+        )
+        (
+            "pulsar-inclination-evolution",
+            po::value<std::string>(&p_Options->m_PulsarInclinationEvolution.typeString)->default_value(p_Options->m_PulsarInclinationEvolution.typeString),
+            ("Pulsar magnetic inclination evolution: NONE = orthogonal rotator; MHD = isotropic birth inclinations, MHD spin-down torque and the alignment it implies; EXPONENTIAL = isotropic birth inclinations decaying as alpha0 exp(-t/tau) with tau = --pulsar-alignment-timescale and the torque set by --pulsar-spin-down-torque (" + AllowedOptionValuesFormatted("pulsar-inclination-evolution") + ", default = '" + p_Options->m_PulsarInclinationEvolution.typeString + "')").c_str()
+        )
+        (
+            "pulsar-spin-down-torque",
+            po::value<std::string>(&p_Options->m_PulsarSpinDownTorque.typeString)->default_value(p_Options->m_PulsarSpinDownTorque.typeString),
+            ("Inclination dependence of the pulsar spin-down torque for --pulsar-inclination-evolution EXPONENTIAL: VACUUM = sin^2 alpha, MHD = (1 + sin^2 alpha)/2; both equal the default at alpha = 90 deg (" + AllowedOptionValuesFormatted("pulsar-spin-down-torque") + ", default = '" + p_Options->m_PulsarSpinDownTorque.typeString + "')").c_str()
         )
         (
             "pulsar-magnetic-field-decay-accretion-model",
@@ -2667,6 +2702,21 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Spin Period Distribution");
         }
 
+        if (!DEFAULTED("pulsar-recycled-inclination-evolution")) {                                                                  // inclination evolution after recycling
+            std::tie(found, m_PulsarRecycledInclinationEvolution.type) = utils::GetMapKey(m_PulsarRecycledInclinationEvolution.typeString, PULSAR_RECYCLED_INCLINATION_EVOLUTION_LABEL, m_PulsarRecycledInclinationEvolution.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Recycled Inclination Evolution");
+        }
+
+        if (!DEFAULTED("pulsar-inclination-evolution")) {                                                                           // pulsar inclination evolution
+            std::tie(found, m_PulsarInclinationEvolution.type) = utils::GetMapKey(m_PulsarInclinationEvolution.typeString, PULSAR_INCLINATION_EVOLUTION_LABEL, m_PulsarInclinationEvolution.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Inclination Evolution");
+        }
+
+        if (!DEFAULTED("pulsar-spin-down-torque")) {                                                                                // pulsar spin-down torque
+            std::tie(found, m_PulsarSpinDownTorque.type) = utils::GetMapKey(m_PulsarSpinDownTorque.typeString, PULSAR_SPIN_DOWN_TORQUE_LABEL, m_PulsarSpinDownTorque.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Spin Down Torque");
+        }
+
         if (!DEFAULTED("pulsar-magnetic-field-decay-accretion-model")) {                                                                  // pulsar birth spin period distribution
             std::tie(found, m_PulsarMagneticFieldDecayAccretionModel.type) = utils::GetMapKey(m_PulsarMagneticFieldDecayAccretionModel.typeString, PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL, m_PulsarMagneticFieldDecayAccretionModel.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Magnetic Field Decay Accretion Model");
@@ -2768,6 +2818,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
         
         COMPLAIN_IF(m_MainSequenceCoreMassBrcekMinimumMass <= 0.7, "BRCEK minimum mass (--main-sequence-core-mass-brcek-minimum-mass) must be > 0.7 Msol");
+
+        COMPLAIN_IF(m_PulsarAlignmentTimescale <= 0.0, "Pulsar alignment timescale (--pulsar-alignment-timescale) must be > 0");
 
         COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
 
@@ -3022,6 +3074,9 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);                  break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);     break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);        break;
+        case _("pulsar-inclination-evolution")                      : POPULATE_RET(PULSAR_INCLINATION_EVOLUTION_LABEL);                 break;
+        case _("pulsar-recycled-inclination-evolution")             : POPULATE_RET(PULSAR_RECYCLED_INCLINATION_EVOLUTION_LABEL);        break;
+        case _("pulsar-spin-down-torque")                           : POPULATE_RET(PULSAR_SPIN_DOWN_TORQUE_LABEL);                      break;
         case _("pulsar-magnetic-field-decay-accretion-model")       : POPULATE_RET(PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL);  break;
         case _("pulsational-pair-instability-prescription")         : POPULATE_RET(PPI_PRESCRIPTION_LABEL);                             break;
         case _("RSG-mass-loss-prescription")                        : POPULATE_RET(RSG_MASS_LOSS_PRESCRIPTION_LABEL);                   break;

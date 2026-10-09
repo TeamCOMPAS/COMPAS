@@ -1,5 +1,6 @@
 #include "Rand.h"
 #include "NS.h"
+#include <random>
 
 
 /*
@@ -506,9 +507,64 @@ double NS::CalculateSpinDownRate(const double p_Period, const double p_MomentOfI
    constexpr double _3_C_3  = 3.0E6 * C * C * C;                                                                // 3.0 * (C * 100.0) * (C * 100.0) * (C * 100.0)
    double pDotTop           = _8_PI_2 * radius_6 * magField_2;
    double pDotBottom        = _3_C_3 * p_MomentOfInteria * p_Period;
-   double pDot              = pDotTop / pDotBottom;                                                             // period derivative 
+   double pDot              = pDotTop / pDotBottom;                                                             // period derivative (orthogonal vacuum dipole)
    
-   return pDot;                                                                           
+   return pDot * SpinDownTorqueFactor();                                                                         // scaled for the magnetic inclination (1 unless --pulsar-inclination-evolution is set)
+}
+
+
+/*
+ * Spin-down torque relative to an orthogonal rotator
+ *
+ * --pulsar-inclination-evolution NONE: 1 (orthogonal vacuum dipole, the COMPAS default)
+ * --pulsar-inclination-evolution MHD:  (k0 + k1 sin^2 alpha) / (k0 + k1), the force-free/MHD torque (Spitkovsky 2006; Philippov,
+ *                                      Tchekhovskoy & Li 2014) normalised so that an orthogonal rotator spins down as in the default
+ * --pulsar-inclination-evolution EXPONENTIAL: sin^2 alpha (--pulsar-spin-down-torque VACUUM) or the MHD factor above (MHD)
+ *
+ * double SpinDownTorqueFactor(const double p_Inclination)
+ *
+ * @param   [IN]    p_Inclination               Angle between the magnetic and rotation axes (radians)
+ * @return                                      Torque relative to an orthogonal rotator with the same field and spin
+ */
+double NS::SpinDownTorqueFactor(const double p_Inclination) const {
+    if (InclinationEvolution() == PULSAR_INCLINATION_EVOLUTION::NONE) return 1.0;
+    double sinAlpha = std::sin(p_Inclination);
+    if (InclinationEvolution() == PULSAR_INCLINATION_EVOLUTION::EXPONENTIAL &&
+        OPTIONS->PulsarSpinDownTorque()       == PULSAR_SPIN_DOWN_TORQUE::VACUUM) return sinAlpha * sinAlpha;                  // vacuum dipole (e.g. Johnston & Karastergiou 2017)
+    return (PULSAR_MHD_K0 + PULSAR_MHD_K1 * sinAlpha * sinAlpha) / (PULSAR_MHD_K0 + PULSAR_MHD_K1);
+}
+
+
+/*
+ * Inclination evolution in force for this star: --pulsar-inclination-evolution, or after the onset of accretion
+ * --pulsar-recycled-inclination-evolution (unless SAME)
+ *
+ * PULSAR_INCLINATION_EVOLUTION InclinationEvolution()
+ */
+PULSAR_INCLINATION_EVOLUTION NS::InclinationEvolution() const {
+    if (utils::Compare(m_PulsarDetails.accretedMass, 0.0) > 0) {
+        switch (OPTIONS->PulsarRecycledInclinationEvolution()) {
+            case PULSAR_RECYCLED_INCLINATION_EVOLUTION::NONE: return PULSAR_INCLINATION_EVOLUTION::NONE;
+            case PULSAR_RECYCLED_INCLINATION_EVOLUTION::MHD:  return PULSAR_INCLINATION_EVOLUTION::MHD;
+            default: break;
+        }
+    }
+    return OPTIONS->PulsarInclinationEvolution();
+}
+
+
+/*
+ * Redraw the magnetic inclination (isotropic, cos alpha uniform) at the onset of accretion, if
+ * --pulsar-reset-inclination-at-recycling is set and the inclination is evolved. Uses a generator seeded by the star
+ * (not the COMPAS random number stream), so the rest of the evolution is unchanged.
+ *
+ * void ResetInclinationAtRecycling()
+ */
+void NS::ResetInclinationAtRecycling() {
+    if (!OPTIONS->PulsarResetInclinationAtRecycling() || OPTIONS->PulsarInclinationEvolution() == PULSAR_INCLINATION_EVOLUTION::NONE) return;
+    std::mt19937_64 generator(static_cast<std::uint64_t>(m_RandomSeed) ^ (std::hash<double>{}(m_MZAMS) + 0x51ED27E1C0FFEE01ULL));
+    std::uniform_real_distribution<double> uniform(0.0, 1.0);
+    m_PulsarDetails.inclination = std::acos(uniform(generator));
 }
 
 
@@ -536,6 +592,17 @@ void NS::CalculateAndSetPulsarParameters() {
     m_PulsarDetails.magneticField     = PPOW(10.0, CalculateBirthMagneticField());                                                  // magnetic field in Gauss 
     m_PulsarDetails.birthMagneticField = m_PulsarDetails.magneticField;
     m_PulsarDetails.spinPeriod        = CalculateBirthSpinPeriod();                                                                 // spin period in s
+
+    // birth inclination: isotropic (cos alpha uniform) for --pulsar-inclination-evolution MHD, otherwise orthogonal
+    // drawn from a generator seeded by the star (not the COMPAS random number stream), so the rest of the evolution is unchanged
+    if (OPTIONS->PulsarInclinationEvolution() == PULSAR_INCLINATION_EVOLUTION::NONE) {
+        m_PulsarDetails.inclination = M_PI / 2.0;
+    }
+    else {
+        std::mt19937_64 generator(static_cast<std::uint64_t>(m_RandomSeed) ^ (std::hash<double>{}(m_MZAMS) + 0x9E3779B97F4A7C15ULL));
+        std::uniform_real_distribution<double> uniform(0.0, 1.0);
+        m_PulsarDetails.inclination = std::acos(uniform(generator));
+    }
     m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
     m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
@@ -700,32 +767,70 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
     // std::cout << "magFieldAboveMin = " << magFieldAboveMin << std::endl;
 
     // If the NS is not recycled, calculate magnetic field decay
-    if (!p_RecycledNS && magFieldAboveMin){
+    double magFieldSquaredIntegral;                                                                                                         // int B^2 dt over the step (G^2 s)
+    bool   fieldDecays = !p_RecycledNS && magFieldAboveMin;
+    if (fieldDecays){
         // calculate the decay of magnetic field for an isolated neutron star
         // see Equation 6 in  arXiv:0903.3538v2
-        // m_PulsarDetails.magneticField = NS::NS_MAG_FIELD_LOWER_LIMIT + (initialMagField - NS::NS_MAG_FIELD_LOWER_LIMIT) * std::exp(-p_Stepsize / NS::NS_DECAY_TIME_SCALE); // update pulsar magnetic field in cgs. 
-        // Calculate isolated decay of the magnetic field for a neutron star
         m_PulsarDetails.magneticField = CalculateMagneticFieldStrengthOnPhase(p_Stepsize, initialMagField); 
-        
-        // calculate the spin period for an isolated neutron star
-        // with a decaying magnetic field: P^2 = P0^2 + 2K int B^2 dt
-        // (generalises Equation 3 in arxiv:2406.11428, which assumes exponential decay with NS_DECAY_TIME_SCALE, to the power-law decay)
-        // Note that magnetic and rotational axes are orthogonal, leading to sin^2(alpha) = 1 in this equation.
-        // The rest of the calculations are carried out in cgs.
-        Psquared               = 2.0 * constant * CalculateMagneticFieldSquaredIntegral(p_Stepsize, initialMagField) + (initialSpinPeriod * initialSpinPeriod);
-    
-        // std::cout << "term 1 = " << term1 << std::endl;
-        // std::cout << "term 2 = " << term2 << std::endl;
-        // std::cout << "term 3 = " << term3 << std::endl;
-    
+        magFieldSquaredIntegral       = CalculateMagneticFieldSquaredIntegral(p_Stepsize, initialMagField);
     }
     else{
         // Assume constant magnetic field strength
         m_PulsarDetails.magneticField = initialMagField;
+        magFieldSquaredIntegral       = initialMagField * initialMagField * p_Stepsize;
+    }
 
-        // calculate the final spin period for an isolated neutron star with a constant magnetic field
-        // See Simon's note about pulsar spindown 
-        Psquared = (initialSpinPeriod * initialSpinPeriod) + 2.0 * constant * initialMagField * initialMagField * p_Stepsize;
+    if (InclinationEvolution() == PULSAR_INCLINATION_EVOLUTION::NONE) {
+        // orthogonal rotator with a (possibly decaying) field: P^2 = P0^2 + 2K int B^2 dt
+        // (generalises Equation 3 in arxiv:2406.11428, which assumes exponential decay with NS_DECAY_TIME_SCALE, to the power-law decay)
+        Psquared = fieldDecays
+                   ? 2.0 * constant * magFieldSquaredIntegral + (initialSpinPeriod * initialSpinPeriod)
+                   : (initialSpinPeriod * initialSpinPeriod) + 2.0 * constant * initialMagField * initialMagField * p_Stepsize;      // (expressions as before, for identical results)
+    }
+    else if (InclinationEvolution() == PULSAR_INCLINATION_EVOLUTION::EXPONENTIAL) {
+        // inclination decays on a fixed timescale, alpha(t) = alpha0 exp(-t/tau) (Tauris & Manchester 1998; Johnston & Karastergiou 2017),
+        // independent of the spin, so P^2 is a quadrature:  P^2 = P0^2 + 2K int B(t)^2 f(alpha(t)) dt,  f = SpinDownTorqueFactor(alpha)
+        // integrated with composite Simpson, with PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD substeps per e-folding of alpha or of the field
+        double tauAlign = OPTIONS->PulsarAlignmentTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                              // s
+        double tauField = fieldDecays ? CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR : tauAlign;                  // s
+        double alpha0   = m_PulsarDetails.inclination;
+        auto integrand  = [&](const double p_T) {
+            double b = fieldDecays ? CalculateMagneticFieldStrengthOnPhase(p_T, initialMagField) : initialMagField;
+            return b * b * SpinDownTorqueFactor(alpha0 * std::exp(-p_T / tauAlign));
+        };
+        int    nSub     = 2 * std::max(1, std::min(100000, static_cast<int>(std::ceil(0.5 * PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD * p_Stepsize / std::min(tauAlign, tauField)))));
+        double h        = p_Stepsize / nSub;
+        double sum      = integrand(0.0) + integrand(p_Stepsize);
+        for (int i = 1; i < nSub; i++) sum += (i % 2 == 1 ? 4.0 : 2.0) * integrand(i * h);
+        Psquared                    = (initialSpinPeriod * initialSpinPeriod) + 2.0 * constant * sum * h / 3.0;
+        m_PulsarDetails.inclination = alpha0 * std::exp(-p_Stepsize / tauAlign);
+    }
+    else {
+        // MHD torque with alignment; with y = P^2 and u = int B^2 dt:
+        //     dy/du = 2K f(alpha),  dalpha/du = -K k2 sin(alpha) cos(alpha) / ((k0 + k1) y),  f(alpha) = (k0 + k1 sin^2 alpha) / (k0 + k1)
+        // integrated with RK4, substeps chosen so that y changes by at most PULSAR_MHD_MAX_FRACTIONAL_STEP per substep
+        double y     = initialSpinPeriod * initialSpinPeriod;
+        double alpha = m_PulsarDetails.inclination;
+        auto derivatives = [&](const double p_Y, const double p_Alpha, double &p_dY, double &p_dAlpha) {
+            double sinAlpha = std::sin(p_Alpha);
+            p_dY            = 2.0 * constant * (PULSAR_MHD_K0 + PULSAR_MHD_K1 * sinAlpha * sinAlpha) / (PULSAR_MHD_K0 + PULSAR_MHD_K1);
+            p_dAlpha        = -constant * PULSAR_MHD_K2 * sinAlpha * std::cos(p_Alpha) / ((PULSAR_MHD_K0 + PULSAR_MHD_K1) * p_Y);
+        };
+        double growth = 2.0 * constant * magFieldSquaredIntegral / y;                                                                        // upper limit to the fractional change of y
+        int    nSub   = std::max(1, std::min(1000000, static_cast<int>(std::ceil(growth / PULSAR_MHD_MAX_FRACTIONAL_STEP))));
+        double du     = magFieldSquaredIntegral / nSub;
+        for (int i = 0; i < nSub; i++) {
+            double k1y, k1a, k2y, k2a, k3y, k3a, k4y, k4a;
+            derivatives(y,                    alpha,                    k1y, k1a);
+            derivatives(y + 0.5 * du * k1y,   alpha + 0.5 * du * k1a,   k2y, k2a);
+            derivatives(y + 0.5 * du * k2y,   alpha + 0.5 * du * k2a,   k3y, k3a);
+            derivatives(y + du * k3y,         alpha + du * k3a,         k4y, k4a);
+            y     += du * (k1y + 2.0 * k2y + 2.0 * k3y + k4y) / 6.0;
+            alpha += du * (k1a + 2.0 * k2a + 2.0 * k3a + k4a) / 6.0;
+        }
+        Psquared                    = y;
+        m_PulsarDetails.inclination = std::max(0.0, alpha);
     }
 
     m_PulsarDetails.spinPeriod    = std::sqrt(Psquared);
@@ -827,7 +932,10 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         m_MomentOfInertia_CGS  = CalculateMomentOfInertiaCGS(); 
         double jAcc            = std::sqrt(G_CGS * massG * radiusCM) * p_MassGain;    
         m_AngularMomentum_CGS += jAcc;                                                                                                      // angular momentum of the accreted material as it falls onto the surface of the NS
-        if (utils::Compare(m_PulsarDetails.accretedMass, 0.0) <= 0) m_PulsarDetails.magneticFieldPreAccretion = m_PulsarDetails.magneticField;   // onset of accretion - record field
+        if (utils::Compare(m_PulsarDetails.accretedMass, 0.0) <= 0) {                                                                       // onset of accretion
+            m_PulsarDetails.magneticFieldPreAccretion = m_PulsarDetails.magneticField;                                                      // record field
+            ResetInclinationAtRecycling();                                                                                                  // redraw inclination if requested
+        }
         if (utils::Compare(m_PulsarDetails.magneticField, NS::NS_MAG_FIELD_LOWER_LIMIT) < 0) {
             // if magnetic field is already lower than the lower limit, 
             // set it to the lower limit value.
@@ -855,7 +963,10 @@ void NS::UpdateMagneticFieldAndSpin(const bool p_CommonEnvelope, const bool p_Re
         // solve for the angular momentum of the NS after accretion
         // the accretor will gain p_MassGain g over p_Stepsize seconds
 
-        if (utils::Compare(m_PulsarDetails.accretedMass, 0.0) <= 0) m_PulsarDetails.magneticFieldPreAccretion = m_PulsarDetails.magneticField;   // onset of accretion - record field
+        if (utils::Compare(m_PulsarDetails.accretedMass, 0.0) <= 0) {                                                                       // onset of accretion
+            m_PulsarDetails.magneticFieldPreAccretion = m_PulsarDetails.magneticField;                                                      // record field
+            ResetInclinationAtRecycling();                                                                                                  // redraw inclination if requested
+        }
 
         double initialAngularMomentum_CGS = m_AngularMomentum_CGS;                                                                          // initial angular momentum
         double initialMagField            = m_PulsarDetails.magneticField;                                                                  // initial magnetic field

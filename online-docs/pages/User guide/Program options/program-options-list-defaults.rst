@@ -1170,6 +1170,11 @@ Default = 60.0
 Print boolean properties as ’TRUE’ or ’FALSE’. |br|
 Default = FALSE
 
+**--pulsar-alignment-timescale** |br|
+e-folding timescale (Myr) of the magnetic inclination :math:`\alpha` (angle between the magnetic and rotation axes) for ``--pulsar-inclination-evolution EXPONENTIAL``:
+:math:`\alpha(t) = \alpha_0 \exp(-t/\tau)`. |br|
+Default = 50.0
+
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
 Options: { FLATINLOG, UNIFORM, LOGNORMAL } |br|
@@ -1212,6 +1217,17 @@ Default = 75.0
 Sigma of normal pulsar birth spin period (ms) distribution. |br|
 Default = 25.0
 
+**--pulsar-inclination-evolution** |br|
+Evolution of the pulsar magnetic inclination :math:`\alpha`. |br|
+Options: { NONE, MHD, EXPONENTIAL } |br|
+``NONE``: orthogonal rotator (:math:`\alpha = 90^\circ`), vacuum-dipole spin-down (as before). |br|
+``MHD``: isotropic birth inclinations; force-free (MHD) spin-down torque :math:`\propto k_0 + k_1 \sin^2\alpha` (normalised to the orthogonal
+vacuum torque at :math:`\alpha = 90^\circ`) and the alignment it implies, which proceeds on the spin-down timescale (Spitkovsky 2006; Philippov, Tchekhovskoy & Li 2014). |br|
+``EXPONENTIAL``: isotropic birth inclinations decaying as :math:`\alpha_0 \exp(-t/\tau)` with :math:`\tau` = ``--pulsar-alignment-timescale``
+(e.g. Tauris & Manchester 1998; Johnston & Karastergiou 2017), with the torque set by ``--pulsar-spin-down-torque``. |br|
+Birth inclinations are drawn from a generator seeded by the star, so the rest of the evolution is unchanged. |br|
+Default = NONE
+
 **--pulsar-magnetic-field-decay-massscale** |br|
 Mass scale on which magnetic field decays during accretion (:math:`M_\odot`). |br|
 Default = 0.025
@@ -1223,6 +1239,25 @@ Default = 1000.0
 **--pulsar-minimum-magnetic-field** |br|
 :math:`log_{10}` of the minimum pulsar magnetic field (Gauss). |br|
 Default = 8.0
+
+**--pulsar-recycled-inclination-evolution** |br|
+Evolution of the pulsar magnetic inclination after the onset of accretion onto the neutron star (recycling). |br|
+Options: { SAME, NONE, MHD } |br|
+``SAME``: as ``--pulsar-inclination-evolution``. |br|
+``NONE``: inclination held fixed, orthogonal vacuum-dipole torque. |br|
+``MHD``: force-free (MHD) torque and alignment on the spin-down timescale, i.e. negligible alignment for millisecond pulsars. |br|
+Default = SAME
+
+**--pulsar-reset-inclination-at-recycling** |br|
+Redraw the magnetic inclination from an isotropic distribution at the onset of accretion onto a neutron star (only with
+``--pulsar-inclination-evolution`` other than ``NONE``). |br|
+Default = FALSE
+
+**--pulsar-spin-down-torque** |br|
+Inclination dependence of the pulsar spin-down torque for ``--pulsar-inclination-evolution EXPONENTIAL``. |br|
+Options: { VACUUM, MHD } |br|
+``VACUUM``: :math:`\propto \sin^2\alpha`. ``MHD``: :math:`\propto (k_0 + k_1 \sin^2\alpha)/(k_0 + k_1)`. Both equal the default torque at :math:`\alpha = 90^\circ`. |br|
+Default = VACUUM
 
 **--pulsational-pair-instability** |br|
 Enable mass loss due to pulsational-pair-instability (PPI). |br|
@@ -1622,7 +1657,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
 --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
---pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field
+--pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field,
+--pulsar-inclination-evolution, --pulsar-spin-down-torque, --pulsar-alignment-timescale, --pulsar-reset-inclination-at-recycling,
+--pulsar-recycled-inclination-evolution
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 

@@ -217,6 +217,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.propellerMode              = DEFAULT_INITIAL_BOOLEAN_VALUE;
     m_PulsarDetails.accretedMass               = 0.0;
     m_PulsarDetails.magneticFieldPreAccretion  = DEFAULT_INITIAL_DOUBLE_VALUE;
+    m_PulsarDetails.inclination                = M_PI / 2.0;
 
 
     // Mass Transfer Donor Type History
@@ -369,6 +370,7 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::OMEGA_ZAMS:                                         value = OmegaZAMS() / SECONDS_IN_YEAR;                          break;
         case ANY_STAR_PROPERTY::PULSAR_MAGNETIC_FIELD:                              value = PulsarMagneticField();                                  break;
         case ANY_STAR_PROPERTY::PULSAR_SPIN_DOWN_RATE:                              value = PulsarSpinDownRate();                                   break;
+        case ANY_STAR_PROPERTY::PULSAR_INCLINATION:                                 value = PulsarInclination();                                    break;
         case ANY_STAR_PROPERTY::PULSAR_SPIN_FREQUENCY:                              value = PulsarSpinFrequency();                                  break;
         case ANY_STAR_PROPERTY::PULSAR_SPIN_PERIOD:                                 value = PulsarSpinPeriod();                                     break;
         case ANY_STAR_PROPERTY::PULSAR_BIRTH_PERIOD:                                value = PulsarBirthPeriod();                                    break;

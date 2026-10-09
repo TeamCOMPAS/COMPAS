@@ -1663,6 +1663,22 @@ the other is printed in any file, but not both. If both are printed then the fil
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **PULSAR_INCLINATION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_PulsarDetails.inclination
+   * - Description:
+     - Pulsar magnetic inclination (angle between the magnetic and rotation axes, degrees); 90 unless ``--pulsar-inclination-evolution`` is set.
+   * - Header Strings:
+     - Pulsar_Inclination, Pulsar_Inclination(1), Pulsar_Inclination(2), Pulsar_Inclination(SN), Pulsar_Inclination(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **PULSAR_MAGNETIC_FIELD**
      -
    * - Data type:

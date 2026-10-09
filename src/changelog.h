@@ -1728,6 +1728,15 @@
 //                                         --evolve-pulsars, so their pulsars were never followed or logged (~8% of NS-forming systems for 5-30 Msol primaries).
 //                                         With --evolve-unbound-systems and --evolve-pulsars, unbound DCOs containing a neutron star now keep evolving, as bound
 //                                         DCOs already did; they end with status TIMES_UP rather than UNBOUND. Without --evolve-pulsars nothing changes.
+//  03.31.00  SS - October 9, 2026       - Enhancement:
+//                                       - Pulsar magnetic inclination evolution: new options --pulsar-inclination-evolution {NONE (default), MHD, EXPONENTIAL},
+//                                         --pulsar-spin-down-torque {VACUUM (default), MHD}, --pulsar-alignment-timescale (Myr, default 50),
+//                                         --pulsar-reset-inclination-at-recycling (default FALSE) and --pulsar-recycled-inclination-evolution {SAME (default), NONE, MHD}.
+//                                         MHD: force-free torque (k0 + k1 sin^2 alpha) and alignment on the spin-down time (Philippov, Tchekhovskoy & Li 2014);
+//                                         EXPONENTIAL: alpha0 exp(-t/tau) with a vacuum (sin^2 alpha) or MHD torque. Birth (and reset) inclinations are isotropic and
+//                                         drawn from a generator seeded by the star, so binary evolution is unchanged. New loggable property PULSAR_INCLINATION (deg).
+//                                       - Isolated spin-down integrates int B^2 f(alpha) dt over the timestep (Simpson for EXPONENTIAL, RK4 in int B^2 dt for MHD).
+//                                       - With the defaults, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1739,7 +1748,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.30.02";
+const std::string VERSION_STRING = "03.31.00";
 
 
 # endif // __changelog_h__

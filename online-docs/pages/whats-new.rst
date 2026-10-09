@@ -3,6 +3,18 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.31.00 October 9, 2026**
+
+* Pulsar magnetic inclination (obliquity) evolution:
+  - New option ``--pulsar-inclination-evolution`` (``NONE`` (default), ``MHD``, ``EXPONENTIAL``): ``MHD`` uses the force-free spin-down torque and the alignment it implies
+    (on the spin-down timescale); ``EXPONENTIAL`` decays the inclination as :math:`\alpha_0 \exp(-t/\tau)` with ``--pulsar-alignment-timescale`` (Myr) and a torque set by
+    ``--pulsar-spin-down-torque`` (``VACUUM`` or ``MHD``). Birth inclinations are isotropic (and orthogonal for ``NONE``).
+  - New option ``--pulsar-reset-inclination-at-recycling``: redraw the inclination isotropically at the onset of accretion.
+  - New option ``--pulsar-recycled-inclination-evolution`` (``SAME`` (default), ``NONE``, ``MHD``): inclination evolution after recycling. For example,
+    ``EXPONENTIAL`` alignment (``VACUUM`` torque, 10 Myr) for canonical pulsars with ``MHD`` after a reset at recycling keeps millisecond pulsars oblique and spinning down.
+  - New loggable property ``PULSAR_INCLINATION`` (degrees).
+  - With the defaults, results are unchanged.
+
 **03.30.02 October 9, 2026**
 
 * Defect repair: with ``--evolve-pulsars`` (and ``--evolve-unbound-systems``, the default), double compact objects disrupted by a supernova now keep

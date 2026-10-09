@@ -302,6 +302,15 @@ constexpr double TIDES_MAXIMUM_ORBITAL_CHANGE_FRAC      = 0.01;                 
 constexpr double MAIN_SEQUENCE_DEGENERATE_RADIUS_COEFFICIENT = 0.0258;                                              // R_deg = 0.0258 (1 + X)^(5/3) M^(-1/3) Rsol for low-mass MS stars (SSE hrdiag.f, after C. Tout)
 constexpr double MAIN_SEQUENCE_DEGENERATE_RADIUS_MAXIMUM_MASS = 0.7;                                                // Maximum mass (Msol) for which the degenerate radius floor is applied (SSE applies it to kw = 0 stars)
 
+// Pulsar spin-down and alignment for --pulsar-inclination-evolution MHD (force-free/MHD magnetospheres: Spitkovsky 2006; Philippov, Tchekhovskoy & Li 2014):
+// I dOmega/dt = -(mu^2 Omega^3 / c^3) (k0 + k1 sin^2 alpha),  I dalpha/dt = -(mu^2 Omega^2 / c^3) k2 sin alpha cos alpha
+// COMPAS normalises the torque so that an orthogonal rotator (alpha = pi/2) spins down exactly as in the vacuum-dipole default
+constexpr double PULSAR_MHD_K0                          = 1.0;
+constexpr double PULSAR_MHD_K1                          = 1.0;
+constexpr double PULSAR_MHD_K2                          = 1.0;
+constexpr double PULSAR_MHD_MAX_FRACTIONAL_STEP         = 0.01;
+constexpr int    PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD    = 50;                                                       // Simpson substeps per e-folding of the inclination or field, --pulsar-inclination-evolution EXPONENTIAL                                                     // Maximum fractional change of P^2 per integration substep
+
 constexpr double MAGNETIC_BRAKING_MAXIMUM_ORBITAL_CHANGE_FRAC = 0.01;                                              // Maximum allowed fractional change in the semi-major axis due to magnetic braking in a single timestep
 constexpr double MAGNETIC_BRAKING_QCONV_THRESHOLD       = 0.02;                                                     // Convective envelope mass fraction below which magnetic braking is quenched by exp(1 - threshold/qconv) (Podsiadlowski, Rappaport & Pfahl 2002)
 constexpr double MAGNETIC_BRAKING_RVJ83_COEFFICIENT     = 3.8E-30;                                                  // Coefficient of the Rappaport, Verbunt & Joss (1983) magnetic braking law (cgs)

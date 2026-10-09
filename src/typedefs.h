@@ -824,6 +824,30 @@ const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> 
 };
 
 // pulsar birth spin period distributions
+// pulsar inclination (magnetic obliquity) evolution
+enum class PULSAR_INCLINATION_EVOLUTION: int { NONE, MHD, EXPONENTIAL };
+const COMPASUnorderedMap<PULSAR_INCLINATION_EVOLUTION, std::string> PULSAR_INCLINATION_EVOLUTION_LABEL = {
+    { PULSAR_INCLINATION_EVOLUTION::NONE,        "NONE" },
+    { PULSAR_INCLINATION_EVOLUTION::MHD,         "MHD" },
+    { PULSAR_INCLINATION_EVOLUTION::EXPONENTIAL, "EXPONENTIAL" }
+};
+
+// inclination evolution after recycling (onset of accretion): SAME as --pulsar-inclination-evolution, NONE (inclination fixed,
+// orthogonal-vacuum torque) or MHD (force-free torque and the alignment it implies, ~ the spin-down time)
+enum class PULSAR_RECYCLED_INCLINATION_EVOLUTION: int { SAME, NONE, MHD };
+const COMPASUnorderedMap<PULSAR_RECYCLED_INCLINATION_EVOLUTION, std::string> PULSAR_RECYCLED_INCLINATION_EVOLUTION_LABEL = {
+    { PULSAR_RECYCLED_INCLINATION_EVOLUTION::SAME, "SAME" },
+    { PULSAR_RECYCLED_INCLINATION_EVOLUTION::NONE, "NONE" },
+    { PULSAR_RECYCLED_INCLINATION_EVOLUTION::MHD,  "MHD" }
+};
+
+// pulsar spin-down torque dependence on the inclination (used with --pulsar-inclination-evolution EXPONENTIAL)
+enum class PULSAR_SPIN_DOWN_TORQUE: int { VACUUM, MHD };
+const COMPASUnorderedMap<PULSAR_SPIN_DOWN_TORQUE, std::string> PULSAR_SPIN_DOWN_TORQUE_LABEL = {
+    { PULSAR_SPIN_DOWN_TORQUE::VACUUM, "VACUUM" },
+    { PULSAR_SPIN_DOWN_TORQUE::MHD,    "MHD" }
+};
+
 enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { UNIFORM, NORMAL, LOGNORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
@@ -1241,6 +1265,7 @@ typedef struct PulsarDetails {
     bool   propellerMode;                                   // Mode of pulsar during mass transfer. True = propeller mode; False = accretion mode.
     double accretedMass;                                    // Cumulative mass accreted by the pulsar (g) - needed for non-exponential (e.g. Shibazaki) field decay
     double magneticFieldPreAccretion;                       // Magnetic field at the onset of accretion (G) - needed for non-exponential (e.g. Shibazaki) field decay
+    double inclination;                                     // Angle between the magnetic and rotation axes (radians); pi/2 unless --pulsar-inclination-evolution is set
 } PulsarDetailsT;
 
 

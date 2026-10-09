@@ -702,6 +702,9 @@ private:
         "print-bool-as-string",
         "pulsar-birth-magnetic-field-distribution",
         "pulsar-birth-spin-period-distribution",
+        "pulsar-inclination-evolution",
+        "pulsar-recycled-inclination-evolution",
+        "pulsar-spin-down-torque",
         "pulsar-magnetic-field-decay-accretion-model",
         "pulsational-pair-instability",
         "pulsational-pair-instability-prescription",
@@ -712,6 +715,7 @@ private:
         "radial-change-fraction",
         "random-seed",
         "remnant-mass-prescription",
+        "pulsar-reset-inclination-at-recycling",
         "retain-exhausted-core-evolution",
         "revised-energy-formalism-nandez-ivanova",
         "rlof-printing",
@@ -1222,6 +1226,11 @@ public:
 
             // Pulsar birth spin period distribution string
             ENUM_OPT<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION>     m_PulsarBirthSpinPeriodDistribution;                            // Birth spin period distribution for pulsars
+            ENUM_OPT<PULSAR_INCLINATION_EVOLUTION>              m_PulsarInclinationEvolution;                                   // Evolution of the pulsar magnetic inclination (obliquity)
+            ENUM_OPT<PULSAR_SPIN_DOWN_TORQUE>                   m_PulsarSpinDownTorque;                                         // Inclination dependence of the spin-down torque (EXPONENTIAL inclination evolution)
+            double                                              m_PulsarAlignmentTimescale;                                     // e-folding timescale of the inclination (Myr) for EXPONENTIAL inclination evolution
+            ENUM_OPT<PULSAR_RECYCLED_INCLINATION_EVOLUTION>     m_PulsarRecycledInclinationEvolution;                           // Inclination evolution after the onset of accretion
+            bool                                                m_PulsarResetInclinationAtRecycling;                            // redraw the inclination (isotropic) at the onset of accretion
             double                                              m_PulsarBirthSpinPeriodDistributionMin;                         // Minimum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMax;                         // Maximum birth spin period (ms)
             double                                              m_PulsarBirthSpinPeriodDistributionMean;                        // Mean of normal or lognormal distribution for birth spin period (ms)
@@ -1760,6 +1769,11 @@ public:
     double                                      PulsarBirthMagneticFieldDistributionSigma() const                       { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-sigma", m_PulsarBirthMagneticFieldDistributionSigma, true); }
 
     PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION       PulsarBirthSpinPeriodDistribution() const                               { return OPT_VALUE("pulsar-birth-spin-period-distribution", m_PulsarBirthSpinPeriodDistribution.type, true); }
+    PULSAR_INCLINATION_EVOLUTION                PulsarInclinationEvolution() const                                      { return OPT_VALUE("pulsar-inclination-evolution", m_PulsarInclinationEvolution.type, true); }
+    double                                      PulsarAlignmentTimescale() const                                        { return OPT_VALUE("pulsar-alignment-timescale", m_PulsarAlignmentTimescale, true); }
+    PULSAR_RECYCLED_INCLINATION_EVOLUTION       PulsarRecycledInclinationEvolution() const                              { return OPT_VALUE("pulsar-recycled-inclination-evolution", m_PulsarRecycledInclinationEvolution.type, true); }
+    bool                                        PulsarResetInclinationAtRecycling() const                               { return OPT_VALUE("pulsar-reset-inclination-at-recycling", m_PulsarResetInclinationAtRecycling, true); }
+    PULSAR_SPIN_DOWN_TORQUE                     PulsarSpinDownTorque() const                                            { return OPT_VALUE("pulsar-spin-down-torque", m_PulsarSpinDownTorque.type, true); }
     double                                      PulsarBirthSpinPeriodDistributionMax() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-max", m_PulsarBirthSpinPeriodDistributionMax, true); }
     double                                      PulsarBirthSpinPeriodDistributionMin() const                            { return OPT_VALUE("pulsar-birth-spin-period-distribution-min", m_PulsarBirthSpinPeriodDistributionMin, true); }
     double                                      PulsarBirthSpinPeriodDistributionMean() const                           { return OPT_VALUE("pulsar-birth-spin-period-distribution-mean", m_PulsarBirthSpinPeriodDistributionMean, true); }

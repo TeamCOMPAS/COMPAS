@@ -147,6 +147,7 @@ public:
     double              PulsarSpinPeriod() const                                        { return m_PulsarDetails.spinPeriod; }
     double              PulsarSpinFrequency() const                                     { return m_PulsarDetails.spinFrequency; }
     double              PulsarSpinDownRate() const                                      { return m_PulsarDetails.spinDownRate; }
+    double              PulsarInclination() const                                       { return m_PulsarDetails.inclination * 180.0 / M_PI; }   // degrees
     bool                PulsarPropellerMode() const                                     { return m_PulsarDetails.propellerMode; }
     double              Radius() const                                                  { return m_Radius; }
     double              RadiusPrev() const                                              { return m_RadiusPrev; }
