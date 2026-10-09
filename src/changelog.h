@@ -1737,6 +1737,11 @@
 //                                         drawn from a generator seeded by the star, so binary evolution is unchanged. New loggable property PULSAR_INCLINATION (deg).
 //                                       - Isolated spin-down integrates int B^2 f(alpha) dt over the timestep (Simpson for EXPONENTIAL, RK4 in int B^2 dt for MHD).
 //                                       - With the defaults, results are unchanged.
+//  03.31.01  SS - October 10, 2026      - Defect repair:
+//                                       - The supernova of an evolved main sequence merger product (--evolve-main-sequence-mergers) was resolved as a binary
+//                                         supernova with a massless companion at infinite separation (the system is not flagged as unbound), giving NaN
+//                                         velocities for the exploding star (and its kick was lost). A star whose companion is a massless remnant now explodes
+//                                         as a single star (as in an unbound system): its component velocity is updated by the kick.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1748,7 +1753,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.31.00";
+const std::string VERSION_STRING = "03.31.01";
 
 
 # endif // __changelog_h__

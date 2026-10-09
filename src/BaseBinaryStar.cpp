@@ -1269,8 +1269,10 @@ void BaseBinaryStar::ResolveSupernova() {
     double rocketPhi          = m_Supernova->SN_RocketKickPhi();                                                                // polar angle
     Vector3d rocketKickVector = m_Supernova->SN_RocketKickMagnitude() * Vector3d(sin(rocketTheta) * cos(rocketPhi), sin(rocketTheta) * sin(rocketPhi), cos(rocketTheta));
 
-    // Check if the system is already unbound
-    if (IsUnbound()) {                                                                                                          // is system already unbound?
+    // Check if the system is already unbound, or the companion is a massless remnant (e.g. the explosion of an evolved main sequence merger
+    // product, which keeps an infinite separation but is not flagged as unbound): either way the star explodes as a single star
+    bool explodesAsSingleStar = IsUnbound() || m_Companion->IsOneOf({ STELLAR_TYPE::MASSLESS_REMNANT });
+    if (explodesAsSingleStar) {                                                                                                 // single star (unbound system or massless companion)?
                                                                                                                                 // yes
         m_Supernova->UpdateComponentVelocity( (natalKickVector+rocketKickVector).ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));        // only need to update the velocity of the star undergoing SN
 
@@ -1447,7 +1449,7 @@ void BaseBinaryStar::ResolveSupernova() {
         // account for possible neutrino rocket - see Hirai+ 2024
         if (ShouldResolveNeutrinoRocketMechanism()) {
 
-            if (IsUnbound()) {                                                                                                  // is system unbound? 
+            if (explodesAsSingleStar || IsUnbound()) {                                                                          // is system unbound? 
                 m_Supernova->UpdateComponentVelocity(rocketKickVector.ChangeBasis(m_ThetaE, m_PhiE, m_PsiE));                   // yes - simply update the component velocity
             }
             else {                                                                                                              // no - need to update the eccentricity and system velocity

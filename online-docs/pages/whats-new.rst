@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.31.01 October 10, 2026**
+
+* Defect repair: with ``--evolve-main-sequence-mergers``, the supernova of a merger product was resolved as a binary supernova with a massless companion,
+  giving NaN velocities for the exploding star. It now explodes as a single star and its velocity is set by the natal kick.
+
 **03.31.00 October 9, 2026**
 
 * Pulsar magnetic inclination (obliquity) evolution:
