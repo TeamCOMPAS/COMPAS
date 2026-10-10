@@ -1750,6 +1750,11 @@
 //                                         (--pulsar-final-magnetic-field-distribution-mean, -sigma; drawn from a generator seeded by the star). int B^2 f(alpha) dt over
 //                                         each step by Simpson's rule in ln(age). Accretion-induced decay and recycled pulsars unchanged. With the defaults, results are unchanged.
 //                                       - Documented the existing LOGNORMAL --pulsar-birth-spin-period-distribution (mean and sigma options in ms; log10 taken of both).
+// 03.33.00  SS - October 10, 2026      - Enhancement:
+//                                       - New options --kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max: parameters of the
+//                                         LOGNORMAL (Disberg & Mandel 2025) kick distribution used for CCSN (and PPISN with natal kicks); defaults 5.60, 0.68, 1000 km/s
+//                                         (the previous constants), so results are unchanged. ECSN/USSN kicks keep their Maxwellian sigmas; --kick-scaling-factor
+//                                         still divides all kicks.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1761,7 +1766,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.32.00";
+const std::string VERSION_STRING = "03.33.00";
 
 
 # endif // __changelog_h__

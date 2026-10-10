@@ -972,6 +972,9 @@ public:
             double                                              m_KickMagnitudeDistributionSigmaCCSN_NS;                        // Kick magnitude sigma in km s^-1 for neutron stars
             double                                              m_KickMagnitudeDistributionSigmaCCSN_BH;                        // Kick magnitude sigma in km s^-1 for black holes
             double                                              m_KickMagnitudeDistributionMaximum;                             // Maximum kick magnitude to draw. If negative, no maximum
+            double                                              m_KickMagnitudeLognormalMu;                                     // LOGNORMAL (CCSN): mean of ln(v / km s^-1)
+            double                                              m_KickMagnitudeLognormalSigma;                                  // LOGNORMAL (CCSN): standard deviation of ln(v / km s^-1)
+            double                                              m_KickMagnitudeLognormalMaximum;                                // LOGNORMAL (CCSN): truncation (km s^-1)
 	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1
 	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1
 	        double                                              m_KickScalingFactor;								            // Arbitrary factor for scaling kicks
@@ -1576,6 +1579,10 @@ public:
     KICK_MAGNITUDE_DISTRIBUTION                 KickMagnitudeDistribution() const                                       { return OPT_VALUE("kick-magnitude-distribution", m_KickMagnitudeDistribution.type, true); }
 
     double                                      KickMagnitudeDistributionMaximum() const                                { return OPT_VALUE("kick-magnitude-max", m_KickMagnitudeDistributionMaximum, true); }
+
+    double                                      KickMagnitudeLognormalMaximum() const                                   { return OPT_VALUE("kick-magnitude-lognormal-max", m_KickMagnitudeLognormalMaximum, true); }
+    double                                      KickMagnitudeLognormalMu() const                                        { return OPT_VALUE("kick-magnitude-lognormal-mu", m_KickMagnitudeLognormalMu, true); }
+    double                                      KickMagnitudeLognormalSigma() const                                     { return OPT_VALUE("kick-magnitude-lognormal-sigma", m_KickMagnitudeLognormalSigma, true); }
 
     double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-BH", m_KickMagnitudeDistributionSigmaCCSN_BH, true); }
     double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-NS", m_KickMagnitudeDistributionSigmaCCSN_NS, true); }

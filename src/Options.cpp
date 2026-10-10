@@ -321,6 +321,9 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitudeDistributionSigmaCCSN_NS                         = HOBBS_CORRECTED_SIGMA;      // Best fit Maxwellian sigma for 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
     m_KickMagnitudeDistributionSigmaCCSN_BH                         = HOBBS_CORRECTED_SIGMA;
     m_KickMagnitudeDistributionMaximum                              = -1.0;
+    m_KickMagnitudeLognormalMu                                      = DISBERG_MANDEL_MU;          // Disberg & Mandel (2025)
+    m_KickMagnitudeLognormalSigma                                   = DISBERG_MANDEL_SIGMA;
+    m_KickMagnitudeLognormalMaximum                                 = DISBERG_MANDEL_MAX_KICK;
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
 	m_KickScalingFactor						                        = 1.0;
@@ -1453,6 +1456,21 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "kick-magnitude-random-2",                                          
             po::value<double>(&p_Options->m_KickMagnitudeRandom2)->default_value(p_Options->m_KickMagnitudeRandom2),                                                      
             "Number used to choose the kick velocity magnitude for the secondary during the a supernova (default = uniform random number [0.0, 1.0))"
+        )
+        (
+            "kick-magnitude-lognormal-max",
+            po::value<double>(&p_Options->m_KickMagnitudeLognormalMaximum)->default_value(p_Options->m_KickMagnitudeLognormalMaximum),
+            ("Truncation, in km/s, of the LOGNORMAL kick magnitude distribution (CCSN; Disberg & Mandel 2025: 1000) (default = " + std::to_string(p_Options->m_KickMagnitudeLognormalMaximum) + ")").c_str()
+        )
+        (
+            "kick-magnitude-lognormal-mu",
+            po::value<double>(&p_Options->m_KickMagnitudeLognormalMu)->default_value(p_Options->m_KickMagnitudeLognormalMu),
+            ("Mean of ln(v / km s^-1) of the LOGNORMAL kick magnitude distribution (CCSN; Disberg & Mandel 2025: 5.60) (default = " + std::to_string(p_Options->m_KickMagnitudeLognormalMu) + ")").c_str()
+        )
+        (
+            "kick-magnitude-lognormal-sigma",
+            po::value<double>(&p_Options->m_KickMagnitudeLognormalSigma)->default_value(p_Options->m_KickMagnitudeLognormalSigma),
+            ("Standard deviation of ln(v / km s^-1) of the LOGNORMAL kick magnitude distribution (CCSN; Disberg & Mandel 2025: 0.68) (default = " + std::to_string(p_Options->m_KickMagnitudeLognormalSigma) + ")").c_str()
         )
         (
             "kick-magnitude-sigma-CCSN-BH",                                
@@ -2963,6 +2981,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_KickMagnitudeLognormalSigma <= 0.0, "LOGNORMAL kick sigma (--kick-magnitude-lognormal-sigma) must be > 0");
+        COMPLAIN_IF(m_KickMagnitudeLognormalMaximum <= 0.0, "LOGNORMAL kick maximum (--kick-magnitude-lognormal-max) must be > 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude2 < 0.0, "Kick magnitude (--kick-magnitude-2) must be >= 0");
         COMPLAIN_IF(m_RocketKickMagnitude1 < 0.0, "Rocket Kick magnitude 1 (--rocket-kick-magnitude-1) must be >= 0");

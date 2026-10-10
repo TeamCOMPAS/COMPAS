@@ -3961,10 +3961,13 @@ double BaseStar::DrawSNKickMagnitude(const double p_Sigma,
             // use Maxwellians with sigma set in CalculateSNKickMagnitude() for other SN types
             SN_EVENT thisSNevent = utils::SNEventType(m_SupernovaDetails.events.current);       // current SN event
             if (thisSNevent == SN_EVENT::CCSN || (thisSNevent == SN_EVENT::PPISN && OPTIONS->NatalKickForPPISN())) {
-                // maximum kick of DISBERG_MANDEL_MAX_KICK = 1000 km/s, following Disberg & Mandel (2025)
+                // ln(v) normal with mean --kick-magnitude-lognormal-mu and sd --kick-magnitude-lognormal-sigma, truncated at
+                // --kick-magnitude-lognormal-max (defaults: Disberg & Mandel 2025, 5.60, 0.68, 1000 km/s)
                 // normalise the draw so that the kick is uniformly drawn from the inverse CDF below this maximum
-                double cdfMax = gsl_cdf_lognormal_P(DISBERG_MANDEL_MAX_KICK, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
-                kickMagnitude = gsl_cdf_lognormal_Pinv(p_Rand*cdfMax, DISBERG_MANDEL_MU, DISBERG_MANDEL_SIGMA);
+                double mu     = OPTIONS->KickMagnitudeLognormalMu();
+                double sigma  = OPTIONS->KickMagnitudeLognormalSigma();
+                double cdfMax = gsl_cdf_lognormal_P(OPTIONS->KickMagnitudeLognormalMaximum(), mu, sigma);
+                kickMagnitude = gsl_cdf_lognormal_Pinv(p_Rand*cdfMax, mu, sigma);
             }
             else
                 kickMagnitude = DrawKickMagnitudeDistributionMaxwell(p_Sigma, p_Rand);

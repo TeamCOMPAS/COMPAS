@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.33.00 October 10, 2026**
+
+* New options ``--kick-magnitude-lognormal-mu``, ``--kick-magnitude-lognormal-sigma`` and ``--kick-magnitude-lognormal-max`` set the parameters of the
+  ``LOGNORMAL`` (Disberg & Mandel 2025) core-collapse kick distribution (defaults 5.60, 0.68 and 1000 km/s, as before), so core-collapse kicks can be
+  changed without changing electron-capture and ultra-stripped supernova kicks (``--kick-scaling-factor`` divides all kicks).
+
 **03.32.00 October 10, 2026**
 
 * New option ``--pulsar-magnetic-field-decay-model`` (``EXPONENTIAL`` (default), ``GRABER2024``): ``GRABER2024`` evolves the field of isolated pulsars with the

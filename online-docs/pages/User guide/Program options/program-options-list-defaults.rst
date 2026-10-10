@@ -600,8 +600,24 @@ as well as with the ``MALTSEV2024`` remnant mass prescription (e.g., if used wit
 inconsistent black hole kicks may be applied rescaled by fallback fractions). |br|
 ``MULLER2016`` and ``MULLER2016MAXWELLIAN`` use kicks from Mueller 2016 as implemented in Vigna-Gomez et al., 2018 |br|
 (reduced by a factor of sqrt(3) in the latter case). |br|
-``LOGNORMAL`` applies kicks drawn from the Disberg & Mandel 2025 log-normal distribution. |br|
+``LOGNORMAL`` applies kicks drawn from the Disberg & Mandel 2025 log-normal distribution to core-collapse supernovae (and pulsational pair-instability
+supernovae with ``--natal-kick-for-PPISN``; parameters ``--kick-magnitude-lognormal-mu``, ``--kick-magnitude-lognormal-sigma``,
+``--kick-magnitude-lognormal-max``); electron-capture and ultra-stripped supernovae get Maxwellian kicks with ``--kick-magnitude-sigma-ECSN`` and
+``--kick-magnitude-sigma-USSN``. |br|
 Default = MULLERMANDEL
+
+**--kick-magnitude-lognormal-max** |br|
+Truncation (:math:`km s^{−1}`) of the ``LOGNORMAL`` kick magnitude distribution: kicks are drawn from the log-normal renormalised below this value. |br|
+Default = 1000.0 (Disberg & Mandel 2025)
+
+**--kick-magnitude-lognormal-mu** |br|
+Mean of :math:`\ln(v / {\rm km\,s^{-1}})` of the ``LOGNORMAL`` kick magnitude distribution (the median kick is :math:`e^\mu` before truncation; scaling all
+core-collapse kicks by a factor :math:`f` adds :math:`\ln f`). |br|
+Default = 5.60 (Disberg & Mandel 2025)
+
+**--kick-magnitude-lognormal-sigma** |br|
+Standard deviation of :math:`\ln(v / {\rm km\,s^{-1}})` of the ``LOGNORMAL`` kick magnitude distribution. |br|
+Default = 0.68 (Disberg & Mandel 2025)
 
 **--kick-magnitude-max** |br|
 Maximum drawn kick magnitude (:math:`km s^{−1}`). |br|
@@ -1695,6 +1711,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --pulsar-late-magnetic-field-decay-timescale, --pulsar-final-magnetic-field-distribution-mean, --pulsar-final-magnetic-field-distribution-sigma
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
+--kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max,
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
 --muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller, 
