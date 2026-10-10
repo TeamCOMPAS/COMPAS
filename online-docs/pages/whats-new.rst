@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.34.00 October 10, 2026**
+
+* New option ``--ultra-stripped-supernova-prescription`` (``FULLY_STRIPPED`` (default, as before), ``TAURIS2015``): with ``TAURIS2015`` a supernova of a star
+  stripped to its CO core is ultra-stripped (``USSN`` kicks) only if the star was stripped by mass transfer onto a compact companion and the remaining helium
+  envelope from the fits of Tauris et al. (2015) is at most ``--ultra-stripped-maximum-helium-envelope-mass`` (default 0.2 Msol). Before, any fully stripped
+  star - including helium stars stripped by low-mass main-sequence companions or by winds - got ultra-stripped kicks.
+
 **03.33.00 October 10, 2026**
 
 * New options ``--kick-magnitude-lognormal-mu``, ``--kick-magnitude-lognormal-sigma`` and ``--kick-magnitude-lognormal-max`` set the parameters of the

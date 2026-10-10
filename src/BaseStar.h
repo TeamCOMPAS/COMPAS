@@ -130,6 +130,7 @@ public:
     double              Mass0() const                                                   { return m_Mass0; }
     double              MassPrev() const                                                { return m_MassPrev; }
     ST_VECTOR           MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
+    double              CaseBBOrbitalPeriod() const                                     { return m_CaseBBOrbitalPeriod; }
     double              Mdot() const                                                    { return m_Mdot; }
     double              Metallicity() const                                             { return m_Metallicity; }
     double              MZAMS() const                                                   { return m_MZAMS; }
@@ -205,6 +206,8 @@ public:
     void                UpdateComponentVelocity(const Vector3d p_NewVelocity)           { m_ComponentVelocity += p_NewVelocity; }
     
     void                UpdateMassTransferDonorHistory();
+    void                SetCaseBBOrbitalPeriod(const double p_Period)                   { if (m_CaseBBOrbitalPeriod < 0.0) m_CaseBBOrbitalPeriod = p_Period; }   // first onset only
+    bool                IsUltraStrippedProgenitor() const;
     
     void                UpdatePreviousTimestepDuration()                                { m_DtPrev = m_Dt; }
     
@@ -517,6 +520,7 @@ protected:
 
     // Star mass transfer history 
     ST_VECTOR               m_MassTransferDonorHistory;                 // List of MT donor stellar types - mostly relevant for binary stars
+    double                  m_CaseBBOrbitalPeriod;                      // Orbital period (days) at the onset of mass transfer from this naked helium star onto a compact companion (-1: none)
 
     // member functions - alphabetically
             void                AgeOneTimestepPreamble(const double p_DeltaTime);

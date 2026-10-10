@@ -2102,6 +2102,13 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
     m_Accretor = m_Star2->IsRLOF() ? m_Star1 : m_Star2;                                                                         // accretor is secondary unless secondary is overflowing its Roche Lobe
     
     m_Donor->UpdateMassTransferDonorHistory();                                                                                  // add event to MT history of the donor
+
+    if (m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH }) &&
+        m_Accretor->IsOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
+                              STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE })) {                                       // helium star stripped by a compact companion:
+        m_Donor->SetCaseBBOrbitalPeriod(DAYS_IN_YEAR * std::sqrt(m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis /          // record the orbital period (days) at the onset
+                                                                  (m_Star1->Mass() + m_Star2->Mass())));                       // (--ultra-stripped-supernova-prescription TAURIS2015)
+    }
     
     // Calculate accretion fraction if stable
     // This passes the accretor's Roche lobe radius to m_Accretor->CalculateThermalMassAcceptanceRate()

@@ -479,6 +479,9 @@ void Options::OptionValues::Initialise() {
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
+    m_UltraStrippedSupernovaPrescription.type                       = ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION::FULLY_STRIPPED;
+    m_UltraStrippedSupernovaPrescription.typeString                 = ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL.at(m_UltraStrippedSupernovaPrescription.type);
+    m_UltraStrippedMaximumHeliumEnvelopeMass                        = 0.2;                                                  // Msol; Tauris et al. (2015)
     m_CaseBBStabilityPrescription.type                              = CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_STABLE;
     m_CaseBBStabilityPrescription.typeString                        = CASE_BB_STABILITY_PRESCRIPTION_LABEL.at(m_CaseBBStabilityPrescription.type);
 
@@ -1458,6 +1461,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "Number used to choose the kick velocity magnitude for the secondary during the a supernova (default = uniform random number [0.0, 1.0))"
         )
         (
+            "ultra-stripped-maximum-helium-envelope-mass",
+            po::value<double>(&p_Options->m_UltraStrippedMaximumHeliumEnvelopeMass)->default_value(p_Options->m_UltraStrippedMaximumHeliumEnvelopeMass),
+            ("Maximum remaining helium envelope mass (Msol) of an ultra-stripped SN progenitor for --ultra-stripped-supernova-prescription TAURIS2015 (default = " + std::to_string(p_Options->m_UltraStrippedMaximumHeliumEnvelopeMass) + ")").c_str()
+        )
+        (
             "kick-magnitude-lognormal-max",
             po::value<double>(&p_Options->m_KickMagnitudeLognormalMaximum)->default_value(p_Options->m_KickMagnitudeLognormalMaximum),
             ("Truncation, in km/s, of the LOGNORMAL kick magnitude distribution (CCSN; Disberg & Mandel 2025: 1000) (default = " + std::to_string(p_Options->m_KickMagnitudeLognormalMaximum) + ")").c_str()
@@ -1984,6 +1992,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Black hole kicks prescription (" + AllowedOptionValuesFormatted("black-hole-kicks-mode") + ", default = '" + p_Options->m_BlackHoleKicksMode.typeString + "')").c_str()
         )
 
+        (
+            "ultra-stripped-supernova-prescription",
+            po::value<std::string>(&p_Options->m_UltraStrippedSupernovaPrescription.typeString)->default_value(p_Options->m_UltraStrippedSupernovaPrescription.typeString),
+            ("Which fully stripped core-collapse supernovae are ultra-stripped (USSN kicks): FULLY_STRIPPED = all (any case BB/BC mass transfer); TAURIS2015 = stripped onto a compact companion with remaining He envelope (Tauris et al. 2015 fits) <= --ultra-stripped-maximum-helium-envelope-mass (" + AllowedOptionValuesFormatted("ultra-stripped-supernova-prescription") + ", default = '" + p_Options->m_UltraStrippedSupernovaPrescription.typeString + "')").c_str()
+        )
         (
             "case-BB-stability-prescription",                              
             po::value<std::string>(&p_Options->m_CaseBBStabilityPrescription.typeString)->default_value(p_Options->m_CaseBBStabilityPrescription.typeString),                                                    
@@ -2563,6 +2576,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Black Hole Kicks Prescription");
         }
 
+        if (!DEFAULTED("ultra-stripped-supernova-prescription")) {                                                                  // ultra-stripped supernova prescription
+            std::tie(found, m_UltraStrippedSupernovaPrescription.type) = utils::GetMapKey(m_UltraStrippedSupernovaPrescription.typeString, ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL, m_UltraStrippedSupernovaPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Ultra-stripped Supernova Prescription");
+        }
+
         if (!DEFAULTED("case-BB-stability-prescription")) {                                                                         // case BB/BC mass transfer stability prescription
             std::tie(found, m_CaseBBStabilityPrescription.type) = utils::GetMapKey(m_CaseBBStabilityPrescription.typeString, CASE_BB_STABILITY_PRESCRIPTION_LABEL, m_CaseBBStabilityPrescription.type);
             COMPLAIN_IF(!found, "Unknown Case BB/BC Mass Transfer Stability Prescription");
@@ -2981,6 +2999,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_UltraStrippedMaximumHeliumEnvelopeMass < 0.0, "Ultra-stripped maximum helium envelope mass (--ultra-stripped-maximum-helium-envelope-mass) must be >= 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalSigma <= 0.0, "LOGNORMAL kick sigma (--kick-magnitude-lognormal-sigma) must be > 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalMaximum <= 0.0, "LOGNORMAL kick maximum (--kick-magnitude-lognormal-max) must be > 0");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
@@ -3097,6 +3116,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("add-options-to-sysparms")                           : POPULATE_RET(ADD_OPTIONS_TO_SYSPARMS_LABEL);                      break;
         case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                        break;
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);               break;
+        case _("ultra-stripped-supernova-prescription")             : POPULATE_RET(ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL);        break;
         case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                     break;
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                                 break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                       break;

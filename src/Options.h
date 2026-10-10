@@ -573,6 +573,9 @@ private:
         "semi-major-axis-distribution",
         "semi-major-axis-max",
         "semi-major-axis-min",
+
+        "ultra-stripped-maximum-helium-envelope-mass",
+        "ultra-stripped-supernova-prescription",
     };
 
     
@@ -737,6 +740,7 @@ private:
 
         "use-mass-loss",
         "use-mass-transfer",
+        "ultra-stripped-supernova-prescription",
         "USSN-kicks-override-mandel-muller",
 
         "VMW-mass-loss-prescription",
@@ -1090,6 +1094,8 @@ public:
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
             bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
         
+            ENUM_OPT<ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION>     m_UltraStrippedSupernovaPrescription;                           // Which fully stripped CCSNe are ultra-stripped
+            double                                              m_UltraStrippedMaximumHeliumEnvelopeMass;                       // TAURIS2015: maximum remaining He envelope (Msol)
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
 
 
@@ -1488,6 +1494,8 @@ public:
     BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true); }
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
+    ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION       UltraStrippedSupernovaPrescription() const                              { return OPT_VALUE("ultra-stripped-supernova-prescription", m_UltraStrippedSupernovaPrescription.type, true); }
+    double                                      UltraStrippedMaximumHeliumEnvelopeMass() const                          { return OPT_VALUE("ultra-stripped-maximum-helium-envelope-mass", m_UltraStrippedMaximumHeliumEnvelopeMass, true); }
     
     bool                                        CheckPhotonTiringLimit() const                                          { return OPT_VALUE("check-photon-tiring-limit", m_CheckPhotonTiringLimit, true); }
 

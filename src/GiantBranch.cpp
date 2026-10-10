@@ -2003,7 +2003,8 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
         stellarType = STELLAR_TYPE::NEUTRON_STAR;
     }
 
-    if (utils::Compare(mass,m_CoreMass) == 0 && utils::Compare(m_HeCoreMass, m_COCoreMass) == 0) {          // entire star is CO core, so this is a USSN
+    if (utils::Compare(mass,m_CoreMass) == 0 && utils::Compare(m_HeCoreMass, m_COCoreMass) == 0 &&          // entire star is CO core, so this is a USSN ...
+        IsUltraStrippedProgenitor()) {                                                                      // ... if the prescription agrees (--ultra-stripped-supernova-prescription)
         SetSNCurrentEvent(SN_EVENT::USSN);                                                                  // flag ultra-stripped SN happening now
         SetSNPastEvent(SN_EVENT::USSN);                                                                     // ... and will be a past event
     }

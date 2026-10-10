@@ -150,6 +150,7 @@ public:
     void                SetObjectId(const OBJECT_ID p_ObjectId)                                                     { m_ObjectId = p_ObjectId; }
     void                SetPersistence(const OBJECT_PERSISTENCE p_Persistence)                                      { m_ObjectPersistence = p_Persistence; }
     void                UpdateMassTransferDonorHistory()                                                            { m_Star->UpdateMassTransferDonorHistory(); }
+    void                SetCaseBBOrbitalPeriod(const double p_Period)                                               { m_Star->SetCaseBBOrbitalPeriod(p_Period); }
     void                ResetEnvelopeExpulsationByPulsations()                                                      { m_Star->ResetEnvelopeExpulsationByPulsations(); }
 
 

@@ -352,6 +352,17 @@ const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_ST
     { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,         "ALWAYS_UNSTABLE" }
 };
 
+// ultra-stripped supernova prescriptions: which fully stripped core-collapse supernovae are ultra-stripped (USSN kicks)
+// FULLY_STRIPPED: every SN of a star stripped to its CO core (default; any case BB/BC mass transfer)
+// TAURIS2015: only if the star was stripped by mass transfer onto a compact companion (WD, NS or BH) and the remaining helium
+//             envelope from the fits of Tauris, Langer & Podsiadlowski (2015, eqs. 4-5), using the CO core mass at the SN and the
+//             orbital period at the onset of that mass transfer, is <= --ultra-stripped-maximum-helium-envelope-mass
+enum class ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION: int { FULLY_STRIPPED, TAURIS2015 };
+const COMPASUnorderedMap<ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION, std::string> ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL = {
+    { ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION::FULLY_STRIPPED, "FULLY_STRIPPED" },
+    { ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION::TAURIS2015,     "TAURIS2015" }
+};
+
 // common envelope cccretion prescriptions
 enum class CE_ACCRETION_PRESCRIPTION: int { ZERO, CONSTANT, UNIFORM, MACLEOD, CHEVALIER };
 const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PRESCRIPTION_LABEL = {

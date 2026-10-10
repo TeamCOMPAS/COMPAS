@@ -223,6 +223,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
 
     // Mass Transfer Donor Type History
     m_MassTransferDonorHistory                 = ST_VECTOR();
+    m_CaseBBOrbitalPeriod                      = -1.0;                                          // not stripped by a compact companion
 
 }
 
@@ -3892,6 +3893,38 @@ double BaseStar::DrawRemnantKickMullerMandel(const double p_COCoreMass,
     }
     
 	return remnantKick;
+}
+
+
+/*
+ * Determine whether a star stripped to its CO core explodes as an ultra-stripped supernova (USSN)
+ *
+ * FULLY_STRIPPED (default): always (any case BB/BC mass transfer).
+ * TAURIS2015: only if the star was stripped by mass transfer onto a compact companion and the remaining helium envelope
+ * predicted by the fits of Tauris, Langer & Podsiadlowski (2015, MNRAS 451, 2123, eq. 5) - from the CO core mass at the SN
+ * (their final metal core mass) and the orbital period at the onset of that mass transfer (their initial period P_orb,i, days):
+ *     M_He,env = 0.18 P^0.45 [ln(M_core^4) - 1.05]                     for P <= 2 d
+ *     M_He,env = M_core [ln(P^-0.2) + 1] + ln(P^0.5) - 1.5               for P > 2 d
+ * - is at most --ultra-stripped-maximum-helium-envelope-mass (Tauris et al.: 0.2 Msol). Their models are for 2.5-3.5 Msol
+ * helium stars with a 1.35 Msol NS; the fits are applied as they are outside that range.
+ *
+ * bool IsUltraStrippedProgenitor()
+ *
+ * @return                                      Whether the supernova is ultra-stripped
+ */
+bool BaseStar::IsUltraStrippedProgenitor() const {
+
+    if (OPTIONS->UltraStrippedSupernovaPrescription() == ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION::FULLY_STRIPPED) return true;
+
+    if (m_CaseBBOrbitalPeriod <= 0.0) return false;                                                // not stripped by a compact companion
+
+    double period = m_CaseBBOrbitalPeriod;
+    double mCore  = m_SupernovaDetails.COCoreMassAtCOFormation;
+    double mEnv   = period <= 2.0
+                    ? 0.18 * std::pow(period, 0.45) * (std::log(std::pow(mCore, 4.0)) - 1.05)
+                    : mCore * (std::log(std::pow(period, -0.2)) + 1.0) + std::log(std::pow(period, 0.5)) - 1.5;
+
+    return utils::Compare(mEnv, OPTIONS->UltraStrippedMaximumHeliumEnvelopeMass()) <= 0;
 }
 
 

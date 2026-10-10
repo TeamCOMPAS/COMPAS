@@ -1553,6 +1553,20 @@ This option is primarily intended for debugging/testing of convergence issues ra
 Enable mass transfer. |br|
 Default = TRUE
 
+**--ultra-stripped-maximum-helium-envelope-mass** |br|
+Maximum remaining helium envelope mass (:math:`M_\odot`) of an ultra-stripped supernova progenitor for
+``--ultra-stripped-supernova-prescription TAURIS2015`` (Tauris et al. 2015: 0.2). |br|
+Default = 0.2
+
+**--ultra-stripped-supernova-prescription** |br|
+Which core-collapse supernovae of stars stripped to their CO core are ultra-stripped (and get ``USSN`` kicks, ``--kick-magnitude-sigma-USSN``). |br|
+Options: { FULLY_STRIPPED, TAURIS2015 } |br|
+``FULLY_STRIPPED``: all of them, whether stripped by case BB/BC mass transfer onto any companion or by winds (as before). |br|
+``TAURIS2015``: only if the star was stripped by mass transfer onto a compact companion (white dwarf, neutron star or black hole) and the remaining helium
+envelope predicted by the fits of Tauris, Langer & Podsiadlowski (2015, eqs. 4-5) from the CO core mass at the supernova and the orbital period at the onset
+of that mass transfer is at most ``--ultra-stripped-maximum-helium-envelope-mass``; other fully stripped stars explode as ordinary core-collapse supernovae. |br|
+Default = FULLY_STRIPPED
+
 **--USSN-kicks-override-mandel-muller** |br|
 Use user-defined USSN kicks (as a fixed value) in lieu of the Mandel & Muller kick prescription for USSNe. |br|
 Default = FALSE
@@ -1712,6 +1726,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max,
+--ultra-stripped-supernova-prescription, --ultra-stripped-maximum-helium-envelope-mass,
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 
 --kick-magnitude-random, --kick-magnitude-random-1, --kick-magnitude-random-2, --kick-scaling-factor, -muller-mandel-kick-multiplier-BH, 
 --muller-mandel-kick-multiplier-NS, --muller-mandel-sigma-kick-BH, --muller-mandel-sigma-kick-NS, --USSN-kicks-override-mandel-muller, 
