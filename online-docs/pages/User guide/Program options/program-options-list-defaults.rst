@@ -1198,7 +1198,9 @@ Default = 0.55
 
 **--pulsar-birth-spin-period-distribution** |br|
 Pulsar birth spin period distribution. |br|
-Options: { UNIFORM, NORMAL } |br|
+Options: { UNIFORM, NORMAL, LOGNORMAL } |br|
+``LOGNORMAL``: :math:`\log_{10} P_0` is normal with mean :math:`\log_{10}` (``--pulsar-birth-spin-period-distribution-mean``) and standard deviation
+:math:`\log_{10}` (``--pulsar-birth-spin-period-distribution-sigma``), i.e. both options are given in ms and the width in dex is the log of the sigma option. |br|
 Default = NORMAL
 
 **--pulsar-birth-spin-period-distribution-max** |br|
@@ -1227,6 +1229,36 @@ vacuum torque at :math:`\alpha = 90^\circ`) and the alignment it implies, which 
 (e.g. Tauris & Manchester 1998; Johnston & Karastergiou 2017), with the torque set by ``--pulsar-spin-down-torque``. |br|
 Birth inclinations are drawn from a generator seeded by the star, so the rest of the evolution is unchanged. |br|
 Default = NONE
+
+**--pulsar-final-magnetic-field-distribution-mean** |br|
+Mean (:math:`\log_{10}` G) of the lognormal per-star final field below which the isolated field does not decay, for ``--pulsar-magnetic-field-decay-model GRABER2024``
+(Graber et al. 2024). Never below ``--pulsar-minimum-magnetic-field``. |br|
+Default = 8.5
+
+**--pulsar-final-magnetic-field-distribution-sigma** |br|
+Standard deviation (dex) of the lognormal final field for ``--pulsar-magnetic-field-decay-model GRABER2024``; 0 gives a fixed final field. |br|
+Default = 0.5
+
+**--pulsar-late-magnetic-field-decay-index** |br|
+Late-time power-law index :math:`a_{\rm late}` of the isolated pulsar field, :math:`B \propto (1 + t/\tau_{\rm late})^{a_{\rm late}}`, for
+``--pulsar-magnetic-field-decay-model GRABER2024`` (Graber et al. 2024: :math:`-1.80^{+0.65}_{-0.61}`). |br|
+Default = -1.8
+
+**--pulsar-late-magnetic-field-decay-timescale** |br|
+Late-time timescale :math:`\tau_{\rm late}` (Myr) of the isolated pulsar field for ``--pulsar-magnetic-field-decay-model GRABER2024``. |br|
+Default = 2.0
+
+**--pulsar-magnetic-field-decay-model** |br|
+Decay of the magnetic field of isolated (non-accreting, not yet recycled) pulsars. |br|
+Options: { EXPONENTIAL, GRABER2024 } |br|
+``EXPONENTIAL``: decay to ``--pulsar-minimum-magnetic-field`` on ``--pulsar-magnetic-field-decay-timescale`` (a power law, Dall'Osso et al. 2012, if
+``--pulsar-magnetic-field-decay-timescale-power`` > 0) (as before). |br|
+``GRABER2024``: the fit of Graber et al. (2024, Appendix A) to the crustal magneto-thermal simulations of Viganò et al. (2021): broken power laws in age with
+timescales set by the birth field, followed by :math:`(1 + t/\tau_{\rm late})^{a_{\rm late}}` (``--pulsar-late-magnetic-field-decay-timescale``,
+``--pulsar-late-magnetic-field-decay-index``), down to a lognormal per-star final field (``--pulsar-final-magnetic-field-distribution-mean``, ``-sigma``,
+drawn from a generator seeded by the star, so the rest of the evolution is unchanged). Field decay by accretion is unchanged, and the field of a recycled
+pulsar does not decay. |br|
+Default = EXPONENTIAL
 
 **--pulsar-magnetic-field-decay-massscale** |br|
 Mass scale on which magnetic field decays during accretion (:math:`M_\odot`). |br|
@@ -1659,7 +1691,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
 --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field,
 --pulsar-inclination-evolution, --pulsar-spin-down-torque, --pulsar-alignment-timescale, --pulsar-reset-inclination-at-recycling,
---pulsar-recycled-inclination-evolution
+--pulsar-recycled-inclination-evolution, --pulsar-magnetic-field-decay-model, --pulsar-late-magnetic-field-decay-index,
+--pulsar-late-magnetic-field-decay-timescale, --pulsar-final-magnetic-field-distribution-mean, --pulsar-final-magnetic-field-distribution-sigma
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --black-hole-kicks, --black-hole-kicks-mode, --fix-dimensionless-kick-magnitude, --kick-magnitude, --kick-magnitude-1, --kick-magnitude-2, --kick-magnitude-min, --kick-magnitude-max, 

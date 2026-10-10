@@ -311,6 +311,16 @@ constexpr double PULSAR_MHD_K2                          = 1.0;
 constexpr double PULSAR_MHD_MAX_FRACTIONAL_STEP         = 0.01;
 constexpr int    PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD    = 50;                                                       // Simpson substeps per e-folding of the inclination or field, --pulsar-inclination-evolution EXPONENTIAL                                                     // Maximum fractional change of P^2 per integration substep
 
+// Graber et al. (2024, ApJ 968, 16) Appendix A: fit to the Vigano et al. (2021) crustal magneto-thermal simulations, --pulsar-magnetic-field-decay-model GRABER2024
+// B(t) = B0 (1 + t/tau1)^a1 (1 + t/tau2)^(a2 - a1) (1 + t/tau_late)^(a_late - a2) for tau1 < tau2 < tau_late (fewer breaks otherwise), tau_i = A_i B0^b_i (yr, B0 in G)
+constexpr double PULSAR_GRABER_A1                       = 1.0E14;
+constexpr double PULSAR_GRABER_B1                       = -0.8;
+constexpr double PULSAR_GRABER_ALPHA1                   = -0.13;
+constexpr double PULSAR_GRABER_A2                       = 6.0E8;
+constexpr double PULSAR_GRABER_B2                       = -0.2;
+constexpr double PULSAR_GRABER_ALPHA2                   = -3.0;
+constexpr int    PULSAR_GRABER_SUBSTEPS_PER_EFOLD       = 16;                                                       // Simpson substeps per e-folding of (age + 1 yr), GRABER2024
+
 constexpr double MAGNETIC_BRAKING_MAXIMUM_ORBITAL_CHANGE_FRAC = 0.01;                                              // Maximum allowed fractional change in the semi-major axis due to magnetic braking in a single timestep
 constexpr double MAGNETIC_BRAKING_QCONV_THRESHOLD       = 0.02;                                                     // Convective envelope mass fraction below which magnetic braking is quenched by exp(1 - threshold/qconv) (Podsiadlowski, Rappaport & Pfahl 2002)
 constexpr double MAGNETIC_BRAKING_RVJ83_COEFFICIENT     = 3.8E-30;                                                  // Coefficient of the Rappaport, Verbunt & Joss (1983) magnetic braking law (cgs)

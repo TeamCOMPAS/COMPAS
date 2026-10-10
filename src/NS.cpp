@@ -603,6 +603,14 @@ void NS::CalculateAndSetPulsarParameters() {
         std::uniform_real_distribution<double> uniform(0.0, 1.0);
         m_PulsarDetails.inclination = std::acos(uniform(generator));
     }
+    // field below which isolated decay stops: --pulsar-minimum-magnetic-field, or (GRABER2024) a lognormal per-star final field (Graber et al. 2024),
+    // also drawn from a generator seeded by the star so that the rest of the evolution is unchanged
+    m_PulsarDetails.finalMagneticField = NS::NS_MAG_FIELD_LOWER_LIMIT;
+    if (OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::GRABER2024) {
+        std::mt19937_64 generator(static_cast<std::uint64_t>(m_RandomSeed) ^ (std::hash<double>{}(m_MZAMS) + 0xD1B54A32D192ED03ULL));
+        std::normal_distribution<double> gaussian(OPTIONS->PulsarFinalMagneticFieldDistributionMean(), std::max(OPTIONS->PulsarFinalMagneticFieldDistributionSigma(), 1.0E-12));
+        m_PulsarDetails.finalMagneticField = std::max(NS::NS_MAG_FIELD_LOWER_LIMIT, PPOW(10.0, gaussian(generator)));
+    }
     m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
     m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
@@ -690,6 +698,39 @@ double NS::CalculateMagneticFieldStrengthOnPhase(const double p_Time, const doub
 
 
 /*
+ * Shape of the isolated pulsar field against age for --pulsar-magnetic-field-decay-model GRABER2024 (Graber et al. 2024, ApJ 968, 16, Appendix A):
+ * broken power laws fitted to the Vigano et al. (2021) crustal magneto-thermal simulations, with timescales tau1 = A1 B0^b1 and tau2 = A2 B0^b2 set
+ * by the birth field B0, followed by the late-time power law (1 + t/tau_late)^a_late:
+ *
+ *     B(t)/B0 = (1 + t/tau1)^a1 (1 + t/tau2)^(a2 - a1) (1 + t/tau_late)^(a_late - a2)    tau1 < tau2 < tau_late
+ *             = (1 + t/tau1)^a1 (1 + t/tau_late)^(a_late - a1)                         tau1 < tau_late < tau2
+ *             = (1 + t/tau_late)^a_late                                                tau_late < tau1
+ *
+ * The field is evolved multiplicatively, B(t + dt) = B(t) shape(t + dt) / shape(t), so that changes by accretion carry forward.
+ *
+ * double GraberFieldShape(const double p_Age)
+ *
+ * @param       [IN]    p_Age                   Age of the neutron star (s)
+ * @return              B(t)/B0
+ */
+double NS::GraberFieldShape(const double p_Age) const {
+    double tYr     = p_Age / SECONDS_IN_YEAR;
+    double B0      = m_PulsarDetails.birthMagneticField;
+    double tau1    = PULSAR_GRABER_A1 * PPOW(B0, PULSAR_GRABER_B1);                                                  // yr
+    double tau2    = PULSAR_GRABER_A2 * PPOW(B0, PULSAR_GRABER_B2);                                                  // yr
+    double tauLate = OPTIONS->PulsarLateMagneticFieldDecayTimescale() * MYR_TO_YEAR;                                  // yr
+    double aLate   = OPTIONS->PulsarLateMagneticFieldDecayIndex();
+    double f1      = std::log1p(tYr / tau1);
+    double f2      = std::log1p(tYr / tau2);
+    double fLate   = std::log1p(tYr / tauLate);
+    double lnShape = (tau2 < tauLate) ? PULSAR_GRABER_ALPHA1 * f1 + (PULSAR_GRABER_ALPHA2 - PULSAR_GRABER_ALPHA1) * f2 + (aLate - PULSAR_GRABER_ALPHA2) * fLate
+                   : (tau1 < tauLate) ? PULSAR_GRABER_ALPHA1 * f1 + (aLate - PULSAR_GRABER_ALPHA1) * fLate
+                   : aLate * fLate;
+    return std::exp(lnShape);
+}
+
+
+/*
  * Calculate the time integral of B^2 over a timestep, for B(t) given by CalculateMagneticFieldStrengthOnPhase()
  *
  * Used for the spin evolution of an isolated pulsar with a decaying field: P^2 = P0^2 + 2K * int_0^t B^2 dt'
@@ -761,15 +802,44 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
     double initialMagField   = m_PulsarDetails.magneticField;     
     double initialSpinPeriod = m_PulsarDetails.spinPeriod;
  
-    bool magFieldAboveMin = utils::Compare(initialMagField, NS::NS_MAG_FIELD_LOWER_LIMIT) > 0;
+    bool   graber     = OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::GRABER2024;
+    double fieldFloor = graber ? m_PulsarDetails.finalMagneticField : NS::NS_MAG_FIELD_LOWER_LIMIT;                                       // G
+    bool magFieldAboveMin = utils::Compare(initialMagField, fieldFloor) > 0;
 
     // std::cout << "initialMagField = " << initialMagField << std::endl;
     // std::cout << "magFieldAboveMin = " << magFieldAboveMin << std::endl;
 
+    // GRABER2024: the field is a broken power law in age; tStart is the age at the start of the step (the star has already been aged)
+    double tStart      = std::max(0.0, m_Age * MYR_TO_YEAR * SECONDS_IN_YEAR - p_Stepsize);                                                // s
+    double shapeStart  = graber ? GraberFieldShape(tStart) : 1.0;
+    auto   graberField = [&](const double p_T) { return std::max(fieldFloor, initialMagField * GraberFieldShape(tStart + p_T) / shapeStart); };  // field p_T (s) into the step
+    // GRABER2024: composite Simpson over the step, uniform in ln(age + 1 yr), with PULSAR_GRABER_SUBSTEPS_PER_EFOLD substeps per e-folding of (age + 1 yr)
+    // and at least PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD per p_Timescale (s) in t (0: no extra requirement)
+    auto   graberQuadrature = [&](auto &&p_G, const double p_Timescale) {
+        double t0   = SECONDS_IN_YEAR;
+        double u0   = std::log(tStart + t0);
+        double u1   = std::log(tStart + p_Stepsize + t0);
+        double nLog = PULSAR_GRABER_SUBSTEPS_PER_EFOLD * (u1 - u0);
+        double nLin = p_Timescale > 0.0 ? PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD * (u1 - u0) * (tStart + p_Stepsize + t0) / p_Timescale : 0.0;
+        int    n    = 2 * std::max(1, std::min(100000, static_cast<int>(std::ceil(0.5 * std::max(nLog, nLin)))));
+        double h    = (u1 - u0) / n;
+        double sum  = 0.0;
+        for (int i = 0; i <= n; i++) {
+            double u = u0 + i * h;
+            double t = std::min(std::max(std::exp(u) - t0 - tStart, 0.0), p_Stepsize);                                                       // time into the step
+            sum     += ((i == 0 || i == n) ? 1.0 : (i % 2 == 1 ? 4.0 : 2.0)) * p_G(t) * std::exp(u);                                         // dt = e^u du
+        }
+        return sum * h / 3.0;
+    };
+
     // If the NS is not recycled, calculate magnetic field decay
     double magFieldSquaredIntegral;                                                                                                         // int B^2 dt over the step (G^2 s)
     bool   fieldDecays = !p_RecycledNS && magFieldAboveMin;
-    if (fieldDecays){
+    if (fieldDecays && graber) {
+        m_PulsarDetails.magneticField = graberField(p_Stepsize);
+        magFieldSquaredIntegral       = graberQuadrature([&](const double p_T) { double b = graberField(p_T); return b * b; }, 0.0);
+    }
+    else if (fieldDecays){
         // calculate the decay of magnetic field for an isolated neutron star
         // see Equation 6 in  arXiv:0903.3538v2
         m_PulsarDetails.magneticField = CalculateMagneticFieldStrengthOnPhase(p_Stepsize, initialMagField); 
@@ -793,8 +863,13 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
         // independent of the spin, so P^2 is a quadrature:  P^2 = P0^2 + 2K int B(t)^2 f(alpha(t)) dt,  f = SpinDownTorqueFactor(alpha)
         // integrated with composite Simpson, with PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD substeps per e-folding of alpha or of the field
         double tauAlign = OPTIONS->PulsarAlignmentTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR;                                              // s
-        double tauField = fieldDecays ? CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR : tauAlign;                  // s
         double alpha0   = m_PulsarDetails.inclination;
+        if (fieldDecays && graber) {
+            auto integrand = [&](const double p_T) { double b = graberField(p_T); return b * b * SpinDownTorqueFactor(alpha0 * std::exp(-p_T / tauAlign)); };
+            Psquared       = (initialSpinPeriod * initialSpinPeriod) + 2.0 * constant * graberQuadrature(integrand, tauAlign);
+        }
+        else {
+        double tauField = fieldDecays ? CalculateMagneticFieldDecayTimescale() * MYR_TO_YEAR * SECONDS_IN_YEAR : tauAlign;                  // s
         auto integrand  = [&](const double p_T) {
             double b = fieldDecays ? CalculateMagneticFieldStrengthOnPhase(p_T, initialMagField) : initialMagField;
             return b * b * SpinDownTorqueFactor(alpha0 * std::exp(-p_T / tauAlign));
@@ -804,6 +879,7 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
         double sum      = integrand(0.0) + integrand(p_Stepsize);
         for (int i = 1; i < nSub; i++) sum += (i % 2 == 1 ? 4.0 : 2.0) * integrand(i * h);
         Psquared                    = (initialSpinPeriod * initialSpinPeriod) + 2.0 * constant * sum * h / 3.0;
+        }
         m_PulsarDetails.inclination = alpha0 * std::exp(-p_Stepsize / tauAlign);
     }
     else {

@@ -218,6 +218,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_PulsarDetails.accretedMass               = 0.0;
     m_PulsarDetails.magneticFieldPreAccretion  = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_PulsarDetails.inclination                = M_PI / 2.0;
+    m_PulsarDetails.finalMagneticField         = 0.0;
 
 
     // Mass Transfer Donor Type History

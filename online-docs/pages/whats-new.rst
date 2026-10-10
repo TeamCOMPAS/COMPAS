@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.32.00 October 10, 2026**
+
+* New option ``--pulsar-magnetic-field-decay-model`` (``EXPONENTIAL`` (default), ``GRABER2024``): ``GRABER2024`` evolves the field of isolated pulsars with the
+  Graber et al. (2024) fit to crustal magneto-thermal simulations (broken power laws in age with timescales set by the birth field), followed by a late
+  power law (``--pulsar-late-magnetic-field-decay-index``, ``--pulsar-late-magnetic-field-decay-timescale``) down to a lognormal per-star final field
+  (``--pulsar-final-magnetic-field-distribution-mean``, ``--pulsar-final-magnetic-field-distribution-sigma``). With the defaults, results are unchanged.
+
 **03.31.01 October 10, 2026**
 
 * Defect repair: with ``--evolve-main-sequence-mergers``, the supernova of a merger product was resolved as a binary supernova with a massless companion,

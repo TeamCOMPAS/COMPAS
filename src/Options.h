@@ -706,6 +706,7 @@ private:
         "pulsar-recycled-inclination-evolution",
         "pulsar-spin-down-torque",
         "pulsar-magnetic-field-decay-accretion-model",
+        "pulsar-magnetic-field-decay-model",
         "pulsational-pair-instability",
         "pulsational-pair-instability-prescription",
 
@@ -1240,6 +1241,11 @@ public:
             ENUM_OPT<PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL> m_PulsarMagneticFieldDecayAccretionModel;                     // Model for decay of pulsar magnetic field due to accretion
             double                                              m_PulsarMagneticFieldDecayTimescale;                            // Timescale on which magnetic field decays (Myr)
             double                                              m_PulsarMagneticFieldDecayTimescalePower;                       // Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays
+            ENUM_OPT<PULSAR_MAGNETIC_FIELD_DECAY_MODEL>         m_PulsarMagneticFieldDecayModel;                                // Isolated pulsar magnetic field decay model
+            double                                              m_PulsarLateMagneticFieldDecayIndex;                            // GRABER2024: late-time power-law index a_late
+            double                                              m_PulsarLateMagneticFieldDecayTimescale;                        // GRABER2024: late-time timescale tau_late (Myr)
+            double                                              m_PulsarFinalMagneticFieldDistributionMean;                     // GRABER2024: mean of the lognormal final field (log10 G)
+            double                                              m_PulsarFinalMagneticFieldDistributionSigma;                    // GRABER2024: sigma of the lognormal final field (dex)
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
             
@@ -1784,6 +1790,11 @@ public:
     double                                      PulsarMagneticFieldDecayMassscale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-massscale", m_PulsarMagneticFieldDecayMassscale, true); }
     double                                      PulsarMagneticFieldDecayTimescale() const                               { return OPT_VALUE("pulsar-magnetic-field-decay-timescale", m_PulsarMagneticFieldDecayTimescale, true); }
     double                                      PulsarMagneticFieldDecayTimescalePower() const                          { return OPT_VALUE("pulsar-magnetic-field-decay-timescale-power", m_PulsarMagneticFieldDecayTimescalePower, true); }
+    PULSAR_MAGNETIC_FIELD_DECAY_MODEL           PulsarMagneticFieldDecayModel() const                                   { return OPT_VALUE("pulsar-magnetic-field-decay-model", m_PulsarMagneticFieldDecayModel.type, true); }
+    double                                      PulsarLateMagneticFieldDecayIndex() const                               { return OPT_VALUE("pulsar-late-magnetic-field-decay-index", m_PulsarLateMagneticFieldDecayIndex, true); }
+    double                                      PulsarLateMagneticFieldDecayTimescale() const                           { return OPT_VALUE("pulsar-late-magnetic-field-decay-timescale", m_PulsarLateMagneticFieldDecayTimescale, true); }
+    double                                      PulsarFinalMagneticFieldDistributionMean() const                        { return OPT_VALUE("pulsar-final-magnetic-field-distribution-mean", m_PulsarFinalMagneticFieldDistributionMean, true); }
+    double                                      PulsarFinalMagneticFieldDistributionSigma() const                       { return OPT_VALUE("pulsar-final-magnetic-field-distribution-sigma", m_PulsarFinalMagneticFieldDistributionSigma, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }

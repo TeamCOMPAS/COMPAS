@@ -848,6 +848,15 @@ const COMPASUnorderedMap<PULSAR_SPIN_DOWN_TORQUE, std::string> PULSAR_SPIN_DOWN_
     { PULSAR_SPIN_DOWN_TORQUE::MHD,    "MHD" }
 };
 
+// isolated (non-accreting) pulsar magnetic field decay: EXPONENTIAL = decay to --pulsar-minimum-magnetic-field on --pulsar-magnetic-field-decay-timescale
+// (a power law if --pulsar-magnetic-field-decay-timescale-power > 0; Dall'Osso et al. 2012); GRABER2024 = Graber et al. (2024) crustal magneto-thermal
+// broken power laws in age (timescales set by the birth field) followed by a late power law, down to a per-star final field
+enum class PULSAR_MAGNETIC_FIELD_DECAY_MODEL: int { EXPONENTIAL, GRABER2024 };
+const COMPASUnorderedMap<PULSAR_MAGNETIC_FIELD_DECAY_MODEL, std::string> PULSAR_MAGNETIC_FIELD_DECAY_MODEL_LABEL = {
+    { PULSAR_MAGNETIC_FIELD_DECAY_MODEL::EXPONENTIAL, "EXPONENTIAL" },
+    { PULSAR_MAGNETIC_FIELD_DECAY_MODEL::GRABER2024,  "GRABER2024" }
+};
+
 enum class PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION: int { UNIFORM, NORMAL, LOGNORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION, std::string> PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL = {
     { PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION::UNIFORM, "UNIFORM" },
@@ -1266,6 +1275,7 @@ typedef struct PulsarDetails {
     double accretedMass;                                    // Cumulative mass accreted by the pulsar (g) - needed for non-exponential (e.g. Shibazaki) field decay
     double magneticFieldPreAccretion;                       // Magnetic field at the onset of accretion (G) - needed for non-exponential (e.g. Shibazaki) field decay
     double inclination;                                     // Angle between the magnetic and rotation axes (radians); pi/2 unless --pulsar-inclination-evolution is set
+    double finalMagneticField;                              // Field (G) below which isolated field decay stops: --pulsar-minimum-magnetic-field, or drawn per star for GRABER2024
 } PulsarDetailsT;
 
 

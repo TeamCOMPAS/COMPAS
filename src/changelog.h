@@ -1742,6 +1742,14 @@
 //                                         supernova with a massless companion at infinite separation (the system is not flagged as unbound), giving NaN
 //                                         velocities for the exploding star (and its kick was lost). A star whose companion is a massless remnant now explodes
 //                                         as a single star (as in an unbound system): its component velocity is updated by the kick.
+//  03.32.00  SS - October 10, 2026      - Enhancement:
+//                                       - New option --pulsar-magnetic-field-decay-model {EXPONENTIAL (default), GRABER2024}. GRABER2024: isolated-pulsar field
+//                                         B(t) = B0 x broken power laws in age fitted by Graber et al. (2024, App. A) to Vigano et al. (2021) crustal magneto-thermal
+//                                         simulations (timescales set by the birth field), then (1 + t/tau_late)^a_late (--pulsar-late-magnetic-field-decay-index,
+//                                         --pulsar-late-magnetic-field-decay-timescale), applied multiplicatively each step, down to a lognormal per-star final field
+//                                         (--pulsar-final-magnetic-field-distribution-mean, -sigma; drawn from a generator seeded by the star). int B^2 f(alpha) dt over
+//                                         each step by Simpson's rule in ln(age). Accretion-induced decay and recycled pulsars unchanged. With the defaults, results are unchanged.
+//                                       - Documented the existing LOGNORMAL --pulsar-birth-spin-period-distribution (mean and sigma options in ms; log10 taken of both).
 //
 
 // Version string format is MM.mm.rr, where
@@ -1753,7 +1761,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.31.01";
+const std::string VERSION_STRING = "03.32.00";
 
 
 # endif // __changelog_h__

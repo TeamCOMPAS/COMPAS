@@ -137,6 +137,7 @@ protected:
             double          SpinDownTorqueFactor(const double p_Inclination) const;
             PULSAR_INCLINATION_EVOLUTION InclinationEvolution() const;
             void            ResetInclinationAtRecycling();
+            double          GraberFieldShape(const double p_Age) const;
             double          SpinDownTorqueFactor() const                        { return SpinDownTorqueFactor(m_PulsarDetails.inclination); }
             double          CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod);
 

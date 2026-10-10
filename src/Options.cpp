@@ -664,6 +664,12 @@ void Options::OptionValues::Initialise() {
     m_PulsarMagneticFieldDecayAccretionModel.typeString             = PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL.at(m_PulsarMagneticFieldDecayAccretionModel.type);
     m_PulsarMagneticFieldDecayTimescale                             = 1000.0;
     m_PulsarMagneticFieldDecayTimescalePower                        = 0.0;
+    m_PulsarMagneticFieldDecayModel.type                            = PULSAR_MAGNETIC_FIELD_DECAY_MODEL::EXPONENTIAL;
+    m_PulsarMagneticFieldDecayModel.typeString                      = PULSAR_MAGNETIC_FIELD_DECAY_MODEL_LABEL.at(m_PulsarMagneticFieldDecayModel.type);
+    m_PulsarLateMagneticFieldDecayIndex                             = -1.8;                                                 // Graber et al. (2024): -1.80 (+0.65, -0.61)
+    m_PulsarLateMagneticFieldDecayTimescale                         = 2.0;                                                  // Myr; Graber et al. (2024)
+    m_PulsarFinalMagneticFieldDistributionMean                      = 8.5;                                                  // log10(B/G); Graber et al. (2024)
+    m_PulsarFinalMagneticFieldDistributionSigma                     = 0.5;                                                  // dex; Graber et al. (2024)
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
@@ -1803,6 +1809,26 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Power law scaling (with magnetic field strength) for the timescale on which magnetic field decays (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescalePower) + ")").c_str()
         )
         (
+            "pulsar-late-magnetic-field-decay-index",
+            po::value<double>(&p_Options->m_PulsarLateMagneticFieldDecayIndex)->default_value(p_Options->m_PulsarLateMagneticFieldDecayIndex),
+            ("Late-time power-law index of the isolated pulsar field, B ~ (1 + t/tau_late)^index, for --pulsar-magnetic-field-decay-model GRABER2024 (default = " + std::to_string(p_Options->m_PulsarLateMagneticFieldDecayIndex) + ")").c_str()
+        )
+        (
+            "pulsar-late-magnetic-field-decay-timescale",
+            po::value<double>(&p_Options->m_PulsarLateMagneticFieldDecayTimescale)->default_value(p_Options->m_PulsarLateMagneticFieldDecayTimescale),
+            ("Late-time timescale tau_late (Myr) of the isolated pulsar field for --pulsar-magnetic-field-decay-model GRABER2024 (default = " + std::to_string(p_Options->m_PulsarLateMagneticFieldDecayTimescale) + ")").c_str()
+        )
+        (
+            "pulsar-final-magnetic-field-distribution-mean",
+            po::value<double>(&p_Options->m_PulsarFinalMagneticFieldDistributionMean)->default_value(p_Options->m_PulsarFinalMagneticFieldDistributionMean),
+            ("Mean of the lognormal final field, log10(B/G), below which the isolated field does not decay, for --pulsar-magnetic-field-decay-model GRABER2024 (default = " + std::to_string(p_Options->m_PulsarFinalMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "pulsar-final-magnetic-field-distribution-sigma",
+            po::value<double>(&p_Options->m_PulsarFinalMagneticFieldDistributionSigma)->default_value(p_Options->m_PulsarFinalMagneticFieldDistributionSigma),
+            ("Standard deviation (dex) of the lognormal final field for --pulsar-magnetic-field-decay-model GRABER2024 (default = " + std::to_string(p_Options->m_PulsarFinalMagneticFieldDistributionSigma) + ")").c_str()
+        )
+        (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
@@ -2223,6 +2249,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-spin-down-torque",
             po::value<std::string>(&p_Options->m_PulsarSpinDownTorque.typeString)->default_value(p_Options->m_PulsarSpinDownTorque.typeString),
             ("Inclination dependence of the pulsar spin-down torque for --pulsar-inclination-evolution EXPONENTIAL: VACUUM = sin^2 alpha, MHD = (1 + sin^2 alpha)/2; both equal the default at alpha = 90 deg (" + AllowedOptionValuesFormatted("pulsar-spin-down-torque") + ", default = '" + p_Options->m_PulsarSpinDownTorque.typeString + "')").c_str()
+        )
+        (
+            "pulsar-magnetic-field-decay-model",
+            po::value<std::string>(&p_Options->m_PulsarMagneticFieldDecayModel.typeString)->default_value(p_Options->m_PulsarMagneticFieldDecayModel.typeString),
+            ("Isolated pulsar magnetic field decay: EXPONENTIAL = decay to --pulsar-minimum-magnetic-field on --pulsar-magnetic-field-decay-timescale (power law if --pulsar-magnetic-field-decay-timescale-power > 0); GRABER2024 = Graber et al. (2024) crustal broken power laws then (1 + t/tau_late)^index, down to a lognormal per-star final field (" + AllowedOptionValuesFormatted("pulsar-magnetic-field-decay-model") + ", default = '" + p_Options->m_PulsarMagneticFieldDecayModel.typeString + "')").c_str()
         )
         (
             "pulsar-magnetic-field-decay-accretion-model",
@@ -2717,6 +2748,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Pulsar Spin Down Torque");
         }
 
+        if (!DEFAULTED("pulsar-magnetic-field-decay-model")) {                                                                      // isolated pulsar field decay model
+            std::tie(found, m_PulsarMagneticFieldDecayModel.type) = utils::GetMapKey(m_PulsarMagneticFieldDecayModel.typeString, PULSAR_MAGNETIC_FIELD_DECAY_MODEL_LABEL, m_PulsarMagneticFieldDecayModel.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Magnetic Field Decay Model");
+        }
+
         if (!DEFAULTED("pulsar-magnetic-field-decay-accretion-model")) {                                                                  // pulsar birth spin period distribution
             std::tie(found, m_PulsarMagneticFieldDecayAccretionModel.type) = utils::GetMapKey(m_PulsarMagneticFieldDecayAccretionModel.typeString, PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL_LABEL, m_PulsarMagneticFieldDecayAccretionModel.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Magnetic Field Decay Accretion Model");
@@ -2820,6 +2856,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MainSequenceCoreMassBrcekMinimumMass <= 0.7, "BRCEK minimum mass (--main-sequence-core-mass-brcek-minimum-mass) must be > 0.7 Msol");
 
         COMPLAIN_IF(m_PulsarAlignmentTimescale <= 0.0, "Pulsar alignment timescale (--pulsar-alignment-timescale) must be > 0");
+        COMPLAIN_IF(m_PulsarLateMagneticFieldDecayTimescale <= 0.0, "Pulsar late field decay timescale (--pulsar-late-magnetic-field-decay-timescale) must be > 0");
+        COMPLAIN_IF(m_PulsarLateMagneticFieldDecayIndex > 0.0, "Pulsar late field decay index (--pulsar-late-magnetic-field-decay-index) must be <= 0");
+        COMPLAIN_IF(m_PulsarFinalMagneticFieldDistributionSigma < 0.0, "Pulsar final field sigma (--pulsar-final-magnetic-field-distribution-sigma) must be >= 0");
 
         COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
 
@@ -3074,6 +3113,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);                  break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);     break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);        break;
+        case _("pulsar-magnetic-field-decay-model")                 : POPULATE_RET(PULSAR_MAGNETIC_FIELD_DECAY_MODEL_LABEL);            break;
         case _("pulsar-inclination-evolution")                      : POPULATE_RET(PULSAR_INCLINATION_EVOLUTION_LABEL);                 break;
         case _("pulsar-recycled-inclination-evolution")             : POPULATE_RET(PULSAR_RECYCLED_INCLINATION_EVOLUTION_LABEL);        break;
         case _("pulsar-spin-down-torque")                           : POPULATE_RET(PULSAR_SPIN_DOWN_TORQUE_LABEL);                      break;
