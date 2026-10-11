@@ -3,6 +3,16 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.35.00 October 11, 2026**
+
+* New option ``--critical-mass-ratio-scope`` (``ALL_ACCRETORS`` (default, as before), ``NS_BH_ACCRETORS``): with ``NS_BH_ACCRETORS`` the
+  ``--critical-mass-ratio-prescription`` is applied only to mass transfer onto neutron stars and black holes, and all other mass transfers use the zeta comparison.
+  This allows the stability of mass transfer in X-ray binaries to be calibrated against detailed models without changing the evolution of other binaries.
+* New option ``--compact-accretor-thermal-mass-transfer`` (``ENVELOPE_REMOVAL`` (default, as before), ``EXTENDED_ACCRETION``) and
+  ``--compact-accretor-thermal-mass-transfer-duration-factor`` (default 12): with ``EXTENDED_ACCRETION``, during stable thermal-timescale mass transfer from a
+  donor with a core onto a WD/NS/BH, the accretor accretes at its maximum rate for the duration factor times the donor's thermal timescale, representing the slow
+  phase after mass-ratio reversal in detailed models, and neutron stars are recycled accordingly.
+
 **03.34.00 October 10, 2026**
 
 * New option ``--ultra-stripped-supernova-prescription`` (``FULLY_STRIPPED`` (default, as before), ``TAURIS2015``): with ``TAURIS2015`` a supernova of a star

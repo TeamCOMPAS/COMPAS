@@ -576,6 +576,10 @@ private:
 
         "ultra-stripped-maximum-helium-envelope-mass",
         "ultra-stripped-supernova-prescription",
+
+        "compact-accretor-thermal-mass-transfer",
+        "compact-accretor-thermal-mass-transfer-duration-factor",
+        "critical-mass-ratio-scope",
     };
 
     
@@ -741,6 +745,8 @@ private:
         "use-mass-loss",
         "use-mass-transfer",
         "ultra-stripped-supernova-prescription",
+        "compact-accretor-thermal-mass-transfer",
+        "critical-mass-ratio-scope",
         "USSN-kicks-override-mandel-muller",
 
         "VMW-mass-loss-prescription",
@@ -1094,6 +1100,9 @@ public:
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
             bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
         
+            ENUM_OPT<QCRIT_SCOPE>                               m_QCritScope;                                                   // Which mass transfers use the critical mass ratio prescription
+            ENUM_OPT<COMPACT_ACCRETOR_THERMAL_MT>               m_CompactAccretorThermalMT;                                     // Stable thermal MT onto WD/NS/BH: envelope removal or extended accretion
+            double                                              m_CompactAccretorThermalMTDurationFactor;                       // EXTENDED_ACCRETION: accretion duration in units of the donor's thermal timescale
             ENUM_OPT<ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION>     m_UltraStrippedSupernovaPrescription;                           // Which fully stripped CCSNe are ultra-stripped
             double                                              m_UltraStrippedMaximumHeliumEnvelopeMass;                       // TAURIS2015: maximum remaining He envelope (Msol)
             ENUM_OPT<CASE_BB_STABILITY_PRESCRIPTION>            m_CaseBBStabilityPrescription;									// Which prescription for the stability of case BB/BC mass transfer
@@ -1494,6 +1503,9 @@ public:
     BLACK_HOLE_KICKS_MODE                       BlackHoleKicksMode() const                                              { return OPT_VALUE("black-hole-kicks-mode", m_BlackHoleKicksMode.type, true); }
     
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
+    QCRIT_SCOPE                                 QCritScope() const                                                      { return OPT_VALUE("critical-mass-ratio-scope", m_QCritScope.type, true); }
+    COMPACT_ACCRETOR_THERMAL_MT                 CompactAccretorThermalMT() const                                        { return OPT_VALUE("compact-accretor-thermal-mass-transfer", m_CompactAccretorThermalMT.type, true); }
+    double                                      CompactAccretorThermalMTDurationFactor() const                          { return OPT_VALUE("compact-accretor-thermal-mass-transfer-duration-factor", m_CompactAccretorThermalMTDurationFactor, true); }
     ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION       UltraStrippedSupernovaPrescription() const                              { return OPT_VALUE("ultra-stripped-supernova-prescription", m_UltraStrippedSupernovaPrescription.type, true); }
     double                                      UltraStrippedMaximumHeliumEnvelopeMass() const                          { return OPT_VALUE("ultra-stripped-maximum-helium-envelope-mass", m_UltraStrippedMaximumHeliumEnvelopeMass, true); }
     

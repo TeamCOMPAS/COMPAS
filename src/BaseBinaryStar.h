@@ -80,6 +80,7 @@ public:
         m_aMassTransferDiff                = p_Star.m_aMassTransferDiff;
         
         m_MassTransferTimescale            = p_Star.m_MassTransferTimescale;
+        m_AccretionDurationOverride        = p_Star.m_AccretionDurationOverride;
 
         m_MassTransferTrackerHistory       = p_Star.m_MassTransferTrackerHistory;
 
@@ -354,6 +355,7 @@ private:
     double              m_aMassTransferDiff;
     
     MT_TIMESCALE        m_MassTransferTimescale;
+    double              m_AccretionDurationOverride;                    // EXTENDED_ACCRETION: duration (Myr) over which the accretor gained this step's mass (0: the timestep)
 
     MT_TRACKING         m_MassTransferTrackerHistory;
 

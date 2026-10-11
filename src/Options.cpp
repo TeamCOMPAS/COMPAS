@@ -479,6 +479,11 @@ void Options::OptionValues::Initialise() {
     m_ConvectiveEnvelopeTemperatureThreshold                        = CONVECTIVE_BOUNDARY_TEMPERATURE_BELCZYNSKI;
 
     // Case BB/BC mass transfer stability prescription
+    m_QCritScope.type                                               = QCRIT_SCOPE::ALL_ACCRETORS;
+    m_QCritScope.typeString                                         = QCRIT_SCOPE_LABEL.at(m_QCritScope.type);
+    m_CompactAccretorThermalMT.type                                 = COMPACT_ACCRETOR_THERMAL_MT::ENVELOPE_REMOVAL;
+    m_CompactAccretorThermalMT.typeString                           = COMPACT_ACCRETOR_THERMAL_MT_LABEL.at(m_CompactAccretorThermalMT.type);
+    m_CompactAccretorThermalMTDurationFactor                        = 12.0;                                                 // detailed models: super-Eddington phase ~ 10-25 x COMPAS tau_KH at onset
     m_UltraStrippedSupernovaPrescription.type                       = ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION::FULLY_STRIPPED;
     m_UltraStrippedSupernovaPrescription.typeString                 = ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL.at(m_UltraStrippedSupernovaPrescription.type);
     m_UltraStrippedMaximumHeliumEnvelopeMass                        = 0.2;                                                  // Msol; Tauris et al. (2015)
@@ -1461,6 +1466,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "Number used to choose the kick velocity magnitude for the secondary during the a supernova (default = uniform random number [0.0, 1.0))"
         )
         (
+            "compact-accretor-thermal-mass-transfer-duration-factor",
+            po::value<double>(&p_Options->m_CompactAccretorThermalMTDurationFactor)->default_value(p_Options->m_CompactAccretorThermalMTDurationFactor),
+            ("Duration of accretion onto a compact accretor during stable thermal-timescale mass transfer, in units of the donor's thermal timescale at onset, for --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION (default = " + std::to_string(p_Options->m_CompactAccretorThermalMTDurationFactor) + ")").c_str()
+        )
+        (
             "ultra-stripped-maximum-helium-envelope-mass",
             po::value<double>(&p_Options->m_UltraStrippedMaximumHeliumEnvelopeMass)->default_value(p_Options->m_UltraStrippedMaximumHeliumEnvelopeMass),
             ("Maximum remaining helium envelope mass (Msol) of an ultra-stripped SN progenitor for --ultra-stripped-supernova-prescription TAURIS2015 (default = " + std::to_string(p_Options->m_UltraStrippedMaximumHeliumEnvelopeMass) + ")").c_str()
@@ -1992,6 +2002,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Black hole kicks prescription (" + AllowedOptionValuesFormatted("black-hole-kicks-mode") + ", default = '" + p_Options->m_BlackHoleKicksMode.typeString + "')").c_str()
         )
 
+        (
+            "critical-mass-ratio-scope",
+            po::value<std::string>(&p_Options->m_QCritScope.typeString)->default_value(p_Options->m_QCritScope.typeString),
+            ("Which mass transfers use --critical-mass-ratio-prescription: ALL_ACCRETORS, or NS_BH_ACCRETORS only (all others use the zeta comparison, as with NONE) (" + AllowedOptionValuesFormatted("critical-mass-ratio-scope") + ", default = '" + p_Options->m_QCritScope.typeString + "')").c_str()
+        )
+        (
+            "compact-accretor-thermal-mass-transfer",
+            po::value<std::string>(&p_Options->m_CompactAccretorThermalMT.typeString)->default_value(p_Options->m_CompactAccretorThermalMT.typeString),
+            ("Stable thermal-timescale mass transfer from a donor with a core onto a WD/NS/BH: ENVELOPE_REMOVAL = whole envelope in one step; EXTENDED_ACCRETION = envelope in one step, but the accretor accretes at its maximum rate for --compact-accretor-thermal-mass-transfer-duration-factor x the donor's thermal timescale (" + AllowedOptionValuesFormatted("compact-accretor-thermal-mass-transfer") + ", default = '" + p_Options->m_CompactAccretorThermalMT.typeString + "')").c_str()
+        )
         (
             "ultra-stripped-supernova-prescription",
             po::value<std::string>(&p_Options->m_UltraStrippedSupernovaPrescription.typeString)->default_value(p_Options->m_UltraStrippedSupernovaPrescription.typeString),
@@ -2576,6 +2596,16 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Black Hole Kicks Prescription");
         }
 
+        if (!DEFAULTED("critical-mass-ratio-scope")) {                                                                              // critical mass ratio scope
+            std::tie(found, m_QCritScope.type) = utils::GetMapKey(m_QCritScope.typeString, QCRIT_SCOPE_LABEL, m_QCritScope.type);
+            COMPLAIN_IF(!found, "Unknown Critical Mass Ratio Scope");
+        }
+
+        if (!DEFAULTED("compact-accretor-thermal-mass-transfer")) {                                                                 // thermal MT onto compact accretors
+            std::tie(found, m_CompactAccretorThermalMT.type) = utils::GetMapKey(m_CompactAccretorThermalMT.typeString, COMPACT_ACCRETOR_THERMAL_MT_LABEL, m_CompactAccretorThermalMT.type);
+            COMPLAIN_IF(!found, "Unknown Compact Accretor Thermal Mass Transfer prescription");
+        }
+
         if (!DEFAULTED("ultra-stripped-supernova-prescription")) {                                                                  // ultra-stripped supernova prescription
             std::tie(found, m_UltraStrippedSupernovaPrescription.type) = utils::GetMapKey(m_UltraStrippedSupernovaPrescription.typeString, ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL, m_UltraStrippedSupernovaPrescription.type);
             COMPLAIN_IF(!found, "Unknown Ultra-stripped Supernova Prescription");
@@ -2999,6 +3029,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_CompactAccretorThermalMTDurationFactor <= 0.0, "Compact accretor thermal MT duration factor (--compact-accretor-thermal-mass-transfer-duration-factor) must be > 0");
         COMPLAIN_IF(m_UltraStrippedMaximumHeliumEnvelopeMass < 0.0, "Ultra-stripped maximum helium envelope mass (--ultra-stripped-maximum-helium-envelope-mass) must be >= 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalSigma <= 0.0, "LOGNORMAL kick sigma (--kick-magnitude-lognormal-sigma) must be > 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalMaximum <= 0.0, "LOGNORMAL kick maximum (--kick-magnitude-lognormal-max) must be > 0");
@@ -3117,6 +3148,8 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                        break;
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);               break;
         case _("ultra-stripped-supernova-prescription")             : POPULATE_RET(ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL);        break;
+        case _("compact-accretor-thermal-mass-transfer")            : POPULATE_RET(COMPACT_ACCRETOR_THERMAL_MT_LABEL);                  break;
+        case _("critical-mass-ratio-scope")                         : POPULATE_RET(QCRIT_SCOPE_LABEL);                                  break;
         case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                     break;
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                                 break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                       break;

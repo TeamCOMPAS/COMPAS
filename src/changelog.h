@@ -1750,18 +1750,26 @@
 //                                         (--pulsar-final-magnetic-field-distribution-mean, -sigma; drawn from a generator seeded by the star). int B^2 f(alpha) dt over
 //                                         each step by Simpson's rule in ln(age). Accretion-induced decay and recycled pulsars unchanged. With the defaults, results are unchanged.
 //                                       - Documented the existing LOGNORMAL --pulsar-birth-spin-period-distribution (mean and sigma options in ms; log10 taken of both).
-// 03.34.00  SS - October 10, 2026      - Enhancement:
+//  03.33.00  SS - October 10, 2026      - Enhancement:
+//                                       - New options --kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max: parameters of the
+//                                         LOGNORMAL (Disberg & Mandel 2025) kick distribution used for CCSN (and PPISN with natal kicks); defaults 5.60, 0.68, 1000 km/s
+//                                         (the previous constants), so results are unchanged. ECSN/USSN kicks keep their Maxwellian sigmas; --kick-scaling-factor
+//                                         still divides all kicks.
+//  03.34.00  SS - October 10, 2026      - Enhancement:
 //                                       - New options --ultra-stripped-supernova-prescription {FULLY_STRIPPED (default), TAURIS2015} and
 //                                         --ultra-stripped-maximum-helium-envelope-mass (default 0.2 Msol). FULLY_STRIPPED (as before): every CCSN of a star stripped to
 //                                         its CO core is a USSN. TAURIS2015: only if the star was stripped by mass transfer onto a WD/NS/BH companion and the remaining He
 //                                         envelope from Tauris, Langer & Podsiadlowski (2015, eqs. 4-5; CO core mass at the SN, orbital period at the onset of that mass
 //                                         transfer, recorded in the new BaseStar member m_CaseBBOrbitalPeriod) is <= the maximum; otherwise an ordinary CCSN. With the
 //                                         defaults, results are unchanged.
-// 03.33.00  SS - October 10, 2026      - Enhancement:
-//                                       - New options --kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max: parameters of the
-//                                         LOGNORMAL (Disberg & Mandel 2025) kick distribution used for CCSN (and PPISN with natal kicks); defaults 5.60, 0.68, 1000 km/s
-//                                         (the previous constants), so results are unchanged. ECSN/USSN kicks keep their Maxwellian sigmas; --kick-scaling-factor
-//                                         still divides all kicks.
+//  03.35.00  SS - October 11, 2026      - Enhancement:
+//                                       - New option --critical-mass-ratio-scope {ALL_ACCRETORS (default), NS_BH_ACCRETORS}: with NS_BH_ACCRETORS the critical mass ratio
+//                                         prescription is used only for mass transfer onto NSs and BHs; all other mass transfers use the zeta comparison (as for NONE).
+//                                       - New options --compact-accretor-thermal-mass-transfer {ENVELOPE_REMOVAL (default), EXTENDED_ACCRETION} and
+//                                         --compact-accretor-thermal-mass-transfer-duration-factor (default 12). EXTENDED_ACCRETION: stable thermal-timescale mass transfer
+//                                         from a donor with a core onto a WD/NS/BH still removes the envelope in one step, but the accretor accretes at its maximum rate for
+//                                         t_X = factor x tau_KH(donor, onset) (up to the envelope mass), and a NS accretor's magnetic field and spin are evolved over t_X
+//                                         (new BaseBinaryStar member m_AccretionDurationOverride). With the defaults, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1773,7 +1781,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.34.00";
+const std::string VERSION_STRING = "03.35.00";
 
 
 # endif // __changelog_h__

@@ -352,6 +352,25 @@ const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_ST
     { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,         "ALWAYS_UNSTABLE" }
 };
 
+// which mass transfers use --critical-mass-ratio-prescription (the others use the zeta comparison, as with NONE)
+enum class QCRIT_SCOPE: int { ALL_ACCRETORS, NS_BH_ACCRETORS };
+const COMPASUnorderedMap<QCRIT_SCOPE, std::string> QCRIT_SCOPE_LABEL = {
+    { QCRIT_SCOPE::ALL_ACCRETORS,   "ALL_ACCRETORS" },
+    { QCRIT_SCOPE::NS_BH_ACCRETORS, "NS_BH_ACCRETORS" }
+};
+
+// stable thermal-timescale mass transfer from a donor with a core onto a compact accretor (WD, NS, BH)
+// ENVELOPE_REMOVAL: the whole envelope is removed in one step (default; as for all other accretors)
+// EXTENDED_ACCRETION: the envelope is removed in one step (mass and orbit as ENVELOPE_REMOVAL), but the accretor accretes at its
+//               maximum acceptance rate (Eddington for a NS) for t_X = f x tau_KH(onset) (--compact-accretor-thermal-mass-transfer-
+//               duration-factor), the duration of the super-Eddington phase in detailed models, which includes the slow phase after
+//               mass-ratio reversal; a NS spins up over t_X
+enum class COMPACT_ACCRETOR_THERMAL_MT: int { ENVELOPE_REMOVAL, EXTENDED_ACCRETION };
+const COMPASUnorderedMap<COMPACT_ACCRETOR_THERMAL_MT, std::string> COMPACT_ACCRETOR_THERMAL_MT_LABEL = {
+    { COMPACT_ACCRETOR_THERMAL_MT::ENVELOPE_REMOVAL,   "ENVELOPE_REMOVAL" },
+    { COMPACT_ACCRETOR_THERMAL_MT::EXTENDED_ACCRETION, "EXTENDED_ACCRETION" }
+};
+
 // ultra-stripped supernova prescriptions: which fully stripped core-collapse supernovae are ultra-stripped (USSN kicks)
 // FULLY_STRIPPED: every SN of a star stripped to its CO core (default; any case BB/BC mass transfer)
 // TAURIS2015: only if the star was stripped by mass transfer onto a compact companion (WD, NS or BH) and the remaining helium

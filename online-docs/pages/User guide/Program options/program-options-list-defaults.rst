@@ -211,6 +211,23 @@ Default = :math:`1.5 \times 10^{13}`
 Slope for the Kruckow lambda (see Kruckow et al. 2016 as implemented by Vigna-Gomez et al. 2018). |br|
 Default = −0.833333
 
+**--compact-accretor-thermal-mass-transfer** |br|
+Treatment of stable thermal-timescale mass transfer from a donor with a core (Hertzsprung gap and giants) onto a compact accretor (white dwarf, neutron star or black hole). |br|
+Options: { ENVELOPE_REMOVAL, EXTENDED_ACCRETION } |br|
+``ENVELOPE_REMOVAL``: the whole envelope is removed in one step and the accretor accretes at its maximum acceptance rate (Eddington for a neutron star) only for
+the time the envelope takes to be removed at the thermal rate (as before). |br|
+``EXTENDED_ACCRETION``: the envelope is still removed in one step (donor mass and orbit as ``ENVELOPE_REMOVAL``), but the accretor accretes at its maximum
+acceptance rate for :math:`t_X = f\,\tau_{\rm KH}` (donor thermal timescale at onset; :math:`f` = ``--compact-accretor-thermal-mass-transfer-duration-factor``), up
+to the envelope mass, and a neutron star accretor spins up over :math:`t_X`. This represents the slow phase after mass-ratio reversal in detailed models (e.g.
+Tauris, van den Heuvel & Savonije 2000; Podsiadlowski, Rappaport & Pfahl 2002), in which the donor contracts and the neutron star accretes most of its mass. |br|
+Default = ENVELOPE_REMOVAL
+
+**--compact-accretor-thermal-mass-transfer-duration-factor** |br|
+Duration of accretion onto a compact accretor during stable thermal-timescale mass transfer, in units of the donor's thermal timescale at onset, for
+``--compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION`` (the super-Eddington phases of Podsiadlowski et al. 2002, Table A1, last 10-15 x the COMPAS
+thermal timescale at onset for 2-4 :math:`M_\odot` donors). |br|
+Default = 12.0
+
 **--convective-envelope-mass-threshold** |br|
 Mass threshold of envelope which should be convective, above which the envelopes of giants are labelled convective. |br|
 Only used for --envelope-state-prescription = CONVECTIVE_MASS_FRACTION, ignored otherwise. |br|
@@ -324,6 +341,16 @@ Options: { NONE, ZERO, CLAEYS, GE, GE_IC, HURLEY_HJELLMING_WEBBINK } |br|
 ``HURLEY_HJELLMING_WEBBINK`` uses qCrit values from Hurley et al. 2002 (Hjellming & Webbink 1987 for mass transfer from a giant primary). |br|
 Warning: if running with ``--critical-mass-ratio-prescription``, zetas will not be computed, so should not be trusted in the outputs. |br|
 Default = NONE |br|
+
+**--critical-mass-ratio-scope** |br|
+Which mass transfers use ``--critical-mass-ratio-prescription``. |br|
+Options: { ALL_ACCRETORS, NS_BH_ACCRETORS } |br|
+``ALL_ACCRETORS``: all of them (as before). |br|
+``NS_BH_ACCRETORS``: only mass transfer onto a neutron star or black hole; all other mass transfers use the zeta comparison (as for ``--critical-mass-ratio-prescription NONE``).
+For example, with ``CLAEYS``, ``--critical-mass-ratio-MS-high-mass-degenerate-accretor 0.33`` and ``--critical-mass-ratio-HG-degenerate-accretor 0.30``, the stability of
+mass transfer onto a 1.4 :math:`M_\odot` neutron star matches Podsiadlowski, Rappaport & Pfahl (2002) (stable to ~4 :math:`M_\odot` main-sequence and ~4.5
+:math:`M_\odot` Hertzsprung-gap donors, but not the instability of wide early case B systems) without changing the evolution of other binaries. |br|
+Default = ALL_ACCRETORS
 
 **--critical-mass-ratio-white-dwarf-degenerate-accretor** |br|
 Critical mass ratio for MT from a white dwarf to a degenerate accretor. |br|
@@ -1683,7 +1710,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Mass transfer physics**
 
 --case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
---convective-envelope-mass-threshold, --critical-mass-ratio-prescription,
+--convective-envelope-mass-threshold, --critical-mass-ratio-prescription, --critical-mass-ratio-scope,
+--compact-accretor-thermal-mass-transfer, --compact-accretor-thermal-mass-transfer-duration-factor,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,

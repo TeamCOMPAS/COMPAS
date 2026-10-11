@@ -351,6 +351,7 @@ void BaseBinaryStar::SetRemainingValues() {
 	m_MassTransferTrackerHistory                     = MT_TRACKING::NO_MASS_TRANSFER;
     m_MassTransfer                                   = false;
     m_MassTransferTimescale                          = MT_TIMESCALE::NONE;
+    m_AccretionDurationOverride                      = 0.0;
 
     m_JLoss                                          = OPTIONS->MassTransferJloss();
 
@@ -2182,7 +2183,8 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         isUnstable = true;
         if (!m_Donor->IsOneOf(GIANTS)) m_Flags.stellarMerger = true;
     }
-    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE) {                                                        // determine stability based on critical mass ratios
+    else if (OPTIONS->QCritPrescription() != QCRIT_PRESCRIPTION::NONE &&
+             (OPTIONS->QCritScope() == QCRIT_SCOPE::ALL_ACCRETORS || accretorIsNSorBH)) {                                       // determine stability based on critical mass ratios (all, or NS/BH accretors only)
         // NOTE: Critical mass ratio is defined as mAccretor/mDonor
         double qCrit = m_Donor->CalculateCriticalMassRatio(m_Accretor->IsDegenerate(), m_FractionAccreted);
         isUnstable   = utils::Compare((m_Accretor->Mass() / m_Donor->Mass()), qCrit) < 0;
@@ -2205,6 +2207,17 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
                 massDiffDonor     = -envMassDonor;
                 isEnvelopeRemoved = true;
+
+                if (OPTIONS->CompactAccretorThermalMT() == COMPACT_ACCRETOR_THERMAL_MT::EXTENDED_ACCRETION &&
+                    m_MassTransferTimescale == MT_TIMESCALE::THERMAL &&
+                    m_Accretor->IsOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
+                                          STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE })) {                            // EXTENDED_ACCRETION: the accretor accretes at its
+                    double tX       = OPTIONS->CompactAccretorThermalMTDurationFactor() * m_Donor->CalculateThermalTimescale();  // maximum acceptance rate (at the thermal rate)
+                    double accRate  = m_FractionAccreted * donorMassLossRateThermal;                                            // for t_X = f x tau_KH(onset) (Msol/Myr, Myr)
+                    double accreted = std::min(envMassDonor, accRate * tX);
+                    m_FractionAccreted          = accreted / envMassDonor;
+                    m_AccretionDurationOverride = tX;
+                }
             }
             else
                 massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
@@ -2385,6 +2398,7 @@ void BaseBinaryStar::InitialiseMassTransfer() {
     
     m_MassTransferTimescale      = MT_TIMESCALE::NONE;
     m_MassLossRateInRLOF         = 0.0;
+    m_AccretionDurationOverride  = 0.0;
 
     m_Star1->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star1
     m_Star2->InitialiseMassTransfer(m_CEDetails.CEEnow, m_SemiMajorAxis, m_Eccentricity);                                       // initialise mass transfer for star2
@@ -3489,8 +3503,9 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         m_EccentricityPrev  = m_Eccentricity;
         m_SemiMajorAxisPrev = m_SemiMajorAxis;
 
-        m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
-        m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, m_Dt * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
+        double dtAcc = std::max(m_Dt, m_AccretionDurationOverride);                                                     // EXTENDED_ACCRETION: the accretor gained its mass over t_X
+        m_Star1->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, (m_Accretor == m_Star1 ? dtAcc : m_Dt) * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star1
+        m_Star2->UpdateMagneticFieldAndSpin(m_CEDetails.CEEnow, (m_Accretor == m_Star2 ? dtAcc : m_Dt) * MYR_TO_YEAR * SECONDS_IN_YEAR, EPSILON_PULSAR);  // update pulsar parameters for star2
     }
 }
 
