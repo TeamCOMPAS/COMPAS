@@ -470,6 +470,7 @@ void Options::OptionValues::Initialise() {
     m_MainSequenceCoreHydrogenPrescription.typeString               = CORE_HYDROGEN_PRESCRIPTION_LABEL.at(m_MainSequenceCoreHydrogenPrescription.type);
     m_RetainExhaustedCoreEvolution                                  = false;
     m_CapMassLossSpinAngularMomentum                                = false;
+    m_PulsarMagneticFieldDecayAccretionIndex                        = 1.0;                                                  // Shibazaki et al. (1989)
     m_MatchHertzsprungGapCoreMass                                   = false;
 
     // Mass transfer options
@@ -1483,6 +1484,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "compact-accretor-thermal-mass-transfer-duration-factor",
             po::value<double>(&p_Options->m_CompactAccretorThermalMTDurationFactor)->default_value(p_Options->m_CompactAccretorThermalMTDurationFactor),
             ("Duration of accretion onto a compact accretor during stable thermal-timescale mass transfer, in units of the donor's thermal timescale at onset, for --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION (default = " + std::to_string(p_Options->m_CompactAccretorThermalMTDurationFactor) + ")").c_str()
+        )
+        (
+            "pulsar-magnetic-field-decay-accretion-index",
+            po::value<double>(&p_Options->m_PulsarMagneticFieldDecayAccretionIndex)->default_value(p_Options->m_PulsarMagneticFieldDecayAccretionIndex),
+            ("Index of the accreted mass in the SHIBAZAKI accretion-induced field decay, B = Bmin + (B0 - Bmin) / (1 + (dM / Mb)^index) (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayAccretionIndex) + ")").c_str()
         )
         (
             "ultra-stripped-maximum-helium-envelope-mass",
@@ -3053,6 +3059,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_PulsarMagneticFieldDecayAccretionIndex <= 0.0, "Accretion-induced field decay index (--pulsar-magnetic-field-decay-accretion-index) must be > 0");
         COMPLAIN_IF(m_CompactAccretorThermalMTDurationFactor <= 0.0, "Compact accretor thermal MT duration factor (--compact-accretor-thermal-mass-transfer-duration-factor) must be > 0");
         COMPLAIN_IF(m_UltraStrippedMaximumHeliumEnvelopeMass < 0.0, "Ultra-stripped maximum helium envelope mass (--ultra-stripped-maximum-helium-envelope-mass) must be >= 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalSigma <= 0.0, "LOGNORMAL kick sigma (--kick-magnitude-lognormal-sigma) must be > 0");

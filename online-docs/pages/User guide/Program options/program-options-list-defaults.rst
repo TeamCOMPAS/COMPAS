@@ -1319,6 +1319,11 @@ Default = -1.8
 Late-time timescale :math:`\tau_{\rm late}` (Myr) of the isolated pulsar field for ``--pulsar-magnetic-field-decay-model GRABER2024``. |br|
 Default = 2.0
 
+**--pulsar-magnetic-field-decay-accretion-index** |br|
+Index :math:`\alpha` of the accreted mass in the ``SHIBAZAKI`` accretion-induced field decay,
+:math:`B = B_{\rm min} + (B_0 - B_{\rm min}) / [1 + (\Delta M / M_b)^\alpha]` (Shibazaki et al. 1989: :math:`\alpha = 1`). |br|
+Default = 1.0
+
 **--pulsar-magnetic-field-decay-model** |br|
 Decay of the magnetic field of isolated (non-accreting, not yet recycled) pulsars. |br|
 Options: { EXPONENTIAL, GRABER2024 } |br|

@@ -269,6 +269,7 @@ namespace yaml {
             "    --kick-magnitude-lognormal-max                                  # [km/s]",
             "    --ultra-stripped-maximum-helium-envelope-mass                   # [Msol]",
             "    --compact-accretor-thermal-mass-transfer-duration-factor",
+            "    --pulsar-magnetic-field-decay-accretion-index",
             "    --kick-magnitude-lognormal-mu                                   # mean of ln(v / km/s)",
             "    --kick-magnitude-lognormal-sigma                                # standard deviation of ln(v / km/s)",
             "    --kick-magnitude-sigma-ECSN                                     # [km/s]",

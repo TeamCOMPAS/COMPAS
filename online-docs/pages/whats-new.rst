@@ -3,6 +3,11 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.38.00 October 11, 2026**
+
+* New option ``--pulsar-magnetic-field-decay-accretion-index``: the ``SHIBAZAKI`` accretion-induced magnetic field decay is generalised to
+  :math:`B = B_{\rm min} + (B_0 - B_{\rm min}) / [1 + (\Delta M / M_b)^\alpha]`; the default index 1 is the Shibazaki et al. (1989) law.
+
 **03.37.01 October 11, 2026**
 
 * Defect repair: naked helium main sequence stars below the minimum mass for helium ignition (~0.33 Msol) now always become helium white dwarfs, as in

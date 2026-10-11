@@ -1798,6 +1798,10 @@
 //                                         had this rule, so such stars (e.g. 0.2-0.33 Msol cores of M0 >= MHeF stars stripped early on the HG) burned helium on
 //                                         extrapolated naked helium star tracks (Hurley et al. 2000 computed them only down to 0.32 Msol) and became CO WDs. The option
 //                                         --low-mass-naked-helium-stars-become-white-dwarfs added in 03.37.00 is removed. Changes results for such stars.
+//  03.38.00  SS - October 11, 2026      - Enhancement:
+//                                       - New option --pulsar-magnetic-field-decay-accretion-index (default 1.0): the SHIBAZAKI accretion-induced field decay is
+//                                         generalised to B = Bmin + (B0 - Bmin) / (1 + (dM / Mb)^index) (Shibazaki et al. 1989: index 1). With the defaults, results
+//                                         are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1809,7 +1813,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.37.01";
+const std::string VERSION_STRING = "03.38.00";
 
 
 # endif // __changelog_h__

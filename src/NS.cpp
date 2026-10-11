@@ -451,7 +451,11 @@ double NS::CalculateMagneticFieldDecayAccretionExponential_Static(const double p
  */
 double NS::CalculateMagneticFieldDecayAccretionShibazaki_Static(const double p_MagFieldPreAccretion, const double p_TotalAccretedMass){
 
-    double magneticFieldNew = NS::NS_MAG_FIELD_LOWER_LIMIT + (p_MagFieldPreAccretion - NS::NS_MAG_FIELD_LOWER_LIMIT) / (1.0 + p_TotalAccretedMass/NS::NS_DECAY_MASS_SCALE);
+    double x     = p_TotalAccretedMass / NS::NS_DECAY_MASS_SCALE;
+    double index = OPTIONS->PulsarMagneticFieldDecayAccretionIndex();                                   // generalised: B = Bmin + (B0 - Bmin) / (1 + (dM / Mb)^index)
+    if (utils::Compare(index, 1.0) != 0) x = PPOW(x, index);                                            // index 1 (default): Shibazaki et al. 1989
+
+    double magneticFieldNew = NS::NS_MAG_FIELD_LOWER_LIMIT + (p_MagFieldPreAccretion - NS::NS_MAG_FIELD_LOWER_LIMIT) / (1.0 + x);
 
     return magneticFieldNew;
 }
