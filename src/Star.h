@@ -113,6 +113,7 @@ public:
     double              CalculateLambdaKruckow() const                                                              { return m_Star->CalculateLambdaKruckow(); }
     double              CalculateLambdaDewi() const                                                                 { return m_Star->CalculateLambdaDewi(); }
     double              Luminosity() const                                                                          { return m_Star->Luminosity(); }
+    double              Mdot() const                                                                                { return m_Star->Mdot(); }
     double              MainSequenceCoreMass() const                                                                { return m_Star->MainSequenceCoreMass(); }
     double              Mass() const                                                                                { return m_Star->Mass(); }
     double              Mass0() const                                                                               { return m_Star->Mass0(); }

@@ -521,6 +521,7 @@ private:
 
         "magnetic-braking-gamma",
         "magnetic-braking-prescription",
+        "magnetic-braking-require-radiative-core",
         "maltsev-fallback",
         "mass-ratio", "q",
         "mass-ratio-max",
@@ -679,6 +680,7 @@ private:
         "logfile-type",
 
         "magnetic-braking-prescription",
+        "magnetic-braking-require-radiative-core",
         "main-sequence-core-hydrogen-prescription",
         "main-sequence-core-mass-prescription",
         "main-sequence-degenerate-radius",
@@ -1207,6 +1209,7 @@ public:
             // Magnetic braking
             ENUM_OPT<MAGNETIC_BRAKING_PRESCRIPTION>             m_MagneticBrakingPrescription;                                  // Which magnetic braking prescription (default = NONE)
             double                                              m_MagneticBrakingGamma;                                         // Exponent of the stellar radius in the RVJ83 magnetic braking law
+            bool                                                m_MagneticBrakingRequireRadiativeCore;                          // Apply magnetic braking only to stars with a radiative core (as MESA's default)
 
 
             // Zetas
@@ -1696,6 +1699,7 @@ public:
     LBV_MASS_LOSS_PRESCRIPTION                  LBVMassLossPrescription() const                                         { return OPT_VALUE("LBV-mass-loss-prescription", m_LBVMassLossPrescription.type, true); }
     
     double                                      MagneticBrakingGamma() const                                            { return OPT_VALUE("magnetic-braking-gamma", m_MagneticBrakingGamma, true); }
+    bool                                        MagneticBrakingRequireRadiativeCore() const                             { return OPT_VALUE("magnetic-braking-require-radiative-core", m_MagneticBrakingRequireRadiativeCore, true); }
     MAGNETIC_BRAKING_PRESCRIPTION               MagneticBrakingPrescription() const                                     { return OPT_VALUE("magnetic-braking-prescription", m_MagneticBrakingPrescription.type, true); }
 
     CORE_HYDROGEN_PRESCRIPTION                  MainSequenceCoreHydrogenPrescription() const                            { return OPT_VALUE("main-sequence-core-hydrogen-prescription", m_MainSequenceCoreHydrogenPrescription.type, true); }

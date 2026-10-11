@@ -898,10 +898,20 @@ Default = 4.0
 
 **--magnetic-braking-prescription** |br|
 Magnetic braking prescription. |br|
-Options: { NONE, RVJ83 } |br|
+Options: { NONE, RVJ83, IT03, MATT15, GARRAFFO18, CARB } |br|
 ``NONE`` : no magnetic braking. |br|
 ``RVJ83`` : Rappaport, Verbunt & Joss (1983), :math:`\dot{J} = -3.8\times10^{-30} M R_\odot^4 (R/R_\odot)^{\gamma} \Omega^3` (cgs), with :math:`\gamma` set by ``--magnetic-braking-gamma``. Applied to MS, HG and giant-branch stars with a convective envelope; quenched by :math:`\exp(1 - 0.02/q_{\rm conv})` when the convective envelope mass fraction :math:`q_{\rm conv} < 0.02` (Podsiadlowski, Rappaport & Pfahl 2002). Stars are assumed to be tidally locked, so the angular momentum is removed from the orbit; the stellar spins and eccentricity are not changed. |br|
+``IT03`` : Ivanova & Taam (2003), :math:`\dot{J} = -6\times10^{30} (R/R_\odot)^4 (\Omega/\Omega_\odot)^3` dyn cm, saturating to :math:`\propto\Omega^{1.3}` above :math:`10\,\Omega_\odot` (as BSE/COSMIC ``htpmb = 1``). |br|
+``MATT15`` : Matt et al. (2015), :math:`\dot{J} = -T_0 (\tau_c/\tau_{c,\odot})^2 (\Omega/\Omega_\odot)^3`, saturated :math:`-T_0 \chi^2 \Omega/\Omega_\odot` for :math:`Ro < Ro_\odot/\chi`, with :math:`T_0 = 9.5\times10^{30} (R/R_\odot)^{3.1} (M/M_\odot)^{0.5}` erg and :math:`\chi = 10`. |br|
+``GARRAFFO18`` : Garraffo et al. (2018), :math:`\dot{J} = -c\,\Omega^3 \tau_c\, Q_J(n)`, with magnetic complexity :math:`n = a/Ro + 1 + b\,Ro` and :math:`Q_J = 4.05 e^{-1.4 n}` (:math:`c = 10^{41}` g cm\ :sup:`2`, :math:`a = 0.02`, :math:`b = 2`). |br|
+``CARB`` : convection- and rotation-boosted magnetic braking of Van, Ivanova & Heinke (2019), with the wind mass-loss rate floored at the solar :math:`2\times10^{-14}\,M_\odot\,{\rm yr}^{-1}`. |br|
+The alternative laws use the same stellar types, tidal locking and thin-envelope quench as ``RVJ83``. The convective turnover time :math:`\tau_c` is the Hurley et al. (2002) estimate, and the
+solar-normalised laws are normalised to its value for the Sun (0.044 yr), so their published normalisations (calibrated with MESA turnover times) carry over only approximately. |br|
 Default = NONE
+
+**--magnetic-braking-require-radiative-core** |br|
+Apply magnetic braking only to stars with a radiative core, i.e. not to fully convective main sequence stars (:math:`M \le 0.35\,M_\odot`), as in MESA's default. |br|
+Default = FALSE
 
 **--main-sequence-core-hydrogen-prescription** |br|
 Main sequence core hydrogen depletion and minimum core mass growth, for stars whose core composition is not evolved by the ``BRCEK`` core mass prescription. |br|
@@ -1772,7 +1782,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
 
 --circulariseBinaryDuringMassTransfer, --angular-momentum-conservation-during-circularisation, --tides-prescription, 
---magnetic-braking-prescription, --magnetic-braking-gamma, 
+--magnetic-braking-prescription, --magnetic-braking-gamma, --magnetic-braking-require-radiative-core, 
 --response-to-spin-up
 
 --envelope-state-prescription, --common-envelope-alpha, --common-envelope-alpha-thermal, --common-envelope-formalism,

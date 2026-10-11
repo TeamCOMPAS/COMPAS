@@ -1812,6 +1812,14 @@
 //                                       - Behaviour change: --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION now applies to NS and BH accretors only (it
 //                                         also applied to WDs, where accretion at the maximum rate for 12 thermal timescales tripled accretion-induced collapse).
 //                                         Changes results for runs that use EXTENDED_ACCRETION; defaults are unaffected.
+//  03.40.00  SS - October 12, 2026      - Enhancement:
+//                                       - New magnetic braking laws for --magnetic-braking-prescription: IT03 (Ivanova & Taam 2003; saturated above 10 Omega_sun as
+//                                         BSE/COSMIC htpmb = 1), MATT15 (Matt et al. 2015), GARRAFFO18 (Garraffo et al. 2018) and CARB (Van, Ivanova & Heinke 2019; wind
+//                                         rate floored at the solar 2e-14 Msol/yr). Same stellar types, tidal locking and thin-envelope quench as RVJ83; convective
+//                                         turnover times are the Hurley et al. (2002) estimates, normalised to their solar value (0.044 yr). Added Star::Mdot().
+//                                       - New option --magnetic-braking-require-radiative-core (default FALSE): no magnetic braking for fully convective MS stars
+//                                         (M <= 0.35 Msol), as in MESA's default.
+//                                       - With the defaults (and with RVJ83), results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1823,7 +1831,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.39.00";
+const std::string VERSION_STRING = "03.40.00";
 
 
 # endif // __changelog_h__

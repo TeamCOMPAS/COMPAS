@@ -3270,6 +3270,10 @@ double BaseBinaryStar::CalculateMagneticBrakingTorque(BinaryConstituentStar* p_S
                            STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH,
                            STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH })) return 0.0;              // no magnetic braking for other stellar types
 
+    if (OPTIONS->MagneticBrakingRequireRadiativeCore() &&
+        p_Star->IsOneOf({ STELLAR_TYPE::MS_LTE_07, STELLAR_TYPE::MS_GT_07 }) &&
+        utils::Compare(p_Star->Mass(), MAGNETIC_BRAKING_FULLY_CONVECTIVE_MASS) <= 0) return 0.0;              // fully convective - no magnetic braking (as MESA's default)
+
     double convectiveEnvelopeMass;
     std::tie(convectiveEnvelopeMass, std::ignore) = p_Star->CalculateConvectiveEnvelopeMass();
     double qConv = convectiveEnvelopeMass / p_Star->Mass();                                                     // fractional mass of the convective envelope
@@ -3287,6 +3291,53 @@ double BaseBinaryStar::CalculateMagneticBrakingTorque(BinaryConstituentStar* p_S
             double rSol_4   = RSOL_TO_CM * RSOL_TO_CM * RSOL_TO_CM * RSOL_TO_CM;                                // Rsol^4 in cm^4
             double jDot_CGS = -MAGNETIC_BRAKING_RVJ83_COEFFICIENT * p_Star->Mass() * MSOL_TO_G * rSol_4 * PPOW(p_Star->Radius(), OPTIONS->MagneticBrakingGamma()) * omega * omega * omega; // dyn cm = g cm^2 s^-2
             jDot            = jDot_CGS * SECONDS_IN_YEAR * SECONDS_IN_YEAR / (MSOL_TO_G * AU_TO_CM * AU_TO_CM);  // Msol AU^2 yr^-2
+        } break;
+
+        case MAGNETIC_BRAKING_PRESCRIPTION::IT03:                                                               // Ivanova & Taam (2003), saturated above 10 Omega_sun (as BSE/COSMIC htpmb = 1)
+        case MAGNETIC_BRAKING_PRESCRIPTION::MATT15:                                                             // Matt et al. (2015), Rossby-number scaling with saturation
+        case MAGNETIC_BRAKING_PRESCRIPTION::GARRAFFO18:                                                         // Garraffo et al. (2018), magnetic-complexity reduction
+        case MAGNETIC_BRAKING_PRESCRIPTION::CARB: {                                                             // Van, Ivanova & Heinke (2019), convection- and rotation-boosted
+            double omega    = p_Omega / SECONDS_IN_YEAR;                                                        // rad s^-1
+            double r        = p_Star->Radius();                                                                 // Rsol
+            double m        = p_Star->Mass();                                                                   // Msol
+            double tauConv  = p_Star->CalculateEddyTurnoverTimescale();                                         // yr (Hurley et al. 2002, eq 31)
+            double jDot_CGS = 0.0;                                                                              // dyn cm (negative = spin-down)
+            switch (OPTIONS->MagneticBrakingPrescription()) {
+                case MAGNETIC_BRAKING_PRESCRIPTION::IT03: {
+                    double x  = omega / MAGNETIC_BRAKING_IT03_OMEGA_SUN;
+                    double r4 = r * r * r * r;
+                    jDot_CGS  = x <= MAGNETIC_BRAKING_IT03_OMEGA_X
+                                ? -MAGNETIC_BRAKING_IT03_KJ * r4 * x * x * x
+                                : -MAGNETIC_BRAKING_IT03_KJ * r4 * PPOW(MAGNETIC_BRAKING_IT03_OMEGA_X, 1.7) * PPOW(x, 1.3);
+                } break;
+                case MAGNETIC_BRAKING_PRESCRIPTION::MATT15: {
+                    double t0     = MAGNETIC_BRAKING_MATT15_T0 * PPOW(r, 3.1) * std::sqrt(m);
+                    double x      = omega / MAGNETIC_BRAKING_MATT15_OMEGA_SUN;
+                    double tauRel = tauConv / MAGNETIC_BRAKING_SOLAR_TURNOVER_TIME;
+                    jDot_CGS      = x * tauRel >= MAGNETIC_BRAKING_MATT15_CHI                                   // Ro <= Ro_sun / chi: saturated
+                                    ? -t0 * PPOW(MAGNETIC_BRAKING_MATT15_CHI, MAGNETIC_BRAKING_MATT15_P) * x
+                                    : -t0 * PPOW(tauRel, MAGNETIC_BRAKING_MATT15_P) * PPOW(x, MAGNETIC_BRAKING_MATT15_P + 1.0);
+                } break;
+                case MAGNETIC_BRAKING_PRESCRIPTION::GARRAFFO18: {
+                    double tauS = tauConv * SECONDS_IN_YEAR;
+                    double ro   = (_2_PI / omega) / tauS;                                                       // Rossby number
+                    double n    = MAGNETIC_BRAKING_GARRAFFO18_A / ro + 1.0 + MAGNETIC_BRAKING_GARRAFFO18_B * ro; // magnetic complexity
+                    jDot_CGS    = -MAGNETIC_BRAKING_GARRAFFO18_C * omega * omega * omega * tauS * 4.05 * std::exp(-1.4 * n);
+                } break;
+                case MAGNETIC_BRAKING_PRESCRIPTION::CARB: {
+                    double rCm    = r * RSOL_TO_CM;
+                    double mG     = m * MSOL_TO_G;
+                    double mDotW  = std::max(std::fabs(p_Star->Mdot()), MAGNETIC_BRAKING_CARB_MIN_WIND) * MSOL_TO_G / SECONDS_IN_YEAR;   // g s^-1
+                    double vEsc2  = 2.0 * G_CGS * mG / rCm;
+                    double vRot2  = 2.0 * omega * omega * rCm * rCm / (MAGNETIC_BRAKING_CARB_K2 * MAGNETIC_BRAKING_CARB_K2);
+                    double tauRel = tauConv / MAGNETIC_BRAKING_SOLAR_TURNOVER_TIME;
+                    jDot_CGS      = -(2.0 / 3.0) * PPOW(mDotW, -1.0 / 3.0) * PPOW(rCm, 14.0 / 3.0) * PPOW(vEsc2 + vRot2, -2.0 / 3.0)
+                                    * MAGNETIC_BRAKING_CARB_OMEGA_SUN * PPOW(MAGNETIC_BRAKING_CARB_B_SUN, 8.0 / 3.0)
+                                    * PPOW(omega / MAGNETIC_BRAKING_CARB_OMEGA_SUN, 11.0 / 3.0) * PPOW(tauRel, 8.0 / 3.0);
+                } break;
+                default: break;
+            }
+            jDot = jDot_CGS * SECONDS_IN_YEAR * SECONDS_IN_YEAR / (MSOL_TO_G * AU_TO_CM * AU_TO_CM);            // Msol AU^2 yr^-2
         } break;
 
         default:                                                                                                // unknown prescription

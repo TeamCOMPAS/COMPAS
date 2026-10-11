@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.40.00 October 12, 2026**
+
+* New magnetic braking laws for ``--magnetic-braking-prescription``: ``IT03`` (Ivanova & Taam 2003), ``MATT15`` (Matt et al. 2015), ``GARRAFFO18`` (Garraffo et al. 2018)
+  and ``CARB`` (Van, Ivanova & Heinke 2019).
+* New option ``--magnetic-braking-require-radiative-core``: no magnetic braking for fully convective main sequence stars (as in MESA's default).
+
 **03.39.00 October 11, 2026**
 
 * New options ``--electron-capture-supernova-minimum-core-mass`` and ``--electron-capture-supernova-maximum-core-mass`` set the electron-capture SN window.

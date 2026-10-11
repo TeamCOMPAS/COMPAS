@@ -604,6 +604,7 @@ void Options::OptionValues::Initialise() {
     m_MagneticBrakingPrescription.type                              = MAGNETIC_BRAKING_PRESCRIPTION::NONE;
     m_MagneticBrakingPrescription.typeString                        = MAGNETIC_BRAKING_PRESCRIPTION_LABEL.at(m_MagneticBrakingPrescription.type);
     m_MagneticBrakingGamma                                          = 4.0;                                                  // Rappaport, Verbunt & Joss (1983)
+    m_MagneticBrakingRequireRadiativeCore                           = false;
 
 
 	// Zetas
@@ -1594,6 +1595,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "magnetic-braking-gamma",
             po::value<double>(&p_Options->m_MagneticBrakingGamma)->default_value(p_Options->m_MagneticBrakingGamma),
             ("Exponent gamma of the stellar radius in the RVJ83 magnetic braking law, dJ/dt ~ M R^gamma Omega^3 (default = " + std::to_string(p_Options->m_MagneticBrakingGamma) + ")").c_str()
+        )
+        (
+            "magnetic-braking-require-radiative-core",
+            po::value<bool>(&p_Options->m_MagneticBrakingRequireRadiativeCore)->default_value(p_Options->m_MagneticBrakingRequireRadiativeCore)->implicit_value(true),
+            ("Apply magnetic braking only to stars with a radiative core, i.e. not to fully convective main sequence stars (M <= 0.35 Msol), as in MESA's default (default = " + std::string(p_Options->m_MagneticBrakingRequireRadiativeCore ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "main-sequence-core-mass-brcek-minimum-mass",

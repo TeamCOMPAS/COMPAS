@@ -324,6 +324,23 @@ constexpr int    PULSAR_GRABER_SUBSTEPS_PER_EFOLD       = 16;                   
 constexpr double MAGNETIC_BRAKING_MAXIMUM_ORBITAL_CHANGE_FRAC = 0.01;                                              // Maximum allowed fractional change in the semi-major axis due to magnetic braking in a single timestep
 constexpr double MAGNETIC_BRAKING_QCONV_THRESHOLD       = 0.02;                                                     // Convective envelope mass fraction below which magnetic braking is quenched by exp(1 - threshold/qconv) (Podsiadlowski, Rappaport & Pfahl 2002)
 constexpr double MAGNETIC_BRAKING_RVJ83_COEFFICIENT     = 3.8E-30;                                                  // Coefficient of the Rappaport, Verbunt & Joss (1983) magnetic braking law (cgs)
+// Alternative magnetic braking laws (cgs unless stated)
+constexpr double MAGNETIC_BRAKING_FULLY_CONVECTIVE_MASS = 0.35;                                                     // Main sequence stars at or below this mass are fully convective (Hurley et al. 2000)
+constexpr double MAGNETIC_BRAKING_SOLAR_TURNOVER_TIME   = 0.044;                                                    // COMPAS (Hurley et al. 2002, eq 31) convective turnover time of the Sun (M = R = L = 1, tau_MS = 0.46), yr
+constexpr double MAGNETIC_BRAKING_IT03_KJ               = 6.0E30;                                                   // Ivanova & Taam (2003): K_j (dyn cm)
+constexpr double MAGNETIC_BRAKING_IT03_OMEGA_SUN        = 3.0E-6;                                                   // Ivanova & Taam (2003): solar angular frequency (rad s^-1)
+constexpr double MAGNETIC_BRAKING_IT03_OMEGA_X          = 10.0;                                                     // Ivanova & Taam (2003): saturation frequency in units of the solar value
+constexpr double MAGNETIC_BRAKING_MATT15_T0             = 9.5E30;                                                   // Matt et al. (2015): T0 (erg) for R = Rsol, M = Msol
+constexpr double MAGNETIC_BRAKING_MATT15_OMEGA_SUN      = 2.6E-6;                                                   // Matt et al. (2015): solar angular frequency (rad s^-1)
+constexpr double MAGNETIC_BRAKING_MATT15_P              = 2.0;                                                      // Matt et al. (2015): p
+constexpr double MAGNETIC_BRAKING_MATT15_CHI            = 10.0;                                                     // Matt et al. (2015): chi = Ro_sun / Ro_sat
+constexpr double MAGNETIC_BRAKING_GARRAFFO18_C          = 1.0E41;                                                   // Garraffo et al. (2018): c (g cm^2)
+constexpr double MAGNETIC_BRAKING_GARRAFFO18_A          = 0.02;                                                     // Garraffo et al. (2018): a
+constexpr double MAGNETIC_BRAKING_GARRAFFO18_B          = 2.0;                                                      // Garraffo et al. (2018): b
+constexpr double MAGNETIC_BRAKING_CARB_K2               = 0.07;                                                     // Van, Ivanova & Heinke (2019): K2
+constexpr double MAGNETIC_BRAKING_CARB_B_SUN            = 1.0;                                                      // Van, Ivanova & Heinke (2019): solar surface field (G)
+constexpr double MAGNETIC_BRAKING_CARB_OMEGA_SUN        = 3.0E-6;                                                   // Van, Ivanova & Heinke (2019): solar angular frequency (rad s^-1)
+constexpr double MAGNETIC_BRAKING_CARB_MIN_WIND         = 2.0E-14;                                                  // Floor on the wind mass-loss rate used by CARB (Msol yr^-1; solar value)
 
 constexpr double TIDES_MINIMUM_FRACTIONAL_NUCLEAR_TIME  = 0.001;                                                    // Minimum allowed timestep from tidal processes, as a fraction of the nuclear minimum time scale
 
