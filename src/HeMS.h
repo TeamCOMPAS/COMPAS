@@ -156,6 +156,7 @@ protected:
             double          ChooseTimestep(const double p_Time) const;
 
             STELLAR_TYPE    EvolveToNextPhase();
+            double          CalculateMinimumHeliumIgnitionMass() const;
 
             ENVELOPE        DetermineEnvelopeType() const                                                           { return ENVELOPE::RADIATIVE; }                                                 // Always RADIATIVE
 

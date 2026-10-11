@@ -604,8 +604,43 @@ STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_Force) {
         m_Radius    = 0.0;
         m_Mass      = 0.0;
     }
+    else if (OPTIONS->LowMassNakedHeliumStarsBecomeWhiteDwarfs() &&
+             utils::Compare(m_Mass, CalculateMinimumHeliumIgnitionMass()) < 0) {                // too light to ignite helium - becomes a helium white dwarf (as in SSE/BSE)
+        stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
+        m_CoreMass   = m_Mass;
+        m_HeCoreMass = m_Mass;
+        m_COCoreMass = 0.0;
+        m_Radius     = HeWD::CalculateRadiusOnPhase_Static(m_Mass);
+        m_Age        = 0.0;
+    }
 
     return stellarType;
+}
+
+
+/*
+ * Calculate the minimum mass of a naked helium main sequence star that ignites helium
+ *
+ * The core mass at helium ignition of a star of mass MHeF (the minimum core mass for non-degenerate helium ignition),
+ * Hurley et al. (2000) eqs 43 and 37 with the giant branch Mc-L relation: zpars(10) in the SSE/BSE codes, where a naked helium
+ * main sequence star with a mass below it becomes a helium white dwarf (hrdiag.f).  The Hurley et al. (2000) paper itself only
+ * gives the M0 < MHeF rule for stars losing their envelope on the HG or GB.
+ *
+ *
+ * double CalculateMinimumHeliumIgnitionMass()
+ *
+ * @return                                      Minimum mass of a helium star that ignites helium (Msol)
+ */
+double HeMS::CalculateMinimumHeliumIgnitionMass() const {
+#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+
+    DBL_VECTOR gbParams(static_cast<int>(GBP::COUNT), DEFAULT_INITIAL_DOUBLE_VALUE);
+    GiantBranch::CalculateGBParams_Static(massCutoffs(MHeF), LogMetallicityXiHurley(), m_MassCutoffs, m_AnCoefficients, m_BnCoefficients, gbParams);
+    double luminosityHeI = GiantBranch::CalculateLuminosityAtHeIgnition_Static(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), m_BnCoefficients);
+
+    return BaseStar::CalculateCoreMassGivenLuminosity_Static(luminosityHeI, gbParams);
+
+#undef massCutoffs
 }
 
 

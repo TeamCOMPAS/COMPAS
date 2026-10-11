@@ -471,6 +471,7 @@ void Options::OptionValues::Initialise() {
     m_RetainExhaustedCoreEvolution                                  = false;
     m_CapMassLossSpinAngularMomentum                                = false;
     m_MatchHertzsprungGapCoreMass                                   = false;
+    m_LowMassNakedHeliumStarsBecomeWhiteDwarfs                      = false;
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -483,6 +484,8 @@ void Options::OptionValues::Initialise() {
     // Case BB/BC mass transfer stability prescription
     m_QCritScope.type                                               = QCRIT_SCOPE::ALL_ACCRETORS;
     m_QCritScope.typeString                                         = QCRIT_SCOPE_LABEL.at(m_QCritScope.type);
+    m_CaseBBAccretion.type                                          = CASE_BB_ACCRETION::THERMAL_TIMESCALE;
+    m_CaseBBAccretion.typeString                                    = CASE_BB_ACCRETION_LABEL.at(m_CaseBBAccretion.type);
     m_CompactAccretorThermalMT.type                                 = COMPACT_ACCRETOR_THERMAL_MT::ENVELOPE_REMOVAL;
     m_CompactAccretorThermalMT.typeString                           = COMPACT_ACCRETOR_THERMAL_MT_LABEL.at(m_CompactAccretorThermalMT.type);
     m_CompactAccretorThermalMTDurationFactor                        = 12.0;                                                 // detailed models: super-Eddington phase ~ 10-25 x COMPAS tau_KH at onset
@@ -1072,6 +1075,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "cap-mass-loss-spin-angular-momentum",
             po::value<bool>(&p_Options->m_CapMassLossSpinAngularMomentum)->default_value(p_Options->m_CapMassLossSpinAngularMomentum)->implicit_value(true),
             ("Cap the spin angular momentum that a star losing mass in a binary (winds and mass transfer; (2/3) dM R^2 Omega) gives to the orbit at the star's own spin angular momentum. Without the cap, a large single mass-transfer step can give the orbit more angular momentum than the star had (its spin angular momentum is floored at zero), widening the orbit so that the donor detaches (default = " + std::string(p_Options->m_CapMassLossSpinAngularMomentum ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "low-mass-naked-helium-stars-become-white-dwarfs",
+            po::value<bool>(&p_Options->m_LowMassNakedHeliumStarsBecomeWhiteDwarfs)->default_value(p_Options->m_LowMassNakedHeliumStarsBecomeWhiteDwarfs)->implicit_value(true),
+            ("A naked helium main sequence star with a mass below the minimum mass for helium ignition (the core mass at helium ignition of a star of mass MHeF, ~0.3 Msol) becomes a helium white dwarf, as in the SSE/BSE codes (default = " + std::string(p_Options->m_LowMassNakedHeliumStarsBecomeWhiteDwarfs ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "match-hertzsprung-gap-core-mass",
@@ -2020,6 +2028,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Which mass transfers use --critical-mass-ratio-prescription: ALL_ACCRETORS, or NS_BH_ACCRETORS only (all others use the zeta comparison, as with NONE) (" + AllowedOptionValuesFormatted("critical-mass-ratio-scope") + ", default = '" + p_Options->m_QCritScope.typeString + "')").c_str()
         )
         (
+            "case-BB-accretion",
+            po::value<std::string>(&p_Options->m_CaseBBAccretion.typeString)->default_value(p_Options->m_CaseBBAccretion.typeString),
+            ("Accretion onto a compact accretor during case BB/BC mass transfer from a helium giant, with --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION: THERMAL_TIMESCALE = for the duration factor x the donor's thermal timescale (as other donors); TAURIS2015 = for the case BB duration of detailed models (fit to Tauris et al. 2012, 2015, 2017) and, onto a NS, at the Eddington limit for helium-rich matter (" + AllowedOptionValuesFormatted("case-BB-accretion") + ", default = '" + p_Options->m_CaseBBAccretion.typeString + "')").c_str()
+        )
+        (
             "compact-accretor-thermal-mass-transfer",
             po::value<std::string>(&p_Options->m_CompactAccretorThermalMT.typeString)->default_value(p_Options->m_CompactAccretorThermalMT.typeString),
             ("Stable thermal-timescale mass transfer from a donor with a core onto a WD/NS/BH: ENVELOPE_REMOVAL = whole envelope in one step; EXTENDED_ACCRETION = envelope in one step, but the accretor accretes at its maximum rate for --compact-accretor-thermal-mass-transfer-duration-factor x the donor's thermal timescale (" + AllowedOptionValuesFormatted("compact-accretor-thermal-mass-transfer") + ", default = '" + p_Options->m_CompactAccretorThermalMT.typeString + "')").c_str()
@@ -2613,6 +2626,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Critical Mass Ratio Scope");
         }
 
+        if (!DEFAULTED("case-BB-accretion")) {                                                                                      // case BB accretion onto compact accretors
+            std::tie(found, m_CaseBBAccretion.type) = utils::GetMapKey(m_CaseBBAccretion.typeString, CASE_BB_ACCRETION_LABEL, m_CaseBBAccretion.type);
+            COMPLAIN_IF(!found, "Unknown Case BB Accretion prescription");
+        }
+
         if (!DEFAULTED("compact-accretor-thermal-mass-transfer")) {                                                                 // thermal MT onto compact accretors
             std::tie(found, m_CompactAccretorThermalMT.type) = utils::GetMapKey(m_CompactAccretorThermalMT.typeString, COMPACT_ACCRETOR_THERMAL_MT_LABEL, m_CompactAccretorThermalMT.type);
             COMPLAIN_IF(!found, "Unknown Compact Accretor Thermal Mass Transfer prescription");
@@ -3161,6 +3179,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);               break;
         case _("ultra-stripped-supernova-prescription")             : POPULATE_RET(ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL);        break;
         case _("compact-accretor-thermal-mass-transfer")            : POPULATE_RET(COMPACT_ACCRETOR_THERMAL_MT_LABEL);                  break;
+        case _("case-BB-accretion")                                 : POPULATE_RET(CASE_BB_ACCRETION_LABEL);                            break;
         case _("critical-mass-ratio-scope")                         : POPULATE_RET(QCRIT_SCOPE_LABEL);                                  break;
         case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                     break;
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                                 break;

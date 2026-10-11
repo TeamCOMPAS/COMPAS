@@ -105,6 +105,18 @@ which COMPAS takes in one step) this exceeds the star's spin angular momentum se
 had and widens (by up to a factor ~2 in orbital period), and the donor detaches. |br|
 Default = FALSE
 
+**--case-BB-accretion** |br|
+Accretion onto a compact accretor (white dwarf, neutron star or black hole) during stable case BB/BC mass transfer from a helium giant (HeHG or HeGB donor),
+with ``--compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION``. |br|
+Options: { THERMAL_TIMESCALE, TAURIS2015 } |br|
+``THERMAL_TIMESCALE``: as for other donors, the accretor accretes at its maximum rate for ``--compact-accretor-thermal-mass-transfer-duration-factor`` times the
+donor's thermal timescale, which is only :math:`\sim 10^{-3}` Myr for a helium giant. |br|
+``TAURIS2015``: for the duration of case BB/BC mass transfer in detailed models, which is set by the expansion of the donor during helium-shell burning,
+:math:`\Delta t = 0.22\,{\rm Myr}\,(P_{\rm orb}/{\rm d})^{-0.62}\,(M_{\rm He}/M_\odot)^{-2.43}` (a fit to the models of Tauris, Langer & Podsiadlowski 2015, Table 1,
+and Tauris, Langer & Kramer 2012; Tauris et al. 2017; 0.1 dex rms for 1 - 6 :math:`M_\odot` helium stars at 0.08 - 2.5 d), and a neutron star accretes at the Eddington
+limit for helium-rich matter (1.7 times the hydrogen-rich value). A neutron star then accretes :math:`\sim 10^{-3} - 10^{-2}\,M_\odot`, as in the detailed models. |br|
+Default = THERMAL_TIMESCALE
+
 **--case-bb-stability-prescription** |br|
 Prescription for the stability of case BB/BC mass transfer. |br|
 Options: { ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE } |br|
@@ -837,6 +849,14 @@ Default = ’HDF5’
 **--log-level** |br|
 Determines which print statements are included in the logfile. |br|
 Default = 0
+
+**--low-mass-naked-helium-stars-become-white-dwarfs** |br|
+A naked helium main sequence star with a mass below the minimum mass for helium ignition - the core mass at helium ignition of a star of mass
+:math:`M_{\rm HeF}` (Hurley et al. 2000; ~0.33 :math:`M_\odot` at solar metallicity) - becomes a helium white dwarf, as in the SSE/BSE codes (``zpars(10)`` in ``hrdiag.f``).
+Hurley et al. (2000) form a naked helium star whenever a star with :math:`M_0 \geq M_{\rm HeF}` loses its envelope on the HG or giant branch, but their naked helium
+star tracks only extend down to 0.32 :math:`M_\odot`; without this option lighter stripped cores (e.g. 0.2 - 0.33 :math:`M_\odot` from early-HG stripping, or with
+``--match-hertzsprung-gap-core-mass``) burn helium and end as CO white dwarfs. |br|
+Default = FALSE
 
 **--luminous-blue-variable-multiplier** |br|
 Multiplicative constant for LBV mass loss. (Use 10 for Mennekens & Vanbeveren (2014)). |br|
@@ -1713,7 +1733,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --low-mass-naked-helium-stars-become-white-dwarfs, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
@@ -1727,7 +1747,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
 --convective-envelope-mass-threshold, --critical-mass-ratio-prescription, --critical-mass-ratio-scope,
---compact-accretor-thermal-mass-transfer, --compact-accretor-thermal-mass-transfer-duration-factor, --cap-mass-loss-spin-angular-momentum,
+--compact-accretor-thermal-mass-transfer, --compact-accretor-thermal-mass-transfer-duration-factor, --cap-mass-loss-spin-angular-momentum, --case-BB-accretion,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,

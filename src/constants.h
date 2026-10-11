@@ -3872,4 +3872,12 @@ const std::vector<DBL_VECTOR> SHIKAUCHI_L_COEFFICIENTS = {
 const DBL_VECTOR BRCEK_FMIX_COEFFICIENTS = {0.898171018326982, -0.592244880828559, 55.7885260968562, 0.359078394562545, 1.87717633667786};
 
 
+
+// Case BB accretion onto compact accretors (--case-BB-accretion TAURIS2015): duration of case BB/BC mass transfer from a He giant,
+// t = NORM x (P_orb / d)^PORB_INDEX x (M_He / Msol)^MASS_INDEX Myr, fitted to 57 detailed models of Tauris, Langer & Podsiadlowski (2015, Table 1),
+// Tauris, Langer & Kramer (2012) and Tauris et al. (2017) (He stars 1-6 Msol, P = 0.08-2.5 d; 0.10 dex rms)
+constexpr double CASE_BB_DURATION_TAURIS2015_NORM       = 0.22;
+constexpr double CASE_BB_DURATION_TAURIS2015_PORB_INDEX = -0.62;
+constexpr double CASE_BB_DURATION_TAURIS2015_MASS_INDEX = -2.43;
+
 #endif // __constants_h__

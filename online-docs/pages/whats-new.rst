@@ -3,6 +3,14 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.37.00 October 11, 2026**
+
+* New option ``--low-mass-naked-helium-stars-become-white-dwarfs``: naked helium main sequence stars below the minimum mass for helium ignition (~0.33 Msol)
+  become helium white dwarfs, as in the SSE/BSE codes.
+* New option ``--case-BB-accretion`` (``THERMAL_TIMESCALE`` (default), ``TAURIS2015``): with ``TAURIS2015`` and ``--compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION``,
+  a compact accretor accretes during case BB/BC mass transfer for the duration found in detailed models (Tauris et al. 2015), and a neutron star at the Eddington
+  limit for helium-rich matter.
+
 **03.36.00 October 11, 2026**
 
 * New option ``--cap-mass-loss-spin-angular-momentum``: caps the spin angular momentum that a mass-losing star gives to the orbit at the star's own spin angular

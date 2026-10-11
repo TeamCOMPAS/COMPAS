@@ -359,6 +359,16 @@ const COMPASUnorderedMap<QCRIT_SCOPE, std::string> QCRIT_SCOPE_LABEL = {
     { QCRIT_SCOPE::NS_BH_ACCRETORS, "NS_BH_ACCRETORS" }
 };
 
+// accretion onto a compact accretor during case BB/BC mass transfer from a He giant, with --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION
+// THERMAL_TIMESCALE: as for other donors, for --compact-accretor-thermal-mass-transfer-duration-factor x the donor's thermal timescale
+// TAURIS2015: for the duration of case BB/BC in detailed models (fit to Tauris, Langer & Podsiadlowski 2015 and Tauris et al. 2012, 2017),
+//             and a NS accretes at the Eddington limit for helium-rich matter (1.7 x the hydrogen-rich value)
+enum class CASE_BB_ACCRETION: int { THERMAL_TIMESCALE, TAURIS2015 };
+const COMPASUnorderedMap<CASE_BB_ACCRETION, std::string> CASE_BB_ACCRETION_LABEL = {
+    { CASE_BB_ACCRETION::THERMAL_TIMESCALE, "THERMAL_TIMESCALE" },
+    { CASE_BB_ACCRETION::TAURIS2015,        "TAURIS2015" }
+};
+
 // stable thermal-timescale mass transfer from a donor with a core onto a compact accretor (WD, NS, BH)
 // ENVELOPE_REMOVAL: the whole envelope is removed in one step (default; as for all other accretors)
 // EXTENDED_ACCRETION: the envelope is removed in one step (mass and orbit as ENVELOPE_REMOVAL), but the accretor accretes at its

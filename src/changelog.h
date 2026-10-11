@@ -1782,6 +1782,16 @@
 //                                         retained core exceeded the Hurley core of the stripped star, and the core was reset to the Hurley value of the stripped mass at the
 //                                         start of the giant branch / core helium burning. With the option the Hurley core alone is compared and matched.
 //                                         With the defaults, results are unchanged.
+//  03.37.00  SS - October 11, 2026      - Enhancement:
+//                                       - New option --low-mass-naked-helium-stars-become-white-dwarfs (default FALSE): a naked helium MS star with a mass below the
+//                                         minimum mass for helium ignition (core mass at He ignition of a star of mass MHeF, ~0.33 Msol; zpars(10) in SSE/BSE hrdiag.f)
+//                                         becomes a helium WD, as in the SSE/BSE codes. The Hurley et al. (2000) paper only gives the M0 < MHeF rule for stars stripped on
+//                                         the HG/GB, and its naked He star tracks start at 0.32 Msol; without the option, 0.2-0.33 Msol stripped cores of stars with
+//                                         M0 >= MHeF burn helium and end as CO WDs.
+//                                       - New option --case-BB-accretion {THERMAL_TIMESCALE (default), TAURIS2015} (with EXTENDED_ACCRETION): for a He giant donor
+//                                         (HeHG/HeGB) onto a compact accretor, TAURIS2015 sets the accretion duration to the case BB duration of detailed models,
+//                                         0.22 Myr (P/d)^-0.62 (M_He/Msol)^-2.43 (fit to Tauris, Langer & Podsiadlowski 2015 and Tauris et al. 2012, 2017), and a NS
+//                                         accretes at the helium-rich Eddington limit (x1.7). With the defaults, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1793,7 +1803,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.36.00";
+const std::string VERSION_STRING = "03.37.00";
 
 
 # endif // __changelog_h__
