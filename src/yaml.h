@@ -94,7 +94,6 @@ namespace yaml {
             "    --main-sequence-degenerate-radius                               # SSE degenerate radius floor for low-mass MS stars",
             "    --retain-exhausted-core-evolution",
             "    --match-hertzsprung-gap-core-mass",
-            "    --low-mass-naked-helium-stars-become-white-dwarfs",
             "    --enable-rotationally-enhanced-mass-loss",
             "    --enhance-CHE-lifetimes-luminosities",
             "    --expel-convective-envelope-above-luminosity-threshold",

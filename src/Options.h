@@ -729,7 +729,6 @@ private:
         "retain-exhausted-core-evolution",
         "cap-mass-loss-spin-angular-momentum",
         "match-hertzsprung-gap-core-mass",
-        "low-mass-naked-helium-stars-become-white-dwarfs",
         "revised-energy-formalism-nandez-ivanova",
         "rlof-printing",
         "rotational-velocity-distribution",
@@ -1106,7 +1105,6 @@ public:
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
             bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
             bool                                                m_CapMassLossSpinAngularMomentum;                               // Whether the spin angular momentum a mass-losing star gives the orbit is capped at the star's spin angular momentum
-            bool                                                m_LowMassNakedHeliumStarsBecomeWhiteDwarfs;                     // Whether naked He MS stars below the minimum He-ignition mass become He WDs (SSE/BSE)
             bool                                                m_MatchHertzsprungGapCoreMass;                                  // Whether HG stars set m_Mass0 so that the Hurley core matches a retained main sequence core larger than it
         
             ENUM_OPT<QCRIT_SCOPE>                               m_QCritScope;                                                   // Which mass transfers use the critical mass ratio prescription
@@ -1859,7 +1857,6 @@ public:
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     bool                                        RetainExhaustedCoreEvolution() const                                    { return OPT_VALUE("retain-exhausted-core-evolution", m_RetainExhaustedCoreEvolution, true); }
     bool                                        CapMassLossSpinAngularMomentum() const                                  { return OPT_VALUE("cap-mass-loss-spin-angular-momentum", m_CapMassLossSpinAngularMomentum, true); }
-    bool                                        LowMassNakedHeliumStarsBecomeWhiteDwarfs() const                        { return OPT_VALUE("low-mass-naked-helium-stars-become-white-dwarfs", m_LowMassNakedHeliumStarsBecomeWhiteDwarfs, true); }
     bool                                        MatchHertzsprungGapCoreMass() const                                     { return OPT_VALUE("match-hertzsprung-gap-core-mass", m_MatchHertzsprungGapCoreMass, true); }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }

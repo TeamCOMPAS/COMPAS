@@ -850,14 +850,6 @@ Default = ’HDF5’
 Determines which print statements are included in the logfile. |br|
 Default = 0
 
-**--low-mass-naked-helium-stars-become-white-dwarfs** |br|
-A naked helium main sequence star with a mass below the minimum mass for helium ignition - the core mass at helium ignition of a star of mass
-:math:`M_{\rm HeF}` (Hurley et al. 2000; ~0.33 :math:`M_\odot` at solar metallicity) - becomes a helium white dwarf, as in the SSE/BSE codes (``zpars(10)`` in ``hrdiag.f``).
-Hurley et al. (2000) form a naked helium star whenever a star with :math:`M_0 \geq M_{\rm HeF}` loses its envelope on the HG or giant branch, but their naked helium
-star tracks only extend down to 0.32 :math:`M_\odot`; without this option lighter stripped cores (e.g. 0.2 - 0.33 :math:`M_\odot` from early-HG stripping, or with
-``--match-hertzsprung-gap-core-mass``) burn helium and end as CO white dwarfs. |br|
-Default = FALSE
-
 **--luminous-blue-variable-multiplier** |br|
 Multiplicative constant for LBV mass loss. (Use 10 for Mennekens & Vanbeveren (2014)). |br|
 Note that wind mass loss will also be multiplied by the ``--overall-wind-mass-loss-multiplier``. |br|
@@ -1733,7 +1725,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --low-mass-naked-helium-stars-become-white-dwarfs, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 

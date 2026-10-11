@@ -471,7 +471,6 @@ void Options::OptionValues::Initialise() {
     m_RetainExhaustedCoreEvolution                                  = false;
     m_CapMassLossSpinAngularMomentum                                = false;
     m_MatchHertzsprungGapCoreMass                                   = false;
-    m_LowMassNakedHeliumStarsBecomeWhiteDwarfs                      = false;
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -1075,11 +1074,6 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "cap-mass-loss-spin-angular-momentum",
             po::value<bool>(&p_Options->m_CapMassLossSpinAngularMomentum)->default_value(p_Options->m_CapMassLossSpinAngularMomentum)->implicit_value(true),
             ("Cap the spin angular momentum that a star losing mass in a binary (winds and mass transfer; (2/3) dM R^2 Omega) gives to the orbit at the star's own spin angular momentum. Without the cap, a large single mass-transfer step can give the orbit more angular momentum than the star had (its spin angular momentum is floored at zero), widening the orbit so that the donor detaches (default = " + std::string(p_Options->m_CapMassLossSpinAngularMomentum ? "TRUE" : "FALSE") + ")").c_str()
-        )
-        (
-            "low-mass-naked-helium-stars-become-white-dwarfs",
-            po::value<bool>(&p_Options->m_LowMassNakedHeliumStarsBecomeWhiteDwarfs)->default_value(p_Options->m_LowMassNakedHeliumStarsBecomeWhiteDwarfs)->implicit_value(true),
-            ("A naked helium main sequence star with a mass below the minimum mass for helium ignition (the core mass at helium ignition of a star of mass MHeF, ~0.3 Msol) becomes a helium white dwarf, as in the SSE/BSE codes (default = " + std::string(p_Options->m_LowMassNakedHeliumStarsBecomeWhiteDwarfs ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "match-hertzsprung-gap-core-mass",

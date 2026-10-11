@@ -604,8 +604,7 @@ STELLAR_TYPE HeMS::ResolveEnvelopeLoss(bool p_Force) {
         m_Radius    = 0.0;
         m_Mass      = 0.0;
     }
-    else if (OPTIONS->LowMassNakedHeliumStarsBecomeWhiteDwarfs() &&
-             utils::Compare(m_Mass, CalculateMinimumHeliumIgnitionMass()) < 0) {                // too light to ignite helium - becomes a helium white dwarf (as in SSE/BSE)
+    else if (utils::Compare(m_Mass, CalculateMinimumHeliumIgnitionMass()) < 0) {                  // too light to ignite helium - becomes a helium white dwarf (as in SSE/BSE)
         stellarType  = STELLAR_TYPE::HELIUM_WHITE_DWARF;
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;

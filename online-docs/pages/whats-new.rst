@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.37.01 October 11, 2026**
+
+* Defect repair: naked helium main sequence stars below the minimum mass for helium ignition (~0.33 Msol) now always become helium white dwarfs, as in
+  the SSE/BSE codes. Previously they burned helium and became CO white dwarfs. The option ``--low-mass-naked-helium-stars-become-white-dwarfs`` added in
+  03.37.00 is removed.
+
 **03.37.00 October 11, 2026**
 
 * New option ``--low-mass-naked-helium-stars-become-white-dwarfs``: naked helium main sequence stars below the minimum mass for helium ignition (~0.33 Msol)

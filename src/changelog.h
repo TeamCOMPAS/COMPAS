@@ -1792,6 +1792,12 @@
 //                                         (HeHG/HeGB) onto a compact accretor, TAURIS2015 sets the accretion duration to the case BB duration of detailed models,
 //                                         0.22 Myr (P/d)^-0.62 (M_He/Msol)^-2.43 (fit to Tauris, Langer & Podsiadlowski 2015 and Tauris et al. 2012, 2017), and a NS
 //                                         accretes at the helium-rich Eddington limit (x1.7). With the defaults, results are unchanged.
+//  03.37.01  SS - October 11, 2026      - Defect repair:
+//                                       - A naked helium MS star with a mass below the minimum mass for helium ignition (the core mass at helium ignition of a star of
+//                                         mass MHeF, ~0.33 Msol; zpars(10) in the SSE/BSE codes) now always becomes a helium WD, as in SSE/BSE (hrdiag.f). COMPAS never
+//                                         had this rule, so such stars (e.g. 0.2-0.33 Msol cores of M0 >= MHeF stars stripped early on the HG) burned helium on
+//                                         extrapolated naked helium star tracks (Hurley et al. 2000 computed them only down to 0.32 Msol) and became CO WDs. The option
+//                                         --low-mass-naked-helium-stars-become-white-dwarfs added in 03.37.00 is removed. Changes results for such stars.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1803,7 +1809,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.37.00";
+const std::string VERSION_STRING = "03.37.01";
 
 
 # endif // __changelog_h__
