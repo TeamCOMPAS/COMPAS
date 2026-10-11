@@ -54,7 +54,11 @@ protected:
         
         // update effective "initial" mass (m_Mass0) so that core mass matches main sequence core mass
         // (only relevant if MANDEL or BRCEK main sequence core mass prescription is used)
-        if (utils::Compare(CalculateCoreMassOnPhase(m_Mass0, m_Age), std::min(m_Mass, MainSequenceCoreMass())) < 0 ||
+        // with --match-hertzsprung-gap-core-mass the Hurley core of m_Mass0 is compared (and matched) without the max() with the current core mass,
+        // which already equals the main sequence core mass here, so that a retained (case A) core larger than the Hurley core is kept beyond the HG
+        bool   matchCore = OPTIONS->MatchHertzsprungGapCoreMass();
+        double coreMass0 = matchCore ? CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass0, m_Age) : CalculateCoreMassOnPhase(m_Mass0, m_Age);
+        if (utils::Compare(coreMass0, std::min(m_Mass, MainSequenceCoreMass())) < 0 ||
             (OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK && utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)) {
             double desiredCoreMass = std::min(m_Mass, MainSequenceCoreMass());                                                                                                  // desired core mass
             m_Mass0                = std::max(Mass0ToMatchDesiredCoreMass(this, desiredCoreMass), std::min(m_Mass, m_MZAMS));                                                   // use root finder to find new core mass estimate, m_Mass0 should not be lower than m_Mass unless star gained mass
@@ -185,7 +189,9 @@ protected:
 
             HG *clone = m_Star->Clone(OBJECT_PERSISTENCE::EPHEMERAL, false);
             clone->UpdateAttributesAndAgeOneTimestep(0.0, p_GuessMass0 - clone->Mass0(), 0.0, true);        // update clone's mass and age it one timestep 
-            double coreMassEstimate = clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());          // calculate clone's core mass
+            double coreMassEstimate = OPTIONS->MatchHertzsprungGapCoreMass()                                // calculate clone's core mass (Hurley core of p_GuessMass0, or its max with the current core mass)
+                                        ? clone->CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(p_GuessMass0, clone->Age())
+                                        : clone->CalculateCoreMassOnPhase(p_GuessMass0, clone->Age());
             delete clone; clone = nullptr;                                                                  // return the memory allocated for the clone
 
             return (coreMassEstimate - m_DesiredCoreMass);

@@ -469,6 +469,8 @@ void Options::OptionValues::Initialise() {
     m_MainSequenceCoreHydrogenPrescription.type                     = CORE_HYDROGEN_PRESCRIPTION::LINEAR;
     m_MainSequenceCoreHydrogenPrescription.typeString               = CORE_HYDROGEN_PRESCRIPTION_LABEL.at(m_MainSequenceCoreHydrogenPrescription.type);
     m_RetainExhaustedCoreEvolution                                  = false;
+    m_CapMassLossSpinAngularMomentum                                = false;
+    m_MatchHertzsprungGapCoreMass                                   = false;
 
     // Mass transfer options
     m_UseMassTransfer                                               = true;
@@ -1065,6 +1067,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "retain-core-mass-during-caseA-mass-transfer",
             po::value<bool>(&p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->default_value(p_Options->m_RetainCoreMassDuringCaseAMassTransfer)->implicit_value(true),
             ("Retain approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = " + std::string(p_Options->m_RetainCoreMassDuringCaseAMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "cap-mass-loss-spin-angular-momentum",
+            po::value<bool>(&p_Options->m_CapMassLossSpinAngularMomentum)->default_value(p_Options->m_CapMassLossSpinAngularMomentum)->implicit_value(true),
+            ("Cap the spin angular momentum that a star losing mass in a binary (winds and mass transfer; (2/3) dM R^2 Omega) gives to the orbit at the star's own spin angular momentum. Without the cap, a large single mass-transfer step can give the orbit more angular momentum than the star had (its spin angular momentum is floored at zero), widening the orbit so that the donor detaches (default = " + std::string(p_Options->m_CapMassLossSpinAngularMomentum ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
+            "match-hertzsprung-gap-core-mass",
+            po::value<bool>(&p_Options->m_MatchHertzsprungGapCoreMass)->default_value(p_Options->m_MatchHertzsprungGapCoreMass)->implicit_value(true),
+            ("At the start of the Hertzsprung gap, set the effective initial mass (Mass0) so that the Hurley et al. (2000) core mass matches the main sequence core mass whenever it is larger (e.g. the core retained by a case A donor with --retain-core-mass-during-caseA-mass-transfer), so that the core is kept on the giant branch / core helium burning. Without this option the matching is only attempted when the main sequence core is smaller than both the Hurley core and the current core mass, so a retained core larger than the Hurley core of the stripped star is lost at the end of the HG (default = " + std::string(p_Options->m_MatchHertzsprungGapCoreMass ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "retain-exhausted-core-evolution",

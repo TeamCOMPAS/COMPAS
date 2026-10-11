@@ -97,6 +97,14 @@ Default = FALLBACK
 
 :ref:`Back to Top <options-props-top>`
 
+**--cap-mass-loss-spin-angular-momentum** |br|
+Cap the spin angular momentum that a star losing mass in a binary (winds and mass transfer) gives to the orbit at the star's own spin angular momentum.
+The spin angular momentum carried by the lost mass is taken to be that of a shell at the stellar surface, :math:`(2/3)\,\Delta M R^2 \Omega`, and is added to the orbit
+after the mass-transfer step; the star's spin angular momentum is floored at zero. For a large single mass-transfer step (e.g. thermal-timescale case A mass transfer,
+which COMPAS takes in one step) this exceeds the star's spin angular momentum several times over, so without the cap the orbit gains angular momentum the star never
+had and widens (by up to a factor ~2 in orbital period), and the donor detaches. |br|
+Default = FALSE
+
 **--case-bb-stability-prescription** |br|
 Prescription for the stability of case BB/BC mass transfer. |br|
 Options: { ALWAYS_STABLE, ALWAYS_STABLE_ONTO_NSBH, TREAT_AS_OTHER_MT, ALWAYS_UNSTABLE } |br|
@@ -1009,6 +1017,14 @@ Default = CFACTOR
 Mass Transfer Thermal rate factor for the accretor. |br|
 Default = 10.0
 
+**--match-hertzsprung-gap-core-mass** |br|
+At the start of the Hertzsprung gap, set the effective initial mass (Mass0) so that the Hurley et al. (2000) core mass matches the main sequence core mass whenever it is larger,
+e.g. the core retained by a case A donor (``--retain-core-mass-during-caseA-mass-transfer``, ``MANDEL`` core mass prescription), so that the core is kept on the giant branch
+and core helium burning. Without this option the matching is attempted only when the main sequence core is smaller than both the Hurley core and the current core mass
+(which already equals the main sequence core mass at that point), so a retained core larger than the Hurley core of the stripped star is kept through the HG but reset to
+the Hurley value of the stripped mass at the start of the next phase. |br|
+Default = FALSE
+
 **--maximum-evolution-time** |br|
 Maximum time to evolve binaries (Myr). Evolution of the binary will stop if this number is reached. |br|
 Default = 13700.0
@@ -1697,7 +1713,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 
@@ -1711,7 +1727,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --case-bb-stability-prescription, --convective-envelope-temperature-threshold, 
 --convective-envelope-mass-threshold, --critical-mass-ratio-prescription, --critical-mass-ratio-scope,
---compact-accretor-thermal-mass-transfer, --compact-accretor-thermal-mass-transfer-duration-factor,
+--compact-accretor-thermal-mass-transfer, --compact-accretor-thermal-mass-transfer-duration-factor, --cap-mass-loss-spin-angular-momentum,
 --critical-mass-ratio-HG-degenerate-accretor, --critical-mass-ratio-HG-non-degenerate-accretor, --critical-mass-ratio-MS-high-mass-degenerate-accretor,
 --critical-mass-ratio-MS-high-mass-non-degenerate-accretor, --critical-mass-ratio-MS-low-mass-degenerate-accretor, --critical-mass-ratio-MS-low-mass-non-degenerate-accretor,
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,

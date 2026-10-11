@@ -3,6 +3,14 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.36.00 October 11, 2026**
+
+* New option ``--cap-mass-loss-spin-angular-momentum``: caps the spin angular momentum that a mass-losing star gives to the orbit at the star's own spin angular
+  momentum. Without it, a large single mass-transfer step can give the orbit more angular momentum than the star had, widening the orbit and detaching the donor.
+* New option ``--match-hertzsprung-gap-core-mass``: at the start of the Hertzsprung gap, Mass0 is set so that the Hurley core matches a larger main sequence
+  core (e.g. the core retained by a case A donor), so that the core is kept beyond the Hertzsprung gap. Without it, such a core is reset to the Hurley value
+  of the stripped mass at the start of the giant branch.
+
 **03.35.00 October 11, 2026**
 
 * New option ``--critical-mass-ratio-scope`` (``ALL_ACCRETORS`` (default, as before), ``NS_BH_ACCRETORS``): with ``NS_BH_ACCRETORS`` the

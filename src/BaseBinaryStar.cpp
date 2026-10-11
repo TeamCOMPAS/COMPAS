@@ -2607,6 +2607,8 @@ void BaseBinaryStar::ResolveMassChanges() {
             // yes - calculate new angular momentum
             if(utils::Compare(massChange, 0.0) < 0) {
                 double angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Radius() * RSOL_TO_AU * m_Star1->Omega();
+                if (OPTIONS->CapMassLossSpinAngularMomentum())                                          // the star cannot give the orbit more spin angular momentum than it has
+                    angularMomentumChangeStar = std::max(angularMomentumChangeStar, -m_Star1->AngularMomentum()); // (its spin angular momentum is floored at zero below)
                 extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
                 // update mass of star according to mass loss and mass transfer, then update age accordingly
                 (void)m_Star1->UpdateAttributes(massChange, 0.0);                                       // update mass for star
@@ -2632,6 +2634,8 @@ void BaseBinaryStar::ResolveMassChanges() {
             // yes - calculate new angular momentum; assume accretor is adding angular momentum from a circular orbit at the stellar radius
             if(utils::Compare(massChange, 0.0) < 0) {
                 double angularMomentumChangeStar = (2.0 / 3.0) * massChange * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Radius() * RSOL_TO_AU * m_Star2->Omega();
+                if (OPTIONS->CapMassLossSpinAngularMomentum())                                          // the star cannot give the orbit more spin angular momentum than it has
+                    angularMomentumChangeStar = std::max(angularMomentumChangeStar, -m_Star2->AngularMomentum()); // (its spin angular momentum is floored at zero below)
                 extraAngularMomentumChangeOrbit -= angularMomentumChangeStar;
                 // update mass of star according to mass loss and mass transfer, then update age accordingly
                 (void)m_Star2->UpdateAttributes(massChange, 0.0);                                       // update mass for star

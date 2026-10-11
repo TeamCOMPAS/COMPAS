@@ -580,6 +580,7 @@ private:
         "compact-accretor-thermal-mass-transfer",
         "compact-accretor-thermal-mass-transfer-duration-factor",
         "critical-mass-ratio-scope",
+        "cap-mass-loss-spin-angular-momentum",
     };
 
     
@@ -725,6 +726,8 @@ private:
         "remnant-mass-prescription",
         "pulsar-reset-inclination-at-recycling",
         "retain-exhausted-core-evolution",
+        "cap-mass-loss-spin-angular-momentum",
+        "match-hertzsprung-gap-core-mass",
         "revised-energy-formalism-nandez-ivanova",
         "rlof-printing",
         "rotational-velocity-distribution",
@@ -1099,6 +1102,8 @@ public:
             double                                              m_MainSequenceCoreMassBrcekMinimumMass;                         // ZAMS mass (Msol) above which (inclusive) the BRCEK core mass prescription is applied
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
             bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
+            bool                                                m_CapMassLossSpinAngularMomentum;                               // Whether the spin angular momentum a mass-losing star gives the orbit is capped at the star's spin angular momentum
+            bool                                                m_MatchHertzsprungGapCoreMass;                                  // Whether HG stars set m_Mass0 so that the Hurley core matches a retained main sequence core larger than it
         
             ENUM_OPT<QCRIT_SCOPE>                               m_QCritScope;                                                   // Which mass transfers use the critical mass ratio prescription
             ENUM_OPT<COMPACT_ACCRETOR_THERMAL_MT>               m_CompactAccretorThermalMT;                                     // Stable thermal MT onto WD/NS/BH: envelope removal or extended accretion
@@ -1847,6 +1852,8 @@ public:
     
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     bool                                        RetainExhaustedCoreEvolution() const                                    { return OPT_VALUE("retain-exhausted-core-evolution", m_RetainExhaustedCoreEvolution, true); }
+    bool                                        CapMassLossSpinAngularMomentum() const                                  { return OPT_VALUE("cap-mass-loss-spin-angular-momentum", m_CapMassLossSpinAngularMomentum, true); }
+    bool                                        MatchHertzsprungGapCoreMass() const                                     { return OPT_VALUE("match-hertzsprung-gap-core-mass", m_MatchHertzsprungGapCoreMass, true); }
     
     bool                                        RLOFPrinting() const                                                    { return m_CmdLine.optionValues.m_RlofPrinting; }
 

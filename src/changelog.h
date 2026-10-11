@@ -1770,6 +1770,18 @@
 //                                         from a donor with a core onto a WD/NS/BH still removes the envelope in one step, but the accretor accretes at its maximum rate for
 //                                         t_X = factor x tau_KH(donor, onset) (up to the envelope mass), and a NS accretor's magnetic field and spin are evolved over t_X
 //                                         (new BaseBinaryStar member m_AccretionDurationOverride). With the defaults, results are unchanged.
+//  03.36.00  SS - October 11, 2026      - Enhancement:
+//                                       - New option --cap-mass-loss-spin-angular-momentum (default FALSE): in BaseBinaryStar::ResolveMassChanges() the spin angular
+//                                         momentum of the mass a star loses ((2/3) dM R^2 Omega) is added to the orbit, but the star's own spin angular momentum is floored
+//                                         at zero, so a large single mass-transfer step (e.g. thermal-timescale case A) gives the orbit up to several times more angular
+//                                         momentum than the star had, widening it (case A IMXBs: orbital period x2.3 after the rapid phase) and detaching the donor. With
+//                                         the option the transfer is capped at the star's spin angular momentum.
+//                                       - New option --match-hertzsprung-gap-core-mass (default FALSE): HG::Initialise() sets Mass0 so that the Hurley core matches the
+//                                         main sequence core (e.g. the core retained by a case A donor), but compared, and root-solved, the core mass including its max()
+//                                         with the current core mass, which already equals the main sequence core mass there, so the matching never happened when the
+//                                         retained core exceeded the Hurley core of the stripped star, and the core was reset to the Hurley value of the stripped mass at the
+//                                         start of the giant branch / core helium burning. With the option the Hurley core alone is compared and matched.
+//                                         With the defaults, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1781,7 +1793,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.35.00";
+const std::string VERSION_STRING = "03.36.00";
 
 
 # endif // __changelog_h__
