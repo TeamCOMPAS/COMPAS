@@ -981,7 +981,8 @@ bool TPAGB::IsSupernova() const {
     double snMass = CalculateInitialSupernovaMass();
     bool isCCSN = utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
         utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
-    bool isECSN = utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN()) &&
+    bool isECSN = utils::Compare(snMass, OPTIONS->ElectronCaptureSNMaximumCoreMass()) < 0 && utils::Compare(snMass, OPTIONS->ElectronCaptureSNMinimumCoreMass()) >= 0 &&
+                  (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN()) &&
         utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
         utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
     return isCCSN || isECSN;

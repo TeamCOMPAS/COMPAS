@@ -129,6 +129,7 @@ protected:
             STELLAR_TYPE    ResolveSupernova();
             STELLAR_TYPE    ResolveCoreCollapseSN();
             STELLAR_TYPE    ResolveElectronCaptureSN();
+            STELLAR_TYPE    ResolveOxygenNeonWhiteDwarfBelowECSN();
             STELLAR_TYPE    ResolvePairInstabilitySN();
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
     

@@ -431,6 +431,22 @@ Default = 0.0
 Multiplication factor for Eddington accretion for NS & BH (i.e. > 1 is super-eddington and 0 is no accretion). |br|
 Default = 1.0
 
+**--electron-capture-supernova-maximum-core-mass** |br|
+Upper edge of the electron-capture SN (ECSN) window (:math:`M_\odot`). A star whose SN core mass is below it (and above
+``--electron-capture-supernova-minimum-core-mass``) undergoes an ECSN if it is stripped (a former mass-transfer donor) or ``--allow-non-stripped-ECSN``
+is set; above it, the SN is a core-collapse SN. The core mass is the SN mass (the core mass at the base of the AGB for AGB stars, the stellar
+mass for others) by default, and the helium-core mass at the end of core helium burning (McBAGB; for a naked helium star its initial mass)
+when ``--electron-capture-supernova-minimum-core-mass`` > 0. |br|
+Default = 2.25 (Hurley et al. 2000)
+
+**--electron-capture-supernova-minimum-core-mass** |br|
+Lower edge of the electron-capture SN window (:math:`M_\odot`). When > 0, the window is tested on the helium-core mass at the end of core helium
+burning (McBAGB; for a naked helium star its initial mass), and a stripped star (or any star with ``--allow-non-stripped-ECSN``) that reaches the
+SN condition with a core below the lower edge does not explode but leaves an ONe WD of mass min(CO core mass, 1.35 :math:`M_\odot`). Detailed
+models of stripped stars place the ECSN window at helium-core masses of about 2.5-2.75 :math:`M_\odot` (Tauris et al. 2015; see also Podsiadlowski
+et al. 2004, 2.0-2.5 :math:`M_\odot`). |br|
+Default = 0.0 (no lower edge beyond the SN condition)
+
 **--emit-gravitational-radiation**  |br|
 Emit gravitational radiation at each timestep of binary evolution according to Peters 1964. |br|
 Default = FALSE
@@ -1774,7 +1790,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, 
+--remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, --electron-capture-supernova-minimum-core-mass, --electron-capture-supernova-maximum-core-mass, 
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
 --PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 

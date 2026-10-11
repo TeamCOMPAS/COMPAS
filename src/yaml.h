@@ -270,6 +270,8 @@ namespace yaml {
             "    --ultra-stripped-maximum-helium-envelope-mass                   # [Msol]",
             "    --compact-accretor-thermal-mass-transfer-duration-factor",
             "    --pulsar-magnetic-field-decay-accretion-index",
+            "    --electron-capture-supernova-minimum-core-mass                  # [Msol]",
+            "    --electron-capture-supernova-maximum-core-mass                  # [Msol]",
             "    --kick-magnitude-lognormal-mu                                   # mean of ln(v / km/s)",
             "    --kick-magnitude-lognormal-sigma                                # standard deviation of ln(v / km/s)",
             "    --kick-magnitude-sigma-ECSN                                     # [km/s]",

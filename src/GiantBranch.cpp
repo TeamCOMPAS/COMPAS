@@ -2017,6 +2017,33 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
 
 /*
+ * Resolve a stripped star below the electron-capture SN window
+ *
+ * With --electron-capture-supernova-minimum-core-mass > 0, a stripped star (former mass-transfer donor) whose helium-core mass at the
+ * end of core helium burning (McBAGB; for a naked helium star its initial mass) is below the window does not explode: its ONe core
+ * does not reach the electron-capture density, the remaining envelope is lost and it leaves an ONe WD (e.g. Tauris et al. 2015;
+ * Siess & Lebreuilly 2018). The WD mass is the CO core mass, capped at ECSN_BELOW_WINDOW_ONE_WD_MAXIMUM_MASS (1.35 Msol) so that
+ * it does not immediately exceed the Chandrasekhar mass and undergo accretion-induced collapse.
+ *
+ *
+ * STELLAR_TYPE ResolveOxygenNeonWhiteDwarfBelowECSN()
+ *
+ * @return                                      Stellar type of remnant (always STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF)
+ */
+STELLAR_TYPE GiantBranch::ResolveOxygenNeonWhiteDwarfBelowECSN() {
+    m_Mass       = std::min({ m_COCoreMass, m_Mass, ECSN_BELOW_WINDOW_ONE_WD_MAXIMUM_MASS });  // the envelope is lost; the core is left as an ONe WD (at most 1.35 Msol, below the AIC mass)
+    m_CoreMass   = m_Mass;
+    m_HeCoreMass = m_Mass;
+    m_COCoreMass = m_Mass;
+    m_Mass0      = m_Mass;
+    m_Radius     = WhiteDwarfs::CalculateRadiusOnPhase_Static(m_Mass);
+    m_Age        = 0.0;
+
+    return STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF;
+}
+
+
+/*
  * Resolve Electron Capture Supernova
  *
  * Calculate the mass of the remnant and set remnant type - always a Neutron Star
@@ -2243,6 +2270,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         m_SupernovaDetails.coreRadiusAtCOFormation = CalculateConvectiveCoreRadius();
 
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
+
+        // ECSN window: by default the SN mass (as before); with --electron-capture-supernova-minimum-core-mass > 0, the helium-core mass at the end of
+        // core helium burning - McBAGB, which for naked helium stars is their initial (helium-star) mass
+        bool   ecsnWindow = utils::Compare(OPTIONS->ElectronCaptureSNMinimumCoreMass(), 0.0) > 0;
+        double ecsnMass   = ecsnWindow ? m_GBParams[static_cast<int>(GBP::McBAGB)] : snMass;
         
         SetSNHydrogenContent();                                                                     // set H-rich or H-poor  JR: why don't we do this when we initialise the star at change of stellar type?
 
@@ -2258,7 +2290,10 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();                                               // MR
         }
-        else if (utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
+        else if (ecsnWindow && utils::Compare(ecsnMass, OPTIONS->ElectronCaptureSNMinimumCoreMass()) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
+            stellarType = ResolveOxygenNeonWhiteDwarfBelowECSN();                                   // below the ECSN window (--electron-capture-supernova-minimum-core-mass): no SN, ONe WD
+        }
+        else if (utils::Compare(ecsnMass, OPTIONS->ElectronCaptureSNMaximumCoreMass()) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
             stellarType = ResolveElectronCaptureSN();                                               // electron capture SN; requires progenitor to have been a MT donor unless non-stripped ECSN are allowed; forms NS
         }
         else {                                                                                      // Core Collapse Supernova

@@ -3880,4 +3880,7 @@ constexpr double CASE_BB_DURATION_TAURIS2015_NORM       = 0.22;
 constexpr double CASE_BB_DURATION_TAURIS2015_PORB_INDEX = -0.62;
 constexpr double CASE_BB_DURATION_TAURIS2015_MASS_INDEX = -2.43;
 
+// Stripped stars below the ECSN window (--electron-capture-supernova-minimum-core-mass) leave ONe WDs of at most this mass (Msol; Tauris et al. 2015; Siess & Lebreuilly 2018)
+constexpr double ECSN_BELOW_WINDOW_ONE_WD_MAXIMUM_MASS = 1.35;
+
 #endif // __constants_h__

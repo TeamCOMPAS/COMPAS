@@ -3,6 +3,14 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.39.00 October 11, 2026**
+
+* New options ``--electron-capture-supernova-minimum-core-mass`` and ``--electron-capture-supernova-maximum-core-mass`` set the electron-capture SN window.
+  With a lower edge > 0, the window is tested on the helium-core mass at the end of core helium burning, and stripped stars below it leave ONe WDs
+  instead of exploding. With the defaults (0, 2.25 Msol), results are unchanged.
+* ``--compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION`` now applies to neutron star and black hole accretors only (it previously also applied to
+  white dwarfs, where it over-produced accretion-induced collapse). Changes results for runs that use ``EXTENDED_ACCRETION``.
+
 **03.38.00 October 11, 2026**
 
 * New option ``--pulsar-magnetic-field-decay-accretion-index``: the ``SHIBAZAKI`` accretion-induced magnetic field decay is generalised to

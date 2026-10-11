@@ -1105,6 +1105,8 @@ public:
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
             bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
             double                                              m_PulsarMagneticFieldDecayAccretionIndex;                       // SHIBAZAKI accretion-induced decay: index of (dM / Mb)
+            double                                              m_ElectronCaptureSNMinimumCoreMass;                             // ECSN window: minimum supernova core mass (below: ONe WD for stripped stars)
+            double                                              m_ElectronCaptureSNMaximumCoreMass;                             // ECSN window: maximum supernova core mass (Hurley MCBUR2)
             bool                                                m_CapMassLossSpinAngularMomentum;                               // Whether the spin angular momentum a mass-losing star gives the orbit is capped at the star's spin angular momentum
             bool                                                m_MatchHertzsprungGapCoreMass;                                  // Whether HG stars set m_Mass0 so that the Hurley core matches a retained main sequence core larger than it
         
@@ -1858,6 +1860,8 @@ public:
     bool                                        RetainCoreMassDuringCaseAMassTransfer() const                           { return m_CmdLine.optionValues.m_RetainCoreMassDuringCaseAMassTransfer; }
     bool                                        RetainExhaustedCoreEvolution() const                                    { return OPT_VALUE("retain-exhausted-core-evolution", m_RetainExhaustedCoreEvolution, true); }
     double                                      PulsarMagneticFieldDecayAccretionIndex() const                          { return OPT_VALUE("pulsar-magnetic-field-decay-accretion-index", m_PulsarMagneticFieldDecayAccretionIndex, true); }
+    double                                      ElectronCaptureSNMinimumCoreMass() const                                { return OPT_VALUE("electron-capture-supernova-minimum-core-mass", m_ElectronCaptureSNMinimumCoreMass, true); }
+    double                                      ElectronCaptureSNMaximumCoreMass() const                                { return OPT_VALUE("electron-capture-supernova-maximum-core-mass", m_ElectronCaptureSNMaximumCoreMass, true); }
     bool                                        CapMassLossSpinAngularMomentum() const                                  { return OPT_VALUE("cap-mass-loss-spin-angular-momentum", m_CapMassLossSpinAngularMomentum, true); }
     bool                                        MatchHertzsprungGapCoreMass() const                                     { return OPT_VALUE("match-hertzsprung-gap-core-mass", m_MatchHertzsprungGapCoreMass, true); }
     

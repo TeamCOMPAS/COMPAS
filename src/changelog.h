@@ -1802,6 +1802,16 @@
 //                                       - New option --pulsar-magnetic-field-decay-accretion-index (default 1.0): the SHIBAZAKI accretion-induced field decay is
 //                                         generalised to B = Bmin + (B0 - Bmin) / (1 + (dM / Mb)^index) (Shibazaki et al. 1989: index 1). With the defaults, results
 //                                         are unchanged.
+//  03.39.00  SS - October 11, 2026      - Enhancement:
+//                                       - New options --electron-capture-supernova-minimum-core-mass (default 0.0) and --electron-capture-supernova-maximum-core-mass
+//                                         (default MCBUR2 = 2.25) set the electron-capture SN window. With a lower edge > 0, the window is tested on the helium-core mass
+//                                         at the end of core helium burning (McBAGB; for naked helium stars their initial mass), and a stripped star (former mass-transfer
+//                                         donor, or any star with --allow-non-stripped-ECSN) below it does not explode but leaves an ONe WD of mass
+//                                         min(CO core, 1.35 Msol) (Tauris et al. 2015: ECSNe from stripped helium-core masses of ~2.5-2.75 Msol). With the defaults,
+//                                         results are unchanged.
+//                                       - Behaviour change: --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION now applies to NS and BH accretors only (it
+//                                         also applied to WDs, where accretion at the maximum rate for 12 thermal timescales tripled accretion-induced collapse).
+//                                         Changes results for runs that use EXTENDED_ACCRETION; defaults are unaffected.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1813,7 +1823,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.38.00";
+const std::string VERSION_STRING = "03.39.00";
 
 
 # endif // __changelog_h__

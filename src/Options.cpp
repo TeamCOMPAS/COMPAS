@@ -470,6 +470,8 @@ void Options::OptionValues::Initialise() {
     m_MainSequenceCoreHydrogenPrescription.typeString               = CORE_HYDROGEN_PRESCRIPTION_LABEL.at(m_MainSequenceCoreHydrogenPrescription.type);
     m_RetainExhaustedCoreEvolution                                  = false;
     m_CapMassLossSpinAngularMomentum                                = false;
+    m_ElectronCaptureSNMinimumCoreMass                              = 0.0;                                                  // no lower edge beyond the SN condition (as before)
+    m_ElectronCaptureSNMaximumCoreMass                              = MCBUR2;                                               // Hurley et al. (2000)
     m_PulsarMagneticFieldDecayAccretionIndex                        = 1.0;                                                  // Shibazaki et al. (1989)
     m_MatchHertzsprungGapCoreMass                                   = false;
 
@@ -1484,6 +1486,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "compact-accretor-thermal-mass-transfer-duration-factor",
             po::value<double>(&p_Options->m_CompactAccretorThermalMTDurationFactor)->default_value(p_Options->m_CompactAccretorThermalMTDurationFactor),
             ("Duration of accretion onto a compact accretor during stable thermal-timescale mass transfer, in units of the donor's thermal timescale at onset, for --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION (default = " + std::to_string(p_Options->m_CompactAccretorThermalMTDurationFactor) + ")").c_str()
+        )
+        (
+            "electron-capture-supernova-minimum-core-mass",
+            po::value<double>(&p_Options->m_ElectronCaptureSNMinimumCoreMass)->default_value(p_Options->m_ElectronCaptureSNMinimumCoreMass),
+            ("Lower edge of the electron-capture SN window (Msol). When > 0, the window is tested on the helium-core mass at the end of core helium burning (McBAGB; for a naked helium star its initial mass), and a stripped star (former mass-transfer donor) below it does not explode but leaves an ONe WD (default = " + std::to_string(p_Options->m_ElectronCaptureSNMinimumCoreMass) + ")").c_str()
+        )
+        (
+            "electron-capture-supernova-maximum-core-mass",
+            po::value<double>(&p_Options->m_ElectronCaptureSNMaximumCoreMass)->default_value(p_Options->m_ElectronCaptureSNMaximumCoreMass),
+            ("Upper edge of the electron-capture SN window (Msol; Hurley et al. 2000: 2.25): above it a supernova is a core-collapse SN (default = " + std::to_string(p_Options->m_ElectronCaptureSNMaximumCoreMass) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-accretion-index",
@@ -3059,6 +3071,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsationalPairInstabilityUpperLimit < m_PulsationalPairInstabilityLowerLimit, "Pulsational pair instability upper limit below lower limit (--PPI-upper-limit < --PPI-lower-limit)) ")    // upper limit should be higher than lower limit
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
+        COMPLAIN_IF(m_ElectronCaptureSNMinimumCoreMass >= m_ElectronCaptureSNMaximumCoreMass, "ECSN window: --electron-capture-supernova-minimum-core-mass must be below --electron-capture-supernova-maximum-core-mass");
         COMPLAIN_IF(m_PulsarMagneticFieldDecayAccretionIndex <= 0.0, "Accretion-induced field decay index (--pulsar-magnetic-field-decay-accretion-index) must be > 0");
         COMPLAIN_IF(m_CompactAccretorThermalMTDurationFactor <= 0.0, "Compact accretor thermal MT duration factor (--compact-accretor-thermal-mass-transfer-duration-factor) must be > 0");
         COMPLAIN_IF(m_UltraStrippedMaximumHeliumEnvelopeMass < 0.0, "Ultra-stripped maximum helium envelope mass (--ultra-stripped-maximum-helium-envelope-mass) must be >= 0");

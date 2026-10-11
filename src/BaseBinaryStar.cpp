@@ -2210,8 +2210,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
 
                 if (OPTIONS->CompactAccretorThermalMT() == COMPACT_ACCRETOR_THERMAL_MT::EXTENDED_ACCRETION &&
                     m_MassTransferTimescale == MT_TIMESCALE::THERMAL &&
-                    m_Accretor->IsOneOf({ STELLAR_TYPE::HELIUM_WHITE_DWARF, STELLAR_TYPE::CARBON_OXYGEN_WHITE_DWARF, STELLAR_TYPE::OXYGEN_NEON_WHITE_DWARF,
-                                          STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE })) {                            // EXTENDED_ACCRETION: the accretor accretes at its
+                    m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE })) {                                // EXTENDED_ACCRETION (NS/BH accretors only): the accretor accretes at its
                     double tX       = OPTIONS->CompactAccretorThermalMTDurationFactor() * m_Donor->CalculateThermalTimescale();  // maximum acceptance rate (at the thermal rate)
                     double accRate  = m_FractionAccreted * donorMassLossRateThermal;                                            // for t_X = f x tau_KH(onset) (Msol/Myr, Myr)
 

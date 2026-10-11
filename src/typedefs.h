@@ -369,7 +369,7 @@ const COMPASUnorderedMap<CASE_BB_ACCRETION, std::string> CASE_BB_ACCRETION_LABEL
     { CASE_BB_ACCRETION::TAURIS2015,        "TAURIS2015" }
 };
 
-// stable thermal-timescale mass transfer from a donor with a core onto a compact accretor (WD, NS, BH)
+// stable thermal-timescale mass transfer from a donor with a core onto a compact accretor (WD, NS, BH); EXTENDED_ACCRETION applies to NS and BH accretors only
 // ENVELOPE_REMOVAL: the whole envelope is removed in one step (default; as for all other accretors)
 // EXTENDED_ACCRETION: the envelope is removed in one step (mass and orbit as ENVELOPE_REMOVAL), but the accretor accretes at its
 //               maximum acceptance rate (Eddington for a NS) for t_X = f x tau_KH(onset) (--compact-accretor-thermal-mass-transfer-
