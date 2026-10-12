@@ -1820,6 +1820,16 @@
 //                                       - New option --magnetic-braking-require-radiative-core (default FALSE): no magnetic braking for fully convective MS stars
 //                                         (M <= 0.35 Msol), as in MESA's default.
 //                                       - With the defaults (and with RVJ83), results are unchanged.
+//  03.41.00  SS - October 13, 2026      - Enhancement:
+//                                       - New option --natal-kick-for-AIC (default TRUE): neutron stars formed by accretion-induced collapse receive natal kicks drawn as
+//                                         for electron-capture supernovae (--kick-magnitude-sigma-ECSN and the chosen --kick-magnitude-distribution; with LOGNORMAL a
+//                                         Maxwellian with the ECSN sigma). FALSE gives AIC neutron stars no natal kick, as before (WhiteDwarfs::ResolveAIC() set the kick to
+//                                         zero and never drew one). Changes results for AIC neutron stars with the defaults.
+//                                       - Defect repairs:
+//                                         - The option --natal-kick-for-PPISN (documented, Options::m_NatalKickForPPISN) was not registered, so COMPAS rejected it as an
+//                                           unrecognised option: adding --msps-from-aic had replaced its registration. Both options are now registered.
+//                                         - Corrected the help text of --msps-from-aic, which was the PPISN natal-kick text; it now states that the birth spin period and
+//                                           magnetic field of AIC neutron stars are drawn from the MSP birth distributions.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1831,7 +1841,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.40.00";
+const std::string VERSION_STRING = "03.41.00";
 
 
 # endif // __changelog_h__

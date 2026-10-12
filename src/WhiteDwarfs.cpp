@@ -333,7 +333,9 @@ void WhiteDwarfs::ResolveShellChange(const double p_AccretedMass) {
  *
  * An AIC of a WD results in a NS, which we are 
  * here assuming to have a low mass equal to the ECSN
- * remnant NS mass, and no natal kick. 
+ * remnant NS mass. By default the NS receives a natal kick
+ * drawn as for an ECSN (--kick-magnitude-sigma-ECSN);
+ * with --natal-kick-for-AIC FALSE it receives no natal kick.
  *
  * STELLAR_TYPE ResolveAIC() 
  *
@@ -350,12 +352,16 @@ STELLAR_TYPE WhiteDwarfs::ResolveAIC() {
     SetSNHydrogenContent();                                                             // SN to be H-poor. 
 
     m_Mass                                = MECS_REM;                                   // defined in constants.h
-    
-    m_SupernovaDetails.drawnKickMagnitude = 0.0;
-    m_SupernovaDetails.kickMagnitude      = 0.0;
 
     SetSNCurrentEvent(SN_EVENT::AIC);                                                   // AIC happening now
     SetSNPastEvent(SN_EVENT::AIC);                                                      // ... and will be a past event
+
+    if (OPTIONS->NatalKickForAIC())                                                     // natal kick as for an ECSN (default)?
+        CalculateSNKickMagnitude(m_Mass, m_SupernovaDetails.totalMassAtCOFormation - m_Mass, STELLAR_TYPE::NEUTRON_STAR); // yes
+    else {                                                                              // no - no natal kick
+        m_SupernovaDetails.drawnKickMagnitude = 0.0;
+        m_SupernovaDetails.kickMagnitude      = 0.0;
+    }
 
     return STELLAR_TYPE::NEUTRON_STAR;
 }

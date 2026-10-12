@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.41.00 October 13, 2026**
+
+* New option ``--natal-kick-for-AIC`` (default TRUE): neutron stars formed by accretion-induced collapse now receive natal kicks drawn as for
+  electron-capture supernovae (``--kick-magnitude-sigma-ECSN``); ``--natal-kick-for-AIC FALSE`` restores the previous zero kicks.
+* ``--natal-kick-for-PPISN`` is accepted again (it had been dropped from the option parser when ``--msps-from-aic`` was added), and the help text of
+  ``--msps-from-aic`` is corrected.
+
 **03.40.00 October 12, 2026**
 
 * New magnetic braking laws for ``--magnetic-braking-prescription``: ``IT03`` (Ivanova & Taam 2003), ``MATT15`` (Matt et al. 2015), ``GARRAFFO18`` (Garraffo et al. 2018)

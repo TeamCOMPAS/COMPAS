@@ -697,6 +697,7 @@ private:
         "msp-birth-spin-period-distribution",
         "mode",
 
+        "natal-kick-for-AIC",
         "natal-kick-for-PPISN",
         "notes",
         "notes-hdrs",
@@ -818,6 +819,7 @@ private:
         "mass-change-fraction",
         "mode",
 
+        "natal-kick-for-AIC",
         "natal-kick-for-PPISN",
         "notes",
         "notes-hdrs",
@@ -898,6 +900,7 @@ public:
 
             bool                                                m_MSPsFromAIC;                                                  // Flag if we allow MSPs to form directly after AICs. 
 
+            bool                                                m_NatalKickForAIC;                                              // Flag if AIC neutron stars should receive natal kicks as for ECSN (FALSE: no natal kick)
             bool                                                m_NatalKickForPPISN;                                            // Flag if PPISN remnant should receive a non-zero natal kick
 
             bool                                                m_DetailedOutput;                                               // Print detailed output details to file (default = false)
@@ -1778,6 +1781,7 @@ public:
     double                                      MullerMandelSigmaKickBH() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-BH", m_MullerMandelSigmaKickBH, true); }
     double                                      MullerMandelSigmaKickNS() const                                         { return OPT_VALUE("muller-mandel-sigma-kick-NS", m_MullerMandelSigmaKickNS, true); }
 
+    bool                                        NatalKickForAIC() const                                                 { return OPT_VALUE("natal-kick-for-AIC", m_NatalKickForAIC, true); }
     bool                                        NatalKickForPPISN() const                                               { return OPT_VALUE("natal-kick-for-PPISN", m_NatalKickForPPISN, false); }
     NEUTRINO_MASS_LOSS_PRESCRIPTION             NeutrinoMassLossAssumptionBH() const                                    { return OPT_VALUE("neutrino-mass-loss-BH-formation", m_NeutrinoMassLossAssumptionBH.type, true); }
     double                                      NeutrinoMassLossValueBH() const                                         { return OPT_VALUE("neutrino-mass-loss-BH-formation-value", m_NeutrinoMassLossValueBH, true); }

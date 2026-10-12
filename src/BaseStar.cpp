@@ -4054,7 +4054,10 @@ double BaseStar::CalculateSNKickMagnitude(const double p_RemnantMass, const doub
 			    sigma = OPTIONS->KickMagnitudeDistributionSigmaForUSSN();
                 break;
 
-		    case SN_EVENT::AIC:                                                                     // AIC have 0 kick 
+		    case SN_EVENT::AIC:                                                                     // AIC: as ECSN unless --natal-kick-for-AIC FALSE (then 0)
+			    sigma = OPTIONS->NatalKickForAIC() ? OPTIONS->KickMagnitudeDistributionSigmaForECSN() : 0.0;
+                break;
+
 		    case SN_EVENT::SNIA:                                                                    // SNIA have 0 kick 
 		    case SN_EVENT::HeSD:                                                                    // HeSD have 0 kick 
 			    sigma = 0.0;

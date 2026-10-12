@@ -929,6 +929,8 @@ enum class PROGRAM_OPTION: int {
 
     MSPS_FROM_AIC,
 
+    NATAL_KICK_FOR_AIC,
+
     MSP_MAGNETIC_FIELD_DISTRIBUTION,
     MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX,
     MSP_MAGNETIC_FIELD_DISTRIBUTION_MIN,
@@ -1184,6 +1186,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                   "MINIMUM_SAMPLED_SECONDARY_MASS" },
 
     { PROGRAM_OPTION::MSPS_FROM_AIC,                                    "MSPS_FROM_AIC" },
+
+    { PROGRAM_OPTION::NATAL_KICK_FOR_AIC,                               "NATAL_KICK_FOR_AIC" },
 
     { PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION,                  "MSP_MAGNETIC_FIELD_DISTRIBUTION" },
     { PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX,              "MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX" },
@@ -1805,6 +1809,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS,                           { TYPENAME::DOUBLE,     "PO_Min_Sampled_Secondary_Mass",             "Msol",      24, 15}},
 
     { PROGRAM_OPTION::MSPS_FROM_AIC,                                            { TYPENAME::BOOL,       "MSPS_From_AIC",                             "Flag",       0,  0}},
+
+    { PROGRAM_OPTION::NATAL_KICK_FOR_AIC,                                       { TYPENAME::BOOL,       "Natal_Kick_For_AIC",                        "Flag",       0,  0}},
     
     { PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION,                          { TYPENAME::INT,        "PO_MSP_Mag_Field_Dstrbtn",               "-",          4, 1 }},
     { PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX,                      { TYPENAME::DOUBLE,     "PO_MSP_Mag_Field_Dstrbtn_Max",           "Gauss",     24, 15}},

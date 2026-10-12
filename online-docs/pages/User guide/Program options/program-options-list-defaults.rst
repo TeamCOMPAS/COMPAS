@@ -666,7 +666,7 @@ inconsistent black hole kicks may be applied rescaled by fallback fractions). |b
 ``LOGNORMAL`` applies kicks drawn from the Disberg & Mandel 2025 log-normal distribution to core-collapse supernovae (and pulsational pair-instability
 supernovae with ``--natal-kick-for-PPISN``; parameters ``--kick-magnitude-lognormal-mu``, ``--kick-magnitude-lognormal-sigma``,
 ``--kick-magnitude-lognormal-max``); electron-capture and ultra-stripped supernovae get Maxwellian kicks with ``--kick-magnitude-sigma-ECSN`` and
-``--kick-magnitude-sigma-USSN``. |br|
+``--kick-magnitude-sigma-USSN``, and accretion-induced collapse the ECSN kicks (see ``--natal-kick-for-AIC``). |br|
 Default = MULLERMANDEL
 
 **--kick-magnitude-lognormal-max** |br|
@@ -1132,6 +1132,12 @@ Default = 0.45
 .. _options-props-N:
 
 :ref:`Back to Top <options-props-top>`
+
+**--natal-kick-for-AIC** |br|
+TRUE indicates neutron stars formed by accretion-induced collapse of a WD receive natal kicks drawn as for electron-capture supernovae
+(``--kick-magnitude-sigma-ECSN`` with the chosen ``--kick-magnitude-distribution``; with ``LOGNORMAL``, a Maxwellian with the ECSN sigma). |br|
+FALSE indicates they receive no natal kick (their orbits still respond to the mass lost at collapse). |br|
+Default = TRUE
 
 **--natal-kick-for-PPISN**
 TRUE indicates PPISN remnants will receive natal kicks via the same prescription as CCSN remnants. |br|

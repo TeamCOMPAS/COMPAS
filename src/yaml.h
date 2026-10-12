@@ -97,6 +97,7 @@ namespace yaml {
             "    --enable-rotationally-enhanced-mass-loss",
             "    --enhance-CHE-lifetimes-luminosities",
             "    --expel-convective-envelope-above-luminosity-threshold",
+            "    --natal-kick-for-AIC",
             "    --natal-kick-for-PPISN",
             "    --scale-CHE-mass-loss-with-surface-helium-abundance",
             "",

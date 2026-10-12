@@ -209,6 +209,7 @@ void Options::OptionValues::Initialise() {
 
     m_MSPsFromAIC                                                   = false;
 
+    m_NatalKickForAIC                                               = true;
     m_NatalKickForPPISN                                             = false;
 
     m_DetailedOutput                                                = false;
@@ -1039,7 +1040,19 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "msps-from-aic",
             po::value<bool>(&p_Options->m_MSPsFromAIC)->default_value(p_Options->m_MSPsFromAIC)->implicit_value(true),
-            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_MSPsFromAIC ? "TRUE" : "FALSE") + ")").c_str()
+            ("Draw the birth spin period and magnetic field of neutron stars formed by accretion-induced collapse from the MSP birth distributions (--msp-birth-spin-period-distribution, --msp-birth-magnetic-field-distribution) (default = " + std::string(p_Options->m_MSPsFromAIC ? "TRUE" : "FALSE") + ")").c_str()
+        )
+
+        (
+            "natal-kick-for-AIC",
+            po::value<bool>(&p_Options->m_NatalKickForAIC)->default_value(p_Options->m_NatalKickForAIC)->implicit_value(true),
+            ("Give neutron stars formed by accretion-induced collapse natal kicks as for electron-capture supernovae; FALSE gives them no natal kick (default = " + std::string(p_Options->m_NatalKickForAIC ? "TRUE" : "FALSE") + ")").c_str()
+        )
+
+        (
+            "natal-kick-for-PPISN",
+            po::value<bool>(&p_Options->m_NatalKickForPPISN)->default_value(p_Options->m_NatalKickForPPISN)->implicit_value(true),
+            ("Give non-zero natal kicks to PPISN remnants (default = " + std::string(p_Options->m_NatalKickForPPISN ? "TRUE" : "FALSE") + ")").c_str()
         )
 
         (
@@ -5427,6 +5440,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MINIMUM_SAMPLED_SECONDARY_MASS                 : value = MinimumSampledSecondaryMass();                                        break;
 
         case PROGRAM_OPTION::MSPS_FROM_AIC                                  : value = MSPsFromAIC();                                                        break;
+
+        case PROGRAM_OPTION::NATAL_KICK_FOR_AIC                             : value = NatalKickForAIC();                                                    break;
 
         case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION                : value = static_cast<int>(MSPBirthMagneticFieldDistribution());                break;
         case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX            : value = MSPBirthMagneticFieldDistributionMax();                               break;
