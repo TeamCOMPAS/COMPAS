@@ -1830,6 +1830,11 @@
 //                                           unrecognised option: adding --msps-from-aic had replaced its registration. Both options are now registered.
 //                                         - Corrected the help text of --msps-from-aic, which was the PPISN natal-kick text; it now states that the birth spin period and
 //                                           magnetic field of AIC neutron stars are drawn from the MSP birth distributions.
+//  03.41.01  SS - October 13, 2026      - Defect repairs:
+//                                       - Options::m_RangeExcluded lacked commas after "allow-non-stripped-ECSN" and "evolve-double-white-dwarfs", so each pair of names was
+//                                         concatenated into one string and four options were missing from the list (no effect in practice: ranges of these boolean
+//                                         options are already rejected). Results are unchanged.
+//                                       - Documentation: the default of --natal-kick-for-PPISN is FALSE (as in the code), not TRUE.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1841,7 +1846,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.41.00";
+const std::string VERSION_STRING = "03.41.01";
 
 
 # endif // __changelog_h__

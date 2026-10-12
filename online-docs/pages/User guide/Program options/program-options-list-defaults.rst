@@ -1139,10 +1139,10 @@ TRUE indicates neutron stars formed by accretion-induced collapse of a WD receiv
 FALSE indicates they receive no natal kick (their orbits still respond to the mass lost at collapse). |br|
 Default = TRUE
 
-**--natal-kick-for-PPISN**
+**--natal-kick-for-PPISN** |br|
 TRUE indicates PPISN remnants will receive natal kicks via the same prescription as CCSN remnants. |br|
 FALSE indicates PPISN remnants will receive no natal kicks. |br|
-Default = TRUE  
+Default = FALSE  
 
 **--neutrino-mass-loss-BH-formation** |br|
 Assumption about neutrino mass loss during BH formation (works with `FRYER2012` or `FRYER2022` ``--remnant-mass-prescription``, but not `MULLERMANDEL`). |br|

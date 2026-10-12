@@ -602,7 +602,7 @@ private:
 
         "add-options-to-sysparms",
 
-        "allow-non-stripped-ECSN"
+        "allow-non-stripped-ECSN",
         "allow-rlof-at-birth",
         "allow-touching-at-birth",
         "angular-momentum-conservation-during-circularisation",
@@ -632,7 +632,7 @@ private:
         "enhance-CHE-lifetimes-luminosities",
         "envelope-state-prescription",
         "errors-to-file",
-        "evolve-double-white-dwarfs"
+        "evolve-double-white-dwarfs",
         "evolve-pulsars",
         "evolve-unbound-systems",
 
