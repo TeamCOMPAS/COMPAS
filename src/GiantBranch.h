@@ -23,6 +23,9 @@ public:
     
     double          CalculateRemnantRadius() const;
 
+    static  double  CalculateLuminosityAtPhaseBase_Static(const double p_Mass, const DBL_VECTOR &p_AnCoefficients);
+    static  double  CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity, const DBL_VECTOR &p_BnCoefficients);
+
 protected:
 
 
@@ -63,7 +66,6 @@ protected:
                                                                    const double      p_MHeF,
                                                                    const DBL_VECTOR &p_BnCoefficients);
 
-    static  double          CalculateLuminosityAtPhaseBase_Static(const double p_Mass, const DBL_VECTOR &p_AnCoefficients);
     static  double          CalculateLuminosityOnZAHB_Static(const double      p_Mass,
                                                              const double      p_CoreMass,
                                                              const double      p_Alpha1,
@@ -103,7 +105,6 @@ protected:
             double          CalculateRadiusOnMassChange(double p_dM)                                        { return CalculateRadiusOnPhase(m_Mass + p_dM, m_Luminosity); }
     virtual double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients); }
             double          CalculateRadiusOnPhase() const                                                  { return CalculateRadiusOnPhase(m_Mass, m_Luminosity); }
-    static  double          CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity, const DBL_VECTOR &p_BnCoefficients);
     static  double          CalculateRadiusOnZAHB_Static(const double      p_Mass,
                                                          const double      p_CoreMass,
                                                          const double      p_Alpha1,

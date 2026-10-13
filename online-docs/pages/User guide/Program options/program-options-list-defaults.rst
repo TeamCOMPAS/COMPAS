@@ -934,6 +934,19 @@ Default = LINEAR
 ZAMS mass (:math:`M_\odot`) above which (inclusive) the ``BRCEK`` main sequence core mass prescription is applied when ``--main-sequence-core-mass-prescription BRCEK`` is used; lower-mass stars use the ``MANDEL`` prescription. Must be > 0.7. |br|
 Default = 1.5
 
+**--main-sequence-convective-envelope-prescription** |br|
+Mass and radial extent of the outer convective envelope of main sequence stars, used by magnetic braking, tides, the eddy turnover time and
+the two-stage common envelope. |br|
+Options: { HURLEY2000, HURLEY2002, MIST } |br|
+``HURLEY2000``: Hurley, Pols & Tout (2000) section 7.2: :math:`M_{\rm env} = 0.35 (1.25 - M)^2 / 0.81 \, (1-\tau)^{1/4}` for 0.35-1.25 :math:`M_\odot`,
+fully convective below 0.35 :math:`M_\odot` and no convective envelope above 1.25 :math:`M_\odot`. |br|
+``HURLEY2002``: Hurley, Tout & Pols (2002) as in the BSE/SSE subroutine ``mrenv``: the envelope deepens as the effective temperature approaches
+that of the base of the giant branch, growing from its zero-age value towards the end of the main sequence (fits for Z = 0.02). |br|
+``MIST``: MIST v2.5 solar-metallicity tracks: the mass of the outermost convective zone, tabulated against mass (0.7-1.7 :math:`M_\odot`) and
+fractional main sequence age; fully convective below 0.35 :math:`M_\odot` (log of the fraction interpolated in between), none above 1.7
+:math:`M_\odot`. The radial extent uses the BSE relation :math:`R_{\rm env}/R = 0.65 (M_{\rm env}/0.5 M)^{1/4}`. |br|
+Default = HURLEY2000
+
 **--main-sequence-core-mass-prescription** |br|
 Main sequence core mass prescription. |br|
 Options: {HURLEY, MANDEL, BRCEK} |br|
@@ -1772,7 +1785,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-convective-envelope-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 

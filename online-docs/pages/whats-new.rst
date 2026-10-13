@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.43.00 October 14, 2026**
+
+* New option ``--main-sequence-convective-envelope-prescription`` (``HURLEY2000``, the default and previous behaviour; ``HURLEY2002``, as in BSE;
+  ``MIST``, from MIST v2.5 tracks) for the convective envelopes of main sequence stars, which set magnetic braking, tides and the two-stage common
+  envelope. ``HURLEY2000`` has no convective envelope above 1.25 Msol and a shrinking one towards the end of the main sequence; in BSE and MIST
+  the envelope deepens towards the end of the main sequence and 1.2-1.5 Msol stars keep a thin one.
+
 **03.42.02 October 14, 2026**
 
 * Single-star defect repairs found by comparing with Hurley's SSE code and BSE: stars of 1.125 Msol to the helium-flash mass that lost any mass

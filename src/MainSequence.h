@@ -34,6 +34,8 @@ protected:
     double          CalculateConvectiveCoreMass() const;
     double          CalculateConvectiveCoreRadius() const;
     DBL_DBL         CalculateConvectiveEnvelopeMass() const;
+    std::tuple<double, double, double> CalculateConvectiveEnvelopeHurley2002() const;
+    static double   CalculateConvectiveEnvelopeMassFractionMIST(const double p_Mass, const double p_Tau);
     double          CalculateBetaL(const double p_Mass) const;
     double          CalculateBetaR(const double p_Mass) const;
 

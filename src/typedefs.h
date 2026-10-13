@@ -445,6 +445,16 @@ const COMPASUnorderedMap<CORE_MASS_PRESCRIPTION, std::string> CORE_MASS_PRESCRIP
     { CORE_MASS_PRESCRIPTION::BRCEK,  "BRCEK" }
 };
 
+// main sequence convective envelope (mass and radial extent of the outer convective zone; used by magnetic braking, tides and the
+// two-stage common envelope): HURLEY2000 = Hurley, Pols & Tout (2000) section 7.2 (none above 1.25 Msol, shrinking as (1 - tau)^1/4);
+// HURLEY2002 = Hurley, Tout & Pols (2002) as in BSE/SSE subroutine mrenv; MIST = MIST v2.5 solar tracks (table in constants.h)
+enum class MS_CONVECTIVE_ENVELOPE_PRESCRIPTION: int { HURLEY2000, HURLEY2002, MIST };
+const COMPASUnorderedMap<MS_CONVECTIVE_ENVELOPE_PRESCRIPTION, std::string> MS_CONVECTIVE_ENVELOPE_PRESCRIPTION_LABEL = {
+    { MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2000, "HURLEY2000" },
+    { MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2002, "HURLEY2002" },
+    { MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::MIST,       "MIST" }
+};
+
 // main sequence core hydrogen prescription (for stars whose core composition is not evolved by the BRCEK core mass prescription)
 enum class CORE_HYDROGEN_PRESCRIPTION: int { LINEAR, MIST };
 const COMPASUnorderedMap<CORE_HYDROGEN_PRESCRIPTION, std::string> CORE_HYDROGEN_PRESCRIPTION_LABEL = {

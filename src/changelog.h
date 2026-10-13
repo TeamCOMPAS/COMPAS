@@ -1873,6 +1873,14 @@
 //                                         removing the whole envelope).
 //                                       - Single stars now agree with SSE to <= 1e-8 dex on the MS and HG, CHeB lifetimes match, and stripped HG/GB stars reproduce SSE's
 //                                         HG end times, Mass0 and He-WD masses to <= 0.003 Msol (work/msp/sse_audit). Changes results.
+//  03.43.00  SS - October 14, 2026      - Enhancement:
+//                                       - New option --main-sequence-convective-envelope-prescription (HURLEY2000 (default), HURLEY2002, MIST) for the mass and radial extent of
+//                                         the outer convective envelope of MS stars (magnetic braking, tides, eddy turnover time, two-stage CE):
+//                                         HURLEY2000 = Hurley et al. (2000) section 7.2 as before (none above 1.25 Msol, shrinking as (1 - tau)^1/4; added in 02.43.03);
+//                                         HURLEY2002 = Hurley et al. (2002) as in BSE/SSE mrenv (deepens towards the TAMS; e.g. q = 0.0068-0.014 at 1.2 Msol);
+//                                         MIST = MIST v2.5 solar tracks (MIST_MS_LOG_QCONV, 0.7-1.7 Msol; deepens towards the TAMS; 3e-4-1e-3 at 1.4 Msol).
+//                                         Made GiantBranch::CalculateLuminosityAtPhaseBase_Static() and CalculateRadiusOnPhase_Static() public. With the default,
+//                                         results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1884,7 +1892,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.42.02";
+const std::string VERSION_STRING = "03.43.00";
 
 
 # endif // __changelog_h__

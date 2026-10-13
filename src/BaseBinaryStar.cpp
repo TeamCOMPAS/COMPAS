@@ -3262,7 +3262,7 @@ void BaseBinaryStar::EmitGravitationalWave(const double p_Dt) {
  * Magnetic braking requires a convective envelope.  Following Podsiadlowski, Rappaport & Pfahl (2002), the torque
  * is reduced by a factor exp(1 - 0.02/qconv) when the fractional mass of the convective envelope, qconv, is below
  * 0.02, which switches magnetic braking off smoothly for stars with (nearly) radiative envelopes.  The convective
- * envelope mass is taken from the star's CalculateConvectiveEnvelopeMass() (Hurley et al. 2000 for MS stars,
+ * envelope mass is taken from the star's CalculateConvectiveEnvelopeMass() (for MS stars per --main-sequence-convective-envelope-prescription,
  * Picker et al. 2024 for giants).  Fully convective stars are not treated differently ("disrupted" magnetic
  * braking is not implemented).
  *

@@ -683,6 +683,7 @@ private:
         "magnetic-braking-prescription",
         "magnetic-braking-require-radiative-core",
         "main-sequence-core-hydrogen-prescription",
+        "main-sequence-convective-envelope-prescription",
         "main-sequence-core-mass-prescription",
         "main-sequence-degenerate-radius",
         "maltsev-mode",
@@ -1108,6 +1109,7 @@ public:
             bool                                                m_RetainCoreMassDuringCaseAMassTransfer;                        // Whether to retain the approximate core mass of a case A donor as a minimum core at end of MS or HeMS (default = false)
 
             ENUM_OPT<CORE_MASS_PRESCRIPTION>                    m_MainSequenceCoreMassPrescription;                             // Which MS core prescription
+            ENUM_OPT<MS_CONVECTIVE_ENVELOPE_PRESCRIPTION>       m_MainSequenceConvectiveEnvelopePrescription;                   // Which MS convective envelope prescription
             double                                              m_MainSequenceCoreMassBrcekMinimumMass;                         // ZAMS mass (Msol) above which (inclusive) the BRCEK core mass prescription is applied
             ENUM_OPT<CORE_HYDROGEN_PRESCRIPTION>                m_MainSequenceCoreHydrogenPrescription;                         // Which MS core hydrogen prescription (stars not using BRCEK)
             bool                                                m_RetainExhaustedCoreEvolution;                                 // Whether MS stars that lose mass after core hydrogen exhaustion retain their remaining MS lifetime and core growth
@@ -1712,6 +1714,7 @@ public:
     CORE_HYDROGEN_PRESCRIPTION                  MainSequenceCoreHydrogenPrescription() const                            { return OPT_VALUE("main-sequence-core-hydrogen-prescription", m_MainSequenceCoreHydrogenPrescription.type, true); }
     double                                      MainSequenceCoreMassBrcekMinimumMass() const                            { return OPT_VALUE("main-sequence-core-mass-brcek-minimum-mass", m_MainSequenceCoreMassBrcekMinimumMass, true); }
     CORE_MASS_PRESCRIPTION                      MainSequenceCoreMassPrescription() const                                { return OPT_VALUE("main-sequence-core-mass-prescription", m_MainSequenceCoreMassPrescription.type, true); }
+    MS_CONVECTIVE_ENVELOPE_PRESCRIPTION         MainSequenceConvectiveEnvelopePrescription() const                      { return OPT_VALUE("main-sequence-convective-envelope-prescription", m_MainSequenceConvectiveEnvelopePrescription.type, true); }
     bool                                        MainSequenceDegenerateRadius() const                                    { return OPT_VALUE("main-sequence-degenerate-radius", m_MainSequenceDegenerateRadius, true); }
 
     double                                      MaltsevFallback() const                                                 { return OPT_VALUE("maltsev-fallback", m_MaltsevFallback, true); }

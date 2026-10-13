@@ -713,6 +713,23 @@ double MainSequence::CalculateRadiusTransitionToHG(const double p_Mass, const do
  * @return                                      Radial extent of the star's convective envelope in Rsol
  */
 double MainSequence::CalculateRadialExtentConvectiveEnvelope() const {
+
+    switch (OPTIONS->MainSequenceConvectiveEnvelopePrescription()) {
+        case MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2002: {                         // BSE mrenv
+            double radiusEnvelope;
+            std::tie(std::ignore, std::ignore, radiusEnvelope) = CalculateConvectiveEnvelopeHurley2002();
+            return radiusEnvelope;
+        }
+        case MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::MIST: {                               // MIST has no radial extent: use the BSE relation between the two,
+                                                                                        // R_env / R = 0.65 (q / 0.5)^1/4 (gives 0.29 R for the Sun's q = 0.02)
+            double q = CalculateConvectiveEnvelopeMassFractionMIST(m_Mass, m_Tau);
+            if (utils::Compare(q, 1.0) >= 0) return m_Radius;                           // fully convective
+            return m_Radius * std::min(1.0, 0.65 * PPOW(q / 0.5, 0.25));
+        }
+        case MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2000:
+        default: break;                                                                 // below
+    }
+
     double radiusEnvelope0 = m_Radius;
 
     if ( utils::Compare(m_Mass, 1.25) >= 0)
@@ -794,14 +811,127 @@ double MainSequence::CalculateConvectiveCoreMass() const {
  * @return                                      Tuple containing current mass of convective envelope and mass at ZAMS in Msol
  */
 DBL_DBL MainSequence::CalculateConvectiveEnvelopeMass() const {
-    if (utils::Compare(m_Mass, 1.25) > 0) return std::tuple<double, double> (0.0, 0.0);
 
-    double massEnvelope0 = m_Mass;
-    if (utils::Compare(m_Mass, 0.35) > 0) massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
-    
-    double massEnvelope  = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
-    
-    return std::tuple<double, double> (massEnvelope, massEnvelope0);
+    switch (OPTIONS->MainSequenceConvectiveEnvelopePrescription()) {
+
+        case MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2002: {                         // Hurley, Tout & Pols (2002), BSE mrenv
+            double massEnvelope, massEnvelope0;
+            std::tie(massEnvelope, massEnvelope0, std::ignore) = CalculateConvectiveEnvelopeHurley2002();
+            return std::tuple<double, double> (massEnvelope, std::max(massEnvelope, massEnvelope0));
+        }
+
+        case MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::MIST: {                               // MIST v2.5 table; the envelope deepens towards the TAMS, so the
+                                                                                        // maximum is the larger of the ZAMS and TAMS values
+            double massEnvelope    = CalculateConvectiveEnvelopeMassFractionMIST(m_Mass, m_Tau) * m_Mass;
+            double massEnvelopeMax = std::max(CalculateConvectiveEnvelopeMassFractionMIST(m_Mass, 0.0), CalculateConvectiveEnvelopeMassFractionMIST(m_Mass, 1.0)) * m_Mass;
+            return std::tuple<double, double> (massEnvelope, std::max(massEnvelope, massEnvelopeMax));
+        }
+
+        case MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2000:                           // Hurley, Pols & Tout (2000) section 7.2
+        default: {
+            if (utils::Compare(m_Mass, 1.25) > 0) return std::tuple<double, double> (0.0, 0.0);
+
+            double massEnvelope0 = m_Mass;
+            if (utils::Compare(m_Mass, MS_FULLY_CONVECTIVE_MASS) > 0) massEnvelope0 = 0.35 * (1.25 - m_Mass) * (1.25 - m_Mass) / 0.81;
+
+            double massEnvelope  = massEnvelope0 * sqrt(sqrt(1.0 - m_Tau));
+
+            return std::tuple<double, double> (massEnvelope, massEnvelope0);
+        }
+    }
+}
+
+
+/*
+ * Calculate the convective envelope of a main sequence star following Hurley, Tout & Pols (2002), as implemented in the
+ * BSE/SSE subroutine mrenv (stellar types 0 and 1)
+ *
+ * The envelope appears and deepens as the effective temperature approaches that of the base of the giant branch
+ * (tau_env = (Teff_BGB / Teff - A) / (1 - A)), and on the MS it moves from its zero-age value (a fit in mass) towards its
+ * TAMS value as tau^y.  BSE notes that the fits are for Z = 0.02.  The mass and radial extent are floored at 1e-10, as in BSE.
+ *
+ *
+ * std::tuple<double, double, double> CalculateConvectiveEnvelopeHurley2002()
+ *
+ * @return                                      Tuple: convective envelope mass, its zero-age value (Msol), radial extent (Rsol)
+ */
+std::tuple<double, double, double> MainSequence::CalculateConvectiveEnvelopeHurley2002() const {
+
+    double logM    = log10(m_Mass0);                                                   // BSE: zero-age (effective initial) mass
+    double A       = std::min(0.81, std::max(0.68, 0.68 + 0.4 * logM));
+
+    double LBGB    = GiantBranch::CalculateLuminosityAtPhaseBase_Static(m_Mass0, m_AnCoefficients);
+    double RBGB    = GiantBranch::CalculateRadiusOnPhase_Static(m_Mass, LBGB, m_BnCoefficients);   // BSE rg = rgbf(mt, lums(3))
+    double TeffBGB = std::sqrt(std::sqrt(LBGB) / RBGB);                                 // relative effective temperatures, as in BSE
+    double Teff    = std::sqrt(std::sqrt(m_Luminosity) / m_Radius);
+    double tauEnv  = std::max(0.0, std::min(1.0, (TeffBGB / Teff - A) / (1.0 - A)));
+
+    double x       = std::max(0.0, std::min(1.0, (0.1 - logM) / 0.55));               // zero-age values
+    double mEnvZ   = 0.18 * x + 0.82 * PPOW(x, 5.0);
+    double rEnvZ   = 0.4 * PPOW(x, 0.25) + 0.6 * PPOW(x, 10.0);
+
+    double mEnv    = 0.0;
+    double rEnv    = 0.0;
+    if (tauEnv > 0.0) {
+        mEnv = 0.5 * PPOW(tauEnv, 5.0);                                                 // BSE menvg = 0.5, renvg = 0.65 for MS stars
+        rEnv = 0.65 * PPOW(tauEnv, 1.25);
+
+        double LTMS    = CalculateLuminosityAtPhaseEnd(m_Mass0);                        // values at the TAMS
+        double RTMS    = CalculateRadiusAtPhaseEnd(m_Mass0, m_RZAMS0);
+        double tauTMS  = std::max(0.0, std::min(1.0, (TeffBGB / std::sqrt(std::sqrt(LTMS) / RTMS) - A) / (1.0 - A)));
+        if (tauTMS > 0.0) {
+            double mEnvT = 0.5 * PPOW(tauTMS, 5.0);
+            double rEnvT = 0.65 * PPOW(tauTMS, 1.25);
+            double tauY  = PPOW(std::min(std::max(m_Tau, 0.0), 1.0), 2.0 + 8.0 * x);
+            mEnv = mEnvZ + tauY * mEnv * (mEnvT - mEnvZ) / mEnvT;
+            rEnv = rEnvZ + tauY * rEnv * (rEnvT - rEnvZ) / rEnvT;
+        }
+        else {
+            mEnv = 0.0;
+            rEnv = 0.0;
+        }
+    }
+
+    return std::tuple<double, double, double> (std::max(mEnv * m_Mass, 1.0E-10), mEnvZ * m_Mass, std::max(rEnv * m_Radius, 1.0E-10));   // MS: no core
+}
+
+
+/*
+ * Convective envelope mass fraction M_conv,env / M of a main sequence star from the MIST v2.5 solar-metallicity tracks
+ * (MIST_MS_LOG_QCONV in constants.h), bilinear in mass and fractional MS age.  Below the table, log q is interpolated linearly in
+ * mass to a fully convective star at MS_FULLY_CONVECTIVE_MASS; above it there is no convective envelope.
+ *
+ *
+ * double CalculateConvectiveEnvelopeMassFractionMIST(const double p_Mass, const double p_Tau)
+ *
+ * @param   [IN]    p_Mass                      Stellar mass (Msol)
+ * @param   [IN]    p_Tau                       Fractional MS age
+ * @return                                      Convective envelope mass fraction
+ */
+double MainSequence::CalculateConvectiveEnvelopeMassFractionMIST(const double p_Mass, const double p_Tau) {
+
+    if (utils::Compare(p_Mass, MS_FULLY_CONVECTIVE_MASS) <= 0) return 1.0;            // fully convective
+    if (utils::Compare(p_Mass, MIST_MS_QCONV_MASS_MAX) > 0)    return 0.0;             // above the table: no convective envelope
+
+    double y  = std::min(std::max(p_Tau, 0.0), 1.0) * 10.0;                            // tau columns 0.0, 0.1, ... 1.0
+    int    j  = std::min(static_cast<int>(y), 9);
+    double fy = y - j;
+    auto logQAtRow = [&](const int i) { return (1.0 - fy) * MIST_MS_LOG_QCONV[i][j] + fy * MIST_MS_LOG_QCONV[i][j + 1]; };
+
+    double logQ;
+    if (utils::Compare(p_Mass, MIST_MS_QCONV_MASS_MIN) < 0) {                          // below the table: to fully convective (log q = 0)
+        double f = (p_Mass - MS_FULLY_CONVECTIVE_MASS) / (MIST_MS_QCONV_MASS_MIN - MS_FULLY_CONVECTIVE_MASS);
+        logQ     = f * logQAtRow(0);
+    }
+    else {
+        int    nRows = static_cast<int>(MIST_MS_LOG_QCONV.size());
+        double x     = (p_Mass - MIST_MS_QCONV_MASS_MIN) / MIST_MS_QCONV_MASS_STEP;
+        int    i     = std::min(static_cast<int>(x), nRows - 2);
+        double fx    = x - i;
+        logQ         = (1.0 - fx) * logQAtRow(i) + fx * logQAtRow(i + 1);
+    }
+
+    return utils::Compare(logQ, MIST_MS_QCONV_LOG_MIN) <= 0 ? 0.0 : PPOW(10.0, logQ);
 }
 
 
