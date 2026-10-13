@@ -345,6 +345,7 @@ namespace yaml {
             "    --main-sequence-core-hydrogen-prescription",
             "    --main-sequence-convective-envelope-prescription",
             "    --main-sequence-core-mass-prescription",
+            "    --stripped-giant-radius-prescription",
             "    --mass-loss-prescription",
             "    --OB-mass-loss-prescription",
             "    --RSG-mass-loss-prescription",

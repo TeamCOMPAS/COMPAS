@@ -1881,6 +1881,14 @@
 //                                         MIST = MIST v2.5 solar tracks (MIST_MS_LOG_QCONV, 0.7-1.7 Msol; deepens towards the TAMS; 3e-4-1e-3 at 1.4 Msol).
 //                                         Made GiantBranch::CalculateLuminosityAtPhaseBase_Static() and CalculateRadiusOnPhase_Static() public. With the default,
 //                                         results are unchanged.
+//  03.44.00  SS - October 14, 2026      - Enhancement:
+//                                       - New option --stripped-giant-radius-prescription (HURLEY (default), INITIAL_MASS, CALIBRATED) for the radius of stripped low-mass
+//                                         giants (HG and FGB stars with Mass0 < MHeF). Hurley's R_GB(M, L) grows as M^-0.3 as the envelope is stripped, so NS + He WD
+//                                         binaries ended 2-4x wider than Tauris & Savonije (1999) / Istrate et al. (2016) at M_WD = 0.22-0.25 (work/lit/giant_radius).
+//                                         INITIAL_MASS evaluates R_GB at Mass0; CALIBRATED multiplies R_GB by g(Mc)^w, w = (Mass0 - M)/(Mass0 - Mc) (constants
+//                                         STRIPPED_GIANT_RADIUS_*; calibrated on COMPAS runs to within ~20% of the detailed models for M_WD = 0.21-0.36). The end-of-HG
+//                                         radius uses the same factor (GiantBranch::CalculateStrippedGiantRadiusFactor()), so the radius is continuous at the start of
+//                                         the FGB. With the default, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1892,7 +1900,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.43.00";
+const std::string VERSION_STRING = "03.44.00";
 
 
 # endif // __changelog_h__

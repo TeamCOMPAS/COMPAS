@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.44.00 October 14, 2026**
+
+* New option ``--stripped-giant-radius-prescription`` (``HURLEY``, the default; ``INITIAL_MASS``; ``CALIBRATED``) for the radius of stripped
+  low-mass giants. Hurley et al. (2000) radii grow as the envelope is stripped, so NS + He WD binaries ended 2-4 times wider than detailed binary
+  models at 0.22-0.25 Msol; ``CALIBRATED`` brings their end points to within about 20% of Tauris & Savonije (1999) and Istrate et al. (2016).
+
 **03.43.00 October 14, 2026**
 
 * New option ``--main-sequence-convective-envelope-prescription`` (``HURLEY2000``, the default and previous behaviour; ``HURLEY2002``, as in BSE;

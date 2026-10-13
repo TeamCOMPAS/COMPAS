@@ -1595,6 +1595,20 @@ Default = SOBERMAN
 Enables copying of any specified grid file and/or logfile-definitios file to the COMPAS output container. |br|
 Default = TRUE
 
+**--stripped-giant-radius-prescription** |br|
+Radius of stripped low-mass giants: Hertzsprung-gap and first-giant-branch stars with :math:`M_0 < M_{\rm HeF}` (degenerate helium cores) that
+have lost envelope mass. |br|
+Options: { HURLEY, INITIAL_MASS, CALIBRATED } |br|
+``HURLEY``: the giant-branch radius :math:`R_{\rm GB}(M, L)` of Hurley et al. (2000) with the current mass, which grows as :math:`M^{-0.3}` as the
+envelope is stripped (the fit was made for unstripped giants). NS + He WD binaries then end 2-4 times wider than detailed models at
+:math:`M_{\rm WD} = 0.22-0.25\,M_\odot`. |br|
+``INITIAL_MASS``: :math:`R_{\rm GB}` evaluated at :math:`M_0` (no growth with stripping). |br|
+``CALIBRATED``: :math:`R_{\rm GB}(M, L)\, g(M_c)^w`, with :math:`w = (M_0 - M)/(M_0 - M_c)` (0 for unstripped stars, 1 when the envelope is gone)
+and :math:`\log_{10} g = -0.282 + 3.121 x + 4.587 x^2`, :math:`x = M_c - 0.25`, :math:`g \le 1` (reached at :math:`M_c = 0.336`), :math:`M_c` floored at
+0.15. Calibrated so that NS + He WD end points follow Tauris & Savonije (1999) and Istrate et al. (2016) to about 20% for
+:math:`M_{\rm WD} = 0.21-0.36\,M_\odot`. The end-of-HG radius uses the same factor, so the radius is continuous at the start of the giant branch. |br|
+Default = HURLEY
+
 **--switch-log** |br|
 Enables printing of the Switch Log logfile. |br|
 Default = FALSE
@@ -1785,7 +1799,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Stellar evolution and winds**
 
 --check-photon-tiring-limit, --cool-wind-mass-loss-multiplier, --luminous-blue-variable-prescription, --LBV-mass-loss-prescription
---luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-convective-envelope-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
+--luminous-blue-variable-multiplier, --main-sequence-core-hydrogen-prescription, --main-sequence-convective-envelope-prescription, --main-sequence-core-mass-brcek-minimum-mass, --main-sequence-core-mass-prescription, --stripped-giant-radius-prescription, --main-sequence-degenerate-radius, --retain-exhausted-core-evolution, --match-hertzsprung-gap-core-mass, --mass-loss-prescription, --overall-wind-mass-loss-multiplier, --wolf-rayet-multiplier, 
 --expel-convective-envelope-above-luminosity-threshold, --luminosity-to-mass-threshold, --scale-CHE-mass-loss-with-surface-helium-abundance
 --OB-mass-loss, --OB-mass-loss-prescription, --RSG-mass-loss, --RSG-mass-loss-prescription, --VMS-mass-loss, --vms-mass-loss-prescription, --WR-mass-loss, --WR-mass-loss-prescription
 

@@ -22,6 +22,7 @@ public:
     GiantBranch(const BaseStar &p_BaseStar) : BaseStar(p_BaseStar), MainSequence(p_BaseStar) {}
     
     double          CalculateRemnantRadius() const;
+    double          CalculateStrippedGiantRadiusFactor(const double p_Mass, const double p_Luminosity) const;
 
     static  double  CalculateLuminosityAtPhaseBase_Static(const double p_Mass, const DBL_VECTOR &p_AnCoefficients);
     static  double  CalculateRadiusOnPhase_Static(const double p_Mass, const double p_Luminosity, const DBL_VECTOR &p_BnCoefficients);

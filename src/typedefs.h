@@ -455,6 +455,16 @@ const COMPASUnorderedMap<MS_CONVECTIVE_ENVELOPE_PRESCRIPTION, std::string> MS_CO
     { MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::MIST,       "MIST" }
 };
 
+// radius of stripped low-mass giants (HG and FGB stars with Mass0 < MHeF that have lost envelope mass): HURLEY = R_GB(M, L) of Hurley et al. (2000)
+// with the current mass; INITIAL_MASS = R_GB evaluated at Mass0 (no growth of the radius as the envelope is stripped); CALIBRATED = R_GB(M, L)
+// x g(Mc)^w, fitted so that NS + He WD end points follow detailed binary models (Tauris & Savonije 1999, Istrate et al. 2016, Lin et al. 2011)
+enum class STRIPPED_GIANT_RADIUS_PRESCRIPTION: int { HURLEY, INITIAL_MASS, CALIBRATED };
+const COMPASUnorderedMap<STRIPPED_GIANT_RADIUS_PRESCRIPTION, std::string> STRIPPED_GIANT_RADIUS_PRESCRIPTION_LABEL = {
+    { STRIPPED_GIANT_RADIUS_PRESCRIPTION::HURLEY,       "HURLEY" },
+    { STRIPPED_GIANT_RADIUS_PRESCRIPTION::INITIAL_MASS, "INITIAL_MASS" },
+    { STRIPPED_GIANT_RADIUS_PRESCRIPTION::CALIBRATED,   "CALIBRATED" }
+};
+
 // main sequence core hydrogen prescription (for stars whose core composition is not evolved by the BRCEK core mass prescription)
 enum class CORE_HYDROGEN_PRESCRIPTION: int { LINEAR, MIST };
 const COMPASUnorderedMap<CORE_HYDROGEN_PRESCRIPTION, std::string> CORE_HYDROGEN_PRESCRIPTION_LABEL = {

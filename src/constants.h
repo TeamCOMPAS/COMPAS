@@ -1036,6 +1036,15 @@ constexpr double MIST_MS_QCONV_MASS_MAX                 = 1.70;
 constexpr double MIST_MS_QCONV_MASS_STEP                = 0.05;
 constexpr double MIST_MS_QCONV_LOG_MIN                  = -8.0;                                                     // log10(q) floor: no convective envelope
 constexpr double MS_FULLY_CONVECTIVE_MASS               = 0.35;                                                     // MS stars below this mass are fully convective (Hurley et al. 2000 section 7.2)
+// --stripped-giant-radius-prescription CALIBRATED: R = R_GB(M, L) x g(Mc)^w, w = (Mass0 - M) / (Mass0 - Mc) in [0, 1], log10 g = c0 + c1 x + c2 x^2
+// with x = Mc - 0.25, g <= 1 (reached at Mc = 0.336). Calibrated so that COMPAS NS + He WD end points (LMXB-like systems: companion <= 2 Msol,
+// FGB mass transfer onto the NS) follow the mean of Tauris & Savonije (1999) Pop I and Istrate et al. (2016) Z = 0.02 for M_WD = 0.21-0.33:
+// first fit to the detailed models with Hurley radii (work/lit/giant_radius), then refitted on COMPAS runs (work/msp/lmxb/v5_summary.py).
+// Mc is floored at 0.15 (the fits cover He WDs of 0.17-0.36 Msol).
+const DBL_VECTOR STRIPPED_GIANT_RADIUS_LOG_G_COEFFICIENTS = { -0.282, 3.121, 4.587 };
+constexpr double STRIPPED_GIANT_RADIUS_CORE_MASS_PIVOT   = 0.25;
+constexpr double STRIPPED_GIANT_RADIUS_CORE_MASS_MIN     = 0.15;
+
 const std::vector<DBL_VECTOR> MIST_MS_LOG_QCONV = {
     { -1.064, -1.019, -1.021, -1.022, -1.024, -1.024, -1.022, -1.016, -0.999, -0.959, -0.763 },   // 0.70
     { -1.127, -1.091, -1.093, -1.096, -1.099, -1.101, -1.099, -1.094, -1.078, -1.035, -0.825 },   // 0.75

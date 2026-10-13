@@ -466,6 +466,8 @@ void Options::OptionValues::Initialise() {
     m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
     m_MainSequenceConvectiveEnvelopePrescription.type               = MS_CONVECTIVE_ENVELOPE_PRESCRIPTION::HURLEY2000;
     m_MainSequenceConvectiveEnvelopePrescription.typeString         = MS_CONVECTIVE_ENVELOPE_PRESCRIPTION_LABEL.at(m_MainSequenceConvectiveEnvelopePrescription.type);
+    m_StrippedGiantRadiusPrescription.type                          = STRIPPED_GIANT_RADIUS_PRESCRIPTION::HURLEY;
+    m_StrippedGiantRadiusPrescription.typeString                    = STRIPPED_GIANT_RADIUS_PRESCRIPTION_LABEL.at(m_StrippedGiantRadiusPrescription.type);
     m_MainSequenceCoreMassBrcekMinimumMass                          = 1.5;                                                  // Must be > 0.7 Msol (BRCEK core initialised in MS_gt_07)
 
     // Core hydrogen prescription (stars not using BRCEK)
@@ -2245,6 +2247,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Main Sequence core hydrogen depletion X_c(tau) and minimum core mass growth for stars not using the BRCEK core mass prescription (" + AllowedOptionValuesFormatted("main-sequence-core-hydrogen-prescription") + ", default = '" + p_Options->m_MainSequenceCoreHydrogenPrescription.typeString + "')").c_str()
         )
         (
+            "stripped-giant-radius-prescription",
+            po::value<std::string>(&p_Options->m_StrippedGiantRadiusPrescription.typeString)->default_value(p_Options->m_StrippedGiantRadiusPrescription.typeString),
+            ("Radius of stripped low-mass giants (HG and FGB stars with Mass0 < MHeF): HURLEY = R_GB(M, L) of Hurley et al. (2000) with the current mass (grows as the envelope is stripped); INITIAL_MASS = R_GB evaluated at Mass0; CALIBRATED = R_GB(M, L) x g(Mc)^w, w = (Mass0 - M) / (Mass0 - Mc), fitted so that NS + He WD end points follow detailed binary models (Tauris & Savonije 1999, Istrate et al. 2016, Lin et al. 2011) (" + AllowedOptionValuesFormatted("stripped-giant-radius-prescription") + ", default = '" + p_Options->m_StrippedGiantRadiusPrescription.typeString + "')").c_str()
+        )
+        (
             "main-sequence-convective-envelope-prescription",
             po::value<std::string>(&p_Options->m_MainSequenceConvectiveEnvelopePrescription.typeString)->default_value(p_Options->m_MainSequenceConvectiveEnvelopePrescription.typeString),
             ("Main Sequence convective envelope (mass and radial extent of the outer convective zone, used by magnetic braking, tides and the two-stage common envelope): HURLEY2000 = Hurley, Pols & Tout (2000) section 7.2 (none above 1.25 Msol); HURLEY2002 = Hurley, Tout & Pols (2002), as in BSE (mrenv); MIST = MIST v2.5 solar-metallicity tracks (" + AllowedOptionValuesFormatted("main-sequence-convective-envelope-prescription") + ", default = '" + p_Options->m_MainSequenceConvectiveEnvelopePrescription.typeString + "')").c_str()
@@ -2777,6 +2784,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Magnetic Braking Prescription");
         }
 
+        if (!DEFAULTED("stripped-giant-radius-prescription")) {                                                                     // radius of stripped low-mass giants
+            std::tie(found, m_StrippedGiantRadiusPrescription.type) = utils::GetMapKey(m_StrippedGiantRadiusPrescription.typeString, STRIPPED_GIANT_RADIUS_PRESCRIPTION_LABEL, m_StrippedGiantRadiusPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Stripped Giant Radius Prescription");
+        }
+
         if (!DEFAULTED("main-sequence-convective-envelope-prescription")) {                                                         // main sequence convective envelope prescription
             std::tie(found, m_MainSequenceConvectiveEnvelopePrescription.type) = utils::GetMapKey(m_MainSequenceConvectiveEnvelopePrescription.typeString, MS_CONVECTIVE_ENVELOPE_PRESCRIPTION_LABEL, m_MainSequenceConvectiveEnvelopePrescription.type);
             COMPLAIN_IF(!found, "Unknown Main Sequence Convective Envelope Prescription");
@@ -3259,6 +3271,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("main-sequence-core-hydrogen-prescription")          : POPULATE_RET(CORE_HYDROGEN_PRESCRIPTION_LABEL);                   break;
         case _("main-sequence-core-mass-prescription")              : POPULATE_RET(CORE_MASS_PRESCRIPTION_LABEL);                       break;
         case _("main-sequence-convective-envelope-prescription")    : POPULATE_RET(MS_CONVECTIVE_ENVELOPE_PRESCRIPTION_LABEL);          break;
+        case _("stripped-giant-radius-prescription")                : POPULATE_RET(STRIPPED_GIANT_RADIUS_PRESCRIPTION_LABEL);           break;
         case _("maltsev-mode")                                      : POPULATE_RET(MALTSEV_MODE_LABEL);                             break;
         case _("mass-loss-prescription")                            : POPULATE_RET(MASS_LOSS_PRESCRIPTION_LABEL);                       break;
         case _("mass-ratio-distribution")                           : POPULATE_RET(MASS_RATIO_DISTRIBUTION_LABEL);                      break;

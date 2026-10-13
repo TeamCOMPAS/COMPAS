@@ -655,6 +655,47 @@ double GiantBranch::CalculateRadiusAtHeIgnition(const double p_Mass) const {
 
 
 /*
+ * Factor applied to the giant-branch radius of stripped low-mass giants (--stripped-giant-radius-prescription)
+ *
+ * Applies to HG and FGB stars with Mass0 < MHeF (degenerate He cores).  The Hurley et al. (2000) radius R_GB(M, L) was fitted to
+ * unstripped giants and grows as M^-0.3 as the envelope is stripped, whereas in detailed binary models the radius of a stripped donor
+ * depends mainly on its core mass and, for low core masses, is smaller than that of a single giant: COMPAS NS + He WD end points were
+ * 2-4x wider than Tauris & Savonije (1999) at 0.22-0.25 Msol (work/lit/giant_radius).
+ *
+ *    HURLEY       : 1
+ *    INITIAL_MASS : R_GB(Mass0, L) / R_GB(M, L)            (no growth of the radius with stripping)
+ *    CALIBRATED   : g(Mc)^w, w = (Mass0 - M) / (Mass0 - Mc) in [0, 1] (no change for unstripped stars), log10 g = c0 + c1 x + c2 x^2,
+ *                   x = Mc - 0.25 (STRIPPED_GIANT_RADIUS_LOG_G_COEFFICIENTS), Mc floored at 0.15, g <= 1 (reached at Mc = 0.336)
+ *
+ *
+ * double CalculateStrippedGiantRadiusFactor(const double p_Mass, const double p_Luminosity)
+ *
+ * @param   [IN]    p_Mass                      Mass in Msol (current, or trial mass when fitting a donor inside its Roche lobe)
+ * @param   [IN]    p_Luminosity                Luminosity in Lsol
+ * @return                                      Factor multiplying R_GB(M, L)
+ */
+double GiantBranch::CalculateStrippedGiantRadiusFactor(const double p_Mass, const double p_Luminosity) const {
+
+    STRIPPED_GIANT_RADIUS_PRESCRIPTION prescription = OPTIONS->StrippedGiantRadiusPrescription();
+    if (prescription == STRIPPED_GIANT_RADIUS_PRESCRIPTION::HURLEY) return 1.0;
+    if (!IsOneOf({ STELLAR_TYPE::HERTZSPRUNG_GAP, STELLAR_TYPE::FIRST_GIANT_BRANCH })) return 1.0;
+    if (utils::Compare(m_Mass0, m_MassCutoffs[static_cast<int>(MASS_CUTOFF::MHeF)]) >= 0) return 1.0;     // non-degenerate core
+    if (utils::Compare(p_Mass, m_Mass0) >= 0) return 1.0;                                                 // not stripped
+
+    if (prescription == STRIPPED_GIANT_RADIUS_PRESCRIPTION::INITIAL_MASS)
+        return CalculateRadiusOnPhase_Static(m_Mass0, p_Luminosity, m_BnCoefficients) / CalculateRadiusOnPhase_Static(p_Mass, p_Luminosity, m_BnCoefficients);
+
+    // CALIBRATED
+    double x    = std::max(m_CoreMass, STRIPPED_GIANT_RADIUS_CORE_MASS_MIN) - STRIPPED_GIANT_RADIUS_CORE_MASS_PIVOT;
+    double logG = STRIPPED_GIANT_RADIUS_LOG_G_COEFFICIENTS[0] + x * (STRIPPED_GIANT_RADIUS_LOG_G_COEFFICIENTS[1] + x * STRIPPED_GIANT_RADIUS_LOG_G_COEFFICIENTS[2]);
+    double g    = std::min(1.0, PPOW(10.0, logG));
+    double w    = utils::Compare(m_Mass0, m_CoreMass) > 0 ? std::min(1.0, std::max(0.0, (m_Mass0 - p_Mass) / (m_Mass0 - m_CoreMass))) : 1.0;
+
+    return PPOW(g, w);
+}
+
+
+/*
  * Calculate radius of the remnant the star would become if it lost all of its
  * envelope immediately (i.e. M = Mc, coreMass)
  *

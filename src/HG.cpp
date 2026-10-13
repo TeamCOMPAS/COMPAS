@@ -928,7 +928,9 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
     // R_EHG: GB radius of the current mass at the luminosity at the end of the HG (Hurley et al. 2000 eq 27; SSE hrdiag.f: rx = rgbf(mt, lums(3)))
-    double RGB = GiantBranch::CalculateRadiusOnPhase_Static(m_Mass, CalculateLuminosityAtPhaseEnd(p_Mass), b);
+    // (times the --stripped-giant-radius-prescription factor of stripped low-mass stars, so the HG ends at the radius the FGB starts from)
+    double LEHG = CalculateLuminosityAtPhaseEnd(p_Mass);
+    double RGB  = GiantBranch::CalculateRadiusOnPhase_Static(m_Mass, LEHG, b) * CalculateStrippedGiantRadiusFactor(m_Mass, LEHG);
 
     double rx  = RGB;                                                                                               // Hurley sse terminlogy (rx)
 
