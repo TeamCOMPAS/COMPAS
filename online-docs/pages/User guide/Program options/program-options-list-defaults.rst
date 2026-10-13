@@ -63,7 +63,7 @@ Default = GRID
      - indicates that the program options should `not` be added to the sysparms file
 
 **--allow-non-stripped-ECSN** |br|
-Allow ECSNe in effectively single progenitors. |br|
+Allow ECSNe in effectively single progenitors (using the standard ECSN window). Ignored when ``--electron-capture-supernova-unstripped-minimum-core-mass`` > 0, which gives such stars their own window. |br|
 Default = FALSE
 
 **--allow-rlof-at-birth** |br|
@@ -446,6 +446,21 @@ SN condition with a core below the lower edge does not explode but leaves an ONe
 models of stripped stars place the ECSN window at helium-core masses of about 2.5-2.75 :math:`M_\odot` (Tauris et al. 2015; see also Podsiadlowski
 et al. 2004, 2.0-2.5 :math:`M_\odot`). |br|
 Default = 0.0 (no lower edge beyond the SN condition)
+
+**--electron-capture-supernova-unstripped-maximum-core-mass** |br|
+Upper edge (:math:`M_\odot`, in McBAGB) of the electron-capture SN window for unstripped cores; see ``--electron-capture-supernova-unstripped-minimum-core-mass``. |br|
+Default = 0.0
+
+**--electron-capture-supernova-unstripped-minimum-core-mass** |br|
+Lower edge (:math:`M_\odot`, in McBAGB) of the electron-capture SN window for stars whose helium core grew under a hydrogen envelope: stars that
+were never mass-transfer donors (single stars, wide binaries, accretors), and donors whose envelope was still present at core helium exhaustion
+(EAGB and TPAGB stars, and helium stars stripped on the EAGB or TPAGB, i.e. case C). Their cores evolve as in single stars, so the helium-star
+window (``--electron-capture-supernova-minimum-core-mass``, ``--electron-capture-supernova-maximum-core-mass``) does not apply. Below the window such a
+star leaves an ONe WD, in it it undergoes an ECSN, above it the SN is a core-collapse SN. The width of the window sets the fraction of low-kick
+ECSN neutron stars from single stars (Willcox et al. 2021: :math:`\lesssim 0.2\,M_\odot` in ZAMS mass). When set, ``--allow-non-stripped-ECSN`` is
+ignored. Requires ``--electron-capture-supernova-minimum-core-mass`` > 0. 0 = off. Suggested window: 2.225-2.30 (Hurley final CO core
+1.37-1.43 :math:`M_\odot`; ZAMS 8.06-8.27 :math:`M_\odot`). |br|
+Default = 0.0
 
 **--emit-gravitational-radiation**  |br|
 Emit gravitational radiation at each timestep of binary evolution according to Peters 1964. |br|
@@ -1843,7 +1858,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 **Supernovae**
 
---remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, --electron-capture-supernova-minimum-core-mass, --electron-capture-supernova-maximum-core-mass, 
+--remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, --electron-capture-supernova-minimum-core-mass, --electron-capture-supernova-maximum-core-mass, --electron-capture-supernova-unstripped-minimum-core-mass, --electron-capture-supernova-unstripped-maximum-core-mass, 
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
 --PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 

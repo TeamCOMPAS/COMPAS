@@ -935,6 +935,7 @@ STELLAR_TYPE TPAGB::ResolveEnvelopeLoss(bool p_Force) {
 
     if (p_Force || (utils::Compare(m_CoreMass, m_Mass)) >= 0 || m_EnvelopeJustExpelledByPulsations) {   // envelope loss
                 
+        m_EnvelopeLostAfterCoreHeliumExhaustion = true;                                                 // case C
         m_Mass       = std::min(m_CoreMass, m_Mass);
         m_CoreMass   = m_Mass;
         m_HeCoreMass = m_Mass;
@@ -989,8 +990,10 @@ bool TPAGB::IsSupernova() const {
     double snMass = CalculateInitialSupernovaMass();
     bool isCCSN = utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
         utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
-    bool isECSN = utils::Compare(snMass, OPTIONS->ElectronCaptureSNMaximumCoreMass()) < 0 && utils::Compare(snMass, OPTIONS->ElectronCaptureSNMinimumCoreMass()) >= 0 &&
-                  (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN()) &&
+    double ecsnMin, ecsnMax;                                                                            // standard or unstripped-core window
+    bool   ecsnAllowed;
+    std::tie(ecsnMin, ecsnMax, ecsnAllowed) = ElectronCaptureSNWindow();
+    bool isECSN = utils::Compare(snMass, ecsnMax) < 0 && utils::Compare(snMass, ecsnMin) >= 0 && ecsnAllowed &&
         utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0 &&
         utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
     return isCCSN || isECSN;

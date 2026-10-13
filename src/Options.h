@@ -1118,6 +1118,8 @@ public:
             double                                              m_PulsarMagneticFieldDecayAccretionIndex;                       // SHIBAZAKI accretion-induced decay: index of (dM / Mb)
             double                                              m_ElectronCaptureSNMinimumCoreMass;                             // ECSN window: minimum supernova core mass (below: ONe WD for stripped stars)
             double                                              m_ElectronCaptureSNMaximumCoreMass;                             // ECSN window: maximum supernova core mass (Hurley MCBUR2)
+            double                                              m_ElectronCaptureSNUnstrippedMinimumCoreMass;                        // ECSN window for unstripped cores (never stripped, or stripped after core helium exhaustion): minimum McBAGB (0 = off)
+            double                                              m_ElectronCaptureSNUnstrippedMaximumCoreMass;                        // ECSN window for unstripped cores: maximum McBAGB
             bool                                                m_CapMassLossSpinAngularMomentum;                               // Whether the spin angular momentum a mass-losing star gives the orbit is capped at the star's spin angular momentum
             bool                                                m_MatchHertzsprungGapCoreMass;                                  // Whether HG stars set m_Mass0 so that the Hurley core matches a retained main sequence core larger than it
         
@@ -1880,6 +1882,8 @@ public:
     double                                      PulsarMagneticFieldDecayAccretionIndex() const                          { return OPT_VALUE("pulsar-magnetic-field-decay-accretion-index", m_PulsarMagneticFieldDecayAccretionIndex, true); }
     double                                      ElectronCaptureSNMinimumCoreMass() const                                { return OPT_VALUE("electron-capture-supernova-minimum-core-mass", m_ElectronCaptureSNMinimumCoreMass, true); }
     double                                      ElectronCaptureSNMaximumCoreMass() const                                { return OPT_VALUE("electron-capture-supernova-maximum-core-mass", m_ElectronCaptureSNMaximumCoreMass, true); }
+    double                                      ElectronCaptureSNUnstrippedMinimumCoreMass() const                           { return OPT_VALUE("electron-capture-supernova-unstripped-minimum-core-mass", m_ElectronCaptureSNUnstrippedMinimumCoreMass, true); }
+    double                                      ElectronCaptureSNUnstrippedMaximumCoreMass() const                           { return OPT_VALUE("electron-capture-supernova-unstripped-maximum-core-mass", m_ElectronCaptureSNUnstrippedMaximumCoreMass, true); }
     bool                                        CapMassLossSpinAngularMomentum() const                                  { return OPT_VALUE("cap-mass-loss-spin-angular-momentum", m_CapMassLossSpinAngularMomentum, true); }
     bool                                        MatchHertzsprungGapCoreMass() const                                     { return OPT_VALUE("match-hertzsprung-gap-core-mass", m_MatchHertzsprungGapCoreMass, true); }
     

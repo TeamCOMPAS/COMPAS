@@ -132,6 +132,7 @@ protected:
             STELLAR_TYPE    ResolveCoreCollapseSN();
             STELLAR_TYPE    ResolveElectronCaptureSN();
             STELLAR_TYPE    ResolveOxygenNeonWhiteDwarfBelowECSN();
+            std::tuple<double, double, bool> ElectronCaptureSNWindow() const;
             STELLAR_TYPE    ResolvePairInstabilitySN();
             STELLAR_TYPE    ResolvePulsationalPairInstabilitySN();
     

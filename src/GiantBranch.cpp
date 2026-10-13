@@ -2058,6 +2058,35 @@ STELLAR_TYPE GiantBranch::ResolveCoreCollapseSN() {
 
 
 /*
+ * Electron-capture supernova window (in McBAGB when --electron-capture-supernova-minimum-core-mass > 0)
+ *
+ * The standard window (--electron-capture-supernova-minimum/maximum-core-mass) is calibrated on helium stars stripped before core helium
+ * burning, and applies to mass-transfer donors (and, with --allow-non-stripped-ECSN, to all stars). With
+ * --electron-capture-supernova-unstripped-minimum-core-mass > 0, stars whose helium core grew under a hydrogen envelope - never a donor,
+ * or a donor whose envelope was still present at core helium exhaustion (an EAGB/TPAGB star, or a helium star stripped on the EAGB/TPAGB:
+ * case C) - use a separate window: their cores evolve as in single stars, whose ECSN range lies at lower McBAGB and is narrow (Poelarends
+ * et al. 2008; Doherty et al. 2015; Schneider et al. 2021; Willcox et al. 2021; work/lit/ecsn_pathwayA_review.md).
+ *
+ *
+ * std::tuple<double, double, bool> ElectronCaptureSNWindow()
+ *
+ * @return                                      Tuple: lower and upper edge of the ECSN window (Msol), and whether the star may undergo an ECSN
+ *                                              (or, below the window, leave an ONe WD)
+ */
+std::tuple<double, double, bool> GiantBranch::ElectronCaptureSNWindow() const {
+    bool isDonor = !m_MassTransferDonorHistory.empty();
+
+    if (utils::Compare(OPTIONS->ElectronCaptureSNUnstrippedMinimumCoreMass(), 0.0) > 0 &&
+        (!isDonor || m_EnvelopeLostAfterCoreHeliumExhaustion ||
+         utils::IsOneOf(m_StellarType, { STELLAR_TYPE::EARLY_ASYMPTOTIC_GIANT_BRANCH, STELLAR_TYPE::THERMALLY_PULSING_ASYMPTOTIC_GIANT_BRANCH }))) {
+        return std::make_tuple(OPTIONS->ElectronCaptureSNUnstrippedMinimumCoreMass(), OPTIONS->ElectronCaptureSNUnstrippedMaximumCoreMass(), true);
+    }
+
+    return std::make_tuple(OPTIONS->ElectronCaptureSNMinimumCoreMass(), OPTIONS->ElectronCaptureSNMaximumCoreMass(), isDonor || OPTIONS->AllowNonStrippedECSN());
+}
+
+
+/*
  * Resolve a stripped star below the electron-capture SN window
  *
  * With --electron-capture-supernova-minimum-core-mass > 0, a stripped star (former mass-transfer donor) whose helium-core mass at the
@@ -2316,6 +2345,9 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         // core helium burning - McBAGB, which for naked helium stars is their initial (helium-star) mass
         bool   ecsnWindow = utils::Compare(OPTIONS->ElectronCaptureSNMinimumCoreMass(), 0.0) > 0;
         double ecsnMass   = ecsnWindow ? m_GBParams[static_cast<int>(GBP::McBAGB)] : snMass;
+        double ecsnMin, ecsnMax;                                                                    // window edges: standard, or for unstripped cores (--electron-capture-supernova-unstripped-*)
+        bool   ecsnAllowed;                                                                         // whether this star may undergo an ECSN (or leave an ONe WD below the window)
+        std::tie(ecsnMin, ecsnMax, ecsnAllowed) = ElectronCaptureSNWindow();
         
         SetSNHydrogenContent();                                                                     // set H-rich or H-poor  JR: why don't we do this when we initialise the star at change of stellar type?
 
@@ -2331,11 +2363,11 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
 
             stellarType = ResolvePairInstabilitySN();                                               // MR
         }
-        else if (ecsnWindow && utils::Compare(ecsnMass, OPTIONS->ElectronCaptureSNMinimumCoreMass()) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
-            stellarType = ResolveOxygenNeonWhiteDwarfBelowECSN();                                   // below the ECSN window (--electron-capture-supernova-minimum-core-mass): no SN, ONe WD
+        else if (ecsnWindow && utils::Compare(ecsnMass, ecsnMin) < 0 && ecsnAllowed) {
+            stellarType = ResolveOxygenNeonWhiteDwarfBelowECSN();                                   // below the ECSN window (standard or unstripped-core): no SN, ONe WD
         }
-        else if (utils::Compare(ecsnMass, OPTIONS->ElectronCaptureSNMaximumCoreMass()) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN())) {
-            stellarType = ResolveElectronCaptureSN();                                               // electron capture SN; requires progenitor to have been a MT donor unless non-stripped ECSN are allowed; forms NS
+        else if (utils::Compare(ecsnMass, ecsnMax) < 0 && ecsnAllowed) {
+            stellarType = ResolveElectronCaptureSN();                                               // electron capture SN (stripped donors, --allow-non-stripped-ECSN, or the unstripped-core window); forms NS
         }
         else {                                                                                      // Core Collapse Supernova
             stellarType = ResolveCoreCollapseSN();                                                  // BH or NS

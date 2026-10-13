@@ -158,6 +158,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_MinimumLuminosityOnPhase                 = DEFAULT_INITIAL_DOUBLE_VALUE;
     m_LBVphaseFlag                             = false;
     m_EnvelopeJustExpelledByPulsations         = false;
+    m_EnvelopeLostAfterCoreHeliumExhaustion    = false;
 
     // Previous timestep attributes
     m_StellarTypePrev                          = m_StellarType;

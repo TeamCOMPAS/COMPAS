@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.45.00 October 14, 2026**
+
+* New options ``--electron-capture-supernova-unstripped-minimum-core-mass`` and ``--electron-capture-supernova-unstripped-maximum-core-mass`` (default off):
+  an electron-capture SN window for stars whose helium core grew under a hydrogen envelope (never stripped, or stripped after core helium exhaustion).
+  Their cores evolve as in single stars, so the helium-star window does not apply: with it, 8.8-9.5 Msol stars stripped on the early AGB became ECSNe.
+  The window replaces ``--allow-non-stripped-ECSN`` when set; its width is limited by the fraction of low-velocity pulsars (Willcox et al. 2021).
+
 **03.44.00 October 14, 2026**
 
 * New option ``--stripped-giant-radius-prescription`` (``HURLEY``, the default; ``INITIAL_MASS``; ``CALIBRATED``) for the radius of stripped

@@ -1889,6 +1889,17 @@
 //                                         STRIPPED_GIANT_RADIUS_*; calibrated on COMPAS runs to within ~20% of the detailed models for M_WD = 0.21-0.36). The end-of-HG
 //                                         radius uses the same factor (GiantBranch::CalculateStrippedGiantRadiusFactor()), so the radius is continuous at the start of
 //                                         the FGB. With the default, results are unchanged.
+//  03.45.00  SS - October 14, 2026      - Enhancement:
+//                                       - New options --electron-capture-supernova-unstripped-minimum-core-mass and --electron-capture-supernova-unstripped-maximum-core-mass
+//                                         (default 0.0 = off): an ECSN window, in McBAGB, for stars whose helium core grew under a hydrogen envelope - stars that were never
+//                                         mass-transfer donors, and donors whose envelope was still present at core helium exhaustion (EAGB/TPAGB stars, and helium stars
+//                                         stripped on the EAGB/TPAGB, flagged by the new BaseStar member m_EnvelopeLostAfterCoreHeliumExhaustion; case C). Their cores evolve
+//                                         as in single stars, so the helium-star window (--electron-capture-supernova-minimum/maximum-core-mass, e.g. 2.50-2.75), calibrated
+//                                         on stars stripped before core helium burning, does not apply; 8.8-9.5 Msol primaries stripped in a common envelope on the EAGB
+//                                         became ECSNe. Suggested window 2.225-2.30 (Hurley final CO core 1.37-1.43 Msol; ZAMS 8.06-8.27 Msol, at the Willcox et al. 2021
+//                                         limit of <~0.2 Msol). Below the window: ONe WD; in it: ECSN; above: core-collapse SN. The window unifies case C stripped stars with
+//                                         --allow-non-stripped-ECSN (ignored when it is set; that option applied the helium-star window to unstripped stars).
+//                                         Requires --electron-capture-supernova-minimum-core-mass > 0. With the default, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1900,7 +1911,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.44.00";
+const std::string VERSION_STRING = "03.45.00";
 
 
 # endif // __changelog_h__

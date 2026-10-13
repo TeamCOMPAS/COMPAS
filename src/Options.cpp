@@ -477,6 +477,8 @@ void Options::OptionValues::Initialise() {
     m_CapMassLossSpinAngularMomentum                                = false;
     m_ElectronCaptureSNMinimumCoreMass                              = 0.0;                                                  // no lower edge beyond the SN condition (as before)
     m_ElectronCaptureSNMaximumCoreMass                              = MCBUR2;                                               // Hurley et al. (2000)
+    m_ElectronCaptureSNUnstrippedMinimumCoreMass                         = 0.0;                                                  // off: --allow-non-stripped-ECSN and the standard window as before
+    m_ElectronCaptureSNUnstrippedMaximumCoreMass                         = 0.0;
     m_PulsarMagneticFieldDecayAccretionIndex                        = 1.0;                                                  // Shibazaki et al. (1989)
     m_MatchHertzsprungGapCoreMass                                   = false;
 
@@ -902,7 +904,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "allow-non-stripped-ECSN",
             po::value<bool>(&p_Options->m_AllowNonStrippedECSN)->default_value(p_Options->m_AllowNonStrippedECSN)->implicit_value(true),                                                                  
-            ("Allow ECSN to occur in unstripped progenitors (default = " + std::string(p_Options->m_AllowNonStrippedECSN ? "TRUE" : "FALSE") + ")").c_str()
+            ("Allow ECSN to occur in unstripped progenitors, using the standard window; ignored when --electron-capture-supernova-unstripped-minimum-core-mass > 0 (default = " + std::string(p_Options->m_AllowNonStrippedECSN ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
             "allow-rlof-at-birth",                                         
@@ -1517,6 +1519,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "electron-capture-supernova-maximum-core-mass",
             po::value<double>(&p_Options->m_ElectronCaptureSNMaximumCoreMass)->default_value(p_Options->m_ElectronCaptureSNMaximumCoreMass),
             ("Upper edge of the electron-capture SN window (Msol; Hurley et al. 2000: 2.25): above it a supernova is a core-collapse SN (default = " + std::to_string(p_Options->m_ElectronCaptureSNMaximumCoreMass) + ")").c_str()
+        )
+        (
+            "electron-capture-supernova-unstripped-minimum-core-mass",
+            po::value<double>(&p_Options->m_ElectronCaptureSNUnstrippedMinimumCoreMass)->default_value(p_Options->m_ElectronCaptureSNUnstrippedMinimumCoreMass),
+            ("Lower edge of the electron-capture SN window, in McBAGB (Msol), for stars whose helium core grew under a hydrogen envelope: stars that were never mass-transfer donors (single stars, wide binaries, accretors), and donors whose envelope was still present at core helium exhaustion (EAGB/TPAGB stars and helium stars stripped on the EAGB/TPAGB, i.e. case C). Their cores evolve as in single stars, so the helium-star window (--electron-capture-supernova-minimum/maximum-core-mass) does not apply; the width of this window sets the fraction of low-kick ECSN neutron stars from single stars (Willcox et al. 2021: <~0.2 Msol in ZAMS mass). Below the window: ONe WD; in it: ECSN; above: core-collapse SN. Replaces --allow-non-stripped-ECSN (ignored when this window is set). Requires --electron-capture-supernova-minimum-core-mass > 0. 0 = off (default = " + std::to_string(p_Options->m_ElectronCaptureSNUnstrippedMinimumCoreMass) + ")").c_str()
+        )
+        (
+            "electron-capture-supernova-unstripped-maximum-core-mass",
+            po::value<double>(&p_Options->m_ElectronCaptureSNUnstrippedMaximumCoreMass)->default_value(p_Options->m_ElectronCaptureSNUnstrippedMaximumCoreMass),
+            ("Upper edge of the electron-capture SN window for unstripped cores, in McBAGB (Msol) (default = " + std::to_string(p_Options->m_ElectronCaptureSNUnstrippedMaximumCoreMass) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-accretion-index",
@@ -3128,6 +3140,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_KickMagnitude  < 0.0, "Kick magnitude (--kick-magnitude) must be >= 0");
         COMPLAIN_IF(m_ElectronCaptureSNMinimumCoreMass >= m_ElectronCaptureSNMaximumCoreMass, "ECSN window: --electron-capture-supernova-minimum-core-mass must be below --electron-capture-supernova-maximum-core-mass");
+        COMPLAIN_IF(m_ElectronCaptureSNUnstrippedMinimumCoreMass < 0.0, "Unstripped-core ECSN window: --electron-capture-supernova-unstripped-minimum-core-mass must be >= 0");
+        COMPLAIN_IF(m_ElectronCaptureSNUnstrippedMinimumCoreMass > 0.0 && m_ElectronCaptureSNMinimumCoreMass <= 0.0, "Unstripped-core ECSN window: requires the McBAGB window (--electron-capture-supernova-minimum-core-mass > 0)");
+        COMPLAIN_IF(m_ElectronCaptureSNUnstrippedMinimumCoreMass > 0.0 && m_ElectronCaptureSNUnstrippedMinimumCoreMass >= m_ElectronCaptureSNUnstrippedMaximumCoreMass, "Unstripped-core ECSN window: --electron-capture-supernova-unstripped-minimum-core-mass must be below --electron-capture-supernova-unstripped-maximum-core-mass");
         COMPLAIN_IF(m_PulsarMagneticFieldDecayAccretionIndex <= 0.0, "Accretion-induced field decay index (--pulsar-magnetic-field-decay-accretion-index) must be > 0");
         COMPLAIN_IF(m_CompactAccretorThermalMTDurationFactor <= 0.0, "Compact accretor thermal MT duration factor (--compact-accretor-thermal-mass-transfer-duration-factor) must be > 0");
         COMPLAIN_IF(m_UltraStrippedMaximumHeliumEnvelopeMass < 0.0, "Ultra-stripped maximum helium envelope mass (--ultra-stripped-maximum-helium-envelope-mass) must be >= 0");

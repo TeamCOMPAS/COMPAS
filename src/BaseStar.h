@@ -87,6 +87,7 @@ public:
     double              DtPrev() const                                                  { return m_DtPrev; }
     double              EddingtonParameter() const                                      { return m_Luminosity / CalculateEddingtonLuminosity(); }
     bool                EnvelopeJustExpelledByPulsations() const                        { return m_EnvelopeJustExpelledByPulsations; }
+    bool                EnvelopeLostAfterCoreHeliumExhaustion() const                   { return m_EnvelopeLostAfterCoreHeliumExhaustion; }
     ERROR               Error() const                                                   { return m_Error; }
     EVOLUTION_STATUS    EvolutionStatus() const                                         { return m_EvolutionStatus; }
     bool                ExperiencedAIC() const                                          { return utils::SNEventType(m_SupernovaDetails.events.past) == SN_EVENT::AIC; }
@@ -440,6 +441,7 @@ protected:
     double                  m_CoreMass;                                 // Current core mass (Msol)
     double                  m_Dt;                                       // Size of current timestep (Myr)
     bool                    m_EnvelopeJustExpelledByPulsations;         // Flag to know if the convective envelope has just been expelled by pulsations
+    bool                    m_EnvelopeLostAfterCoreHeliumExhaustion;    // Hydrogen envelope removed after core helium exhaustion (EAGB/TPAGB; case C): the core evolved as in a single star
     double                  m_HeCoreMass;                               // Current He core mass (Msol)
     double                  m_HeliumAbundanceCore;                      // Helium abundance in the core
     double                  m_HeliumAbundanceSurface;                   // Helium abundance at the surface
