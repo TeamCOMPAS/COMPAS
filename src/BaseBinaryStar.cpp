@@ -2203,7 +2203,18 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         bool isEnvelopeRemoved = false;
 
         if (utils::Compare(m_Donor->CoreMass(), 0.0) > 0 && utils::Compare(envMassDonor, 0.0) > 0) {                            // donor has a core and an envelope
-            if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
+            // --low-mass-donor-thermal-mass-transfer ROCHE_LOBE_HG(_FGB): thermal-timescale MT from a low-mass HG (or FGB) donor with a degenerate
+            // core (Mass0 < MHeF) removes only the mass needed to fit inside the Roche lobe (as for MS donors), not the whole envelope, so the
+            // transfer can continue on the nuclear timescale after the mass ratio reverses (the whole envelope is removed if no root was found)
+            LOW_MASS_DONOR_THERMAL_MT lowMassThermalMT = OPTIONS->LowMassDonorThermalMT();
+            bool fitRocheLobe = m_MassTransferTimescale == MT_TIMESCALE::THERMAL &&
+                                lowMassThermalMT != LOW_MASS_DONOR_THERMAL_MT::ENVELOPE_REMOVAL &&
+                                (m_Donor->IsOneOf({ STELLAR_TYPE::HERTZSPRUNG_GAP }) ||
+                                 (lowMassThermalMT == LOW_MASS_DONOR_THERMAL_MT::ROCHE_LOBE_HG_FGB && m_Donor->IsOneOf({ STELLAR_TYPE::FIRST_GIANT_BRANCH }))) &&
+                                utils::Compare(m_Donor->Mass0(), m_Donor->MHeF()) < 0 &&
+                                massDiffDonor > 0.0 && utils::Compare(massDiffDonor, envMassDonor) < 0;
+
+            if (!fitRocheLobe && (m_MassTransferTimescale == MT_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0)) {
                 // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
                 massDiffDonor     = -envMassDonor;
                 isEnvelopeRemoved = true;

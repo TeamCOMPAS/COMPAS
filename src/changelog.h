@@ -1835,6 +1835,13 @@
 //                                         concatenated into one string and four options were missing from the list (no effect in practice: ranges of these boolean
 //                                         options are already rejected). Results are unchanged.
 //                                       - Documentation: the default of --natal-kick-for-PPISN is FALSE (as in the code), not TRUE.
+//  03.42.00  SS - October 13, 2026      - Enhancement:
+//                                       - New option --low-mass-donor-thermal-mass-transfer (ENVELOPE_REMOVAL (default), ROCHE_LOBE_HG, ROCHE_LOBE_HG_FGB). Stable thermal-
+//                                         timescale mass transfer from a donor with a core removes the whole envelope in one step. For low-mass donors (Mass0 < MHeF, degenerate
+//                                         He core) on the HG (ROCHE_LOBE_HG) or the HG and FGB (ROCHE_LOBE_HG_FGB) the donor now loses only the mass needed to fit inside its
+//                                         Roche lobe (as MS donors do), so the transfer can continue on the nuclear timescale after the mass ratio reverses. Removes the light
+//                                         (~0.16 Msol) He WDs in wide (> 100 d) orbits, with ~0.45 Msol accreted by the NS, from 1.0-1.4 Msol HG donors near the bifurcation
+//                                         period. Added BaseStar::MHeF(). With the default, results are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1846,7 +1853,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.41.01";
+const std::string VERSION_STRING = "03.42.00";
 
 
 # endif // __changelog_h__

@@ -489,6 +489,9 @@ void Options::OptionValues::Initialise() {
     m_QCritScope.typeString                                         = QCRIT_SCOPE_LABEL.at(m_QCritScope.type);
     m_CaseBBAccretion.type                                          = CASE_BB_ACCRETION::THERMAL_TIMESCALE;
     m_CaseBBAccretion.typeString                                    = CASE_BB_ACCRETION_LABEL.at(m_CaseBBAccretion.type);
+    m_LowMassDonorThermalMT.type                                    = LOW_MASS_DONOR_THERMAL_MT::ENVELOPE_REMOVAL;
+    m_LowMassDonorThermalMT.typeString                              = LOW_MASS_DONOR_THERMAL_MT_LABEL.at(m_LowMassDonorThermalMT.type);
+
     m_CompactAccretorThermalMT.type                                 = COMPACT_ACCRETOR_THERMAL_MT::ENVELOPE_REMOVAL;
     m_CompactAccretorThermalMT.typeString                           = COMPACT_ACCRETOR_THERMAL_MT_LABEL.at(m_CompactAccretorThermalMT.type);
     m_CompactAccretorThermalMTDurationFactor                        = 12.0;                                                 // detailed models: super-Eddington phase ~ 10-25 x COMPAS tau_KH at onset
@@ -2064,6 +2067,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Accretion onto a compact accretor during case BB/BC mass transfer from a helium giant, with --compact-accretor-thermal-mass-transfer EXTENDED_ACCRETION: THERMAL_TIMESCALE = for the duration factor x the donor's thermal timescale (as other donors); TAURIS2015 = for the case BB duration of detailed models (fit to Tauris et al. 2012, 2015, 2017) and, onto a NS, at the Eddington limit for helium-rich matter (" + AllowedOptionValuesFormatted("case-BB-accretion") + ", default = '" + p_Options->m_CaseBBAccretion.typeString + "')").c_str()
         )
         (
+            "low-mass-donor-thermal-mass-transfer",
+            po::value<std::string>(&p_Options->m_LowMassDonorThermalMT.typeString)->default_value(p_Options->m_LowMassDonorThermalMT.typeString),
+            ("Stable thermal-timescale mass transfer from a low-mass donor with a degenerate core (Mass0 < MHeF) on the HG (ROCHE_LOBE_HG) or HG and FGB (ROCHE_LOBE_HG_FGB): the donor loses only the mass needed to fit inside its Roche lobe, as MS donors do, instead of its whole envelope, so the transfer can continue on the nuclear timescale after the mass ratio reverses; ENVELOPE_REMOVAL = whole envelope in one step (" + AllowedOptionValuesFormatted("low-mass-donor-thermal-mass-transfer") + ", default = '" + p_Options->m_LowMassDonorThermalMT.typeString + "')").c_str()
+        )
+        (
             "compact-accretor-thermal-mass-transfer",
             po::value<std::string>(&p_Options->m_CompactAccretorThermalMT.typeString)->default_value(p_Options->m_CompactAccretorThermalMT.typeString),
             ("Stable thermal-timescale mass transfer from a donor with a core onto a WD/NS/BH: ENVELOPE_REMOVAL = whole envelope in one step; EXTENDED_ACCRETION = envelope in one step, but the accretor accretes at its maximum rate for --compact-accretor-thermal-mass-transfer-duration-factor x the donor's thermal timescale (" + AllowedOptionValuesFormatted("compact-accretor-thermal-mass-transfer") + ", default = '" + p_Options->m_CompactAccretorThermalMT.typeString + "')").c_str()
@@ -2662,6 +2670,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Case BB Accretion prescription");
         }
 
+        if (!DEFAULTED("low-mass-donor-thermal-mass-transfer")) {                                                                   // thermal MT from low-mass HG/FGB donors
+            std::tie(found, m_LowMassDonorThermalMT.type) = utils::GetMapKey(m_LowMassDonorThermalMT.typeString, LOW_MASS_DONOR_THERMAL_MT_LABEL, m_LowMassDonorThermalMT.type);
+            COMPLAIN_IF(!found, "Unknown Low Mass Donor Thermal Mass Transfer prescription");
+        }
+
         if (!DEFAULTED("compact-accretor-thermal-mass-transfer")) {                                                                 // thermal MT onto compact accretors
             std::tie(found, m_CompactAccretorThermalMT.type) = utils::GetMapKey(m_CompactAccretorThermalMT.typeString, COMPACT_ACCRETOR_THERMAL_MT_LABEL, m_CompactAccretorThermalMT.type);
             COMPLAIN_IF(!found, "Unknown Compact Accretor Thermal Mass Transfer prescription");
@@ -3212,6 +3225,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);               break;
         case _("ultra-stripped-supernova-prescription")             : POPULATE_RET(ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL);        break;
         case _("compact-accretor-thermal-mass-transfer")            : POPULATE_RET(COMPACT_ACCRETOR_THERMAL_MT_LABEL);                  break;
+        case _("low-mass-donor-thermal-mass-transfer")              : POPULATE_RET(LOW_MASS_DONOR_THERMAL_MT_LABEL);                    break;
         case _("case-BB-accretion")                                 : POPULATE_RET(CASE_BB_ACCRETION_LABEL);                            break;
         case _("critical-mass-ratio-scope")                         : POPULATE_RET(QCRIT_SCOPE_LABEL);                                  break;
         case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                     break;

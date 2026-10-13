@@ -128,6 +128,7 @@ public:
     double              MainSequenceCoreMass() const                                    { return m_MainSequenceCoreMass; }
     double              Mass() const                                                    { return m_Mass; }
     double              Mass0() const                                                   { return m_Mass0; }
+    double              MHeF() const                                                    { return m_MassCutoffs[static_cast<int>(MASS_CUTOFF::MHeF)]; }    // maximum initial mass for a degenerate helium core (helium flash)
     double              MassPrev() const                                                { return m_MassPrev; }
     ST_VECTOR           MassTransferDonorHistory() const                                { return m_MassTransferDonorHistory; }
     double              CaseBBOrbitalPeriod() const                                     { return m_CaseBBOrbitalPeriod; }

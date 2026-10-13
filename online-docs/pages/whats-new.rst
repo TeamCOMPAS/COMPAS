@@ -3,6 +3,12 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.42.00 October 13, 2026**
+
+* New option ``--low-mass-donor-thermal-mass-transfer`` (default ``ENVELOPE_REMOVAL``): with ``ROCHE_LOBE_HG`` (or ``ROCHE_LOBE_HG_FGB``), stable
+  thermal-timescale mass transfer from a low-mass Hertzsprung-gap (and first giant branch) donor with a degenerate core removes only the mass needed
+  to fit inside the Roche lobe, instead of the whole envelope. With the default, results are unchanged.
+
 **03.41.00 October 13, 2026**
 
 * New option ``--natal-kick-for-AIC`` (default TRUE): neutron stars formed by accretion-induced collapse now receive natal kicks drawn as for

@@ -580,6 +580,7 @@ private:
 
         "compact-accretor-thermal-mass-transfer",
         "compact-accretor-thermal-mass-transfer-duration-factor",
+        "low-mass-donor-thermal-mass-transfer",
         "critical-mass-ratio-scope",
         "cap-mass-loss-spin-angular-momentum",
         "case-BB-accretion",
@@ -753,6 +754,7 @@ private:
         "use-mass-transfer",
         "ultra-stripped-supernova-prescription",
         "compact-accretor-thermal-mass-transfer",
+        "low-mass-donor-thermal-mass-transfer",
         "critical-mass-ratio-scope",
         "case-BB-accretion",
         "USSN-kicks-override-mandel-muller",
@@ -1117,6 +1119,7 @@ public:
         
             ENUM_OPT<QCRIT_SCOPE>                               m_QCritScope;                                                   // Which mass transfers use the critical mass ratio prescription
             ENUM_OPT<CASE_BB_ACCRETION>                         m_CaseBBAccretion;                                              // Accretion onto compact accretors during case BB/BC (EXTENDED_ACCRETION)
+            ENUM_OPT<LOW_MASS_DONOR_THERMAL_MT>                 m_LowMassDonorThermalMT;                                        // Stable thermal MT from low-mass HG/FGB donors: envelope removal or Roche-lobe fit
             ENUM_OPT<COMPACT_ACCRETOR_THERMAL_MT>               m_CompactAccretorThermalMT;                                     // Stable thermal MT onto WD/NS/BH: envelope removal or extended accretion
             double                                              m_CompactAccretorThermalMTDurationFactor;                       // EXTENDED_ACCRETION: accretion duration in units of the donor's thermal timescale
             ENUM_OPT<ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION>     m_UltraStrippedSupernovaPrescription;                           // Which fully stripped CCSNe are ultra-stripped
@@ -1522,6 +1525,7 @@ public:
     CASE_BB_STABILITY_PRESCRIPTION              CaseBBStabilityPrescription() const                                     { return OPT_VALUE("case-BB-stability-prescription", m_CaseBBStabilityPrescription.type, true); }
     QCRIT_SCOPE                                 QCritScope() const                                                      { return OPT_VALUE("critical-mass-ratio-scope", m_QCritScope.type, true); }
     CASE_BB_ACCRETION                           CaseBBAccretion() const                                                 { return OPT_VALUE("case-BB-accretion", m_CaseBBAccretion.type, true); }
+    LOW_MASS_DONOR_THERMAL_MT                   LowMassDonorThermalMT() const                                           { return OPT_VALUE("low-mass-donor-thermal-mass-transfer", m_LowMassDonorThermalMT.type, true); }
     COMPACT_ACCRETOR_THERMAL_MT                 CompactAccretorThermalMT() const                                        { return OPT_VALUE("compact-accretor-thermal-mass-transfer", m_CompactAccretorThermalMT.type, true); }
     double                                      CompactAccretorThermalMTDurationFactor() const                          { return OPT_VALUE("compact-accretor-thermal-mass-transfer-duration-factor", m_CompactAccretorThermalMTDurationFactor, true); }
     ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION       UltraStrippedSupernovaPrescription() const                              { return OPT_VALUE("ultra-stripped-supernova-prescription", m_UltraStrippedSupernovaPrescription.type, true); }

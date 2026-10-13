@@ -363,6 +363,7 @@ namespace yaml {
             "    --case-BB-stability-prescription",
             "    --ultra-stripped-supernova-prescription",
             "    --compact-accretor-thermal-mass-transfer",
+            "    --low-mass-donor-thermal-mass-transfer",
             "    --case-BB-accretion",
             "    --critical-mass-ratio-scope",
             "    --critical-mass-ratio-prescription",

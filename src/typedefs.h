@@ -375,6 +375,16 @@ const COMPASUnorderedMap<CASE_BB_ACCRETION, std::string> CASE_BB_ACCRETION_LABEL
 //               maximum acceptance rate (Eddington for a NS) for t_X = f x tau_KH(onset) (--compact-accretor-thermal-mass-transfer-
 //               duration-factor), the duration of the super-Eddington phase in detailed models, which includes the slow phase after
 //               mass-ratio reversal; a NS spins up over t_X
+// Stable thermal-timescale mass transfer from a low-mass (Mass0 < MHeF, degenerate-core) HG or FGB donor:
+// ENVELOPE_REMOVAL = whole envelope in one step (as for all donors with a core); ROCHE_LOBE_HG (_FGB) = the donor loses only the mass needed
+// to fit inside its Roche lobe (as MS donors do), so the transfer can continue on the nuclear timescale after the mass ratio reverses
+enum class LOW_MASS_DONOR_THERMAL_MT: int { ENVELOPE_REMOVAL, ROCHE_LOBE_HG, ROCHE_LOBE_HG_FGB };
+const COMPASUnorderedMap<LOW_MASS_DONOR_THERMAL_MT, std::string> LOW_MASS_DONOR_THERMAL_MT_LABEL = {
+    { LOW_MASS_DONOR_THERMAL_MT::ENVELOPE_REMOVAL,  "ENVELOPE_REMOVAL" },
+    { LOW_MASS_DONOR_THERMAL_MT::ROCHE_LOBE_HG,     "ROCHE_LOBE_HG" },
+    { LOW_MASS_DONOR_THERMAL_MT::ROCHE_LOBE_HG_FGB, "ROCHE_LOBE_HG_FGB" }
+};
+
 enum class COMPACT_ACCRETOR_THERMAL_MT: int { ENVELOPE_REMOVAL, EXTENDED_ACCRETION };
 const COMPASUnorderedMap<COMPACT_ACCRETOR_THERMAL_MT, std::string> COMPACT_ACCRETOR_THERMAL_MT_LABEL = {
     { COMPACT_ACCRETOR_THERMAL_MT::ENVELOPE_REMOVAL,   "ENVELOPE_REMOVAL" },

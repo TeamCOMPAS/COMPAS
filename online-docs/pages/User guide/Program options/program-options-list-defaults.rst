@@ -866,6 +866,16 @@ Default = ’HDF5’
 Determines which print statements are included in the logfile. |br|
 Default = 0
 
+**--low-mass-donor-thermal-mass-transfer** |br|
+Treatment of stable thermal-timescale mass transfer from a low-mass donor with a degenerate helium core (:math:`M_0 < M_{\rm HeF}`) on the Hertzsprung gap
+(and, optionally, the first giant branch). |br|
+Options: { ENVELOPE_REMOVAL, ROCHE_LOBE_HG, ROCHE_LOBE_HG_FGB } |br|
+``ENVELOPE_REMOVAL``: the whole envelope is removed in one step, as for all donors with a core (as before). |br|
+``ROCHE_LOBE_HG``: a Hertzsprung-gap donor loses only the mass needed to fit inside its Roche lobe, as main sequence donors do, so the transfer can continue
+on the nuclear timescale after the mass ratio reverses (e.g. the converging and near-bifurcation systems of Podsiadlowski, Rappaport & Pfahl 2002). |br|
+``ROCHE_LOBE_HG_FGB``: as ``ROCHE_LOBE_HG``, for first giant branch donors as well. |br|
+Default = ENVELOPE_REMOVAL
+
 **--luminous-blue-variable-multiplier** |br|
 Multiplicative constant for LBV mass loss. (Use 10 for Mennekens & Vanbeveren (2014)). |br|
 Note that wind mass loss will also be multiplied by the ``--overall-wind-mass-loss-multiplier``. |br|
@@ -1782,7 +1792,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --critical-mass-ratio-giant-degenerate-accretor, --critical-mass-ratio-giant-non-degenerate-accretor, --critical-mass-ratio-helium-HG-degenerate-accretor,
 --critical-mass-ratio-helium-HG-non-degenerate-accretor, --critical-mass-ratio-helium-MS-degenerate-accretor, --critical-mass-ratio-helium-MS-non-degenerate-accretor, 
 --critical-mass-ratio-helium-giant-degenerate-accretor, --critical-mass-ratio-helium-giant-non-degenerate-accretor, --critical-mass-ratio-white-dwarf-degenerate-accretor, 
---critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
+--critical-mass-ratio-white-dwarf-non-degenerate-accretor, --eddington-accretion-factor, --low-mass-donor-thermal-mass-transfer, --mass-transfer, --use-mass-transfer, --mass-transfer-accretion-efficiency-prescription, 
 --mass-transfer-angular-momentum-loss-prescription, --mass-transfer-fa, --mass-transfer-jloss, --mass-transfer-jloss-linear-fraction-degen, --mass-transfer-jloss-linear-fraction-non-degen, 
 --mass-transfer-rejuvenation-prescription, --mass-transfer-thermal-limit-accretor, --mass-transfer-thermal-limit-accretor-multiplier, --mass-transfer-thermal-limit-C, --retain-core-mass-during-caseA-mass-transfer, 
 --stellar-zeta-prescription, --zeta-adiabatic-arbitrary, --zeta-main-sequence, --zeta-radiative-giant-star 
