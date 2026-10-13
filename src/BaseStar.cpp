@@ -1040,7 +1040,7 @@ double BaseStar::CalculatePerturbationR(const double p_Mu, const double p_Mass, 
  */
 double BaseStar::CalculateLambdaKruckow(const double p_Radius, const double p_Alpha) const {
 
-	double alpha = max(-2.0 / 3.0, min(-1.0, p_Alpha));             // clamp alpha to [-1.0, -2/3]
+	double alpha = max(-1.0, min(-2.0 / 3.0, p_Alpha));             // clamp alpha to [-1.0, -2/3]
 
 	return 1600.0 * PPOW(0.00125, -alpha) * PPOW(p_Radius, alpha);
 }

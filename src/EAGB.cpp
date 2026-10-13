@@ -74,6 +74,8 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
 	DBL_VECTOR a        = {};                                                               // 0..5 a_coefficients
 	DBL_VECTOR b        = {};                                                               // 0..5 b_coefficients
     double     Rmax     = std::numeric_limits<double>::max();                               // Upper R limit to applicability of Nanjing polynomials.
+    bool       logLambdaB = false;                                                          // true: the lambda_b polynomial is a fit to log10(lambda_b) (Xu & Li 2010, '*' rows)
+    double     xEnvMin    = -1.0;                                                           // >= 0: the polynomials are fits to 1/lambda in x = m_env/M (Xu & Li 2010b), evaluated at x >= xEnvMin
 
     switch (p_StellarPop) {
         // Pop. I metallicity
@@ -96,18 +98,21 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
                 case 2:
                     maxBG = { 500.0, 10.0 };
                     Rmax  = 400.0;
+                    logLambdaB = true;
                     a     = { -0.04669, 0.00764, -4.32726E-05, 9.31942E-08, 0.0        ,  0.0 };
                     b     = {  0.44889, 0.01102, -6.46629E-05, 5.66857E-09, 7.21818E-10, -1.2201E-12 };
                     break;
                 case 3:
                     maxBG = { 1000.0, 8.0 };
                     Rmax  = 410.0;
+                    logLambdaB = true;
                     a     = { -0.37322, 0.00943, -3.26033E-05, 5.37823E-08, 0.0, 0.0 };
                     b     = {  0.13153, 0.00984, -2.89832E-05, 2.63519E-08, 0.0, 0.0 };
                     break;
                 case 4:
                     maxBG = { 1000.0, 8.0 };
                     Rmax  = 430.0;
+                    logLambdaB = true;
                     a     = { -0.80011, 0.00992, -3.03247E-05,  5.26235E-08, 0.0, 0.0 };
                     b     = { -0.00456, 0.00426,  4.71117E-06, -1.72858E-08, 0.0, 0.0 };
                     break;
@@ -172,6 +177,7 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
                 case 13:
                     maxBG = { 1.5, 1.0 };
                     Rmax  = 1200.0;
+                    xEnvMin = 0.183;                                                        // fit in m_env/M, y = 1/lambda: flat at x = 0.183 (lambda_b ~ 0.02), pole at x = 0.173
                     a     = { -260484.85724, 4.26759E+06, -2.33016E+07, 4.24102E+07, 0.0, 0.0 };
                     b     = { -480055.67991, 7.87484E+06, -4.30546E+07, 7.84699E+07, 0.0, 0.0 };
                     break;
@@ -209,6 +215,7 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
                 case 2:
                     maxBG = { 600.0, 2.0 };
                     Rmax  = 400.0;
+                    logLambdaB = true;
                     if (utils::Compare(m_Radius, 36.0) > 0 && utils::Compare(m_Radius, 53.0) < 0) lambdaBG = { 1.0, 1.0 };
                     else {
                         a = { -0.475  , -0.00328, 1.31101E-04, -6.03669E-07, 8.49549E-10, 0.0 };
@@ -218,6 +225,7 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
                 case 3:
                     maxBG = { 600.0, 2.0 };
                     Rmax  = 410.0;
+                    logLambdaB = true;
                     a     = { -0.2106 , -0.01574, 2.01107E-04, -6.90334E-07, 7.92713E-10, 0.0 };
                     b     = {  0.36779, -0.00991, 1.19411E-04, -3.59574E-07, 3.33957E-10, 0.0 };
                     break;
@@ -339,8 +347,8 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
     }
 
     if (lambdaBG.empty()) {
-        if (p_StellarPop == STELLAR_POPULATION::POPULATION_I && p_MassIndex == 0) {         // Pop. I metallicity and M = 1 Msun
-            double x  = (m_Mass - m_CoreMass) / m_Mass;
+        if (utils::Compare(xEnvMin, 0.0) >= 0) {                                            // fits in envelope mass fraction, y = 1/lambda (Pop. I 20 Msun)
+            double x  = std::max(xEnvMin, (m_Mass - m_CoreMass) / m_Mass);                // clamp to the domain of the fit
             double x2 = x * x;
             double x3 = x2 * x;
             double x4 = x2 * x2;
@@ -361,7 +369,7 @@ double EAGB::CalculateLambdaNanjingEnhanced(const int p_MassIndex, const STELLAR
             double y1 = a[0] + (a[1] * x) + (a[2] * x2) + (a[3] * x3) + (a[4] * x4) + (a[5] * x5);
             double y2 = b[0] + (b[1] * x) + (b[2] * x2) + (b[3] * x3) + (b[4] * x4) + (b[5] * x5);
 
-            lambdaBG = { y1, y2 };
+            lambdaBG = { logLambdaB ? PPOW(10.0, y1) : y1, y2 };
         }
     }
 

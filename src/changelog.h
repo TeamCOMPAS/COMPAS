@@ -1842,6 +1842,18 @@
 //                                         Roche lobe (as MS donors do), so the transfer can continue on the nuclear timescale after the mass ratio reverses. Removes the light
 //                                         (~0.16 Msol) He WDs in wide (> 100 d) orbits, with ~0.45 Msol accreted by the NS, from 1.0-1.4 Msol HG donors near the bifurcation
 //                                         period. Added BaseStar::MHeF(). With the default, results are unchanged.
+//  03.42.01  SS - October 13, 2026      - Defect repairs (common-envelope lambda):
+//                                       - Enhanced Nanjing lambda (EAGB and TPAGB, Pop. I 20 Msol): the Xu & Li (2010b, erratum) fit is in the envelope mass fraction x = m_env/M
+//                                         with y = 1/lambda, as in the STARTRACK (non-enhanced) branch, but was evaluated as a polynomial in R, so lambda_b and lambda_g were
+//                                         clamped at 1.5 and 1.0. With mass interpolation, EAGB lambda was 0.4-0.75 at 17-18 Msol and 1.3 at 20-22 Msol, against 0.01-0.05 in
+//                                         Xu & Li's 20 Msol model. Now evaluated in x (clamped to x >= 0.183, where the cubic is flat, to avoid its pole at x = 0.173); the
+//                                         result is the 0.05 floor, so lambda is 0.08-0.11 at 17-18 Msol and 0.067 at 20-22 Msol (Z = 0.0142).
+//                                       - Enhanced Nanjing lambda (EAGB and TPAGB, Pop. I 3-5 Msol and Pop. II 3-4 Msol): these lambda_b fits are in log10(lambda_b), as in the
+//                                         STARTRACK branch, but 10^y was not applied. 3-5 Msol TPAGB lambda now rises to 57-122 (was <= 2.7).
+//                                       - CalculateLambdaKruckow(): the clamp of the slope to [-1, -2/3] was inverted, so the slope was always -2/3 and
+//                                         --common-envelope-slope-kruckow was ignored. LAMBDA_KRUCKOW (default slope -5/6) is ~10x smaller at 500-1000 Rsol.
+//                                       - Changes results with the defaults for CEs with EAGB/TPAGB donors of 2-6 Msol and >= 16 Msol (ZAMS); HG, FGB and CHeB lambdas, and
+//                                         the non-enhanced Nanjing branch, are unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1853,7 +1865,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.42.00";
+const std::string VERSION_STRING = "03.42.01";
 
 
 # endif // __changelog_h__

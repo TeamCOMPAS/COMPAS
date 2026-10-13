@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.42.01 October 13, 2026**
+
+* Defect repairs in the common-envelope :math:`\lambda`: the enhanced Nanjing (Xu & Li 2010) fits for 20 :math:`M_\odot` AGB stars are now evaluated in the
+  envelope mass fraction (they had been evaluated in radius, giving :math:`\lambda` = 0.4-1.35 for 17-22 :math:`M_\odot` AGB donors instead of ~0.05-0.1);
+  the 3-5 :math:`M_\odot` AGB fits are now exponentiated (they are fits to :math:`\log_{10}\lambda_b`); and ``--common-envelope-slope-kruckow`` is no longer
+  ignored (the slope was always -2/3). Changes results with the defaults for common envelopes with AGB donors of 2-6 and >= 16 :math:`M_\odot`.
+
 **03.42.00 October 13, 2026**
 
 * New option ``--low-mass-donor-thermal-mass-transfer`` (default ``ENVELOPE_REMOVAL``): with ``ROCHE_LOBE_HG`` (or ``ROCHE_LOBE_HG_FGB``), stable
