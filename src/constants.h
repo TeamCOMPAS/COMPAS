@@ -278,6 +278,7 @@ constexpr double ADAPTIVE_RLOF_FRACTION_DONOR_GUESS     = 0.001;                
 constexpr int    ADAPTIVE_RLOF_MAX_TRIES                = 30;                                                       // Maximum number of tries in BaseBinaryStar::MassLossToFitInsideRocheLobe()
 constexpr int    ADAPTIVE_RLOF_MAX_ITERATIONS           = 50;                                                       // Maximum number of root finder iterations in BaseBinaryStar::MassLossToFitInsideRocheLobe()
 constexpr double ADAPTIVE_RLOF_SEARCH_FACTOR_FRAC       = 1.0;                                                      // Search size factor (fractional part) in BaseBinaryStar::MassLossToFitInsideRocheLobe() (added to 1.0)
+constexpr double ADAPTIVE_RLOF_NEGLIGIBLE_MASS_FRACTION = 1.0E-9;                                                   // Negligible mass loss (fraction of donor mass) tried first in BaseBinaryStar::MassLossToFitInsideRocheLobe()
 
 constexpr int    ADAPTIVE_RV_MAX_TRIES                = 30;                                                       // Maximum number of tries in BaseStar::CalculateOStarRotationalVelocity_Static()
 constexpr int    ADAPTIVE_RV_MAX_ITERATIONS           = 50;                                                       // Maximum number of root finder iterations in BaseStar::CalculateOStarRotationalVelocity_Static()

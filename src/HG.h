@@ -118,9 +118,10 @@ protected:
     double          CalculateMassTransferRejuvenationFactor()                       { return 1.0; }
     
     double          CalculateRadiusAtPhaseEnd(const double p_Mass) const;
-    double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusAtPhaseEnd(m_Mass); }                                               // Use class member variables
+    double          CalculateRadiusAtPhaseEnd() const                               { return CalculateRadiusOnPhase(m_Mass0, 1.0, m_RZAMS0); }                                  // HG radius at tau = 1 (continuous with the HG track)
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const double p_RZAMS) const;
     double          CalculateRadiusOnPhase() const                                  { return CalculateRadiusOnPhase(m_Mass0, m_Tau, m_RZAMS0); }                                // Use class member variables
+    double          CalculateRadiusOnMassChange(double p_dM);
     double          CalculateRadiusOnPhase(const double p_Mass, const double p_Luminosity) const    { return GiantBranch::CalculateRadiusOnPhase(p_Mass, p_Luminosity); }                                // Treats HG stars as GB stars
     
     double          CalculateRho(const double p_Mass) const;

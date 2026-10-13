@@ -2342,6 +2342,11 @@ double BaseBinaryStar::MassLossToFitInsideRocheLobe(BaseBinaryStar *p_Binary, Bi
     bool done         = false;                                                                          // finished (found root or exceed maximum tries)?
     ERROR error       = ERROR::NONE;
     RadiusEqualsRocheLobeFunctor<double> func = RadiusEqualsRocheLobeFunctor<double>(p_Binary, p_Donor, p_Accretor, p_FractionAccreted, p_MaximumAccretedMass, &error);
+
+    // the radius can drop discontinuously with the first mass lost (e.g. a HG star whose effective initial mass then follows its mass,
+    // Hurley et al. 2000 section 7.1): if a negligible mass loss already makes the donor fit, there is no root to bracket - return it
+    double negligibleMassLoss = ADAPTIVE_RLOF_NEGLIGIBLE_MASS_FRACTION * p_Donor->Mass();
+    if (func(negligibleMassLoss) >= -ROOT_ABS_TOLERANCE) return negligibleMassLoss;
     while (!done) {                                                                                     // while no error and acceptable root found
 
         bool isRising = true;                                                                           //guess for direction of search

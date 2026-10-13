@@ -1854,6 +1854,25 @@
 //                                         --common-envelope-slope-kruckow was ignored. LAMBDA_KRUCKOW (default slope -5/6) is ~10x smaller at 500-1000 Rsol.
 //                                       - Changes results with the defaults for CEs with EAGB/TPAGB donors of 2-6 Msol and >= 16 Msol (ZAMS); HG, FGB and CHeB lambdas, and
 //                                         the non-enhanced Nanjing branch, are unchanged.
+//  03.42.02  SS - October 14, 2026      - Defect repairs (single-star evolution; checked against Hurley's SSE Fortran and BSE/COSMIC):
+//                                       - CHeB::Initialise() recalculated the timescales without the GB parameters after FGB::ResolveHeliumFlash() reset Mass0, so tHeI
+//                                         used a stale A_H and, on the next step, the phase ended: stars with 1.125 < Mass0 < MHeF that lost any mass on the FGB (winds
+//                                         or mass transfer) skipped core helium burning (0.26 Myr instead of ~130 Myr). GB parameters are now recalculated first.
+//                                       - HG::UpdateInitialMass() never decreased Mass0 on mass loss (it compared the eq-30 HG core of the new mass at the unrescaled
+//                                         age, always below the current core). It now follows SSE/BSE (Hurley et al. 2000 sec 7.1): Mass0 follows the mass unless the
+//                                         core mass at the BGB of the new mass is below the current core mass, or Mass0 > MFGB.
+//                                       - HG radius: R_EHG is the GB radius of the current mass at the end-of-HG luminosity (eq 27; SSE rgbf(mt, lums(3))), not of
+//                                         Mass0 at the current luminosity (mid-HG radii were up to +12%, +30% for stripped stars, with a jump at the start of the FGB);
+//                                         HG::CalculateRadiusAtPhaseEnd() is the HG radius at tau = 1.
+//                                       - MS radius: beta_R' denominator (a74 - 1.0) as in SSE (zfuncs.f), not (a74 - 1.06) (typo in eq 22a of Hurley et al. 2000);
+//                                         radii +0.3-1.2% too large for 1.0 Msol < M < a74 before.
+//                                       - The radius used to fit a HG donor inside its Roche lobe (CalculateRadiusOnMassChange()) was the GB radius R_GB(M, L), 20-25%
+//                                         larger than the HG radius mid-HG; it is now the HG radius after the binary's own update sequence (on a clone).
+//                                       - MassLossToFitInsideRocheLobe(): when a negligible mass loss (1e-9 of the donor) already fits the donor (its radius can drop
+//                                         discontinuously when Mass0 starts to follow the mass), return it instead of failing to bracket a root (which fell back to
+//                                         removing the whole envelope).
+//                                       - Single stars now agree with SSE to <= 1e-8 dex on the MS and HG, CHeB lifetimes match, and stripped HG/GB stars reproduce SSE's
+//                                         HG end times, Mass0 and He-WD masses to <= 0.003 Msol (work/msp/sse_audit). Changes results.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1865,7 +1884,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.42.01";
+const std::string VERSION_STRING = "03.42.02";
 
 
 # endif // __changelog_h__

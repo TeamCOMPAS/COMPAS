@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.42.02 October 14, 2026**
+
+* Single-star defect repairs found by comparing with Hurley's SSE code and BSE: stars of 1.125 Msol to the helium-flash mass that lost any mass
+  on the giant branch skipped core helium burning; Hertzsprung-gap stars losing mass kept their initial-mass track (Mass0 never decreased);
+  the Hertzsprung-gap radius used the wrong mass and luminosity at the end of the gap; and a typo in Hurley et al. (2000) eq 22a was in the
+  main sequence radius. The radius used to fit a Hertzsprung-gap donor inside its Roche lobe is now the Hertzsprung-gap radius. Changes results.
+
 **03.42.01 October 13, 2026**
 
 * Defect repairs in the common-envelope :math:`\lambda`: the enhanced Nanjing (Xu & Li 2010) fits for 20 :math:`M_\odot` AGB stars are now evaluated in the

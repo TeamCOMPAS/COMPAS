@@ -849,6 +849,34 @@ double HG::CalculateLuminosityOnPhase(const double p_Age, const double p_Mass) c
 
 
 /*
+ * Calculate the radius of a Hertzsprung Gap star after a mass change
+ *
+ * Used to fit a donor inside its Roche lobe (BaseBinaryStar::MassLossToFitInsideRocheLobe()).  The mass change is applied to a
+ * clone of the star in the same sequence as BaseBinaryStar::ResolveMassChanges() applies it to the star itself (mass, then
+ * effective initial mass and age, Hurley et al. 2000 section 7.1), so the radius is the HG radius the star will actually have
+ * (eq 27, with the section 6.3 perturbation).  Previously the GB radius R_GB(M, L) was used, 20-25% larger mid-HG.
+ *
+ *
+ * double CalculateRadiusOnMassChange(double p_dM)
+ *
+ * @param   [IN]    p_dM                        Mass change in Msol (negative for mass loss)
+ * @return                                      Radius after the mass change in Rsol
+ */
+double HG::CalculateRadiusOnMassChange(double p_dM) {
+
+    HG *clone = HG::Clone(*this, OBJECT_PERSISTENCE::EPHEMERAL, false);                    // ephemeral clone, left where it is on the phase
+    (void)clone->UpdateAttributesAndAgeOneTimestep(p_dM, 0.0, 0.0, true, false);           // apply the mass change
+    clone->UpdateInitialMass();                                                            // update effective initial mass
+    clone->UpdateAgeAfterMassLoss();                                                       // update age
+    (void)clone->UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true, false);            // recalculate attributes
+    double radius = clone->Radius();
+    delete clone; clone = nullptr;                                                         // return the memory allocated for the clone
+
+    return radius;
+}
+
+
+/*
  * Calculate radius at the end of the Hertzsprung Gap
  *
  * Hurley et al. 2000, eqs 7 & 8
@@ -899,7 +927,8 @@ double HG::CalculateRadiusOnPhase(const double p_Mass, const double p_Tau, const
     else
         RTMS = MainSequence::CalculateRadiusAtPhaseEnd(p_Mass, p_RZAMS);
 
-    double RGB = GiantBranch::CalculateRadiusOnPhase_Static(p_Mass, m_Luminosity, b);
+    // R_EHG: GB radius of the current mass at the luminosity at the end of the HG (Hurley et al. 2000 eq 27; SSE hrdiag.f: rx = rgbf(mt, lums(3)))
+    double RGB = GiantBranch::CalculateRadiusOnPhase_Static(m_Mass, CalculateLuminosityAtPhaseEnd(p_Mass), b);
 
     double rx  = RGB;                                                                                               // Hurley sse terminlogy (rx)
 
@@ -1291,7 +1320,15 @@ void HG::UpdateInitialMass() {
     // (we do not update mass0 on mass gain on the HG -- there is no instruction for doing so in Hurley; adding this
     // check also avoid difficulties for the BRCEK rejuvenation prescription, when mass0 may be set to enforce a core mass
     // that is lower than would be expected for the current mass value according to the Hurley prescription)
-    if (utils::Compare(m_Mass0, m_Mass) > 0 && utils::Compare(m_CoreMass, HG::CalculateCoreMassOnPhaseIgnoringPreviousCoreMass(m_Mass, m_Age)) <= 0) {
-        m_Mass0 = m_Mass;
+    //
+    // Criterion of SSE evolv1.f / BSE evolv2.f (Hurley et al. 2000, section 7.1): Mass0 follows the mass unless the core mass at the BGB of
+    // the new mass would be below the current core mass, or Mass0 > MFGB.  (The age is rescaled to keep tau by UpdateAgeAfterMassLoss().)
+#define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
+    if (utils::Compare(m_Mass0, m_Mass) > 0 && utils::Compare(m_Mass0, massCutoffs(MFGB)) <= 0) {
+        double coreMassBGB = utils::Compare(m_Mass, massCutoffs(MHeF)) < 0
+                                ? BaseStar::CalculateCoreMassGivenLuminosity_Static(GiantBranch::CalculateLuminosityAtPhaseBase_Static(m_Mass, m_AnCoefficients), m_GBParams)
+                                : GiantBranch::CalculateCoreMassAtBGB(m_Mass, m_GBParams);
+        if (utils::Compare(coreMassBGB, m_CoreMass) >= 0) m_Mass0 = m_Mass;
     }
+#undef massCutoffs
 }

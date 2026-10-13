@@ -59,6 +59,7 @@ protected:
     #define massCutoffs(x) m_MassCutoffs[static_cast<int>(MASS_CUTOFF::x)]  // for convenience and readability - undefined at end of function
 
         m_StellarType = STELLAR_TYPE::CORE_HELIUM_BURNING;                                                                                                      // Set stellar type
+        CalculateGBParams();                                                                                                                                    // GB parameters for Mass0, which FGB::ResolveHeliumFlash() may have reset (else tHeI uses stale A_H and CHeB is skipped)
         CalculateTimescales();                                                                                                                                  // Initialise timescales
         m_Age = m_Timescales[static_cast<int>(TIMESCALE::tHeI)];                                                                                                // Set age appropriately
         m_MinimumLuminosityOnPhase = CalculateMinimumLuminosityOnPhase(massCutoffs(MHeF), m_Alpha1, massCutoffs(MHeF), massCutoffs(MFGB), m_BnCoefficients);    // Calculate once, not many
