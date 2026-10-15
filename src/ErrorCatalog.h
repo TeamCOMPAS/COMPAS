@@ -185,6 +185,7 @@ enum class ERROR: int {
     UNKNOWN_PPI_PRESCRIPTION,                                       // unknown pulsational pair instability prescription
     UNKNOWN_PROGRAM_OPTION,                                         // unknown program option
     UNKNOWN_PROPERTY_TYPE,                                          // unknown property type
+    UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION,                 // unknown pulsar birth magnetic field assumption
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,               // unknown pulsar birth magnetic field distribution
     UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                  // unknown pulsar birth spin period distribution
     UNKNOWN_PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL,            // unknown model for magnetic field decay due to accretion
@@ -199,6 +200,7 @@ enum class ERROR: int {
     UNKNOWN_STELLAR_POPULATION,                                     // unknown stellar population
     UNKNOWN_STELLAR_PROPERTY,                                       // unknown stellar property
     UNKNOWN_STELLAR_TYPE,                                           // unknown stellar type
+    UNKNOWN_SURFACE_MAGNETIC_FIELD_DISTRIBUTION,                    // unknown surface magnetic field distribution
     UNKNOWN_TIDES_PRESCRIPTION,                                     // unknown tides prescription
     UNKNOWN_VMS_MASS_LOSS_PRESCRIPTION,                             // unknown VMS mass loss prescription
     UNKNOWN_VROT_PRESCRIPTION,                                      // unknown rorational velocity prescription
@@ -313,11 +315,12 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::TOO_MANY_OMEGA_ITERATIONS,                             { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when looking for omega when circularising and synchronising for tides" }},
     { ERROR::TOO_MANY_OMEGA_TRIES,                                  { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when looking for omega when circularising and synchronising for tides" }},
     { ERROR::TOO_MANY_PULSAR_SPIN_ITERATIONS,                       { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations calculating the pulsar birth spin period" }},
+    { ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS,                        { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations calculating the pulsar birth magnetic field strength" }},
     { ERROR::TOO_MANY_RETRIES,                                      { ERROR_SCOPE::ALWAYS,              "Too many retries" }},
     { ERROR::TOO_MANY_RLOF_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of iterations when fitting star inside Roche Lobe in RLOF" }},
     { ERROR::TOO_MANY_RLOF_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when fitting star inside Roche Lobe in RLOF" }},
-    { ERROR::TOO_MANY_RV_ITERATIONS,                              { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocitiesF" }},
-    { ERROR::TOO_MANY_RV_TRIES,                                   { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocities" }},
+    { ERROR::TOO_MANY_RV_ITERATIONS,                                { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocitiesF" }},
+    { ERROR::TOO_MANY_RV_TRIES,                                     { ERROR_SCOPE::ALWAYS,              "Reached maximum number of tries when inverting the CDF of rotational velocities" }},
     { ERROR::TOO_MANY_TIMESTEPS_IN_TIMESTEPS_FILE,                  { ERROR_SCOPE::ALWAYS,              "Number of timesteps in timestpes file exceeds maximum timesteps" }},
     { ERROR::UNABLE_TO_CREATE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to create directory" }},
     { ERROR::UNABLE_TO_REMOVE_DIRECTORY,                            { ERROR_SCOPE::ALWAYS,              "Unable to remove directory" }},
@@ -366,6 +369,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_PPI_PRESCRIPTION,                              { ERROR_SCOPE::ALWAYS,              "Unknown pulsational pair instability prescription" }},
     { ERROR::UNKNOWN_PROGRAM_OPTION,                                { ERROR_SCOPE::ALWAYS,              "Unknown program option" }},
     { ERROR::UNKNOWN_PROPERTY_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Unknown property type" }},
+    { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION,        { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field assumption" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,      { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field distribution" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,         { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth spin period distribution" }},
     { ERROR::UNKNOWN_PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL,   { ERROR_SCOPE::ALWAYS,              "Unknown model for decay of pulsar magnetic field due to accretion" }},

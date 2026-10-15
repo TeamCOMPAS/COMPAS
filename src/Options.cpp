@@ -662,7 +662,21 @@ void Options::OptionValues::Initialise() {
     m_MSPBirthSpinPeriodDistributionMean                            = 3.0;
     m_MSPBirthSpinPeriodDistributionSigma                           = 1.0;
 
+    // Magnetic field amplification factor during mergers
+    m_MagneticFieldAmplificationFactorMerger                        = MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER;
+
+    // Stellar surface magnetic field distribution
+    m_SurfaceMagneticFieldDistribution.type                         = SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
+    m_SurfaceMagneticFieldDistribution.typeString                   = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_SurfaceMagneticFieldDistribution.type);
+    m_SurfaceMagneticFieldDistributionFLow                          = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_FRACTION;
+    m_SurfaceMagneticFieldDistributionLowMean                       = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN;
+    m_SurfaceMagneticFieldDistributionLowStd                        = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA;
+    m_SurfaceMagneticFieldDistributionHighMean                      = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN;
+    m_SurfaceMagneticFieldDistributionHighStd                       = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
+
     // Pulsar birth magnetic field distribution
+    m_PulsarBirthMagneticFieldAssumption.type                       = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW;
+    m_PulsarBirthMagneticFieldAssumption.typeString                 = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL.at(m_PulsarBirthMagneticFieldAssumption.type);
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
@@ -1634,6 +1648,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Apply magnetic braking only to stars with a radiative core, i.e. not to fully convective main sequence stars (M <= 0.35 Msol), as in MESA's default (default = " + std::string(p_Options->m_MagneticBrakingRequireRadiativeCore ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "magnetic-field-amplification-factor-merger",
+            po::value<double>(&p_Options->m_MagneticFieldAmplificationFactorMerger)->default_value(p_Options->m_MagneticFieldAmplificationFactorMerger),
+            ("Factor by which magnetic fields are assumed to be amplified during stellar merger (default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
+        )
+        (
             "main-sequence-core-mass-brcek-minimum-mass",
             po::value<double>(&p_Options->m_MainSequenceCoreMassBrcekMinimumMass)->default_value(p_Options->m_MainSequenceCoreMassBrcekMinimumMass),
             ("ZAMS mass above which (inclusive) the BRCEK main sequence core mass prescription is applied; lower-mass stars use the MANDEL prescription, in Msol (must be > 0.7; default = " + std::to_string(p_Options->m_MainSequenceCoreMassBrcekMinimumMass) + ")").c_str()
@@ -2025,6 +2044,32 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "surface-magnetic-field-distribution-flow",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionFLow)->default_value(p_Options->m_SurfaceMagneticFieldDistributionFLow),                                  
+            ("Fraction of stars with stellar surface magnetic fields drawn from the low component (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionFLow) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-low-mean",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionLowMean)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowMean),                                  
+            ("Log10(Mean) of the low component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowMean) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-low-std",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionLowStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowStd),                                  
+            ("Log10(Standard deviation) of the low component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowStd) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-high-mean",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighMean)->default_value(p_Options->m_SurfaceMagneticFieldDistributionHighMean),                                  
+            ("Log10(Mean) of the high component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighMean) + ")").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution-high-std",                    
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowStd),                                  
+            ("Log10(Standard deviation) of the high component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighStd) + ")").c_str()
+        )
+
+        (
             "timestep-multiplier",
             po::value<double>(&p_Options->m_TimestepMultiplier)->default_value(p_Options->m_TimestepMultiplier),
             ("Timestep multiplier for SSE and BSE on top of other choices, for use in debugging (default = " + std::to_string(p_Options->m_TimestepMultiplier) + ")").c_str()
@@ -2367,6 +2412,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "pulsar-birth-magnetic-field-assumption",                    
+            po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldAssumption.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldAssumption.typeString),                                  
+            ("Pulsar Birth Magnetic Field assumption (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
+        )
+        (
             "pulsar-birth-magnetic-field-distribution",                    
             po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldDistribution.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldDistribution.typeString),                                  
             ("Pulsar Birth Magnetic Field distribution (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-distribution") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldDistribution.typeString + "')").c_str()
@@ -2437,6 +2487,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "stellar-zeta-prescription",                                   
             po::value<std::string>(&p_Options->m_StellarZetaPrescription.typeString)->default_value(p_Options->m_StellarZetaPrescription.typeString),                                                            
             ("Prescription for stellar zeta (" + AllowedOptionValuesFormatted("stellar-zeta-prescription") + ", default = '" + p_Options->m_StellarZetaPrescription.typeString + "')").c_str()
+        )
+        (
+            "surface-magnetic-field-distribution",                    
+            po::value<std::string>(&p_Options->m_SurfaceMagneticFieldDistribution.typeString)->default_value(p_Options->m_SurfaceMagneticFieldDistribution.typeString),                                  
+            ("Initial (ZAMS) distribution of stellar surface magnetic field strengths (" + AllowedOptionValuesFormatted("surface-magnetic-field-distribution") + ", default = '" + p_Options->m_SurfaceMagneticFieldDistribution.typeString + "')").c_str()
         )
         (
             "tides-prescription",                            
@@ -2899,6 +2954,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown OB Mass Loss Prescription");
         }
 
+        if (!DEFAULTED("pulsar-birth-magnetic-field-assumption")) {                                                               // pulsar birth magnetic field distribution
+            std::tie(found, m_PulsarBirthMagneticFieldAssumption.type) = utils::GetMapKey(m_PulsarBirthMagneticFieldAssumption.typeString, PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL, m_PulsarBirthMagneticFieldAssumption.type);
+            COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Assumption");
+        }
+
         if (!DEFAULTED("pulsar-birth-magnetic-field-distribution")) {                                                               // pulsar birth magnetic field distribution
             std::tie(found, m_PulsarBirthMagneticFieldDistribution.type) = utils::GetMapKey(m_PulsarBirthMagneticFieldDistribution.typeString, PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_PulsarBirthMagneticFieldDistribution.type);
             COMPLAIN_IF(!found, "Unknown Pulsar Birth Magnetic Field Distribution");
@@ -2969,6 +3029,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
+        if (!DEFAULTED("surface-magnetic-field-distribution")) {                                                                    // ZAMS stellar surface magnetic field distribution
+            std::tie(found, m_SurfaceMagneticFieldDistribution.type) = utils::GetMapKey(m_SurfaceMagneticFieldDistribution.typeString, SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_SurfaceMagneticFieldDistribution.type);
+            COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Distribution");
+        }
+
         if (!DEFAULTED("tides-prescription")) {                                                                                     // tides prescription
             std::tie(found, m_TidesPrescription.type) = utils::GetMapKey(m_TidesPrescription.typeString, TIDES_PRESCRIPTION_LABEL, m_TidesPrescription.type);
             COMPLAIN_IF(!found, "Unknown Tides Prescription");
@@ -3028,6 +3093,10 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_LogLevel < 0, "Logging level (--log-level) < 0");
  
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
+
+        COMPLAIN_IF(m_MagneticFieldAmplificationFactorMerger < 0.0, "Magnetic field amplification factor for merger (--magnetic-field-amplification-factor-merger) < 0");
+
+        COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
         
         COMPLAIN_IF(m_MainSequenceCoreMassBrcekMinimumMass <= 0.7, "BRCEK minimum mass (--main-sequence-core-mass-brcek-minimum-mass) must be > 0.7 Msol");
 
@@ -3104,6 +3173,13 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("rotational-frequency")  && m_RotationalFrequency < 0.0, "Rotational frequency (--rotational-frequency) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-1") && m_RotationalFrequency1 < 0.0, "Primary rotational frequency (--rotational-frequency-1) < 0");
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-2") && m_RotationalFrequency2 < 0.0, "Secondary rotational frequency (--rotational-frequency-2) < 0");
+
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow < 0.0, "Flow (--surface-magnetic-field-distribution-flow) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow > 1.0, "Flow (--surface-magnetic-field-distribution-flow) > 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowMean  < 0.0, "Mean of low surface field component (--surface-magnetic-field-distribution-low-mean) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowStd   < 0.0, "Std of low surface field component (--surface-magnetic-field-distribution-low-std) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighMean < 0.0, "Mean of high surface field component (--surface-magnetic-field-distribution-high-mean) < 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighStd  < 0.0, "Std of high surface field component (--surface-magnetic-field-distribution-high-std) < 0.0");
 
         COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");
@@ -3303,6 +3379,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("neutron-star-equation-of-state")                    : POPULATE_RET(NS_EOS_LABEL);                                       break;
         case _("OB-mass-loss-prescription")                         : POPULATE_RET(OB_MASS_LOSS_PRESCRIPTION_LABEL);                    break;
         case _("orbital-period-distribution")                       : POPULATE_RET(ORBITAL_PERIOD_DISTRIBUTION_LABEL);                  break;
+        case _("pulsar-birth-magnetic-field-assumption")            : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL);       break;
         case _("pulsar-birth-magnetic-field-distribution")          : POPULATE_RET(PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);     break;
         case _("pulsar-birth-spin-period-distribution")             : POPULATE_RET(PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);        break;
         case _("pulsar-magnetic-field-decay-model")                 : POPULATE_RET(PULSAR_MAGNETIC_FIELD_DECAY_MODEL_LABEL);            break;
@@ -3317,6 +3394,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("rotational-velocity-distribution")                  : POPULATE_RET(ROTATIONAL_VELOCITY_DISTRIBUTION_LABEL);             break;
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);                 break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                            break;
+        case _("surface-magnetic-field-distribution")               : POPULATE_RET(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL);          break;
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                           break;
         case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                    break;
@@ -5465,6 +5543,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::LBV_FACTOR                                     : value = LuminousBlueVariableFactor();                                         break;
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
+        
+        case PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER     : value = MagneticFieldAmplificationFactorMerger();                             break;
 
         case PROGRAM_OPTION::MAGNETIC_BRAKING_GAMMA                         : value = MagneticBrakingGamma();                                               break;
         case PROGRAM_OPTION::MAGNETIC_BRAKING_PRESCRIPTION                  : value = static_cast<int>(MagneticBrakingPrescription());                      break;
@@ -5612,6 +5692,13 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN               : value = SemiMajorAxisDistributionMin();                                       break;
 
         case PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION                      : value = static_cast<int>(StellarZetaPrescription());                          break;
+
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION            : value = static_cast<int>(SurfaceMagneticFieldDistribution());                 break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW       : value = SurfaceMagneticFieldDistributionFLow();                               break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN   : value = SurfaceMagneticFieldDistributionLowMean();                            break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD    : value = SurfaceMagneticFieldDistributionLowStd();                             break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN  : value = SurfaceMagneticFieldDistributionHighMean();                           break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD   : value = SurfaceMagneticFieldDistributionHighStd();                            break;
 
         case PROGRAM_OPTION::TIDES_PRESCRIPTION                             : value = static_cast<int>(TidesPrescription());                                break;
         case PROGRAM_OPTION::USSN_KICKS_OVERRIDE_MANDEL_MULLER              : value = USSNKicksOverrideMandelMuller();                                      break;

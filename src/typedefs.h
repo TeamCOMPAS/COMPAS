@@ -3,7 +3,7 @@
 
 
 // This is where developer-defined types are defined - except for types that pertain directly to
-// the COMPAS looging functionality (including the definition of the default record composition
+// the COMPAS logging functionality (including the definition of the default record composition
 // for the various log files) - those are listed in LogTypedefs.h
 
 
@@ -883,6 +883,21 @@ const COMPASUnorderedMap<PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL, std::strin
     { PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::NONE,        "NONE" },
     { PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::EXPONENTIAL, "EXPONENTIAL" },
     { PULSAR_MAGNETIC_FIELD_DECAY_ACCRETION_MODEL::SHIBAZAKI,   "SHIBAZAKI" }
+};
+
+// ZAMS stellar surface magnetic field strength distributions
+enum class SURFACE_MAGNETIC_FIELD_DISTRIBUTION: int { ZERO, MAKARENKO21, NS_BIRTH_DIST };
+const COMPASUnorderedMap<SURFACE_MAGNETIC_FIELD_DISTRIBUTION, std::string> SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {
+    { SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO,          "ZERO" },
+    { SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21,   "MAKARENKO21" },
+    { SURFACE_MAGNETIC_FIELD_DISTRIBUTION::NS_BIRTH_DIST, "NS_BIRTH_DIST"}
+};
+
+// Pulsar birth magnetic field assumption
+enum class PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION: int { RANDOM_DRAW, FLUX_CONSERVATION };
+const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL = {
+    { PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW,       "RANDOM_DRAW" },
+    { PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION, "FLUX_CONSERVATION" }
 };
 
 // pulsar birth magnetic field distributions

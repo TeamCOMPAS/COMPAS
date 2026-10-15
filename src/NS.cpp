@@ -39,7 +39,9 @@ double NS::ChooseTimestep(const double p_Time) const {
 
     double result = 500.0;                                      // default value
 
-         if (p_Time < 0.01 ) result = 0.001;
+         if (p_Time < 0.0001) result = 0.00001;                 // For pulsars younger than 10^-4 Myr = 100 yrs, timestep = 10^-5 Myr = 10 yrs
+    else if (p_Time < 0.001 ) result = 0.0001;                  // For pulsars younger than 10^-3 Myr = 1000 yrs, take 10^-4 Myr = 100 yr timesteps
+    else if (p_Time < 0.01 ) result = 0.001;
     else if (p_Time < 0.1  ) result = 0.01;
     else if (p_Time < 1.0  ) result = 0.1;
     else if (p_Time < 3000.0 ) result = 1.0;
@@ -304,49 +306,84 @@ double NS::CalculateBirthMagneticField() {
     }
     else {
 
-        switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
+        switch (OPTIONS->PulsarBirthMagneticFieldAssumption()) {                                                    // which assumption?
 
-            case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
+            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW:                                               // random draw from user specified distribution
+                log10B = DrawBirthMagneticField_Static();
+                break;
 
-                double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
-                double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
-                
-                log10B = minimum + (RAND->Random() * (maximum - minimum));
+            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION:                                         // flux conservation from the stellar surface magnetic field
+                m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();                    // update surface magnetic field strength
+                log10B = log10(m_SurfaceMagneticFieldStrength);
+                break;
 
-                } break;
-
-            case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                               // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
-                
-                double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
-                double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
-
-                log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
-                } break;
-
-            case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
-
-                double mean  = OPTIONS->PulsarBirthMagneticFieldDistributionMean();
-                double sigma = OPTIONS->PulsarBirthMagneticFieldDistributionSigma();
-
-                log10B = RAND->RandomGaussian(sigma) + mean;
-
-                // add a guard to make sure magnetic field is always larger than the value set by --pulsar-minimum-magnetic-field
-                std::size_t iterations = 0;
-                do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
-                if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
-                } break;
-
-            default:                                                                                                // unknown prescription
-                // the only way this can happen is if someone added a PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
-                // and it isn't accounted for in this code.  We should not default here, with or without a warning.
-                // We are here because the user chose a prescription this code doesn't account for, and that should
-                // be flagged as an error and result in termination of the evolution of the star or binary.
-                // The correct fix for this is to add code for the missing prescription or, if the missing
-                // prescription is superfluous, remove it from the option.
-
-                THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
+            default:                                                                                                // unknown assumption
+                THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION);                                 // throw error
         }
     }
+    return log10B;
+}
+
+
+/*
+ * Draw (log10 of) the magnetic field (in G) for a pulsar at birth
+ * according to selected distribution (by commandline option)
+ *
+ * Declared as static so that it can be used at ZAMS to draw the
+ * stellar surface field that will produce this field (--surface-magnetic-field-distribution NS_BIRTH_DIST)
+ *
+ *
+ * double DrawBirthMagneticField_Static()
+ *
+ * @return                                      log10 of the birth magnetic field in G
+ */
+double NS::DrawBirthMagneticField_Static() {
+
+    double log10B = 0.0;
+
+    switch (OPTIONS->PulsarBirthMagneticFieldDistribution()) {                                                  // which distribution?
+
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::FLATINLOG: {                                             // FLAT IN LOG distribution from Oslowski et al 2011 https://arxiv.org/abs/0903.3538 (log10B0min = , log10B0max = )
+
+            double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
+            double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
+            
+            log10B = minimum + (RAND->Random() * (maximum - minimum));
+
+            } break;
+
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::UNIFORM: {                                               // UNIFORM flat distribution used in Kiel et al 2008 https://arxiv.org/abs/0805.0059 (log10B0min = 11, log10B0max = 13.5 see section 3.4 and Table 1.)
+            
+            double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
+            double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
+
+            log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
+            } break;
+
+        case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
+
+            double mean  = OPTIONS->PulsarBirthMagneticFieldDistributionMean();
+            double sigma = OPTIONS->PulsarBirthMagneticFieldDistributionSigma();
+
+            log10B = RAND->RandomGaussian(sigma) + mean;
+
+            // add a guard to make sure magnetic field is always larger than the value set by --pulsar-minimum-magnetic-field
+            std::size_t iterations = 0;
+            do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
+            if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR_STATIC(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
+            } break;
+
+        default:                                                                                                // unknown prescription
+            // the only way this can happen is if someone added a PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION
+            // and it isn't accounted for in this code.  We should not default here, with or without a warning.
+            // We are here because the user chose a prescription this code doesn't account for, and that should
+            // be flagged as an error and result in termination of the evolution of the star or binary.
+            // The correct fix for this is to add code for the missing prescription or, if the missing
+            // prescription is superfluous, remove it from the option.
+
+            THROW_ERROR_STATIC(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION);                               // throw error
+    }
+
     return log10B;
 }
 

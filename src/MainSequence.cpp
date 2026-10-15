@@ -106,6 +106,28 @@ double MainSequence::CalculateHydrogenAbundanceCoreFraction(const double p_Tau, 
     return (1.0 - weight) * radiativeCoreFraction(MIST_RADIATIVE_CORE_MAXIMUM_MASS) + weight * convectiveCoreFraction(MIST_CONVECTIVE_CORE_MINIMUM_MASS);
 }
 
+/*
+ * Calculate the surface magnetic field strength of a star
+ * 
+ * Assumes conservation of magnetic flux, so the field just varies with the stellar radius
+ * 
+ * Bnew = Bold * (Rold / Rnew)^2
+ * 
+ * double CalculateSurfaceMagneticFieldStrengthOnPhase
+ * 
+ * @return                                      Surface magnetic field strength
+ */
+double MainSequence::CalculateSurfaceMagneticFieldStrengthOnPhase() const {
+
+    double Rold = RadiusPrev();
+    double Rnew = Radius();
+    double Bold = SurfaceMagneticFieldStrengthPrev();
+
+    double radiusRatio = Rold/Rnew;
+    double Bnew = Bold * radiusRatio * radiusRatio;
+    
+    return Bnew;
+}
 
 /*
  * Calculate timescales in units of Myr
@@ -1424,6 +1446,8 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;      // assumes uniformly mixed merger product and a uniform rate of H fusion on main sequence
     
     m_Age = m_Tau * timescales(tMS);
+
+    MagneticFieldAmplificationMerger();
     
     m_HeliumAbundanceCore   = 1.0 - m_Metallicity - p_HydrogenMass / p_Mass;
     m_HydrogenAbundanceCore = 1.0 - m_Metallicity - m_HeliumAbundanceCore;
@@ -1441,6 +1465,15 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     #undef timescales
 }
 
+/*
+ * Amplify the surface magnetic field of the merger product (cf. Schneider et al. 2019)
+ *
+ * void MainSequence::MagneticFieldAmplificationMerger()
+ * 
+ * */
+void MainSequence::MagneticFieldAmplificationMerger(){
+    m_SurfaceMagneticFieldStrengthPrev *= OPTIONS->MagneticFieldAmplificationFactorMerger(); // Assume magnetic field increased in merger product. m_SurfaceMagneticFieldStrength is updated in UpdateAttributesAndAgeOneTimestep
+}
 
 /* 
  * Interpolate Ge+ Critical Mass Ratios, for H-rich stars

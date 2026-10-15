@@ -47,8 +47,8 @@ protected:
         m_Luminosity  = 0.0;
         m_Radius      = 0.0;
         m_Temperature = 0.0;
+        m_SurfaceMagneticFieldStrength = 0.0;
     }
-
 
     // member functions
    	 double     CalculateMomentOfInertia() const        { return 0.0; }                                     // No moment of inertia for massless remnants - use 0.0

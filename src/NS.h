@@ -69,6 +69,7 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
+    static  double      DrawBirthMagneticField_Static();
     static double       DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon);
 
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
@@ -139,7 +140,6 @@ protected:
             void            ResetInclinationAtRecycling();
             double          GraberFieldShape(const double p_Age) const;
             double          SpinDownTorqueFactor() const                        { return SpinDownTorqueFactor(m_PulsarDetails.inclination); }
-            double          CalculateSpinPeriodOnPhase(const double p_Time, const double p_initialMagField, const double p_initialSpinPeriod);
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                              // not a meaningful calculation for NS and BH
             void            CalculateTimescales() { }                                                                                                           // not a meaningful calculation for NS and BH

@@ -4,7 +4,7 @@
 
 // This is where developer-defined types that pertain directly to the COMPAS looging functionality
 // (including the definitions of the default record composition for the various log files) are
-// defined.  Non-logging tyedefs are listed in typedefs.h
+// defined.  Non-logging typedefs are listed in typedefs.h
 
 
 #include "constants.h"
@@ -196,6 +196,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     INITIAL_HYDROGEN_ABUNDANCE,                      \
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
+    INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,         \
     IS_AIC,                                          \
     IS_CCSN,                                         \
     IS_HeSD,                                         \
@@ -252,6 +253,7 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE, \
     RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,  \
     RADIUS,                                          \
+    RADIUS_PREV,                                     \
     RANDOM_SEED,                                     \
     RECYCLED_NEUTRON_STAR,                           \
     ROCKET_KICK_MAGNITUDE,                           \
@@ -267,6 +269,8 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,          \
     SUPERNOVA_PHI,                                   \
     SUPERNOVA_THETA,                                 \
+    SURFACE_MAGNETIC_FIELD_STRENGTH,                 \
+    SURFACE_MAGNETIC_FIELD_STRENGTH_PREV,            \
     TEMPERATURE,                                     \
     TEMPERATURE_POST_COMMON_ENVELOPE,                \
     TEMPERATURE_PRE_COMMON_ENVELOPE,                 \
@@ -354,6 +358,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
+    { STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,         "INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
     { STAR_PROPERTY::IS_HeSD,                                         "IS_HeSD" },
@@ -410,6 +415,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE, "RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,  "RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE" },
     { STAR_PROPERTY::RADIUS,                                          "RADIUS" },
+    { STAR_PROPERTY::RADIUS_PREV,                                     "RADIUS_PREV" },
     { STAR_PROPERTY::RANDOM_SEED,                                     "RANDOM_SEED" },
     { STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                           "RECYCLED_NEUTRON_STAR" },
     { STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                           "ROCKET_KICK_MAGNITUDE" },
@@ -425,6 +431,7 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,          "SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER" },
     { STAR_PROPERTY::SUPERNOVA_PHI,                                   "SUPERNOVA_PHI" },
     { STAR_PROPERTY::SUPERNOVA_THETA,                                 "SUPERNOVA_THETA" },
+    { STAR_PROPERTY::SURFACE_MAGNETIC_FIELD_STRENGTH,                 "SURFACE_MAGNETIC_FIELD_STRENGTH" },
     { STAR_PROPERTY::TEMPERATURE,                                     "TEMPERATURE" },
     { STAR_PROPERTY::TEMPERATURE_POST_COMMON_ENVELOPE,                "TEMPERATURE_POST_COMMON_ENVELOPE" },
     { STAR_PROPERTY::TEMPERATURE_PRE_COMMON_ENVELOPE,                 "TEMPERATURE_PRE_COMMON_ENVELOPE" },
@@ -901,6 +908,7 @@ enum class PROGRAM_OPTION: int {
 
     MAGNETIC_BRAKING_GAMMA,
     MAGNETIC_BRAKING_PRESCRIPTION,
+    MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,
     MAIN_SEQUENCE_DEGENERATE_RADIUS,
 
     MALTSEV_FALLBACK,
@@ -1049,6 +1057,13 @@ enum class PROGRAM_OPTION: int {
 
     STELLAR_ZETA_PRESCRIPTION,
 
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN,
+    SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,
+
     TIDES_PRESCRIPTION,
     
     USSN_KICKS_OVERRIDE_MANDEL_MULLER,
@@ -1160,6 +1175,7 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                       "LBV_MASS_LOSS_PRESCRIPTION" },
     { PROGRAM_OPTION::MAGNETIC_BRAKING_GAMMA,                           "MAGNETIC_BRAKING_GAMMA" },
     { PROGRAM_OPTION::MAGNETIC_BRAKING_PRESCRIPTION,                    "MAGNETIC_BRAKING_PRESCRIPTION" },
+    { PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,       "MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER" },
     { PROGRAM_OPTION::MAIN_SEQUENCE_DEGENERATE_RADIUS,                  "MAIN_SEQUENCE_DEGENERATE_RADIUS" },
 
     { PROGRAM_OPTION::MALTSEV_FALLBACK,                                 "MALTSEV_FALLBACK" },
@@ -1304,6 +1320,13 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                 "SEMI_MAJOR_AXIS_DISTRIBUTION_MIN" },
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                        "STELLAR_ZETA_PRESCRIPTION" },
+ 
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION,              "SURFACE_MAGNETIC_FIELD_DISTRIBUTION" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW,         "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN,     "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD,      "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN,    "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN" },
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,     "SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD" },
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                               "TIDES_PRESCRIPTION" },
     
@@ -1431,6 +1454,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::INITIAL_HYDROGEN_ABUNDANCE,                        { TYPENAME::DOUBLE,           "Hydrogen_Abundance@ZAMS",         "-",                24, 15}},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,     "Stellar_Type@ZAMS",               "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,           "Stellar_Type@ZAMS",               "-",                42, 1 }},
+    { ANY_STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,           { TYPENAME::DOUBLE,           "Surface_Magnetic_Field_Strength@ZAMS", "Tesla",       24, 15}},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,             "AIC",                             "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,             "CCSN",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,             "HeSD",                            "State",             0, 0 }},
@@ -1486,6 +1510,7 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_POST_COMMON_ENVELOPE,   { TYPENAME::DOUBLE,           "Tau_Radial>CE",                   "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::RADIAL_EXPANSION_TIMESCALE_PRE_COMMON_ENVELOPE,    { TYPENAME::DOUBLE,           "Tau_Radial<CE",                   "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::RADIUS,                                            { TYPENAME::DOUBLE,           "Radius",                          "Rsol",             24, 15}},
+    { ANY_STAR_PROPERTY::RADIUS_PREV,                                       { TYPENAME::DOUBLE,           "Radius_Prev",                     "Rsol",             24, 15}},
     { ANY_STAR_PROPERTY::RANDOM_SEED,                                       { TYPENAME::ULONGINT,         "SEED",                            "-",                12, 1 }},
     { ANY_STAR_PROPERTY::RECYCLED_NEUTRON_STAR,                             { TYPENAME::BOOL,             "Recycled_NS",                     "Event",             0, 0 }},
     { ANY_STAR_PROPERTY::ROCKET_KICK_MAGNITUDE,                             { TYPENAME::DOUBLE,           "Rocket_Kick_Magnitude",           "kms^-1",           24, 15}},
@@ -1498,6 +1523,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::STELLAR_TYPE_NAME,                                 { TYPENAME::STRING,           "Stellar_Type",                    "-",                42, 1 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE_PREV,                                 { TYPENAME::STELLAR_TYPE,     "Stellar_Type_Prev",               "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::STELLAR_TYPE_PREV_NAME,                            { TYPENAME::STRING,           "Stellar_Type_Prev",               "-",                42, 1 }},
+    { ANY_STAR_PROPERTY::SURFACE_MAGNETIC_FIELD_STRENGTH,                   { TYPENAME::DOUBLE,           "Surface_Magnetic_Field_Strength", "Tesla",            24, 15}},
+    { ANY_STAR_PROPERTY::SURFACE_MAGNETIC_FIELD_STRENGTH_PREV,              { TYPENAME::DOUBLE,           "Surface_Magnetic_Field_Strength_Prev", "Tesla",       24, 15}},
     { ANY_STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,            { TYPENAME::DOUBLE,           "SN_Kick_Magnitude_Random_Number", "-",                24, 15}},
     { ANY_STAR_PROPERTY::MEAN_ANOMALY,                                      { TYPENAME::DOUBLE,           "SN_Kick_Mean_Anomaly",            "-",                24, 15}},
     { ANY_STAR_PROPERTY::SUPERNOVA_PHI,                                     { TYPENAME::DOUBLE,           "SN_Kick_Phi",                     "-",                24, 15}},
@@ -1783,6 +1810,7 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION,                               { TYPENAME::INT,        "PO_LBV_Mass_Loss_Prscrptn",                 "-",          4, 1 }},
     { PROGRAM_OPTION::MAGNETIC_BRAKING_GAMMA,                                   { TYPENAME::DOUBLE,     "PO_Magnetic_Braking_Gamma",                 "-",         24, 15}},
     { PROGRAM_OPTION::MAGNETIC_BRAKING_PRESCRIPTION,                            { TYPENAME::INT,        "PO_Magnetic_Braking_Prscrptn",              "-",          4, 1 }},
+    { PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER,               { TYPENAME::DOUBLE,     "PO_Magnetic_Field_Amp_Fact",                "-",         24, 15}},
     { PROGRAM_OPTION::MAIN_SEQUENCE_DEGENERATE_RADIUS,                          { TYPENAME::BOOL,       "PO_MS_Degenerate_Radius",                   "Flag",       0, 0 }},
 
     { PROGRAM_OPTION::MALTSEV_FALLBACK,                                         { TYPENAME::DOUBLE,     "PO_Maltsev_Fallback",                       "-",         24, 15}},
@@ -1928,6 +1956,13 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::SEMI_MAJOR_AXIS_DISTRIBUTION_MIN,                         { TYPENAME::DOUBLE,     "PO_Semi-Major_Axis_Dstrbtn_Min",            "AU",        24, 15}},
 
     { PROGRAM_OPTION::STELLAR_ZETA_PRESCRIPTION,                                { TYPENAME::INT,        "PO_Stellar_Zeta_Prscrptn",                  "-",          4, 1 }},
+
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION,                      { TYPENAME::INT,        "PO_Surface_Magnetic_Field_Dstrbtn",          "-",         4, 1 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_FLOW,                 { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_Flow",     "-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_MEAN,             { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_Low_Mean", "-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LOW_STD,              { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_Low_Std",  "-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_MEAN,            { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_High_Mean","-",        24, 15 }},
+    { PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_STD,             { TYPENAME::DOUBLE,     "PO_Surface_Magnetic_Field_Dstrbtn_High_Std", "-",        24, 15 }},
 
     { PROGRAM_OPTION::TIDES_PRESCRIPTION,                                       { TYPENAME::INT,        "PO_Tides_Prscrptn",                         "-",          4, 1 }},
     
@@ -2233,6 +2268,8 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
     STAR_1_PROPERTY::METALLICITY,
     STAR_2_PROPERTY::METALLICITY,
     BINARY_PROPERTY::MASS_TRANSFER_TRACKER_HISTORY,
+    STAR_1_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD,
+    STAR_2_PROPERTY::PULSAR_BIRTH_MAGNETIC_FIELD,
     STAR_1_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_2_PROPERTY::PULSAR_MAGNETIC_FIELD,
     STAR_1_PROPERTY::PULSAR_SPIN_PERIOD,
@@ -2438,6 +2475,8 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
     STAR_1_PROPERTY::MZAMS,
     STAR_2_PROPERTY::MZAMS,
+    STAR_1_PROPERTY::RZAMS,
+    STAR_2_PROPERTY::RZAMS,
     BINARY_PROPERTY::SEMI_MAJOR_AXIS_INITIAL,
     BINARY_PROPERTY::ECCENTRICITY_INITIAL,
     STAR_1_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,
@@ -2464,6 +2503,8 @@ const ANY_PROPERTY_VECTOR BSE_SYSTEM_PARAMETERS_REC = {
     STAR_2_PROPERTY::STELLAR_TYPE,
     STAR_1_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
     STAR_2_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
+    STAR_1_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,
+    STAR_2_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,
     BINARY_PROPERTY::EVOL_STATUS,
     BINARY_PROPERTY::ERROR,
     PROGRAM_OPTION::NOTES
@@ -2667,6 +2708,7 @@ const ANY_PROPERTY_VECTOR SSE_SYSTEM_PARAMETERS_REC = {
     STAR_PROPERTY::SUPERNOVA_KICK_MAGNITUDE_RANDOM_NUMBER,
     STAR_PROPERTY::MASS,
     STAR_PROPERTY::CHEMICALLY_HOMOGENEOUS_MAIN_SEQUENCE,
+    STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,
     STAR_PROPERTY::EVOL_STATUS,
     STAR_PROPERTY::ERROR,
     PROGRAM_OPTION::KICK_MAGNITUDE_DISTRIBUTION_SIGMA_CCSN_NS,

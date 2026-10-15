@@ -1624,6 +1624,13 @@ and :math:`\log_{10} g = -0.282 + 3.121 x + 4.587 x^2`, :math:`x = M_c - 0.25`, 
 :math:`M_{\rm WD} = 0.21-0.36\,M_\odot`. The end-of-HG radius uses the same factor, so the radius is continuous at the start of the giant branch. |br|
 Default = HURLEY
 
+**--surface-magnetic-field-distribution** |br|
+Initial (ZAMS) distribution of stellar surface magnetic field strengths. |br| 
+Options: ['MAKARENKO21','ZERO']
+``MAKARENKO21`` uses the distribution from Makarenko et al. (2021) |br|
+``ZERO`` initialises all fields to zero. |br|
+default = ZERO
+
 **--switch-log** |br|
 Enables printing of the Switch Log logfile. |br|
 Default = FALSE
