@@ -1976,6 +1976,12 @@
 //                                         al. 2012), with new options --pulsar-strong-field-decay-timescale (tau_15, yr; default 0 = off) and
 //                                         --pulsar-strong-field-decay-index (alpha; default 2). Combined with SARIN2023: the dipole grows, then strong fields
 //                                         decay within ~10 kyr (magnetars), while normal pulsars are nearly unaffected.
+//  03.51.01  SS - October 16, 2026      - Defect repair:
+//                                       - SSE: the KickParameters passed to the Star constructor (main.cpp) left phi, theta, the mean anomaly and their
+//                                         'specified' flags uninitialised; they are copied into the supernova details, so SSE supernova records printed
+//                                         an arbitrary SN_Kick_Mean_Anomaly (and could read garbage 'specified' flags). The struct is now value-initialised,
+//                                         and MEAN_ANOMALY (an orbital quantity, meaningless for a single star) is removed from the default SSE supernova
+//                                         record (SSE_SUPERNOVAE_REC) and its documentation.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1987,7 +1993,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.51.00";
+const std::string VERSION_STRING = "03.51.01";
 
 
 # endif // __changelog_h__

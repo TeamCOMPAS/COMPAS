@@ -387,7 +387,7 @@ std::tuple<int, int> EvolveSingleStars() {
                         //
                         // for SSE only need magnitudeRandom and magnitude - other values can just be ignored
 
-                        KickParameters kickParameters;
+                        KickParameters kickParameters{};                                                                    // value-initialised: phi, theta, mean anomaly (BSE only) and their flags are false / 0
                         kickParameters.magnitudeRandomSpecified = OPTIONS->OptionSpecified("kick-magnitude-random");
                         kickParameters.magnitudeRandom          = OPTIONS->KickMagnitudeRandom();
                         kickParameters.magnitudeSpecified       = OPTIONS->OptionSpecified("kick-magnitude");
