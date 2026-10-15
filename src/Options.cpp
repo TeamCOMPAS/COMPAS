@@ -3234,9 +3234,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow < 0.0, "Flow (--surface-magnetic-field-distribution-flow) < 0.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow > 1.0, "Flow (--surface-magnetic-field-distribution-flow) > 1.0");
-        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowMean  < 0.0, "Mean of low surface field component (--surface-magnetic-field-distribution-low-mean) < 0.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowStd   < 0.0, "Std of low surface field component (--surface-magnetic-field-distribution-low-std) < 0.0");
-        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighMean < 0.0, "Mean of high surface field component (--surface-magnetic-field-distribution-high-mean) < 0.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighStd  < 0.0, "Std of high surface field component (--surface-magnetic-field-distribution-high-std) < 0.0");
 
         COMPLAIN_IF(m_PulsarBirthMagneticFieldAssumption.type == PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION &&

@@ -1950,6 +1950,9 @@
 //                                         the remnant's), and white dwarf supernovae (AIC, SN Ia, HeSD) were not written at all (e.g. neutron stars
 //                                         formed by AIC of ONe WDs had no record). The SSE record is now written by Star::SwitchTo() when the star
 //                                         switches to its remnant: Stellar_Type is the remnant's and Stellar_Type_Prev the progenitor's. BSE unchanged.
+//  03.48.02  SS - October 15, 2026      - Defect repair:
+//                                       - --surface-magnetic-field-distribution-low-mean and -high-mean are means of log10(B/G) and may be negative
+//                                         (sub-gauss fields); the options check rejected values < 0.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1961,7 +1964,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.48.01";
+const std::string VERSION_STRING = "03.48.02";
 
 
 # endif // __changelog_h__
