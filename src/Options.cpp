@@ -728,6 +728,9 @@ void Options::OptionValues::Initialise() {
     m_PulsarLateMagneticFieldDecayTimescale                         = 2.0;                                                  // Myr; Graber et al. (2024)
     m_PulsarFinalMagneticFieldDistributionMean                      = 8.5;                                                  // log10(B/G); Graber et al. (2024)
     m_PulsarFinalMagneticFieldDistributionSigma                     = 0.5;                                                  // dex; Graber et al. (2024)
+    m_PulsarInverseCascadeTimescale                                 = 1.0;                                                  // yr; Sarin et al. (2023), resistive pasta layer
+    m_PulsarInverseCascadeLmax                                      = 40.0;                                                 // Sarin et al. (2023): best for magnetars
+    m_PulsarInverseCascadeDecayIndex                                = 2.3;                                                  // Sarin et al. (2023)
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
@@ -1999,6 +2002,21 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Standard deviation (dex) of the lognormal final field for --pulsar-magnetic-field-decay-model GRABER2024 (default = " + std::to_string(p_Options->m_PulsarFinalMagneticFieldDistributionSigma) + ")").c_str()
         )
         (
+            "pulsar-inverse-cascade-timescale",
+            po::value<double>(&p_Options->m_PulsarInverseCascadeTimescale)->default_value(p_Options->m_PulsarInverseCascadeTimescale),
+            ("Onset timescale tau_1 (yr) of the inverse cascade of the isolated pulsar field, for --pulsar-magnetic-field-decay-model SARIN2023 (default = " + std::to_string(p_Options->m_PulsarInverseCascadeTimescale) + ")").c_str()
+        )
+        (
+            "pulsar-inverse-cascade-lmax",
+            po::value<double>(&p_Options->m_PulsarInverseCascadeLmax)->default_value(p_Options->m_PulsarInverseCascadeLmax),
+            ("Spherical harmonic degree l_max of the energy-carrying magnetic eddies at birth; the cascade reaches the dipole at tau_2 = tau_1 l_max^(5/2), for --pulsar-magnetic-field-decay-model SARIN2023 (default = " + std::to_string(p_Options->m_PulsarInverseCascadeLmax) + ")").c_str()
+        )
+        (
+            "pulsar-inverse-cascade-decay-index",
+            po::value<double>(&p_Options->m_PulsarInverseCascadeDecayIndex)->default_value(p_Options->m_PulsarInverseCascadeDecayIndex),
+            ("Post-cascade decay index m, B ~ (1 + t/tau_1) (1 + t/tau_2)^(-m/2), for --pulsar-magnetic-field-decay-model SARIN2023 (must be > 2; default = " + std::to_string(p_Options->m_PulsarInverseCascadeDecayIndex) + ")").c_str()
+        )
+        (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
@@ -3190,6 +3208,9 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsarLateMagneticFieldDecayTimescale <= 0.0, "Pulsar late field decay timescale (--pulsar-late-magnetic-field-decay-timescale) must be > 0");
         COMPLAIN_IF(m_PulsarLateMagneticFieldDecayIndex > 0.0, "Pulsar late field decay index (--pulsar-late-magnetic-field-decay-index) must be <= 0");
         COMPLAIN_IF(m_PulsarFinalMagneticFieldDistributionSigma < 0.0, "Pulsar final field sigma (--pulsar-final-magnetic-field-distribution-sigma) must be >= 0");
+        COMPLAIN_IF(m_PulsarInverseCascadeTimescale <= 0.0, "Pulsar inverse cascade timescale (--pulsar-inverse-cascade-timescale) must be > 0");
+        COMPLAIN_IF(m_PulsarInverseCascadeLmax <= 1.0, "Pulsar inverse cascade l_max (--pulsar-inverse-cascade-lmax) must be > 1");
+        COMPLAIN_IF(m_PulsarInverseCascadeDecayIndex <= 2.0, "Pulsar inverse cascade decay index (--pulsar-inverse-cascade-decay-index) must be > 2 (so that the field peaks)");
 
         COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
 

@@ -1446,6 +1446,21 @@ Default = 8.5
 Standard deviation (dex) of the lognormal final field for ``--pulsar-magnetic-field-decay-model GRABER2024``; 0 gives a fixed final field. |br|
 Default = 0.5
 
+**--pulsar-inverse-cascade-decay-index** |br|
+Post-cascade decay index :math:`m` of the isolated pulsar field, :math:`B \propto (1 + t/\tau_1)(1 + t/\tau_2)^{-m/2}`, for
+``--pulsar-magnetic-field-decay-model SARIN2023`` (Sarin et al. 2023; must be > 2, so that the field peaks). |br|
+Default = 2.3
+
+**--pulsar-inverse-cascade-lmax** |br|
+Spherical harmonic degree :math:`\ell_{\max}` of the energy-carrying magnetic eddies at birth, for ``--pulsar-magnetic-field-decay-model SARIN2023``:
+the inverse cascade reaches the dipole at :math:`\tau_2 = \tau_1 \ell_{\max}^{5/2}` (Sarin et al. 2023: :math:`\ell_{\max} \approx 40` for magnetars). |br|
+Default = 40.0
+
+**--pulsar-inverse-cascade-timescale** |br|
+Onset timescale :math:`\tau_1` (yr) of the inverse cascade of the isolated pulsar field, for ``--pulsar-magnetic-field-decay-model SARIN2023``
+(Sarin et al. 2023: ~1 yr needs a highly resistive pasta layer at the base of the crust). |br|
+Default = 1.0
+
 **--pulsar-late-magnetic-field-decay-index** |br|
 Late-time power-law index :math:`a_{\rm late}` of the isolated pulsar field, :math:`B \propto (1 + t/\tau_{\rm late})^{a_{\rm late}}`, for
 ``--pulsar-magnetic-field-decay-model GRABER2024`` (Graber et al. 2024: :math:`-1.80^{+0.65}_{-0.61}`). |br|
@@ -1462,14 +1477,19 @@ Default = 1.0
 
 **--pulsar-magnetic-field-decay-model** |br|
 Decay of the magnetic field of isolated (non-accreting, not yet recycled) pulsars. |br|
-Options: { EXPONENTIAL, GRABER2024 } |br|
+Options: { EXPONENTIAL, GRABER2024, SARIN2023 } |br|
 ``EXPONENTIAL``: decay to ``--pulsar-minimum-magnetic-field`` on ``--pulsar-magnetic-field-decay-timescale`` (a power law, Dall'Osso et al. 2012, if
 ``--pulsar-magnetic-field-decay-timescale-power`` > 0) (as before). |br|
 ``GRABER2024``: the fit of Graber et al. (2024, Appendix A) to the crustal magneto-thermal simulations of Viganò et al. (2021): broken power laws in age with
 timescales set by the birth field, followed by :math:`(1 + t/\tau_{\rm late})^{a_{\rm late}}` (``--pulsar-late-magnetic-field-decay-timescale``,
 ``--pulsar-late-magnetic-field-decay-index``), down to a lognormal per-star final field (``--pulsar-final-magnetic-field-distribution-mean``, ``-sigma``,
-drawn from a generator seeded by the star, so the rest of the evolution is unchanged). Field decay by accretion is unchanged, and the field of a recycled
-pulsar does not decay. |br|
+drawn from a generator seeded by the star, so the rest of the evolution is unchanged). |br|
+``SARIN2023``: the inverse cascade of Sarin, Brandenburg & Haskell (2023, eq. 5): the dipole grows from small-scale turbulent field,
+:math:`B \propto (1 + t/\tau_1)(1 + t/\tau_2)^{-m/2}` with :math:`\tau_2 = \tau_1 \ell_{\max}^{5/2}` (``--pulsar-inverse-cascade-timescale``,
+``--pulsar-inverse-cascade-lmax``, ``--pulsar-inverse-cascade-decay-index``), normalised to its maximum: the birth field options give the peak dipole field,
+and the dipole at birth is the seed :math:`B_{\rm peak}` / max(shape) (about :math:`B_{\rm peak}/6500` with the defaults, peaking at ~67 kyr for
+:math:`\tau_1` = 1 yr). The logged birth field is the peak field. |br|
+For all models, field decay by accretion is unchanged, and the field of a recycled pulsar does not decay. |br|
 Default = EXPONENTIAL
 
 **--pulsar-magnetic-field-decay-massscale** |br|
@@ -1986,7 +2006,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field,
 --pulsar-inclination-evolution, --pulsar-spin-down-torque, --pulsar-alignment-timescale, --pulsar-reset-inclination-at-recycling,
 --pulsar-recycled-inclination-evolution, --pulsar-magnetic-field-decay-model, --pulsar-late-magnetic-field-decay-index,
---pulsar-late-magnetic-field-decay-timescale, --pulsar-final-magnetic-field-distribution-mean, --pulsar-final-magnetic-field-distribution-sigma
+--pulsar-late-magnetic-field-decay-timescale, --pulsar-final-magnetic-field-distribution-mean, --pulsar-final-magnetic-field-distribution-sigma,
+--pulsar-inverse-cascade-timescale, --pulsar-inverse-cascade-lmax, --pulsar-inverse-cascade-decay-index
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max,

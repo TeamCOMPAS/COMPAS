@@ -1962,6 +1962,14 @@
 //                                         MainSequence::DecaySurfaceMagneticFlux() when tau increases (not on rejuvenation); a merger product's field
 //                                         decays from the merger. The flux at the end of the MS is then conserved and sets FLUX_CONSERVATION / HYBRID
 //                                         pulsar birth fields.
+//  03.50.00  SS - October 16, 2026      - Enhancement:
+//                                       - --pulsar-magnetic-field-decay-model SARIN2023: the inverse cascade of Sarin, Brandenburg & Haskell (2023, ApJL 952,
+//                                         L21, eq. 5) for isolated pulsars, B ~ (1 + t/tau_1) (1 + t/tau_2)^(-m/2), tau_2 = tau_1 l_max^(5/2): the dipole
+//                                         grows from small-scale turbulent field, then decays slowly. New options --pulsar-inverse-cascade-timescale (tau_1,
+//                                         yr, default 1), --pulsar-inverse-cascade-lmax (default 40), --pulsar-inverse-cascade-decay-index (m, default 2.3).
+//                                         The shape is normalised to its peak, so the birth field options set the peak dipole field and the dipole at
+//                                         birth is the seed (the logged birth field is the peak field). Evolved like GRABER2024 (multiplicative shape,
+//                                         Simpson quadrature in ln age), via the new NS::FieldShape().
 //
 
 // Version string format is MM.mm.rr, where
@@ -1973,7 +1981,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.49.00";
+const std::string VERSION_STRING = "03.50.00";
 
 
 # endif // __changelog_h__

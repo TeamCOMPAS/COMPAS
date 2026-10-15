@@ -144,6 +144,8 @@ protected:
             PULSAR_INCLINATION_EVOLUTION InclinationEvolution() const;
             void            ResetInclinationAtRecycling();
             double          GraberFieldShape(const double p_Age) const;
+            double          SarinFieldShape(const double p_Age) const;
+            double          FieldShape(const double p_Age) const;
             double          SpinDownTorqueFactor() const                        { return SpinDownTorqueFactor(m_PulsarDetails.inclination); }
 
             void            CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                              // not a meaningful calculation for NS and BH

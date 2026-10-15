@@ -1320,6 +1320,9 @@ public:
             double                                              m_PulsarLateMagneticFieldDecayTimescale;                        // GRABER2024: late-time timescale tau_late (Myr)
             double                                              m_PulsarFinalMagneticFieldDistributionMean;                     // GRABER2024: mean of the lognormal final field (log10 G)
             double                                              m_PulsarFinalMagneticFieldDistributionSigma;                    // GRABER2024: sigma of the lognormal final field (dex)
+            double                                              m_PulsarInverseCascadeTimescale;                                // SARIN2023: onset timescale tau_1 of the inverse cascade (yr)
+            double                                              m_PulsarInverseCascadeLmax;                                     // SARIN2023: spherical harmonic degree l_max of the energy-carrying eddies at birth
+            double                                              m_PulsarInverseCascadeDecayIndex;                               // SARIN2023: post-cascade decay index m
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
             
@@ -1895,6 +1898,9 @@ public:
     double                                      PulsarLateMagneticFieldDecayTimescale() const                           { return OPT_VALUE("pulsar-late-magnetic-field-decay-timescale", m_PulsarLateMagneticFieldDecayTimescale, true); }
     double                                      PulsarFinalMagneticFieldDistributionMean() const                        { return OPT_VALUE("pulsar-final-magnetic-field-distribution-mean", m_PulsarFinalMagneticFieldDistributionMean, true); }
     double                                      PulsarFinalMagneticFieldDistributionSigma() const                       { return OPT_VALUE("pulsar-final-magnetic-field-distribution-sigma", m_PulsarFinalMagneticFieldDistributionSigma, true); }
+    double                                      PulsarInverseCascadeTimescale() const                                   { return OPT_VALUE("pulsar-inverse-cascade-timescale", m_PulsarInverseCascadeTimescale, true); }
+    double                                      PulsarInverseCascadeLmax() const                                        { return OPT_VALUE("pulsar-inverse-cascade-lmax", m_PulsarInverseCascadeLmax, true); }
+    double                                      PulsarInverseCascadeDecayIndex() const                                  { return OPT_VALUE("pulsar-inverse-cascade-decay-index", m_PulsarInverseCascadeDecayIndex, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }

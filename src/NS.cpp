@@ -687,6 +687,10 @@ void NS::CalculateAndSetPulsarParameters() {
         std::normal_distribution<double> gaussian(OPTIONS->PulsarFinalMagneticFieldDistributionMean(), std::max(OPTIONS->PulsarFinalMagneticFieldDistributionSigma(), 1.0E-12));
         m_PulsarDetails.finalMagneticField = std::max(NS::NS_MAG_FIELD_LOWER_LIMIT, PPOW(10.0, gaussian(generator)));
     }
+    // SARIN2023: the birth field options set the peak dipole field the inverse cascade builds; the dipole at birth is the small seed
+    if (OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::SARIN2023) {
+        m_PulsarDetails.magneticField = std::max(NS::NS_MAG_FIELD_LOWER_LIMIT, m_PulsarDetails.birthMagneticField * SarinFieldShape(0.0));
+    }
     m_MomentOfInertia_CGS             = CalculateMomentOfInertiaCGS();                                                              // MoI in CGS g cm^2
 	
     m_PulsarDetails.spinFrequency     = _2_PI / m_PulsarDetails.spinPeriod;                              
@@ -807,6 +811,45 @@ double NS::GraberFieldShape(const double p_Age) const {
 
 
 /*
+ * Shape of the isolated pulsar field against age for --pulsar-magnetic-field-decay-model SARIN2023 (Sarin, Brandenburg & Haskell 2023,
+ * ApJL 952, L21, eq. 5): an inverse cascade moves the energy of small-scale turbulent field to larger scales, so that the dipole grows
+ * linearly with time from the onset timescale tau_1 until the cascade reaches the dipole at tau_2 = tau_1 l_max^(5/2), and then decays:
+ *
+ *     B(t) proportional to (1 + t/tau_1) (1 + t/tau_2)^(-m/2)
+ *
+ * normalised to its maximum, at t_peak = (tau_2 - (m/2) tau_1) / (m/2 - 1) (m > 2), so that the birth field options give the peak dipole
+ * field and the dipole at birth is the seed B_peak / shape_max (with the defaults l_max = 40, m = 2.3: shape_max ~ 6.5e3, t_peak ~ 6.7e4 tau_1).
+ * tau_1 = --pulsar-inverse-cascade-timescale (yr), l_max = --pulsar-inverse-cascade-lmax, m = --pulsar-inverse-cascade-decay-index.
+ *
+ * double SarinFieldShape(const double p_Age)
+ *
+ * @param       [IN]    p_Age                   Age of the neutron star (s)
+ * @return              B(t)/B_peak
+ */
+double NS::SarinFieldShape(const double p_Age) const {
+    double tau1  = OPTIONS->PulsarInverseCascadeTimescale();                                                            // yr
+    double tau2  = tau1 * PPOW(OPTIONS->PulsarInverseCascadeLmax(), 2.5);                                               // yr
+    double halfM = 0.5 * OPTIONS->PulsarInverseCascadeDecayIndex();
+    double tPeak = std::max(0.0, (tau2 - halfM * tau1) / (halfM - 1.0));                                                // yr
+    auto   lnS   = [&](const double p_T) { return std::log1p(p_T / tau1) - halfM * std::log1p(p_T / tau2); };
+    return std::exp(lnS(p_Age / SECONDS_IN_YEAR) - lnS(tPeak));
+}
+
+
+/*
+ * Shape of the isolated pulsar field against age for the models that give B(t) as a shape in age (GRABER2024, SARIN2023)
+ *
+ * double FieldShape(const double p_Age)
+ *
+ * @param       [IN]    p_Age                   Age of the neutron star (s)
+ * @return              B(t) relative to its reference value
+ */
+double NS::FieldShape(const double p_Age) const {
+    return OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::SARIN2023 ? SarinFieldShape(p_Age) : GraberFieldShape(p_Age);
+}
+
+
+/*
  * Calculate the time integral of B^2 over a timestep, for B(t) given by CalculateMagneticFieldStrengthOnPhase()
  *
  * Used for the spin evolution of an isolated pulsar with a decaying field: P^2 = P0^2 + 2K * int_0^t B^2 dt'
@@ -878,17 +921,18 @@ void NS::SpinDownIsolatedPulsar(const double p_Stepsize, const bool p_RecycledNS
     double initialMagField   = m_PulsarDetails.magneticField;     
     double initialSpinPeriod = m_PulsarDetails.spinPeriod;
  
-    bool   graber     = OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::GRABER2024;
-    double fieldFloor = graber ? m_PulsarDetails.finalMagneticField : NS::NS_MAG_FIELD_LOWER_LIMIT;                                       // G
-    bool magFieldAboveMin = utils::Compare(initialMagField, fieldFloor) > 0;
+    bool   sarin      = OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::SARIN2023;
+    bool   graber     = sarin || OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::GRABER2024;               // the field is a shape in age (FieldShape())
+    double fieldFloor = (graber && !sarin) ? m_PulsarDetails.finalMagneticField : NS::NS_MAG_FIELD_LOWER_LIMIT;                           // G
+    bool magFieldAboveMin = sarin || utils::Compare(initialMagField, fieldFloor) > 0;                                                       // SARIN2023: the field also grows
 
     // std::cout << "initialMagField = " << initialMagField << std::endl;
     // std::cout << "magFieldAboveMin = " << magFieldAboveMin << std::endl;
 
-    // GRABER2024: the field is a broken power law in age; tStart is the age at the start of the step (the star has already been aged)
+    // GRABER2024, SARIN2023: the field is a shape in age; tStart is the age at the start of the step (the star has already been aged)
     double tStart      = std::max(0.0, m_Age * MYR_TO_YEAR * SECONDS_IN_YEAR - p_Stepsize);                                                // s
-    double shapeStart  = graber ? GraberFieldShape(tStart) : 1.0;
-    auto   graberField = [&](const double p_T) { return std::max(fieldFloor, initialMagField * GraberFieldShape(tStart + p_T) / shapeStart); };  // field p_T (s) into the step
+    double shapeStart  = graber ? FieldShape(tStart) : 1.0;
+    auto   graberField = [&](const double p_T) { return std::max(fieldFloor, initialMagField * FieldShape(tStart + p_T) / shapeStart); };  // field p_T (s) into the step
     // GRABER2024: composite Simpson over the step, uniform in ln(age + 1 yr), with PULSAR_GRABER_SUBSTEPS_PER_EFOLD substeps per e-folding of (age + 1 yr)
     // and at least PULSAR_ALIGNMENT_SUBSTEPS_PER_EFOLD per p_Timescale (s) in t (0: no extra requirement)
     auto   graberQuadrature = [&](auto &&p_G, const double p_Timescale) {
