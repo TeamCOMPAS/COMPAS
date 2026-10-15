@@ -227,6 +227,13 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
         THROW_ERROR(error);                                                                                                             // throw error - can't return it...
     }
     else {                                                                                                                              // yes - ok
+        if (OPTIONS->SurfaceMagneticFieldDistribution() == SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21) {                          // strong ZAMS fields only for allowed stars in wide enough orbits
+            double periodDays = DAYS_IN_YEAR * std::sqrt(m_SemiMajorAxis * m_SemiMajorAxis * m_SemiMajorAxis / (m_Star1->Mass() + m_Star2->Mass()));
+            bool   wide       = utils::Compare(periodDays, OPTIONS->SurfaceMagneticFieldMinimumOrbitalPeriod()) >= 0;
+            SURFACE_MAGNETIC_FIELD_STRONG_STAR strongStar = OPTIONS->SurfaceMagneticFieldStrongStar();
+            if (!wide || strongStar == SURFACE_MAGNETIC_FIELD_STRONG_STAR::SECONDARY) m_Star1->RestrictSurfaceMagneticFieldToLowComponent();
+            if (!wide || strongStar == SURFACE_MAGNETIC_FIELD_STRONG_STAR::PRIMARY)   m_Star2->RestrictSurfaceMagneticFieldToLowComponent();
+        }
         SetRemainingValues();                                                                                                           // complete the construction of the binary
     }
 }

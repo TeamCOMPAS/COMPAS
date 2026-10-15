@@ -123,6 +123,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_HydrogenAbundanceSurface                 = m_InitialHydrogenAbundance;
 
     // Initial surface magnetic field strength and flux
+    m_SurfaceMagneticFieldStrongComponent      = false;                                             // set by CalculateZAMSSurfaceMagneticFieldStrength()
     m_SurfaceMagneticFieldStrengthZAMS         = CalculateZAMSSurfaceMagneticFieldStrength();
     m_SurfaceMagneticFlux                      = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
     m_SurfaceMagneticFieldStrengthPrev         = m_SurfaceMagneticFieldStrengthZAMS;
@@ -4301,6 +4302,7 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
             else{                                                                                   // Draw from high-field subpopulation
                 r2 = normal(OPTIONS->SurfaceMagneticFieldDistributionHighStd());
                 log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + r2;
+                m_SurfaceMagneticFieldStrongComponent = true;
             }
 
             Bsurf = PPOW(10.0, log10Bsurf);
@@ -4326,6 +4328,41 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
     }
 
     return Bsurf;  
+}
+
+
+/*
+ * Draw a surface magnetic field strength (G) from the low-field component of --surface-magnetic-field-distribution MAKARENKO21,
+ * with a generator seeded by the star (salted by p_Salt), not the COMPAS random number stream
+ *
+ *
+ * double DrawLowComponentSurfaceMagneticField(const std::uint64_t p_Salt) const
+ *
+ * @param   [IN]    p_Salt                      Salt for the star's generator
+ * @return                                      Surface magnetic field strength in G
+ */
+double BaseStar::DrawLowComponentSurfaceMagneticField(const std::uint64_t p_Salt) const {
+    std::mt19937_64 generator = MagneticFieldGenerator(p_Salt);
+    double log10B = OPTIONS->SurfaceMagneticFieldDistributionLowMean() + OPTIONS->SurfaceMagneticFieldDistributionLowStd() * std::normal_distribution<double>(0.0, 1.0)(generator);
+    return PPOW(10.0, log10B);
+}
+
+
+/*
+ * Replace a strong-field ZAMS surface magnetic field (MAKARENKO21) by a draw from the low-field component
+ *
+ * Called by the binary when this star may not have a strong field at ZAMS (see --surface-magnetic-field-minimum-orbital-period
+ * and --surface-magnetic-field-strong-star). Stars that drew the low-field component are unchanged.
+ *
+ *
+ * void RestrictSurfaceMagneticFieldToLowComponent()
+ */
+void BaseStar::RestrictSurfaceMagneticFieldToLowComponent() {
+    if (!m_SurfaceMagneticFieldStrongComponent) return;                                            // nothing to do
+    m_SurfaceMagneticFieldStrengthZAMS    = DrawLowComponentSurfaceMagneticField(0xC2B2AE3D27D4EB4FULL);
+    m_SurfaceMagneticFlux                 = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
+    m_SurfaceMagneticFieldStrengthPrev    = m_SurfaceMagneticFieldStrengthZAMS;
+    m_SurfaceMagneticFieldStrongComponent = false;
 }
 
 

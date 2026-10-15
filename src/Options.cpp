@@ -668,6 +668,7 @@ void Options::OptionValues::Initialise() {
     m_MergerMagneticFieldPrescription.typeString                    = MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL.at(m_MergerMagneticFieldPrescription.type);
     m_MergerMagneticFieldDistributionMean                           = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN;     // strong-field B stars (Makarenko et al. 2021)
     m_MergerMagneticFieldDistributionSigma                          = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
+    m_MergerMagneticFieldFraction                                   = 1.0;
 
     // Stellar surface magnetic field distribution
     m_SurfaceMagneticFieldDistribution.type                         = SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
@@ -677,6 +678,9 @@ void Options::OptionValues::Initialise() {
     m_SurfaceMagneticFieldDistributionLowStd                        = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA;
     m_SurfaceMagneticFieldDistributionHighMean                      = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN;
     m_SurfaceMagneticFieldDistributionHighStd                       = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
+    m_SurfaceMagneticFieldMinimumOrbitalPeriod                      = 0.0;
+    m_SurfaceMagneticFieldStrongStar.type                           = SURFACE_MAGNETIC_FIELD_STRONG_STAR::BOTH;
+    m_SurfaceMagneticFieldStrongStar.typeString                     = SURFACE_MAGNETIC_FIELD_STRONG_STAR_LABEL.at(m_SurfaceMagneticFieldStrongStar.type);
 
     // Pulsar birth magnetic field distribution
     m_PulsarBirthMagneticFieldAssumption.type                       = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW;
@@ -1663,6 +1667,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Mean of log10(B/G) of the surface field of main sequence merger products, for --merger-magnetic-field-prescription DRAW (default = " + std::to_string(p_Options->m_MergerMagneticFieldDistributionMean) + ")").c_str()
         )
         (
+            "merger-magnetic-field-fraction",
+            po::value<double>(&p_Options->m_MergerMagneticFieldFraction)->default_value(p_Options->m_MergerMagneticFieldFraction),
+            ("Fraction of main sequence merger products whose surface field is set by --merger-magnetic-field-prescription; the others keep the primary's flux (default = " + std::to_string(p_Options->m_MergerMagneticFieldFraction) + ")").c_str()
+        )
+        (
             "merger-magnetic-field-distribution-sigma",
             po::value<double>(&p_Options->m_MergerMagneticFieldDistributionSigma)->default_value(p_Options->m_MergerMagneticFieldDistributionSigma),
             ("Standard deviation (dex) of log10(B/G) of the surface field of main sequence merger products, for --merger-magnetic-field-prescription DRAW (default = " + std::to_string(p_Options->m_MergerMagneticFieldDistributionSigma) + ")").c_str()
@@ -2064,6 +2073,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "surface-magnetic-field-minimum-orbital-period",
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldMinimumOrbitalPeriod)->default_value(p_Options->m_SurfaceMagneticFieldMinimumOrbitalPeriod),
+            ("BSE: only stars in binaries with an initial orbital period >= this (days) can draw the strong-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldMinimumOrbitalPeriod) + ")").c_str()
+        )
+        (
             "surface-magnetic-field-distribution-flow",                    
             po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionFLow)->default_value(p_Options->m_SurfaceMagneticFieldDistributionFLow),                                  
             ("Fraction of stars with ZAMS surface magnetic fields drawn from the low-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionFLow) + ")").c_str()
@@ -2435,6 +2449,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-birth-magnetic-field-assumption",                    
             po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldAssumption.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldAssumption.typeString),                                  
             ("Pulsar birth magnetic field: drawn from --pulsar-birth-magnetic-field-distribution (RANDOM_DRAW), from the progenitor's surface magnetic flux (FLUX_CONSERVATION), or the larger of the two (HYBRID) (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
+        )
+        (
+            "surface-magnetic-field-strong-star",
+            po::value<std::string>(&p_Options->m_SurfaceMagneticFieldStrongStar.typeString)->default_value(p_Options->m_SurfaceMagneticFieldStrongStar.typeString),
+            ("BSE: which star(s) can draw the strong-field component of --surface-magnetic-field-distribution MAKARENKO21 (" + AllowedOptionValuesFormatted("surface-magnetic-field-strong-star") + ", default = '" + p_Options->m_SurfaceMagneticFieldStrongStar.typeString + "')").c_str()
         )
         (
             "merger-magnetic-field-prescription",
@@ -3059,6 +3078,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Merger Magnetic Field Prescription");
         }
 
+        if (!DEFAULTED("surface-magnetic-field-strong-star")) {                                                                     // which star(s) can have a strong ZAMS field
+            std::tie(found, m_SurfaceMagneticFieldStrongStar.type) = utils::GetMapKey(m_SurfaceMagneticFieldStrongStar.typeString, SURFACE_MAGNETIC_FIELD_STRONG_STAR_LABEL, m_SurfaceMagneticFieldStrongStar.type);
+            COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Strong Star");
+        }
+
         if (!DEFAULTED("surface-magnetic-field-distribution")) {                                                                    // ZAMS stellar surface magnetic field distribution
             std::tie(found, m_SurfaceMagneticFieldDistribution.type) = utils::GetMapKey(m_SurfaceMagneticFieldDistribution.typeString, SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_SurfaceMagneticFieldDistribution.type);
             COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Distribution");
@@ -3126,6 +3150,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
 
         COMPLAIN_IF(m_MagneticFieldAmplificationFactorMerger < 0.0, "Magnetic field amplification factor for merger (--magnetic-field-amplification-factor-merger) < 0");
         COMPLAIN_IF(m_MergerMagneticFieldDistributionSigma < 0.0, "Merger magnetic field sigma (--merger-magnetic-field-distribution-sigma) < 0");
+        COMPLAIN_IF(m_MergerMagneticFieldFraction < 0.0 || m_MergerMagneticFieldFraction > 1.0, "Merger magnetic field fraction (--merger-magnetic-field-fraction) must be between 0 and 1");
+        COMPLAIN_IF(m_SurfaceMagneticFieldMinimumOrbitalPeriod < 0.0, "Surface magnetic field minimum orbital period (--surface-magnetic-field-minimum-orbital-period) < 0");
         COMPLAIN_IF(m_PulsarBirthMagneticFluxFraction <= 0.0, "Pulsar birth magnetic flux fraction (--pulsar-birth-magnetic-flux-fraction) <= 0");
 
         COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
@@ -3432,6 +3458,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("semi-major-axis-distribution")                      : POPULATE_RET(SEMI_MAJOR_AXIS_DISTRIBUTION_LABEL);                 break;
         case _("stellar-zeta-prescription")                         : POPULATE_RET(ZETA_PRESCRIPTION_LABEL);                            break;
         case _("surface-magnetic-field-distribution")               : POPULATE_RET(SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL);          break;
+        case _("surface-magnetic-field-strong-star")                : POPULATE_RET(SURFACE_MAGNETIC_FIELD_STRONG_STAR_LABEL);           break;
         case _("tides-prescription")                                : POPULATE_RET(TIDES_PRESCRIPTION_LABEL);                           break;
         case _("VMS-mass-loss-prescription")                        : POPULATE_RET(VMS_MASS_LOSS_PRESCRIPTION_LABEL);                   break;
         case _("WR-mass-loss-prescription")                         : POPULATE_RET(WR_MASS_LOSS_PRESCRIPTION_LABEL);                    break;
@@ -5585,6 +5612,9 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_PRESCRIPTION             : value = static_cast<int>(MergerMagneticFieldPrescription());                  break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN        : value = MergerMagneticFieldDistributionMean();                                break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA       : value = MergerMagneticFieldDistributionSigma();                               break;
+        case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_FRACTION                 : value = MergerMagneticFieldFraction();                                        break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_MINIMUM_ORBITAL_PERIOD  : value = SurfaceMagneticFieldMinimumOrbitalPeriod();                           break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_STRONG_STAR             : value = static_cast<int>(SurfaceMagneticFieldStrongStar());                   break;
         case PROGRAM_OPTION::PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION         : value = static_cast<int>(PulsarBirthMagneticFieldAssumption());               break;
         case PROGRAM_OPTION::PULSAR_BIRTH_MAGNETIC_FLUX_FRACTION            : value = PulsarBirthMagneticFluxFraction();                                    break;
 

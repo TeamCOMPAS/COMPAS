@@ -747,6 +747,7 @@ private:
         "store-input-files",
 
         "surface-magnetic-field-distribution",
+        "surface-magnetic-field-strong-star",
 
         "switch-log",
         "system-snapshot-age-thresholds",
@@ -1271,6 +1272,7 @@ public:
             ENUM_OPT<MERGER_MAGNETIC_FIELD_PRESCRIPTION>        m_MergerMagneticFieldPrescription;                              // AMPLIFY or DRAW
             double                                              m_MergerMagneticFieldDistributionMean;                          // DRAW: mean of log10(B/G)
             double                                              m_MergerMagneticFieldDistributionSigma;                         // DRAW: standard deviation (dex) of log10(B/G)
+            double                                              m_MergerMagneticFieldFraction;                                  // fraction of merger products whose field is set by the prescription
 
             // Stellar surface magnetic field distribution
             ENUM_OPT<SURFACE_MAGNETIC_FIELD_DISTRIBUTION>       m_SurfaceMagneticFieldDistribution;
@@ -1279,6 +1281,8 @@ public:
             double                                              m_SurfaceMagneticFieldDistributionLowStd;
             double                                              m_SurfaceMagneticFieldDistributionHighMean;
             double                                              m_SurfaceMagneticFieldDistributionHighStd;
+            double                                              m_SurfaceMagneticFieldMinimumOrbitalPeriod;                     // BSE: strong-field component only for initial orbital periods >= this (days)
+            ENUM_OPT<SURFACE_MAGNETIC_FIELD_STRONG_STAR>        m_SurfaceMagneticFieldStrongStar;                               // BSE: which star(s) can draw the strong-field component
             
             // Pulsar birth magnetic field distribution 
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION>    m_PulsarBirthMagneticFieldAssumption;                           // Assumption to make for birth magnetic field distribution for pulsars
@@ -1749,6 +1753,7 @@ public:
     MERGER_MAGNETIC_FIELD_PRESCRIPTION          MergerMagneticFieldPrescription() const                                 { return OPT_VALUE("merger-magnetic-field-prescription", m_MergerMagneticFieldPrescription.type, true); }
     double                                      MergerMagneticFieldDistributionMean() const                             { return OPT_VALUE("merger-magnetic-field-distribution-mean", m_MergerMagneticFieldDistributionMean, true); }
     double                                      MergerMagneticFieldDistributionSigma() const                            { return OPT_VALUE("merger-magnetic-field-distribution-sigma", m_MergerMagneticFieldDistributionSigma, true); }
+    double                                      MergerMagneticFieldFraction() const                                     { return OPT_VALUE("merger-magnetic-field-fraction", m_MergerMagneticFieldFraction, true); }
 
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
@@ -1954,6 +1959,8 @@ public:
     double                                      SurfaceMagneticFieldDistributionLowStd() const                          { return OPT_VALUE("surface-magnetic-field-distribution-low-std",   m_SurfaceMagneticFieldDistributionLowStd,   true); }
     double                                      SurfaceMagneticFieldDistributionHighMean() const                        { return OPT_VALUE("surface-magnetic-field-distribution-high-mean", m_SurfaceMagneticFieldDistributionHighMean, true); }
     double                                      SurfaceMagneticFieldDistributionHighStd() const                         { return OPT_VALUE("surface-magnetic-field-distribution-high-std",  m_SurfaceMagneticFieldDistributionHighStd,  true); }
+    double                                      SurfaceMagneticFieldMinimumOrbitalPeriod() const                        { return OPT_VALUE("surface-magnetic-field-minimum-orbital-period", m_SurfaceMagneticFieldMinimumOrbitalPeriod, true); }
+    SURFACE_MAGNETIC_FIELD_STRONG_STAR          SurfaceMagneticFieldStrongStar() const                                  { return OPT_VALUE("surface-magnetic-field-strong-star", m_SurfaceMagneticFieldStrongStar.type, true); }
     
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }
 

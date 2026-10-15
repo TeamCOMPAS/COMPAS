@@ -953,6 +953,11 @@ Default = 2.82
 For ``--merger-magnetic-field-prescription DRAW``: standard deviation (dex) of :math:`\log_{10}(B/{\rm G})` of the surface field of main sequence merger products. |br|
 Default = 0.65
 
+**--merger-magnetic-field-fraction** |br|
+Fraction of main sequence merger products whose surface field is set by ``--merger-magnetic-field-prescription`` (e.g. if only some mergers leave a lasting strong
+field); the others keep the primary's pre-merger flux. |br|
+Default = 1.0
+
 **--merger-magnetic-field-prescription** |br|
 Surface magnetic field of the product of a main sequence merger (``--evolve-main-sequence-mergers``). |br|
 Options: { AMPLIFY, DRAW } |br|
@@ -1677,6 +1682,17 @@ Options: { ZERO, MAKARENKO21, NS_BIRTH_DIST } |br|
 ``NS_BIRTH_DIST`` : the field that, with flux conservation, gives a :math:`1.4\,M_\odot` neutron star a birth field drawn from ``--pulsar-birth-magnetic-field-distribution``. |br|
 Default = ZERO
 
+**--surface-magnetic-field-minimum-orbital-period** |br|
+BSE only: stars in binaries with an initial orbital period (days) below this value draw their ZAMS field from the low-field component of
+``--surface-magnetic-field-distribution MAKARENKO21``. With ``--surface-magnetic-field-strong-star PRIMARY`` this represents former triples whose inner binary
+merged before the main sequence: the merger product keeps the wide orbit of the former tertiary. |br|
+Default = 0.0
+
+**--surface-magnetic-field-strong-star** |br|
+BSE only: which star(s) of a binary can draw the strong-field component of ``--surface-magnetic-field-distribution MAKARENKO21`` at ZAMS. |br|
+Options: { BOTH, PRIMARY, SECONDARY } |br|
+Default = BOTH
+
 **--surface-magnetic-field-distribution-flow** |br|
 Fraction of stars whose ZAMS surface field is drawn from the low-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
 Default = 0.9
@@ -1895,7 +1911,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
 --surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger,
---merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma
+--merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma, --merger-magnetic-field-fraction,
+--surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star
 
 :ref:`Back to Top <options-props-top>`
 

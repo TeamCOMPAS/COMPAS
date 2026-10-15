@@ -1936,6 +1936,14 @@
 //                                         random number stream, so the magnetic field options no longer change the binary evolution (different random numbers
 //                                         from 03.46.00 for MAKARENKO21 and NS_BIRTH_DIST; defaults unchanged). New PROGRAM_OPTION log entries for the
 //                                         magnetar options.
+//  03.48.00  SS - October 15, 2026      - Enhancement:
+//                                       - Pre-main-sequence merger products (COMPAS starts at ZAMS): --surface-magnetic-field-minimum-orbital-period (days, default 0)
+//                                         and --surface-magnetic-field-strong-star (BOTH (default), PRIMARY, SECONDARY) restrict the strong-field component of
+//                                         MAKARENKO21 in BSE to the chosen star(s) in binaries with initial periods above the minimum (others redraw from the low
+//                                         component), e.g. former triples whose inner binary merged and kept the tertiary in a wide orbit. Single pre-MS merger
+//                                         products are SSE runs with MAKARENKO21.
+//                                       - --merger-magnetic-field-fraction (default 1): fraction of main sequence merger products whose field is set by
+//                                         --merger-magnetic-field-prescription; the others keep the primary's flux.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1947,7 +1955,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.47.00";
+const std::string VERSION_STRING = "03.48.00";
 
 
 # endif // __changelog_h__

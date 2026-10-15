@@ -360,6 +360,7 @@ public:
     virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                     // Except MS stars
     
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
+            void            RestrictSurfaceMagneticFieldToLowComponent();                                                                                                           // BSE: no strong ZAMS field for this star
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,
@@ -434,6 +435,7 @@ protected:
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
     double                  m_SurfaceMagneticFieldStrengthZAMS;         // ZAMS surface magnetic field strength (G)
+    bool                    m_SurfaceMagneticFieldStrongComponent;      // ZAMS field drawn from the strong-field component (MAKARENKO21)
 
     // Effective Zero Age Main Sequence
     double                  m_LZAMS0;                                   // Effective ZAMS Luminosity
@@ -688,6 +690,7 @@ protected:
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
             double              CalculateZAMSSurfaceMagneticFieldStrength();
+            double              DrawLowComponentSurfaceMagneticField(const std::uint64_t p_Salt) const;
 
             // generator for surface magnetic field draws, seeded by the star (not the COMPAS random number stream), so the
             // magnetic field options do not change the rest of the evolution; p_Salt separates the draws of different quantities

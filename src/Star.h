@@ -265,6 +265,7 @@ public:
     double          TAMSCoreMass() const                                                                            { return m_Star->TAMSCoreMass(); }
 
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass)                                         { m_Star->UpdateAfterMerger(p_Mass, p_HydrogenMass); }
+    void            RestrictSurfaceMagneticFieldToLowComponent()                                                    { m_Star->RestrictSurfaceMagneticFieldToLowComponent(); }
     void            UpdateAgeAfterMassLoss()                                                                        { m_Star->UpdateAgeAfterMassLoss(); }
 
     void            UpdateAttributes()                                                                              { (void)UpdateAttributes(0.0, 0.0, true); }

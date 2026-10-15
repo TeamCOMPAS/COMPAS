@@ -893,6 +893,15 @@ const COMPASUnorderedMap<SURFACE_MAGNETIC_FIELD_DISTRIBUTION, std::string> SURFA
     { SURFACE_MAGNETIC_FIELD_DISTRIBUTION::NS_BIRTH_DIST, "NS_BIRTH_DIST"}
 };
 
+// BSE: which star(s) can draw the strong-field component of --surface-magnetic-field-distribution MAKARENKO21 at ZAMS
+// (e.g. PRIMARY: the product of a pre-main-sequence merger of the inner binary of a former triple)
+enum class SURFACE_MAGNETIC_FIELD_STRONG_STAR: int { BOTH, PRIMARY, SECONDARY };
+const COMPASUnorderedMap<SURFACE_MAGNETIC_FIELD_STRONG_STAR, std::string> SURFACE_MAGNETIC_FIELD_STRONG_STAR_LABEL = {
+    { SURFACE_MAGNETIC_FIELD_STRONG_STAR::BOTH,      "BOTH" },
+    { SURFACE_MAGNETIC_FIELD_STRONG_STAR::PRIMARY,   "PRIMARY" },
+    { SURFACE_MAGNETIC_FIELD_STRONG_STAR::SECONDARY, "SECONDARY" }
+};
+
 // Pulsar birth magnetic field assumption
 // RANDOM_DRAW: from --pulsar-birth-magnetic-field-distribution; FLUX_CONSERVATION: from the progenitor's surface magnetic flux;
 // HYBRID: the larger of the two (e.g. a dynamo-generated field, or the fossil field where that is stronger)

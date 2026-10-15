@@ -1451,11 +1451,17 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
  *    DRAW:    the surface field is drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent
  *             of the pre-merger field: the field generated in the merger saturates whatever the seed (Ohlmann et al. 2026)
  *
- * The field then follows B = Phi / R^2.  DRAW uses a generator seeded by the star, not the COMPAS random number stream.
+ * Only a fraction --merger-magnetic-field-fraction of merger products is affected; the others keep the primary's flux.
+ * The field then follows B = Phi / R^2.  The draws use generators seeded by the star, not the COMPAS random number stream.
  *
  * void MainSequence::ResolveMergerMagneticField()
  */
 void MainSequence::ResolveMergerMagneticField() {
+
+    if (OPTIONS->MergerMagneticFieldFraction() < 1.0) {                                         // only a fraction of merger products is magnetised
+        std::mt19937_64 generator = MagneticFieldGenerator(0xBF58476D1CE4E5B9ULL);
+        if (std::uniform_real_distribution<double>(0.0, 1.0)(generator) >= OPTIONS->MergerMagneticFieldFraction()) return;   // keep the primary's flux
+    }
 
     switch (OPTIONS->MergerMagneticFieldPrescription()) {
 
