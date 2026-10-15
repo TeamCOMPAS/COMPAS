@@ -170,6 +170,12 @@ constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA    = 0.
 constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN    = 2.82;                                 // mean of log10(B/G) of the high field component
 constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA   = 0.65;                                 // standard deviation (dex) of log10(B/G) of the high field component
 
+// Main sequence surface magnetic flux decay (--main-sequence-magnetic-flux-decay EXPONENTIAL): d log10(Phi) / d tau = -A log10(M / M_min)
+// for M > M_min, tau = fractional main sequence age.  Fit to the magnetic early B-type stars of Shultz et al. (2019, MNRAS 490, 274, Sect. 6.1):
+// -0.7 dex per unit tau below 9 Msol, -1.1 above, -1.6 to -2.1 extrapolated to 30-60 Msol, and no flux decay below ~4 Msol
+constexpr double MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_RATE         = 1.66;                                             // A (dex per unit tau per dex of mass)
+constexpr double MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MINIMUM_MASS = 3.3;                                              // M_min (Msol)
+
 // Default factor by which the surface magnetic flux is amplified in a main sequence merger
 constexpr double MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER = 100.0;
 

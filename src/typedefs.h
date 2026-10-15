@@ -920,6 +920,14 @@ const COMPASUnorderedMap<MERGER_MAGNETIC_FIELD_PRESCRIPTION, std::string> MERGER
     { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW,    "DRAW" }
 };
 
+// Surface magnetic flux on the main sequence: NONE = conserved (B = Phi / R^2); EXPONENTIAL = Phi falls exponentially with fractional
+// main sequence age at a mass-dependent rate (--main-sequence-magnetic-flux-decay-rate, --main-sequence-magnetic-flux-decay-minimum-mass)
+enum class MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY: int { NONE, EXPONENTIAL };
+const COMPASUnorderedMap<MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY, std::string> MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_LABEL = {
+    { MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::NONE,        "NONE" },
+    { MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::EXPONENTIAL, "EXPONENTIAL" }
+};
+
 // pulsar birth magnetic field distributions
 enum class PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION: int { FLATINLOG, UNIFORM, LOGNORMAL };
 const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL = {

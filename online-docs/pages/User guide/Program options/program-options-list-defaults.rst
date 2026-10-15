@@ -1002,6 +1002,27 @@ Default = MANDEL
 Apply a degenerate radius floor to low-mass main sequence stars, as in the SSE/BSE code (Hurley et al., after C. Tout): for MS stars of mass :math:`\le 0.7\,M_\odot`, :math:`R = \max(R, 0.0258 (1+X)^{5/3} M^{-1/3}) R_\odot`. Stars stripped to very low mass (e.g. donors in CVs and LMXBs) then expand as they lose mass instead of contracting. |br|
 Default = TRUE
 
+**--main-sequence-magnetic-flux-decay** |br|
+Surface magnetic flux :math:`\Phi = B R^2` on the main sequence. |br|
+Options: { NONE, EXPONENTIAL } |br|
+``NONE`` : the flux is conserved, so the surface field falls only as the star expands. |br|
+``EXPONENTIAL`` : the flux falls exponentially with fractional main sequence age :math:`\tau = t / t_{\rm MS}`, faster for more massive stars:
+:math:`d \log_{10} \Phi / d\tau = -A \log_{10}(M / M_{\rm min})` for :math:`M > M_{\rm min}` (no decay below), with :math:`A` =
+``--main-sequence-magnetic-flux-decay-rate`` and :math:`M_{\rm min}` = ``--main-sequence-magnetic-flux-decay-minimum-mass``. The defaults fit the
+magnetic early B-type stars of Shultz et al. (2019): about 0.6 dex lost over the main sequence at 8 :math:`M_\odot`, 1.0 dex at 13 :math:`M_\odot`,
+1.6 dex at 30 :math:`M_\odot`. Rejuvenation does not restore the flux; the field of a main sequence merger product decays from the merger onwards.
+The flux left at the end of the main sequence is then conserved, and sets the ``FLUX_CONSERVATION`` and ``HYBRID`` pulsar birth fields. |br|
+Default = NONE
+
+**--main-sequence-magnetic-flux-decay-minimum-mass** |br|
+For ``--main-sequence-magnetic-flux-decay EXPONENTIAL``: mass :math:`M_{\rm min}` (:math:`M_\odot`) above which the surface magnetic flux decays. |br|
+Default = 3.3
+
+**--main-sequence-magnetic-flux-decay-rate** |br|
+For ``--main-sequence-magnetic-flux-decay EXPONENTIAL``: rate :math:`A` in :math:`d \log_{10} \Phi / d\tau = -A \log_{10}(M / M_{\rm min})`
+(dex per unit fractional main sequence age, per dex of mass). |br|
+Default = 1.66
+
 **--maltsev-fallback** |br|
 Fixed fallback fraction when using MALTSEV2024 remnant mass prescription (must be between 0 and 1). |br|
 A value of 0.0 means that fallback BHs get no fallback, only the mass of the proto-NS remnant (and will get flagged as NSs). |br|
@@ -1912,7 +1933,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
 --surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger,
 --merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma, --merger-magnetic-field-fraction,
---surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star
+--surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star, --main-sequence-magnetic-flux-decay,
+--main-sequence-magnetic-flux-decay-rate, --main-sequence-magnetic-flux-decay-minimum-mass
 
 :ref:`Back to Top <options-props-top>`
 

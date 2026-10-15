@@ -1480,6 +1480,47 @@ void MainSequence::ResolveMergerMagneticField() {
     }
 }
 
+
+/*
+ * Decay the surface magnetic flux on the main sequence, per --main-sequence-magnetic-flux-decay:
+ *
+ *    NONE:        the flux is conserved, so the surface field B = Phi / R^2 falls only as the star expands
+ *    EXPONENTIAL: the flux falls exponentially with fractional main sequence age tau = t / t_MS, faster for more massive stars:
+ *
+ *                     d log10(Phi) / d tau = -A log10(M / M_min)  for M > M_min (no decay below M_min),
+ *
+ *                 with A = --main-sequence-magnetic-flux-decay-rate and M_min = --main-sequence-magnetic-flux-decay-minimum-mass.
+ *                 The defaults (A = 1.66, M_min = 3.3 Msol) fit the magnetic early B-type stars of Shultz et al. (2019, MNRAS 490,
+ *                 274): d log10(Phi) / d tau = -0.7 below 9 Msol and -1.1 above, -1.6 to -2.1 extrapolated to 30-60 Msol, and
+ *                 constant flux below ~4 Msol (A/B stars); this also gives the dearth of magnetic stars late on the main sequence,
+ *                 steeper for more massive stars, of Fossati et al. (2016, A&A 592, A84).
+ *
+ * Only increases of tau decay the flux: rejuvenation does not restore it.  The field of a main sequence merger product
+ * (ResolveMergerMagneticField()) decays from the merger onwards.  M is the current mass.
+ *
+ * void DecaySurfaceMagneticFlux(const double p_TauPrev)
+ *
+ * @param   [IN]    p_TauPrev                   Fractional main sequence age at the start of the timestep
+ */
+void MainSequence::DecaySurfaceMagneticFlux(const double p_TauPrev) {
+
+    if (OPTIONS->MainSequenceMagneticFluxDecay() == MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::NONE) return;    // flux conserved
+    if (!utils::IsOneOf(m_StellarType, MAIN_SEQUENCE)) return;                                          // later phases inherit from MainSequence
+
+    double dTau = m_Tau - p_TauPrev;
+    if (dTau <= 0.0 || m_SurfaceMagneticFlux <= 0.0 || m_Mass <= OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) return;
+
+    switch (OPTIONS->MainSequenceMagneticFluxDecay()) {
+
+        case MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::EXPONENTIAL:
+            m_SurfaceMagneticFlux *= PPOW(10.0, -OPTIONS->MainSequenceMagneticFluxDecayRate() * log10(m_Mass / OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) * dTau);
+            break;
+
+        default:
+            THROW_ERROR(ERROR::UNKNOWN_MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY);
+    }
+}
+
 /* 
  * Interpolate Ge+ Critical Mass Ratios, for H-rich stars
  * 

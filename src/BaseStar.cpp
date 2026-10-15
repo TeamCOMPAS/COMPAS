@@ -4599,7 +4599,9 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         
         UpdateMainSequenceCoreMass(p_DeltaTime, -m_Mdot);                           // update core mass, relevant for MS stars
 
+        double tauPrev = m_Tau;
         m_Tau        = CalculateTauOnPhase();
+        if (p_DeltaTime > 0.0) DecaySurfaceMagneticFlux(tauPrev);                   // main sequence surface magnetic flux decay, if required (MS stars)
 
         m_COCoreMass = CalculateCOCoreMassOnPhase();
         m_CoreMass   = CalculateCoreMassOnPhase();

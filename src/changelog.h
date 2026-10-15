@@ -1953,6 +1953,15 @@
 //  03.48.02  SS - October 15, 2026      - Defect repair:
 //                                       - --surface-magnetic-field-distribution-low-mean and -high-mean are means of log10(B/G) and may be negative
 //                                         (sub-gauss fields); the options check rejected values < 0.
+//  03.49.00  SS - October 15, 2026      - Enhancement:
+//                                       - Main sequence surface magnetic flux decay. New option --main-sequence-magnetic-flux-decay: NONE (default; flux
+//                                         conserved, as before) or EXPONENTIAL: the flux falls exponentially with fractional main sequence age tau at a
+//                                         rate growing with mass, d log10(Phi) / d tau = -A log10(M / M_min) for M > M_min, set by
+//                                         --main-sequence-magnetic-flux-decay-rate (A, default 1.66) and --main-sequence-magnetic-flux-decay-minimum-mass
+//                                         (M_min, default 3.3 Msol), a fit to the magnetic early B-type stars of Shultz et al. (2019). Applied in
+//                                         MainSequence::DecaySurfaceMagneticFlux() when tau increases (not on rejuvenation); a merger product's field
+//                                         decays from the merger. The flux at the end of the MS is then conserved and sets FLUX_CONSERVATION / HYBRID
+//                                         pulsar birth fields.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1964,7 +1973,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.48.02";
+const std::string VERSION_STRING = "03.49.00";
 
 
 # endif // __changelog_h__

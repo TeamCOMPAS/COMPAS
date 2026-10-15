@@ -378,6 +378,8 @@ public:
                                                        const double p_Epsilon) { }                                                                                                  // Default is NO-OP
 
     virtual void            UpdateMainSequenceCoreMass(const double p_Dt, const double p_TotalMassLossRate) { }                                                                     // Set core mass for Main Sequence stars; default is NO-OP
+
+    virtual void            DecaySurfaceMagneticFlux(const double p_TauPrev)                                    { }                                                                 // Main sequence surface magnetic flux decay; default is NO-OP
     
     virtual void            UpdateTotalMassLossRate(const double p_MassLossRate)                                { m_TotalMassLossRate = p_MassLossRate; }                           // m_TotalMassLossRate = -m_Mdot in SSE, during a mass transfer episode m_TotalMassLossRate = m_MassLossRateInRLOF
     
