@@ -132,6 +132,17 @@ STELLAR_TYPE Star::SwitchTo(const STELLAR_TYPE p_StellarType, bool p_SetInitialT
                 (void)m_Star->PrintSwitchLog();                                                             // no need for the BSE signal shenanigans - just call the function
             }
         }
+
+        // SSE: write the supernova record once the star has switched to its remnant, so that the record has the remnant's
+        // Stellar_Type and the progenitor's Stellar_Type_Prev, for every kind of supernova (including AIC, SN Ia and HeSD
+        // of white dwarfs). BSE writes its own supernova records.  Not for ephemeral clones.
+        if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT &&
+            utils::IsOneOf(p_StellarType, { STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }) &&
+           !utils::IsOneOf(stellarTypePrev, { STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE, STELLAR_TYPE::MASSLESS_REMNANT }) &&
+            (m_Star->IsCCSN() || m_Star->IsECSN() || m_Star->IsPISN() || m_Star->IsPPISN() || m_Star->IsAIC() || m_Star->IsSNIA() || m_Star->IsHeSD())) {
+            m_Star->SetStellarTypePrev(stellarTypePrev);                                                    // the progenitor's stellar type
+            (void)m_Star->PrintSupernovaDetails();
+        }
     }
 
     return stellarTypePrev;

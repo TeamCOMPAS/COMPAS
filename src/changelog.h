@@ -1944,6 +1944,12 @@
 //                                         products are SSE runs with MAKARENKO21.
 //                                       - --merger-magnetic-field-fraction (default 1): fraction of main sequence merger products whose field is set by
 //                                         --merger-magnetic-field-prescription; the others keep the primary's flux.
+//  03.48.01  SS - October 15, 2026      - Defect repair:
+//                                       - SSE supernova records were written by GiantBranch::ResolveSupernova() before the star switched type, so
+//                                         Stellar_Type (and Stellar_Type_Prev) held the progenitor's type rather than the remnant's (BSE records hold
+//                                         the remnant's), and white dwarf supernovae (AIC, SN Ia, HeSD) were not written at all (e.g. neutron stars
+//                                         formed by AIC of ONe WDs had no record). The SSE record is now written by Star::SwitchTo() when the star
+//                                         switches to its remnant: Stellar_Type is the remnant's and Stellar_Type_Prev the progenitor's. BSE unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1955,7 +1961,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.48.00";
+const std::string VERSION_STRING = "03.48.01";
 
 
 # endif // __changelog_h__

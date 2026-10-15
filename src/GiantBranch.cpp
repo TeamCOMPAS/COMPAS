@@ -2382,11 +2382,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
             if (!utils::IsOneOf(stellarType, { STELLAR_TYPE::NEUTRON_STAR }))
                 m_SupernovaDetails.rocketKickMagnitude = 0;                                         // only NSs can get rocket kicks
 
-            // Print SN details to the SSE Supernova log.
-            // Only if SSE (BSE does its own SN printing), and only if not an ephemeral clone
-            if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE && m_ObjectPersistence == OBJECT_PERSISTENCE::PERMANENT) {
-                PrintSupernovaDetails();
-            }
+            // the SSE supernova record is written by Star::SwitchTo(), once the star has switched to its remnant type
        }
     }
 
