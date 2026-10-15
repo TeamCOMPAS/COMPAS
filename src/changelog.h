@@ -1970,6 +1970,12 @@
 //                                         The shape is normalised to its peak, so the birth field options set the peak dipole field and the dipole at
 //                                         birth is the seed (the logged birth field is the peak field). Evolved like GRABER2024 (multiplicative shape,
 //                                         Simpson quadrature in ln age), via the new NS::FieldShape().
+//  03.51.00  SS - October 16, 2026      - Enhancement:
+//                                       - Strong-field decay for --pulsar-magnetic-field-decay-model GRABER2024 or SARIN2023: the field shape is multiplied by
+//                                         (1 + alpha t / tau_H)^(-1/alpha), tau_H = tau_15 (1e15 G / B_birth)^alpha (Hall-like; Colpi et al. 2000, Dall'Osso et
+//                                         al. 2012), with new options --pulsar-strong-field-decay-timescale (tau_15, yr; default 0 = off) and
+//                                         --pulsar-strong-field-decay-index (alpha; default 2). Combined with SARIN2023: the dipole grows, then strong fields
+//                                         decay within ~10 kyr (magnetars), while normal pulsars are nearly unaffected.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1981,7 +1987,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.50.00";
+const std::string VERSION_STRING = "03.51.00";
 
 
 # endif // __changelog_h__

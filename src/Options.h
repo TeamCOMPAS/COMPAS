@@ -1323,6 +1323,8 @@ public:
             double                                              m_PulsarInverseCascadeTimescale;                                // SARIN2023: onset timescale tau_1 of the inverse cascade (yr)
             double                                              m_PulsarInverseCascadeLmax;                                     // SARIN2023: spherical harmonic degree l_max of the energy-carrying eddies at birth
             double                                              m_PulsarInverseCascadeDecayIndex;                               // SARIN2023: post-cascade decay index m
+            double                                              m_PulsarStrongFieldDecayTimescale;                              // GRABER2024/SARIN2023: strong-field decay timescale at 1e15 G (yr; 0 = off)
+            double                                              m_PulsarStrongFieldDecayIndex;                                  // GRABER2024/SARIN2023: strong-field decay index alpha, tau_H ~ B^-alpha
             double                                              m_PulsarMagneticFieldDecayMassscale;                            // Mass scale on which magnetic field decays during accretion (solar masses)
             double                                              m_PulsarLog10MinimumMagneticField;                              // log10 of the minimum pulsar magnetic field in Gauss
             
@@ -1901,6 +1903,8 @@ public:
     double                                      PulsarInverseCascadeTimescale() const                                   { return OPT_VALUE("pulsar-inverse-cascade-timescale", m_PulsarInverseCascadeTimescale, true); }
     double                                      PulsarInverseCascadeLmax() const                                        { return OPT_VALUE("pulsar-inverse-cascade-lmax", m_PulsarInverseCascadeLmax, true); }
     double                                      PulsarInverseCascadeDecayIndex() const                                  { return OPT_VALUE("pulsar-inverse-cascade-decay-index", m_PulsarInverseCascadeDecayIndex, true); }
+    double                                      PulsarStrongFieldDecayTimescale() const                                 { return OPT_VALUE("pulsar-strong-field-decay-timescale", m_PulsarStrongFieldDecayTimescale, true); }
+    double                                      PulsarStrongFieldDecayIndex() const                                     { return OPT_VALUE("pulsar-strong-field-decay-index", m_PulsarStrongFieldDecayIndex, true); }
 
     PPI_PRESCRIPTION                            PulsationalPairInstabilityPrescription() const                          { return OPT_VALUE("pulsational-pair-instability-prescription", m_PulsationalPairInstabilityPrescription.type, true); }
     double                                      PulsationalPairInstabilityLowerLimit() const                            { return OPT_VALUE("PPI-lower-limit", m_PulsationalPairInstabilityLowerLimit, true); }

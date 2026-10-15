@@ -837,7 +837,15 @@ double NS::SarinFieldShape(const double p_Age) const {
 
 
 /*
- * Shape of the isolated pulsar field against age for the models that give B(t) as a shape in age (GRABER2024, SARIN2023)
+ * Shape of the isolated pulsar field against age for the models that give B(t) as a shape in age (GRABER2024, SARIN2023), times the
+ * optional field-dependent (Hall-like) strong-field decay (--pulsar-strong-field-decay-timescale > 0; cf. Colpi et al. 2000,
+ * Dall'Osso et al. 2012):
+ *
+ *     (1 + alpha t / tau_H)^(-1/alpha),  tau_H = tau_15 (1e15 G / B_birth)^alpha
+ *
+ * with tau_15 = --pulsar-strong-field-decay-timescale (yr) and alpha = --pulsar-strong-field-decay-index; B_birth is the birth field
+ * (for SARIN2023 the peak field). With alpha = 2 and tau_15 ~ kyr it shortens the lives of magnetar fields and leaves normal pulsars
+ * (tau_H ~ 100 Myr - Gyr at 1e12-1e13 G) nearly unchanged.
  *
  * double FieldShape(const double p_Age)
  *
@@ -845,7 +853,14 @@ double NS::SarinFieldShape(const double p_Age) const {
  * @return              B(t) relative to its reference value
  */
 double NS::FieldShape(const double p_Age) const {
-    return OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::SARIN2023 ? SarinFieldShape(p_Age) : GraberFieldShape(p_Age);
+    double shape = OPTIONS->PulsarMagneticFieldDecayModel() == PULSAR_MAGNETIC_FIELD_DECAY_MODEL::SARIN2023 ? SarinFieldShape(p_Age) : GraberFieldShape(p_Age);
+    double tau15 = OPTIONS->PulsarStrongFieldDecayTimescale();                                                          // yr
+    if (tau15 > 0.0) {
+        double alpha = OPTIONS->PulsarStrongFieldDecayIndex();
+        double tauH  = tau15 * PPOW(1.0E15 / m_PulsarDetails.birthMagneticField, alpha);                               // yr
+        shape *= PPOW(1.0 + alpha * p_Age / SECONDS_IN_YEAR / tauH, -1.0 / alpha);
+    }
+    return shape;
 }
 
 

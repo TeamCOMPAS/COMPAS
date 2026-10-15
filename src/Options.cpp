@@ -731,6 +731,8 @@ void Options::OptionValues::Initialise() {
     m_PulsarInverseCascadeTimescale                                 = 1.0;                                                  // yr; Sarin et al. (2023), resistive pasta layer
     m_PulsarInverseCascadeLmax                                      = 40.0;                                                 // Sarin et al. (2023): best for magnetars
     m_PulsarInverseCascadeDecayIndex                                = 2.3;                                                  // Sarin et al. (2023)
+    m_PulsarStrongFieldDecayTimescale                               = 0.0;                                                  // yr at 1e15 G; 0 = off
+    m_PulsarStrongFieldDecayIndex                                   = 2.0;
     m_PulsarMagneticFieldDecayMassscale                             = 0.025;
     m_PulsarLog10MinimumMagneticField                               = 8.0;
 
@@ -2017,6 +2019,16 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Post-cascade decay index m, B ~ (1 + t/tau_1) (1 + t/tau_2)^(-m/2), for --pulsar-magnetic-field-decay-model SARIN2023 (must be > 2; default = " + std::to_string(p_Options->m_PulsarInverseCascadeDecayIndex) + ")").c_str()
         )
         (
+            "pulsar-strong-field-decay-timescale",
+            po::value<double>(&p_Options->m_PulsarStrongFieldDecayTimescale)->default_value(p_Options->m_PulsarStrongFieldDecayTimescale),
+            ("Timescale (yr) at 1e15 G of an additional field-dependent decay of the isolated pulsar field, B x (1 + alpha t / tau_H)^(-1/alpha) with tau_H = timescale x (1e15 G / B_birth)^alpha, for --pulsar-magnetic-field-decay-model GRABER2024 or SARIN2023 (0 = off; default = " + std::to_string(p_Options->m_PulsarStrongFieldDecayTimescale) + ")").c_str()
+        )
+        (
+            "pulsar-strong-field-decay-index",
+            po::value<double>(&p_Options->m_PulsarStrongFieldDecayIndex)->default_value(p_Options->m_PulsarStrongFieldDecayIndex),
+            ("Index alpha of the strong-field decay, tau_H ~ B_birth^-alpha (--pulsar-strong-field-decay-timescale; must be > 0; default = " + std::to_string(p_Options->m_PulsarStrongFieldDecayIndex) + ")").c_str()
+        )
+        (
             "pulsar-minimum-magnetic-field",                               
             po::value<double>(&p_Options->m_PulsarLog10MinimumMagneticField)->default_value(p_Options->m_PulsarLog10MinimumMagneticField),                                                        
             ("Minimum pulsar magnetic field, in log10(Gauss) (default = " + std::to_string(p_Options->m_PulsarLog10MinimumMagneticField) + ")").c_str()
@@ -3211,6 +3223,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_PulsarInverseCascadeTimescale <= 0.0, "Pulsar inverse cascade timescale (--pulsar-inverse-cascade-timescale) must be > 0");
         COMPLAIN_IF(m_PulsarInverseCascadeLmax <= 1.0, "Pulsar inverse cascade l_max (--pulsar-inverse-cascade-lmax) must be > 1");
         COMPLAIN_IF(m_PulsarInverseCascadeDecayIndex <= 2.0, "Pulsar inverse cascade decay index (--pulsar-inverse-cascade-decay-index) must be > 2 (so that the field peaks)");
+        COMPLAIN_IF(m_PulsarStrongFieldDecayTimescale < 0.0, "Pulsar strong-field decay timescale (--pulsar-strong-field-decay-timescale) must be >= 0");
+        COMPLAIN_IF(m_PulsarStrongFieldDecayIndex <= 0.0, "Pulsar strong-field decay index (--pulsar-strong-field-decay-index) must be > 0");
 
         COMPLAIN_IF(m_MaltsevFallback < 0.0 || m_MaltsevFallback > 1.0, "Maltsev fallback fraction (--maltsev-fallback) must be between 0 and 1, inclusive");
 

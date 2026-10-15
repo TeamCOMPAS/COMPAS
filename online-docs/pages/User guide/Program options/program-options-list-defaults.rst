@@ -1500,6 +1500,18 @@ Default = 0.025
 Timescale on which magnetic field decays (Myr). |br|
 Default = 1000.0
 
+**--pulsar-strong-field-decay-index** |br|
+Index :math:`\alpha` of the strong-field decay, :math:`\tau_H \propto B_{\rm birth}^{-\alpha}` (``--pulsar-strong-field-decay-timescale``). |br|
+Default = 2.0
+
+**--pulsar-strong-field-decay-timescale** |br|
+Timescale :math:`\tau_{15}` (yr) at :math:`10^{15}` G of an additional field-dependent (Hall-like) decay of the isolated pulsar field, for
+``--pulsar-magnetic-field-decay-model GRABER2024`` or ``SARIN2023``: the field is multiplied by :math:`(1 + \alpha t/\tau_H)^{-1/\alpha}` with
+:math:`\tau_H = \tau_{15} (10^{15}\,{\rm G}/B_{\rm birth})^{\alpha}` (cf. Colpi et al. 2000; Dall'Osso et al. 2012; :math:`B_{\rm birth}` is the peak
+field for ``SARIN2023``). With :math:`\alpha = 2` and :math:`\tau_{15}` of a few kyr magnetar fields decay within ~10 kyr while normal pulsars are nearly unaffected.
+0 turns it off. |br|
+Default = 0.0
+
 **--pulsar-minimum-magnetic-field** |br|
 :math:`log_{10}` of the minimum pulsar magnetic field (Gauss). |br|
 Default = 8.0
@@ -2007,7 +2019,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --pulsar-inclination-evolution, --pulsar-spin-down-torque, --pulsar-alignment-timescale, --pulsar-reset-inclination-at-recycling,
 --pulsar-recycled-inclination-evolution, --pulsar-magnetic-field-decay-model, --pulsar-late-magnetic-field-decay-index,
 --pulsar-late-magnetic-field-decay-timescale, --pulsar-final-magnetic-field-distribution-mean, --pulsar-final-magnetic-field-distribution-sigma,
---pulsar-inverse-cascade-timescale, --pulsar-inverse-cascade-lmax, --pulsar-inverse-cascade-decay-index
+--pulsar-inverse-cascade-timescale, --pulsar-inverse-cascade-lmax, --pulsar-inverse-cascade-decay-index,
+--pulsar-strong-field-decay-timescale, --pulsar-strong-field-decay-index
 
 --kick-magnitude-distribution, --kick-magnitude-sigma-CCSN-BH, --kick-magnitude-sigma-CCSN-NS, --kick-magnitude-sigma-ECSN, --kick-magnitude-sigma-USSN, 
 --kick-magnitude-lognormal-mu, --kick-magnitude-lognormal-sigma, --kick-magnitude-lognormal-max,
