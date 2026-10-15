@@ -122,10 +122,10 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_HydrogenAbundanceCore                    = m_InitialHydrogenAbundance;
     m_HydrogenAbundanceSurface                 = m_InitialHydrogenAbundance;
 
-    // Initial surface magnetic field strength 
+    // Initial surface magnetic field strength and flux
     m_SurfaceMagneticFieldStrengthZAMS         = CalculateZAMSSurfaceMagneticFieldStrength();
-    m_SurfaceMagneticFieldStrength             = m_SurfaceMagneticFieldStrengthZAMS;
-    m_SurfaceMagneticFieldStrengthPrev         = m_SurfaceMagneticFieldStrength;
+    m_SurfaceMagneticFlux                      = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
+    m_SurfaceMagneticFieldStrengthPrev         = m_SurfaceMagneticFieldStrengthZAMS;
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
@@ -4301,14 +4301,13 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
         } break;
 
         case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::NS_BIRTH_DIST: {
-            
-            double BNS = PPOW(10.0, NS::DrawBirthMagneticField_Static());                // Get NS birth magnetic field strength. DrawBirthMagneticField_Static gives log10(B)
-            double canonical_NS_radius = NEUTRON_STAR_RADIUS;                            // Canonical neutron star radius (10 km) converted to Rsol
-            
-            double radiusZAMS  = RZAMS();                                                // Get ZAMS radius of the star
 
-            double radiusRatio = canonical_NS_radius/radiusZAMS;
-            Bsurf = BNS * radiusRatio * radiusRatio;                                     // Calculate birth surface field strength (in G) that would give that NS field, assuming flux conservation. Use multiplication to avoid expensive pow                                                                 
+            // the surface field that gives a canonical (NEUTRON_STAR_MASS) neutron star a field drawn from
+            // --pulsar-birth-magnetic-field-distribution, assuming flux conservation (B R^2 constant)
+            double BNS         = PPOW(10.0, NS::DrawBirthMagneticField_Static());        // NS birth magnetic field strength (G). DrawBirthMagneticField_Static gives log10(B)
+            double radiusNS    = NS::CalculateRadiusOnPhase_Static(NEUTRON_STAR_MASS);   // canonical neutron star radius (Rsol) for the chosen equation of state
+            double radiusRatio = radiusNS / m_RZAMS;
+            Bsurf = BNS * radiusRatio * radiusRatio;                                     // use multiplication to avoid expensive pow
 
             } break;
 
@@ -4426,8 +4425,8 @@ void BaseStar::UpdateAttributesAndAgeOneTimestepPreamble(const double p_DeltaMas
             m_StellarTypePrev = m_StellarType;
             m_MassPrev        = m_Mass;
             m_RadiusPrev      = m_Radius;
-            m_SurfaceMagneticFieldStrengthPrev = m_SurfaceMagneticFieldStrength;
-    } 
+            m_SurfaceMagneticFieldStrengthPrev = SurfaceMagneticFieldStrength();
+    }
     
     // the GBParams and Timescale calculations need to be done before taking the timestep - since
     // the binary code ultimately calls this via UpdateAttributesAndAgeOneTimestep(), the GBParams
@@ -4569,9 +4568,6 @@ STELLAR_TYPE BaseStar::EvolveOnPhase(const double p_DeltaTime) {
         m_HydrogenAbundanceCore    = CalculateHydrogenAbundanceCoreOnPhase();
         m_HydrogenAbundanceSurface = CalculateHydrogenAbundanceSurfaceOnPhase();  
         
-        // Update surface magnetic field
-        m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();
-
         std::tie(m_Radius, stellarType) = CalculateRadiusAndStellarTypeOnPhase();   // radius and possibly new stellar type
 
         m_Mu = CalculatePerturbationMuOnPhase();

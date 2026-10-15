@@ -1650,7 +1650,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "magnetic-field-amplification-factor-merger",
             po::value<double>(&p_Options->m_MagneticFieldAmplificationFactorMerger)->default_value(p_Options->m_MagneticFieldAmplificationFactorMerger),
-            ("Factor by which magnetic fields are assumed to be amplified during stellar merger (default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
+            ("Factor by which the surface magnetic flux of the product of a main sequence merger is amplified (with --evolve-main-sequence-mergers; default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
         )
         (
             "main-sequence-core-mass-brcek-minimum-mass",
@@ -2046,27 +2046,27 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "surface-magnetic-field-distribution-flow",                    
             po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionFLow)->default_value(p_Options->m_SurfaceMagneticFieldDistributionFLow),                                  
-            ("Fraction of stars with stellar surface magnetic fields drawn from the low component (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionFLow) + ")").c_str()
+            ("Fraction of stars with ZAMS surface magnetic fields drawn from the low-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionFLow) + ")").c_str()
         )
         (
             "surface-magnetic-field-distribution-low-mean",                    
             po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionLowMean)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowMean),                                  
-            ("Log10(Mean) of the low component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowMean) + ")").c_str()
+            ("Mean of log10(B/G) of the low-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowMean) + ")").c_str()
         )
         (
             "surface-magnetic-field-distribution-low-std",                    
             po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionLowStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowStd),                                  
-            ("Log10(Standard deviation) of the low component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowStd) + ")").c_str()
+            ("Standard deviation (dex) of log10(B/G) of the low-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionLowStd) + ")").c_str()
         )
         (
             "surface-magnetic-field-distribution-high-mean",                    
             po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighMean)->default_value(p_Options->m_SurfaceMagneticFieldDistributionHighMean),                                  
-            ("Log10(Mean) of the high component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighMean) + ")").c_str()
+            ("Mean of log10(B/G) of the high-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighMean) + ")").c_str()
         )
         (
             "surface-magnetic-field-distribution-high-std",                    
-            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionLowStd),                                  
-            ("Log10(Standard deviation) of the high component of the stellar surface magnetic field distribution (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighStd) + ")").c_str()
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldDistributionHighStd)->default_value(p_Options->m_SurfaceMagneticFieldDistributionHighStd),                                  
+            ("Standard deviation (dex) of log10(B/G) of the high-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldDistributionHighStd) + ")").c_str()
         )
 
         (
@@ -2414,7 +2414,7 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "pulsar-birth-magnetic-field-assumption",                    
             po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldAssumption.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldAssumption.typeString),                                  
-            ("Pulsar Birth Magnetic Field assumption (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
+            ("Pulsar birth magnetic field: drawn from --pulsar-birth-magnetic-field-distribution, or from the progenitor's surface magnetic flux (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution",                    
@@ -3175,11 +3175,15 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(!DEFAULTED("rotational-frequency-2") && m_RotationalFrequency2 < 0.0, "Secondary rotational frequency (--rotational-frequency-2) < 0");
 
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow < 0.0, "Flow (--surface-magnetic-field-distribution-flow) < 0.0");
-        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow > 1.0, "Flow (--surface-magnetic-field-distribution-flow) > 0.0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldDistributionFLow > 1.0, "Flow (--surface-magnetic-field-distribution-flow) > 1.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowMean  < 0.0, "Mean of low surface field component (--surface-magnetic-field-distribution-low-mean) < 0.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionLowStd   < 0.0, "Std of low surface field component (--surface-magnetic-field-distribution-low-std) < 0.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighMean < 0.0, "Mean of high surface field component (--surface-magnetic-field-distribution-high-mean) < 0.0");
         COMPLAIN_IF(m_SurfaceMagneticFieldDistributionHighStd  < 0.0, "Std of high surface field component (--surface-magnetic-field-distribution-high-std) < 0.0");
+
+        COMPLAIN_IF(m_PulsarBirthMagneticFieldAssumption.type == PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION &&
+                    m_SurfaceMagneticFieldDistribution.type   == SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO,
+                    "--pulsar-birth-magnetic-field-assumption FLUX_CONSERVATION needs a non-zero --surface-magnetic-field-distribution");
 
         COMPLAIN_IF(m_SemiMajorAxisDistributionMin < 0.0, "Minimum semi-major Axis (--semi-major-axis-min) < 0");
         COMPLAIN_IF(m_SemiMajorAxisDistributionMax < 0.0, "Maximum semi-major Axis (--semi-major-axis-max) < 0");

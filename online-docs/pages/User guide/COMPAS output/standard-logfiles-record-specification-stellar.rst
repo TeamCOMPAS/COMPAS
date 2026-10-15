@@ -928,6 +928,22 @@ but not both. If both are printed then the file will contain two columns with th
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_SurfaceMagneticFieldStrengthZAMS
+   * - Description:
+     - Surface magnetic field strength (G) at ZAMS (see ``--surface-magnetic-field-distribution``).
+   * - Header Strings:
+     - Surface_Magnetic_Field_Strength@ZAMS, Surface_Magnetic_Field_Strength@ZAMS(1), Surface_Magnetic_Field_Strength@ZAMS(2), Surface_Magnetic_Field_Strength@ZAMS(SN), Surface_Magnetic_Field_Strength@ZAMS(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **IS_AIC**
      -
    * - Data type:
@@ -1820,6 +1836,22 @@ the other is printed in any file, but not both. If both are printed then the fil
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **RADIUS_PREV**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_RadiusPrev
+   * - Description:
+     - Radius at the previous timestep (\ :math:`R_\odot`).
+   * - Header Strings:
+     - Radius_Prev, Radius_Prev(1), Radius_Prev(2), Radius_Prev(SN), Radius_Prev(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **RANDOM_SEED**
      -
    * - Data type:
@@ -2074,6 +2106,38 @@ but not both. If both are printed then the file will contain two columns with th
 .. _stellar-props-T:
 
 :ref:`Back to Top <stellar-props-top>`
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SURFACE_MAGNETIC_FIELD_STRENGTH**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::SurfaceMagneticFieldStrength()
+   * - Description:
+     - Surface magnetic field strength (G), :math:`\Phi / R^2` for the conserved surface magnetic flux :math:`\Phi`. For neutron stars this is the flux-conserved (fossil) field, not the pulsar field (PULSAR_MAGNETIC_FIELD); zero for black holes and massless remnants.
+   * - Header Strings:
+     - Surface_Magnetic_Field_Strength, Surface_Magnetic_Field_Strength(1), Surface_Magnetic_Field_Strength(2), Surface_Magnetic_Field_Strength(SN), Surface_Magnetic_Field_Strength(CP)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **SURFACE_MAGNETIC_FIELD_STRENGTH_PREV**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseStar::m_SurfaceMagneticFieldStrengthPrev
+   * - Description:
+     - Surface magnetic field strength (G) at the previous timestep.
+   * - Header Strings:
+     - Surface_Magnetic_Field_Strength_Prev, Surface_Magnetic_Field_Strength_Prev(1), Surface_Magnetic_Field_Strength_Prev(2), Surface_Magnetic_Field_Strength_Prev(SN), Surface_Magnetic_Field_Strength_Prev(CP)
 
 .. flat-table::
    :widths: 25 75 1 1

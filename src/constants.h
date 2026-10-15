@@ -165,13 +165,13 @@ constexpr double GAUSS_TO_TESLA                         = 1.0 / TESLA_TO_GAUSS; 
 // For the high component, we use the median estimates for the B star sample
 // For the low component, we use the median estimates for the weakly magnetised sample
 constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_FRACTION = 0.9;                                  // Fraction of stars drawn from the low component
-constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN     = 0.14;                                 // log10(mean) of the low field component
-constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA    = 0.7;                                  // log10(std) of the low field component
-constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN    = 2.82;                                 // log10(mean) of the high field component
-constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA   = 0.65;                                 // log10(std) of the high field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_MEAN     = 0.14;                                 // mean of log10(B/G) of the low field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_LOW_SIGMA    = 0.7;                                  // standard deviation (dex) of log10(B/G) of the low field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN    = 2.82;                                 // mean of log10(B/G) of the high field component
+constexpr double SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA   = 0.65;                                 // standard deviation (dex) of log10(B/G) of the high field component
 
-// Default factor that magnetic fields get amplified by during stellar merger
-constexpr double MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER = 100.0;      
+// Default factor by which the surface magnetic flux is amplified in a main sequence merger
+constexpr double MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER = 100.0;
 
 // systems
 constexpr double CGS_SI                                 = G_TO_KG * CM_TO_M * CM_TO_M;                              // convert CGS to SI

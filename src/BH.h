@@ -66,10 +66,8 @@ protected:
     double  CalculateMomentOfInertia() const                                        { return (2.0 / 5.0) * m_Mass * m_Radius * m_Radius; }
     double  CalculateRadiusOnPhase() const                                          { return CalculateRadiusOnPhase_Static(m_Mass); }                   // Use class member variables - returns radius in Rsol
     double  CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const        { return CalculateRadiusOnPhase(); }                                // not a meaningful calculation for BH, ignore arguments
-    
-    // Black hole has no magnetic field (no-hair theorem)
-    double  CalculateSurfaceMagneticFieldStrength() const                           { return 0.0; }
-    double  CalculateSurfaceMagneticFieldStrengthOnPhase() const                    { return 0.0; }
+
+    double  SurfaceMagneticFieldStrength() const                                    { return 0.0; }                                                     // Black hole has no magnetic field (no-hair theorem)
     
 };
 

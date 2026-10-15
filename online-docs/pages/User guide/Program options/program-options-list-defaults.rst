@@ -938,6 +938,11 @@ Default = NONE
 Apply magnetic braking only to stars with a radiative core, i.e. not to fully convective main sequence stars (:math:`M \le 0.35\,M_\odot`), as in MESA's default. |br|
 Default = FALSE
 
+**--magnetic-field-amplification-factor-merger** |br|
+Factor by which the surface magnetic flux of the product of a main sequence merger (``--evolve-main-sequence-mergers``) is multiplied, to mimic the field generated in
+the merger (Schneider et al. 2019). The flux of the merger product is this factor times the flux of the primary before the merger. See ``--surface-magnetic-field-distribution``. |br|
+Default = 100.0
+
 **--main-sequence-core-hydrogen-prescription** |br|
 Main sequence core hydrogen depletion and minimum core mass growth, for stars whose core composition is not evolved by the ``BRCEK`` core mass prescription. |br|
 Options: {LINEAR, MIST} |br|
@@ -1316,6 +1321,14 @@ e-folding timescale (Myr) of the magnetic inclination :math:`\alpha` (angle betw
 :math:`\alpha(t) = \alpha_0 \exp(-t/\tau)`. |br|
 Default = 50.0
 
+**--pulsar-birth-magnetic-field-assumption** |br|
+How the birth magnetic field of a (non-AIC, or AIC without ``--msps-from-aic``) neutron star is set. |br|
+Options: { RANDOM_DRAW, FLUX_CONSERVATION } |br|
+``RANDOM_DRAW`` : drawn from ``--pulsar-birth-magnetic-field-distribution``. |br|
+``FLUX_CONSERVATION`` : the surface magnetic flux of the progenitor (see ``--surface-magnetic-field-distribution``) is conserved, :math:`B_{\rm NS} = \Phi / R_{\rm NS}^2`,
+with :math:`B_{\rm NS}` no lower than ``--pulsar-minimum-magnetic-field``. Needs a ``--surface-magnetic-field-distribution`` other than ``ZERO``. |br|
+Default = RANDOM_DRAW
+
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
 Options: { FLATINLOG, UNIFORM, LOGNORMAL } |br|
@@ -1625,11 +1638,36 @@ and :math:`\log_{10} g = -0.282 + 3.121 x + 4.587 x^2`, :math:`x = M_c - 0.25`, 
 Default = HURLEY
 
 **--surface-magnetic-field-distribution** |br|
-Initial (ZAMS) distribution of stellar surface magnetic field strengths. |br| 
-Options: ['MAKARENKO21','ZERO']
-``MAKARENKO21`` uses the distribution from Makarenko et al. (2021) |br|
-``ZERO`` initialises all fields to zero. |br|
-default = ZERO
+Initial (ZAMS) distribution of stellar surface magnetic field strengths. The surface magnetic flux :math:`\Phi = B R^2` is then conserved (the field follows
+:math:`B = \Phi / R^2`) through the evolution of the star, except that it is multiplied by ``--magnetic-field-amplification-factor-merger`` in a main sequence merger.
+Black holes and massless remnants have no field. |br|
+Options: { ZERO, MAKARENKO21, NS_BIRTH_DIST } |br|
+``ZERO`` : all fields are zero. |br|
+``MAKARENKO21`` : the two-component log-normal distribution of Makarenko et al. (2021) for OBA stars, set by ``--surface-magnetic-field-distribution-flow``,
+``--surface-magnetic-field-distribution-low-mean``, ``--surface-magnetic-field-distribution-low-std``, ``--surface-magnetic-field-distribution-high-mean`` and
+``--surface-magnetic-field-distribution-high-std``. |br|
+``NS_BIRTH_DIST`` : the field that, with flux conservation, gives a :math:`1.4\,M_\odot` neutron star a birth field drawn from ``--pulsar-birth-magnetic-field-distribution``. |br|
+Default = ZERO
+
+**--surface-magnetic-field-distribution-flow** |br|
+Fraction of stars whose ZAMS surface field is drawn from the low-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
+Default = 0.9
+
+**--surface-magnetic-field-distribution-high-mean** |br|
+Mean of :math:`\log_{10}(B/{\rm G})` of the high-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
+Default = 2.82
+
+**--surface-magnetic-field-distribution-high-std** |br|
+Standard deviation (dex) of :math:`\log_{10}(B/{\rm G})` of the high-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
+Default = 0.65
+
+**--surface-magnetic-field-distribution-low-mean** |br|
+Mean of :math:`\log_{10}(B/{\rm G})` of the low-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
+Default = 0.14
+
+**--surface-magnetic-field-distribution-low-std** |br|
+Standard deviation (dex) of :math:`\log_{10}(B/{\rm G})` of the low-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
+Default = 0.7
 
 **--switch-log** |br|
 Enables printing of the Switch Log logfile. |br|
@@ -1827,6 +1865,9 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --chemically-homogeneous-evolution, --chemically-homogeneous-evolution-mode
 
+--surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
+--surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger
+
 :ref:`Back to Top <options-props-top>`
 
 .. _options-mass-transfer:
@@ -1869,7 +1910,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
 --PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
---pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
+--pulsar-birth-magnetic-field-assumption, --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
 --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
 --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field,
 --pulsar-inclination-evolution, --pulsar-spin-down-torque, --pulsar-alignment-timescale, --pulsar-reset-inclination-at-recycling,

@@ -1900,6 +1900,29 @@
 //                                         limit of <~0.2 Msol). Below the window: ONe WD; in it: ECSN; above: core-collapse SN. The window unifies case C stripped stars with
 //                                         --allow-non-stripped-ECSN (ignored when it is set; that option applied the helium-star window to unstripped stars).
 //                                         Requires --electron-capture-supernova-minimum-core-mass > 0. With the default, results are unchanged.
+
+//  03.46.00  SS - October 15, 2026      - Enhancement:
+//                                       - Merged the magnetars branch (stellar surface magnetic fields, merger amplification, flux-conserved neutron star birth fields):
+//                                         new options --surface-magnetic-field-distribution (ZERO (default), MAKARENKO21, NS_BIRTH_DIST) with
+//                                         --surface-magnetic-field-distribution-flow/-low-mean/-low-std/-high-mean/-high-std, --magnetic-field-amplification-factor-merger
+//                                         and --pulsar-birth-magnetic-field-assumption (RANDOM_DRAW (default), FLUX_CONSERVATION); new log properties
+//                                         INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH, SURFACE_MAGNETIC_FIELD_STRENGTH(_PREV) and RADIUS_PREV; RZAMS and the ZAMS surface field
+//                                         added to the default BSE system parameters record, and the pulsar birth field to the BSE detailed output.
+//                                       - Neutron-star timesteps of 10 yr below an age of 100 yr and 100 yr below 1000 yr (were 1000 yr), for young (magnetar) ages.
+//                                         This changes results for systems with neutron stars slightly (<1e-3 relative in a 600-binary test; no change of
+//                                         outcome); with the previous NS timesteps, results with the default options are bit-identical to 03.45.00.
+//                                       - Defect repairs to the magnetar model:
+//                                         - The surface field was updated as B_prev (R_prev/R)^2 before the radius was updated, and the previous values only on dt > 0
+//                                           steps, so flux conservation lagged the radius and the merger amplification (applied to B_prev) was lost or partly applied,
+//                                           depending on the order of the updates (~25% of neutron stars did not get the ZAMS flux). The surface magnetic flux
+//                                           Phi = B R^2 is now a member variable (conserved; x amplification factor in main sequence mergers) and B = Phi / R^2.
+//                                         - FLUX_CONSERVATION: B_NS = Phi / R_NS^2, floored at --pulsar-minimum-magnetic-field (was log10(0) = -inf for zero flux);
+//                                           FLUX_CONSERVATION with --surface-magnetic-field-distribution ZERO is now an error.
+//                                         - NS_BIRTH_DIST uses the neutron-star radius of the chosen equation of state (was NEUTRON_STAR_RADIUS = 9.94 km), so that
+//                                           FLUX_CONSERVATION reproduces the drawn field.
+//                                         - --surface-magnetic-field-distribution-high-std defaulted to the low-component value (0.7, not 0.65).
+//                                         - SURFACE_MAGNETIC_FIELD_STRENGTH_PREV could not be requested in log file definitions (missing label); surface fields were
+//                                           labelled Tesla but are in Gauss; corrected option help and error text.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1911,7 +1934,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.45.00";
+const std::string VERSION_STRING = "03.46.00";
 
 
 # endif // __changelog_h__

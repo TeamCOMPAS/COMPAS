@@ -70,6 +70,9 @@ public:
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
     static  double      DrawBirthMagneticField_Static();
+
+    static  double      CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                                 // Radius on phase in km
+    static  double      CalculateRadiusOnPhase_Static(const double p_Mass)      { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }                  // Radius on phase in Rsol
     static double       DeltaJByAccretion_Static(const double p_Mass, const double p_Radius_6, const double p_MagField, const double p_SpinFrequency, const double p_mDot, const double p_Epsilon);
 
     MT_CASE             DetermineMassTransferTypeAsDonor() const                { return MT_CASE::NONE; }                                                       // Always NONE
@@ -128,8 +131,6 @@ protected:
             double          CalculateMomentOfInertiaCGS() const                 { return CalculateMomentOfInertiaCGS_Static(m_Mass * MSOL_TO_G, m_Radius * RSOL_TO_CM); } // MOI in CGS - use member variables
             double          CalculateMomentOfInertia() const                    { return CalculateMomentOfInertiaCGS() / MSOL_TO_G / RSOL_TO_CM / RSOL_TO_CM; } // MoI (default is solar units)
 
-    static  double          CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                             // Radius on phase in km
-    static  double          CalculateRadiusOnPhase_Static(const double p_Mass)  { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }              // Radius on phase in Rsol
             double          CalculateRadiusOnPhase() const                      { return CalculateRadiusOnPhase_Static(m_Mass); }                               // Radius on phase in Rsol
     
             double          CalculateRadiusOnPhase(double p_Mass, double p_Luminosity) const { return CalculateRadiusOnPhase(); }                               // not a meaningful calculation for NS, ignore arguments

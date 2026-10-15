@@ -47,7 +47,7 @@ protected:
         m_Luminosity  = 0.0;
         m_Radius      = 0.0;
         m_Temperature = 0.0;
-        m_SurfaceMagneticFieldStrength = 0.0;
+        m_SurfaceMagneticFlux = 0.0;
     }
 
     // member functions

@@ -312,10 +312,11 @@ double NS::CalculateBirthMagneticField() {
                 log10B = DrawBirthMagneticField_Static();
                 break;
 
-            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION:                                         // flux conservation from the stellar surface magnetic field
-                m_SurfaceMagneticFieldStrength = CalculateSurfaceMagneticFieldStrengthOnPhase();                    // update surface magnetic field strength
-                log10B = log10(m_SurfaceMagneticFieldStrength);
-                break;
+            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION: {                                       // flux conservation from the stellar surface magnetic field
+                double radius = CalculateRadiusOnPhase();                                                           // NS radius (Rsol)
+                double B      = m_SurfaceMagneticFlux / (radius * radius);                                          // B = Phi / R_NS^2 (G)
+                log10B        = log10(std::max(B, NS::NS_MAG_FIELD_LOWER_LIMIT));                                   // no lower than --pulsar-minimum-magnetic-field
+                } break;
 
             default:                                                                                                // unknown assumption
                 THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION);                                 // throw error

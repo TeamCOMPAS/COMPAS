@@ -180,8 +180,9 @@ public:
     double              SN_KickMagnitudeRandom() const                                  { return m_SupernovaDetails.kickMagnitudeRandom; }
     double              Speed() const                                                   { return m_ComponentVelocity.Magnitude(); }
     COMPAS_VARIABLE     StellarPropertyValue(const T_ANY_PROPERTY p_Property) const;
-            double              SurfaceMagneticFieldStrength() const                            { return m_SurfaceMagneticFieldStrength; }
-            double              SurfaceMagneticFieldStrengthPrev() const                        { return m_SurfaceMagneticFieldStrengthPrev; }
+    double              SurfaceMagneticFlux() const                                     { return m_SurfaceMagneticFlux; }
+    virtual double      SurfaceMagneticFieldStrength() const                            { return utils::Compare(m_Radius, 0.0) > 0 ? m_SurfaceMagneticFlux / (m_Radius * m_Radius) : 0.0; }    // flux conservation: B = Phi / R^2 (G)
+    double              SurfaceMagneticFieldStrengthPrev() const                        { return m_SurfaceMagneticFieldStrengthPrev; }
     double              Tau() const                                                     { return m_Tau; }
     double              Temperature() const                                             { return m_Temperature; }
     double              Time() const                                                    { return m_Time; }
@@ -430,9 +431,8 @@ protected:
     double                  m_OmegaCHE;                                 // Minimum angular frequency at which CHE will occur (calculated at ZAMS)
     double                  m_RZAMS;                                    // ZAMS Radius
     double                  m_TZAMS;                                    // ZAMS Temperature
-    double                  m_SurfaceMagneticFieldStrengthZAMS;         // ZAMS Surface Magnetic Field Strength
-    double                  m_MagneticFluxZAMS;                         // ZAMS Magnetic flux
-    
+    double                  m_SurfaceMagneticFieldStrengthZAMS;         // ZAMS surface magnetic field strength (G)
+
     // Effective Zero Age Main Sequence
     double                  m_LZAMS0;                                   // Effective ZAMS Luminosity
     double                  m_RZAMS0;                                   // Effective ZAMS Radius
@@ -465,7 +465,7 @@ protected:
 
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Radius;                                   // Current radius (Rsol)
-    double                  m_SurfaceMagneticFieldStrength;             // Current surface magnetic field strength
+    double                  m_SurfaceMagneticFlux;                      // Current surface magnetic flux, B R^2 (G Rsol^2) - conserved, except in main sequence mergers
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)
@@ -476,7 +476,7 @@ protected:
     double                  m_MassPrev;                                 // Previous mass (Msol)
     double                  m_RadiusPrev;                               // Previous radius (Rsol)
     STELLAR_TYPE            m_StellarTypePrev;                          // Stellar type at previous timestep
-    double                  m_SurfaceMagneticFieldStrengthPrev;         // Surface magnetic field strength at previous timestep
+    double                  m_SurfaceMagneticFieldStrengthPrev;         // Surface magnetic field strength at previous timestep (G)
 
     // Metallicity variables
     double                  m_Metallicity;                              // Metallicity
@@ -685,8 +685,7 @@ protected:
     virtual void                CalculateTimescales()                                                                   { CalculateTimescales(m_Mass0, m_Timescales); }                             // Use class member variables
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
-            double              CalculateZAMSSurfaceMagneticFieldStrength();            
-    virtual double              CalculateSurfaceMagneticFieldStrengthOnPhase() const                                    { return m_SurfaceMagneticFieldStrength; }                                  // Default is NO-OP
+            double              CalculateZAMSSurfaceMagneticFieldStrength();
 
             double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 
