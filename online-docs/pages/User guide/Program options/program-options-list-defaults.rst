@@ -1699,7 +1699,10 @@ Options: { ZERO, MAKARENKO21, NS_BIRTH_DIST } |br|
 ``ZERO`` : all fields are zero. |br|
 ``MAKARENKO21`` : the two-component log-normal distribution of Makarenko et al. (2021) for OBA stars, set by ``--surface-magnetic-field-distribution-flow``,
 ``--surface-magnetic-field-distribution-low-mean``, ``--surface-magnetic-field-distribution-low-std``, ``--surface-magnetic-field-distribution-high-mean`` and
-``--surface-magnetic-field-distribution-high-std``. |br|
+``--surface-magnetic-field-distribution-high-std``. Note that Makarenko et al. fit rms longitudinal fields :math:`B_{\rm rms}`, which are about 4-5 times
+smaller than the polar dipole strengths :math:`B_{\rm d}` (their Sect. 2.1): with the default means the surface fields (and fluxes) are :math:`B_{\rm rms}`.
+For dipole strengths, as in Shultz et al. (2019) and the ~300 G lower edge of the strong fields (Aurière et al. 2007), add about 0.65 dex to the means
+(e.g. strong fields of young early B-type stars :math:`\log_{10}(B_{\rm d}/{\rm G}) \approx 3.95 \pm 0.3`, Shultz et al. 2019). |br|
 ``NS_BIRTH_DIST`` : the field that, with flux conservation, gives a :math:`1.4\,M_\odot` neutron star a birth field drawn from ``--pulsar-birth-magnetic-field-distribution``. |br|
 Default = ZERO
 
