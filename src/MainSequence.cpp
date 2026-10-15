@@ -1424,8 +1424,6 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;      // assumes uniformly mixed merger product and a uniform rate of H fusion on main sequence
     
     m_Age = m_Tau * timescales(tMS);
-
-    MagneticFieldAmplificationMerger();
     
     m_HeliumAbundanceCore   = 1.0 - m_Metallicity - p_HydrogenMass / p_Mass;
     m_HydrogenAbundanceCore = 1.0 - m_Metallicity - m_HeliumAbundanceCore;
@@ -1439,20 +1437,41 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     }
     
     UpdateAttributesAndAgeOneTimestep(0.0, 0.0, 0.0, true);
+
+    ResolveMergerMagneticField();                                                               // after the update: DRAW sets the field at the new radius
     
     #undef timescales
 }
 
 /*
- * Amplify the surface magnetic field of the merger product (cf. Schneider et al. 2019)
+ * Set the surface magnetic field of the merger product (cf. Schneider et al. 2019), per --merger-magnetic-field-prescription:
  *
- * The surface magnetic flux of the merger product (this star, the primary) is multiplied by
- * --magnetic-field-amplification-factor-merger; the field then follows B = Phi / R^2.
+ *    AMPLIFY: the surface magnetic flux of the merger product (this star, the primary) is multiplied by
+ *             --magnetic-field-amplification-factor-merger
+ *    DRAW:    the surface field is drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent
+ *             of the pre-merger field: the field generated in the merger saturates whatever the seed (Ohlmann et al. 2026)
  *
- * void MainSequence::MagneticFieldAmplificationMerger()
+ * The field then follows B = Phi / R^2.  DRAW uses a generator seeded by the star, not the COMPAS random number stream.
+ *
+ * void MainSequence::ResolveMergerMagneticField()
  */
-void MainSequence::MagneticFieldAmplificationMerger() {
-    m_SurfaceMagneticFlux *= OPTIONS->MagneticFieldAmplificationFactorMerger();
+void MainSequence::ResolveMergerMagneticField() {
+
+    switch (OPTIONS->MergerMagneticFieldPrescription()) {
+
+        case MERGER_MAGNETIC_FIELD_PRESCRIPTION::AMPLIFY:
+            m_SurfaceMagneticFlux *= OPTIONS->MagneticFieldAmplificationFactorMerger();
+            break;
+
+        case MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW: {
+            std::mt19937_64 generator = MagneticFieldGenerator(0x94D049BB133111EBULL);
+            double log10B = OPTIONS->MergerMagneticFieldDistributionMean() + OPTIONS->MergerMagneticFieldDistributionSigma() * std::normal_distribution<double>(0.0, 1.0)(generator);
+            m_SurfaceMagneticFlux = PPOW(10.0, log10B) * m_Radius * m_Radius;
+            } break;
+
+        default:
+            THROW_ERROR(ERROR::UNKNOWN_MERGER_MAGNETIC_FIELD_PRESCRIPTION);
+    }
 }
 
 /* 

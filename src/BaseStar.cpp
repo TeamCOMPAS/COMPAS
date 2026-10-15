@@ -4268,6 +4268,13 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
 
     double Bsurf = 0.0;
 
+    // draws use a generator seeded by the star, not the COMPAS random number stream, so the binary evolution does not depend on them
+    std::mt19937_64 generator = MagneticFieldGenerator(0x2545F4914F6CDD1DULL);
+    std::uniform_real_distribution<double> uniform(0.0, 1.0);
+    std::normal_distribution<double> gaussian(0.0, 1.0);
+    auto uniform01 = [&]() { return uniform(generator); };
+    auto normal    = [&](const double p_Sigma) { return p_Sigma * gaussian(generator); };
+
     switch (OPTIONS->SurfaceMagneticFieldDistribution()) {                                        // which prescription?
 
         case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO: {                                           // ZERO
@@ -4285,14 +4292,14 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
 
             double log10Bsurf = 0.0;
 
-            double r1 = RAND->Random();                   // Draw a random number between 0 and 1
+            double r1 = uniform01();                                                                // Draw a random number between 0 and 1
             double r2 = 0.0;
-            if (r1 < OPTIONS->SurfaceMagneticFieldDistributionFLow()){                   // Draw from low-field subpopulation
-                r2 = RAND->RandomGaussian(OPTIONS->SurfaceMagneticFieldDistributionLowStd());
+            if (r1 < OPTIONS->SurfaceMagneticFieldDistributionFLow()){                              // Draw from low-field subpopulation
+                r2 = normal(OPTIONS->SurfaceMagneticFieldDistributionLowStd());
                 log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionLowMean() + r2;
             }
             else{                                                                                   // Draw from high-field subpopulation
-                r2 = RAND->RandomGaussian(OPTIONS->SurfaceMagneticFieldDistributionHighStd());
+                r2 = normal(OPTIONS->SurfaceMagneticFieldDistributionHighStd());
                 log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + r2;
             }
 
@@ -4303,11 +4310,12 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
         case SURFACE_MAGNETIC_FIELD_DISTRIBUTION::NS_BIRTH_DIST: {
 
             // the surface field that gives a canonical (NEUTRON_STAR_MASS) neutron star a field drawn from
-            // --pulsar-birth-magnetic-field-distribution, assuming flux conservation (B R^2 constant)
-            double BNS         = PPOW(10.0, NS::DrawBirthMagneticField_Static());        // NS birth magnetic field strength (G). DrawBirthMagneticField_Static gives log10(B)
+            // --pulsar-birth-magnetic-field-distribution, assuming flux conservation (B R^2 constant) with
+            // --pulsar-birth-magnetic-flux-fraction of the flux kept by the neutron star
+            double BNS         = PPOW(10.0, NS::DrawBirthMagneticField_Static(uniform01, normal));   // NS birth magnetic field strength (G). DrawBirthMagneticField_Static gives log10(B)
             double radiusNS    = NS::CalculateRadiusOnPhase_Static(NEUTRON_STAR_MASS);   // canonical neutron star radius (Rsol) for the chosen equation of state
             double radiusRatio = radiusNS / m_RZAMS;
-            Bsurf = BNS * radiusRatio * radiusRatio;                                     // use multiplication to avoid expensive pow
+            Bsurf = BNS * radiusRatio * radiusRatio / OPTIONS->PulsarBirthMagneticFluxFraction();      // use multiplication to avoid expensive pow
 
             } break;
 

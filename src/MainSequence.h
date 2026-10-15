@@ -121,7 +121,7 @@ protected:
     
     bool            IsEndOfPhase() const                                                    { return !ShouldEvolveOnPhase(); }                                      // Phase ends when age at or after MS timescale
 
-    void            MagneticFieldAmplificationMerger();
+    void            ResolveMergerMagneticField();
 
     void            PerturbLuminosityAndRadius() { }                                                                                                                // NO-OP
 

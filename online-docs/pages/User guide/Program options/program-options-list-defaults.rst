@@ -939,9 +939,27 @@ Apply magnetic braking only to stars with a radiative core, i.e. not to fully co
 Default = FALSE
 
 **--magnetic-field-amplification-factor-merger** |br|
-Factor by which the surface magnetic flux of the product of a main sequence merger (``--evolve-main-sequence-mergers``) is multiplied, to mimic the field generated in
-the merger (Schneider et al. 2019). The flux of the merger product is this factor times the flux of the primary before the merger. See ``--surface-magnetic-field-distribution``. |br|
+For ``--merger-magnetic-field-prescription AMPLIFY``: factor by which the surface magnetic flux of the product of a main sequence merger (``--evolve-main-sequence-mergers``)
+is multiplied, to mimic the field generated in the merger (Schneider et al. 2019). The flux of the merger product is this factor times the flux of the primary before the
+merger. See ``--surface-magnetic-field-distribution``. |br|
 Default = 100.0
+
+**--merger-magnetic-field-distribution-mean** |br|
+For ``--merger-magnetic-field-prescription DRAW``: mean of :math:`\log_{10}(B/{\rm G})` of the surface field of main sequence merger products. The default is the
+strong-field B-star component of Makarenko et al. (2021). |br|
+Default = 2.82
+
+**--merger-magnetic-field-distribution-sigma** |br|
+For ``--merger-magnetic-field-prescription DRAW``: standard deviation (dex) of :math:`\log_{10}(B/{\rm G})` of the surface field of main sequence merger products. |br|
+Default = 0.65
+
+**--merger-magnetic-field-prescription** |br|
+Surface magnetic field of the product of a main sequence merger (``--evolve-main-sequence-mergers``). |br|
+Options: { AMPLIFY, DRAW } |br|
+``AMPLIFY`` : the primary's surface magnetic flux times ``--magnetic-field-amplification-factor-merger``. |br|
+``DRAW`` : a surface field drawn from a log-normal (``--merger-magnetic-field-distribution-mean``, ``--merger-magnetic-field-distribution-sigma``) at the radius of the
+merger product, independent of the pre-merger field: in MHD simulations the field generated in the merger saturates whatever the seed (Ohlmann et al. 2026). |br|
+Default = AMPLIFY
 
 **--main-sequence-core-hydrogen-prescription** |br|
 Main sequence core hydrogen depletion and minimum core mass growth, for stars whose core composition is not evolved by the ``BRCEK`` core mass prescription. |br|
@@ -1323,11 +1341,20 @@ Default = 50.0
 
 **--pulsar-birth-magnetic-field-assumption** |br|
 How the birth magnetic field of a (non-AIC, or AIC without ``--msps-from-aic``) neutron star is set. |br|
-Options: { RANDOM_DRAW, FLUX_CONSERVATION } |br|
+Options: { RANDOM_DRAW, FLUX_CONSERVATION, HYBRID } |br|
 ``RANDOM_DRAW`` : drawn from ``--pulsar-birth-magnetic-field-distribution``. |br|
-``FLUX_CONSERVATION`` : the surface magnetic flux of the progenitor (see ``--surface-magnetic-field-distribution``) is conserved, :math:`B_{\rm NS} = \Phi / R_{\rm NS}^2`,
-with :math:`B_{\rm NS}` no lower than ``--pulsar-minimum-magnetic-field``. Needs a ``--surface-magnetic-field-distribution`` other than ``ZERO``. |br|
+``FLUX_CONSERVATION`` : the surface magnetic flux of the progenitor (see ``--surface-magnetic-field-distribution``) is conserved, :math:`B_{\rm NS} = f \Phi / R_{\rm NS}^2`
+with :math:`f` = ``--pulsar-birth-magnetic-flux-fraction``, and :math:`B_{\rm NS}` no lower than ``--pulsar-minimum-magnetic-field``. Needs a ``--surface-magnetic-field-distribution``
+other than ``ZERO``. |br|
+``HYBRID`` : the larger of the two: e.g. a field generated at birth for most neutron stars, and the fossil field where that is stronger (strongly magnetic
+progenitors and merger products). The draw is the same as for ``RANDOM_DRAW``, so with ``--surface-magnetic-field-distribution ZERO`` the results are those of ``RANDOM_DRAW``. |br|
 Default = RANDOM_DRAW
+
+**--pulsar-birth-magnetic-flux-fraction** |br|
+Fraction :math:`f` of the progenitor's surface magnetic flux that the neutron star keeps, for ``--pulsar-birth-magnetic-field-assumption FLUX_CONSERVATION`` or ``HYBRID``
+(e.g. the fraction threading the inner :math:`\sim 1.4\,M_\odot`; about 0.01-0.02 for a uniform interior field in an :math:`n = 3` polytrope). With
+``--surface-magnetic-field-distribution NS_BIRTH_DIST`` the ZAMS field is scaled by :math:`1/f`, so the drawn neutron-star field is reproduced. |br|
+Default = 1.0
 
 **--pulsar-birth-magnetic-field-distribution** |br|
 Pulsar birth magnetic field distribution. |br|
@@ -1640,7 +1667,8 @@ Default = HURLEY
 **--surface-magnetic-field-distribution** |br|
 Initial (ZAMS) distribution of stellar surface magnetic field strengths. The surface magnetic flux :math:`\Phi = B R^2` is then conserved (the field follows
 :math:`B = \Phi / R^2`) through the evolution of the star, except that it is multiplied by ``--magnetic-field-amplification-factor-merger`` in a main sequence merger.
-Black holes and massless remnants have no field. |br|
+Black holes and massless remnants have no field. The random draws use a generator seeded by the star, not the COMPAS random number stream, so the binary evolution
+does not depend on this option. |br|
 Options: { ZERO, MAKARENKO21, NS_BIRTH_DIST } |br|
 ``ZERO`` : all fields are zero. |br|
 ``MAKARENKO21`` : the two-component log-normal distribution of Makarenko et al. (2021) for OBA stars, set by ``--surface-magnetic-field-distribution-flow``,
@@ -1866,7 +1894,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --chemically-homogeneous-evolution, --chemically-homogeneous-evolution-mode
 
 --surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
---surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger
+--surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger,
+--merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma
 
 :ref:`Back to Top <options-props-top>`
 
@@ -1910,7 +1939,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
 --PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 
---pulsar-birth-magnetic-field-assumption, --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
+--pulsar-birth-magnetic-field-assumption, --pulsar-birth-magnetic-flux-fraction, --pulsar-birth-magnetic-field-distribution, --pulsar-birth-magnetic-field-distribution-min, --pulsar-birth-magnetic-field-distribution-max, 
 --pulsar-birth-spin-period-distribution, --pulsar-birth-spin-period-distribution-min, --pulsar-birth-spin-period-distribution-max, 
 --pulsar-magnetic-field-decay-massscale, --pulsar-magnetic-field-decay-timescale, --pulsar-minimum-magnetic-field,
 --pulsar-inclination-evolution, --pulsar-spin-down-torque, --pulsar-alignment-timescale, --pulsar-reset-inclination-at-recycling,

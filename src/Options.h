@@ -695,6 +695,7 @@ private:
         "mass-transfer-angular-momentum-loss-prescription",
         "mass-transfer-rejuvenation-prescription",
         "mass-transfer-thermal-limit-accretor-multiplier",
+        "merger-magnetic-field-prescription",
         "metallicity-distribution",
         "msp-birth-magnetic-field-distribution",
         "msp-birth-spin-period-distribution",
@@ -1265,8 +1266,11 @@ public:
             // Neutron star equation of state
             ENUM_OPT<NS_EOS>                                    m_NeutronStarEquationOfState;                                   // NS EOS
 
-            // Magnetic field amplification factor merger
-            double                                              m_MagneticFieldAmplificationFactorMerger;
+            // Surface magnetic field of main sequence merger products
+            double                                              m_MagneticFieldAmplificationFactorMerger;                       // AMPLIFY: factor applied to the primary's flux
+            ENUM_OPT<MERGER_MAGNETIC_FIELD_PRESCRIPTION>        m_MergerMagneticFieldPrescription;                              // AMPLIFY or DRAW
+            double                                              m_MergerMagneticFieldDistributionMean;                          // DRAW: mean of log10(B/G)
+            double                                              m_MergerMagneticFieldDistributionSigma;                         // DRAW: standard deviation (dex) of log10(B/G)
 
             // Stellar surface magnetic field distribution
             ENUM_OPT<SURFACE_MAGNETIC_FIELD_DISTRIBUTION>       m_SurfaceMagneticFieldDistribution;
@@ -1278,6 +1282,7 @@ public:
             
             // Pulsar birth magnetic field distribution 
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION>    m_PulsarBirthMagneticFieldAssumption;                           // Assumption to make for birth magnetic field distribution for pulsars
+            double                                              m_PulsarBirthMagneticFluxFraction;                              // Fraction of the progenitor's surface magnetic flux in the NS (FLUX_CONSERVATION, HYBRID)
             ENUM_OPT<PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION>  m_PulsarBirthMagneticFieldDistribution;                         // Birth magnetic field distribution for pulsars
             double                                              m_PulsarBirthMagneticFieldDistributionMin;                      // Minimum birth magnetic field (log10 B/G)
             double                                              m_PulsarBirthMagneticFieldDistributionMax;                      // Maximum birth magnetic field (log10 B/G)
@@ -1741,6 +1746,9 @@ public:
     MALTSEV_MODE                                MaltsevMode() const                                                     { return OPT_VALUE("maltsev-mode", m_MaltsevMode.type, true); }
     
     double                                      MagneticFieldAmplificationFactorMerger() const                          { return OPT_VALUE("magnetic-field-amplification-factor-merger", m_MagneticFieldAmplificationFactorMerger, true); }
+    MERGER_MAGNETIC_FIELD_PRESCRIPTION          MergerMagneticFieldPrescription() const                                 { return OPT_VALUE("merger-magnetic-field-prescription", m_MergerMagneticFieldPrescription.type, true); }
+    double                                      MergerMagneticFieldDistributionMean() const                             { return OPT_VALUE("merger-magnetic-field-distribution-mean", m_MergerMagneticFieldDistributionMean, true); }
+    double                                      MergerMagneticFieldDistributionSigma() const                            { return OPT_VALUE("merger-magnetic-field-distribution-sigma", m_MergerMagneticFieldDistributionSigma, true); }
 
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     
@@ -1845,6 +1853,7 @@ public:
     bool                                        PrintBoolAsString() const                                               { return m_CmdLine.optionValues.m_PrintBoolAsString; }
 
     PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION      PulsarBirthMagneticFieldAssumption() const                              { return OPT_VALUE("pulsar-birth-magnetic-field-assumption", m_PulsarBirthMagneticFieldAssumption.type, true); }
+    double                                      PulsarBirthMagneticFluxFraction() const                                 { return OPT_VALUE("pulsar-birth-magnetic-flux-fraction", m_PulsarBirthMagneticFluxFraction, true); }
     PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION    PulsarBirthMagneticFieldDistribution() const                            { return OPT_VALUE("pulsar-birth-magnetic-field-distribution", m_PulsarBirthMagneticFieldDistribution.type, true); }
     double                                      PulsarBirthMagneticFieldDistributionMax() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-max", m_PulsarBirthMagneticFieldDistributionMax, true); }
     double                                      PulsarBirthMagneticFieldDistributionMin() const                         { return OPT_VALUE("pulsar-birth-magnetic-field-distribution-min", m_PulsarBirthMagneticFieldDistributionMin, true); }

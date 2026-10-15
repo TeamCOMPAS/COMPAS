@@ -1,6 +1,8 @@
 #ifndef __BaseStar_h__
 #define __BaseStar_h__
 
+#include <random>
+
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_sf_erf.h>
 
@@ -686,6 +688,10 @@ protected:
     virtual void                CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) { }                                                                                              // Default is NO-OP
 
             double              CalculateZAMSSurfaceMagneticFieldStrength();
+
+            // generator for surface magnetic field draws, seeded by the star (not the COMPAS random number stream), so the
+            // magnetic field options do not change the rest of the evolution; p_Salt separates the draws of different quantities
+            std::mt19937_64     MagneticFieldGenerator(const std::uint64_t p_Salt) const                               { return std::mt19937_64(static_cast<std::uint64_t>(m_RandomSeed) ^ (std::hash<double>{}(m_MZAMS) + p_Salt)); }
 
             double              CalculateZAMSAngularFrequency(const double p_MZAMS, const double p_RZAMS);
 

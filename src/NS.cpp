@@ -312,11 +312,14 @@ double NS::CalculateBirthMagneticField() {
                 log10B = DrawBirthMagneticField_Static();
                 break;
 
-            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION: {                                       // flux conservation from the stellar surface magnetic field
-                double radius = CalculateRadiusOnPhase();                                                           // NS radius (Rsol)
-                double B      = m_SurfaceMagneticFlux / (radius * radius);                                          // B = Phi / R_NS^2 (G)
-                log10B        = log10(std::max(B, NS::NS_MAG_FIELD_LOWER_LIMIT));                                   // no lower than --pulsar-minimum-magnetic-field
-                } break;
+            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION:                                         // flux conservation from the stellar surface magnetic field
+                log10B = log10(std::max(CalculateFluxConservedBirthMagneticField(), NS::NS_MAG_FIELD_LOWER_LIMIT));  // no lower than --pulsar-minimum-magnetic-field
+                break;
+
+            case PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::HYBRID:                                                    // the larger of the random draw and the flux-conserved field
+                log10B = DrawBirthMagneticField_Static();                                                           // same draw (and random number stream) as RANDOM_DRAW
+                log10B = std::max(log10B, log10(std::max(CalculateFluxConservedBirthMagneticField(), NS::NS_MAG_FIELD_LOWER_LIMIT)));
+                break;
 
             default:                                                                                                // unknown assumption
                 THROW_ERROR(ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION);                                 // throw error
@@ -327,11 +330,23 @@ double NS::CalculateBirthMagneticField() {
 
 
 /*
- * Draw (log10 of) the magnetic field (in G) for a pulsar at birth
- * according to selected distribution (by commandline option)
+ * Calculate the birth magnetic field (in G) of the neutron star from its progenitor's surface magnetic flux:
+ * B = f Phi / R_NS^2, with f = --pulsar-birth-magnetic-flux-fraction
  *
- * Declared as static so that it can be used at ZAMS to draw the
- * stellar surface field that will produce this field (--surface-magnetic-field-distribution NS_BIRTH_DIST)
+ *
+ * double CalculateFluxConservedBirthMagneticField() const
+ *
+ * @return                                      Flux-conserved birth magnetic field in G
+ */
+double NS::CalculateFluxConservedBirthMagneticField() const {
+    double radius = CalculateRadiusOnPhase();                                                                   // NS radius (Rsol)
+    return OPTIONS->PulsarBirthMagneticFluxFraction() * m_SurfaceMagneticFlux / (radius * radius);
+}
+
+
+/*
+ * Draw (log10 of) the magnetic field (in G) for a pulsar at birth
+ * according to selected distribution (by commandline option), using the COMPAS random number stream
  *
  *
  * double DrawBirthMagneticField_Static()
@@ -339,6 +354,25 @@ double NS::CalculateBirthMagneticField() {
  * @return                                      log10 of the birth magnetic field in G
  */
 double NS::DrawBirthMagneticField_Static() {
+    return DrawBirthMagneticField_Static([]() { return RAND->Random(); }, [](const double p_Sigma) { return RAND->RandomGaussian(p_Sigma); });
+}
+
+
+/*
+ * Draw (log10 of) the magnetic field (in G) for a pulsar at birth
+ * according to selected distribution (by commandline option), with the given random number generators
+ *
+ * Declared as static so that it can be used at ZAMS to draw the
+ * stellar surface field that will produce this field (--surface-magnetic-field-distribution NS_BIRTH_DIST)
+ *
+ *
+ * double DrawBirthMagneticField_Static(const std::function<double()> &p_Uniform, const std::function<double(const double)> &p_Gaussian)
+ *
+ * @param   [IN]    p_Uniform                   Returns a uniform random number in [0, 1)
+ * @param   [IN]    p_Gaussian                  Returns a Gaussian random number with mean 0 and the given standard deviation
+ * @return                                      log10 of the birth magnetic field in G
+ */
+double NS::DrawBirthMagneticField_Static(const std::function<double()> &p_Uniform, const std::function<double(const double)> &p_Gaussian) {
 
     double log10B = 0.0;
 
@@ -349,7 +383,7 @@ double NS::DrawBirthMagneticField_Static() {
             double maximum = OPTIONS->PulsarBirthMagneticFieldDistributionMax();
             double minimum = OPTIONS->PulsarBirthMagneticFieldDistributionMin();
             
-            log10B = minimum + (RAND->Random() * (maximum - minimum));
+            log10B = minimum + (p_Uniform() * (maximum - minimum));
 
             } break;
 
@@ -358,7 +392,7 @@ double NS::DrawBirthMagneticField_Static() {
             double maximum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMax());
             double minimum = PPOW(10.0, OPTIONS->PulsarBirthMagneticFieldDistributionMin());
 
-            log10B = log10(minimum + (RAND->Random() * (maximum - minimum)));
+            log10B = log10(minimum + (p_Uniform() * (maximum - minimum)));
             } break;
 
         case PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL: {                                             // LOG NORMAL distribution from Faucher-Giguere and Kaspi 2006 https://arxiv.org/abs/astro-ph/0512585
@@ -366,11 +400,11 @@ double NS::DrawBirthMagneticField_Static() {
             double mean  = OPTIONS->PulsarBirthMagneticFieldDistributionMean();
             double sigma = OPTIONS->PulsarBirthMagneticFieldDistributionSigma();
 
-            log10B = RAND->RandomGaussian(sigma) + mean;
+            log10B = p_Gaussian(sigma) + mean;
 
             // add a guard to make sure magnetic field is always larger than the value set by --pulsar-minimum-magnetic-field
             std::size_t iterations = 0;
-            do { log10B = RAND->RandomGaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
+            do { log10B = p_Gaussian(sigma) + mean;} while (iterations++ < PULSAR_MAG_ITERATIONS && utils::Compare(log10B, log10(NS::NS_MAG_FIELD_LOWER_LIMIT)) <= 0);
             if (iterations >= PULSAR_MAG_ITERATIONS) THROW_ERROR_STATIC(ERROR::TOO_MANY_PULSAR_MAG_ITERATIONS);
             } break;
 

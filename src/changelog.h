@@ -1923,6 +1923,19 @@
 //                                         - --surface-magnetic-field-distribution-high-std defaulted to the low-component value (0.7, not 0.65).
 //                                         - SURFACE_MAGNETIC_FIELD_STRENGTH_PREV could not be requested in log file definitions (missing label); surface fields were
 //                                           labelled Tesla but are in Gauss; corrected option help and error text.
+//  03.47.00  SS - October 15, 2026      - Enhancement:
+//                                       - --pulsar-birth-magnetic-field-assumption HYBRID: the larger of the RANDOM_DRAW field (same draw and random number stream)
+//                                         and the flux-conserved field, e.g. a field generated at birth for most neutron stars and the fossil field where it is
+//                                         stronger. Surface-flux conservation from observed OB-star fields gives normal pulsars ~1e11 G (Makarenko et al. 2021).
+//                                       - --pulsar-birth-magnetic-flux-fraction (default 1): fraction of the progenitor's surface flux the neutron star keeps
+//                                         (FLUX_CONSERVATION, HYBRID; NS_BIRTH_DIST is scaled by its inverse).
+//                                       - --merger-magnetic-field-prescription AMPLIFY (default; as before) or DRAW: the surface field of main sequence merger
+//                                         products drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma, default 2.82/0.65, the strong-field B
+//                                         stars of Makarenko et al. 2021), independent of the pre-merger field (the merger field saturates whatever the seed).
+//                                       - Surface field draws (MAKARENKO21, NS_BIRTH_DIST, merger DRAW) now use a generator seeded by the star instead of the COMPAS
+//                                         random number stream, so the magnetic field options no longer change the binary evolution (different random numbers
+//                                         from 03.46.00 for MAKARENKO21 and NS_BIRTH_DIST; defaults unchanged). New PROGRAM_OPTION log entries for the
+//                                         magnetar options.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1934,7 +1947,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.46.00";
+const std::string VERSION_STRING = "03.47.00";
 
 
 # endif // __changelog_h__

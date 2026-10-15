@@ -1,6 +1,8 @@
 #ifndef __NS_h__
 #define __NS_h__
 
+#include <functional>
+
 #include "constants.h"
 #include "typedefs.h"
 #include "profiling.h"
@@ -69,7 +71,8 @@ public:
     // member functions - alphabetically
     static  DBL_DBL_DBL CalculateCoreCollapseSNParams_Static(const double p_Mass);
 
-    static  double      DrawBirthMagneticField_Static();
+    static  double      DrawBirthMagneticField_Static();                                                                                                       // uses the COMPAS random number stream
+    static  double      DrawBirthMagneticField_Static(const std::function<double()> &p_Uniform, const std::function<double(const double)> &p_Gaussian); // uses the given U(0,1) and N(0,sigma) generators
 
     static  double      CalculateRadiusOnPhaseInKM_Static(const double p_Mass);                                                                                 // Radius on phase in km
     static  double      CalculateRadiusOnPhase_Static(const double p_Mass)      { return CalculateRadiusOnPhaseInKM_Static(p_Mass) * KM_TO_RSOL; }                  // Radius on phase in Rsol
@@ -110,6 +113,7 @@ protected:
             void            CalculateAndSetPulsarParameters();
 
             double          CalculateBirthMagneticField();
+            double          CalculateFluxConservedBirthMagneticField() const;
             double          CalculateBirthSpinPeriod();
     
             double          CalculateCriticalMassRatioHurleyHjellmingWebbink() const { return 0.0; }

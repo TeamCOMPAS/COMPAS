@@ -664,6 +664,10 @@ void Options::OptionValues::Initialise() {
 
     // Magnetic field amplification factor during mergers
     m_MagneticFieldAmplificationFactorMerger                        = MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER;
+    m_MergerMagneticFieldPrescription.type                          = MERGER_MAGNETIC_FIELD_PRESCRIPTION::AMPLIFY;
+    m_MergerMagneticFieldPrescription.typeString                    = MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL.at(m_MergerMagneticFieldPrescription.type);
+    m_MergerMagneticFieldDistributionMean                           = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN;     // strong-field B stars (Makarenko et al. 2021)
+    m_MergerMagneticFieldDistributionSigma                          = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
 
     // Stellar surface magnetic field distribution
     m_SurfaceMagneticFieldDistribution.type                         = SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
@@ -677,6 +681,7 @@ void Options::OptionValues::Initialise() {
     // Pulsar birth magnetic field distribution
     m_PulsarBirthMagneticFieldAssumption.type                       = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW;
     m_PulsarBirthMagneticFieldAssumption.typeString                 = PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL.at(m_PulsarBirthMagneticFieldAssumption.type);
+    m_PulsarBirthMagneticFluxFraction                               = 1.0;
     m_PulsarBirthMagneticFieldDistribution.type                     = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION::LOGNORMAL;
     m_PulsarBirthMagneticFieldDistribution.typeString               = PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL.at(m_PulsarBirthMagneticFieldDistribution.type);
     m_PulsarBirthMagneticFieldDistributionMin                       = 11.0;
@@ -1650,7 +1655,17 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "magnetic-field-amplification-factor-merger",
             po::value<double>(&p_Options->m_MagneticFieldAmplificationFactorMerger)->default_value(p_Options->m_MagneticFieldAmplificationFactorMerger),
-            ("Factor by which the surface magnetic flux of the product of a main sequence merger is amplified (with --evolve-main-sequence-mergers; default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
+            ("Factor by which the surface magnetic flux of the product of a main sequence merger is amplified, for --merger-magnetic-field-prescription AMPLIFY (with --evolve-main-sequence-mergers; default = " + std::to_string(p_Options->m_MagneticFieldAmplificationFactorMerger) + ")").c_str()
+        )
+        (
+            "merger-magnetic-field-distribution-mean",
+            po::value<double>(&p_Options->m_MergerMagneticFieldDistributionMean)->default_value(p_Options->m_MergerMagneticFieldDistributionMean),
+            ("Mean of log10(B/G) of the surface field of main sequence merger products, for --merger-magnetic-field-prescription DRAW (default = " + std::to_string(p_Options->m_MergerMagneticFieldDistributionMean) + ")").c_str()
+        )
+        (
+            "merger-magnetic-field-distribution-sigma",
+            po::value<double>(&p_Options->m_MergerMagneticFieldDistributionSigma)->default_value(p_Options->m_MergerMagneticFieldDistributionSigma),
+            ("Standard deviation (dex) of log10(B/G) of the surface field of main sequence merger products, for --merger-magnetic-field-prescription DRAW (default = " + std::to_string(p_Options->m_MergerMagneticFieldDistributionSigma) + ")").c_str()
         )
         (
             "main-sequence-core-mass-brcek-minimum-mass",
@@ -1927,6 +1942,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "pulsar-magnetic-field-decay-timescale",                       
             po::value<double>(&p_Options->m_PulsarMagneticFieldDecayTimescale)->default_value(p_Options->m_PulsarMagneticFieldDecayTimescale),                                                    
             ("Timescale on which magnetic field decays, in Myr (default = " + std::to_string(p_Options->m_PulsarMagneticFieldDecayTimescale) + ")").c_str()
+        )
+        (
+            "pulsar-birth-magnetic-flux-fraction",
+            po::value<double>(&p_Options->m_PulsarBirthMagneticFluxFraction)->default_value(p_Options->m_PulsarBirthMagneticFluxFraction),
+            ("Fraction of the progenitor's surface magnetic flux that the neutron star keeps, for --pulsar-birth-magnetic-field-assumption FLUX_CONSERVATION or HYBRID (default = " + std::to_string(p_Options->m_PulsarBirthMagneticFluxFraction) + ")").c_str()
         )
         (
             "pulsar-magnetic-field-decay-timescale-power",                       
@@ -2414,7 +2434,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "pulsar-birth-magnetic-field-assumption",                    
             po::value<std::string>(&p_Options->m_PulsarBirthMagneticFieldAssumption.typeString)->default_value(p_Options->m_PulsarBirthMagneticFieldAssumption.typeString),                                  
-            ("Pulsar birth magnetic field: drawn from --pulsar-birth-magnetic-field-distribution, or from the progenitor's surface magnetic flux (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
+            ("Pulsar birth magnetic field: drawn from --pulsar-birth-magnetic-field-distribution (RANDOM_DRAW), from the progenitor's surface magnetic flux (FLUX_CONSERVATION), or the larger of the two (HYBRID) (" + AllowedOptionValuesFormatted("pulsar-birth-magnetic-field-assumption") + ", default = '" + p_Options->m_PulsarBirthMagneticFieldAssumption.typeString + "')").c_str()
+        )
+        (
+            "merger-magnetic-field-prescription",
+            po::value<std::string>(&p_Options->m_MergerMagneticFieldPrescription.typeString)->default_value(p_Options->m_MergerMagneticFieldPrescription.typeString),
+            ("Surface magnetic field of main sequence merger products: the primary's flux amplified (AMPLIFY) or drawn independently of the pre-merger field (DRAW) (" + AllowedOptionValuesFormatted("merger-magnetic-field-prescription") + ", default = '" + p_Options->m_MergerMagneticFieldPrescription.typeString + "')").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution",                    
@@ -3029,6 +3054,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown stellar Zeta Prescription");
         }
 
+        if (!DEFAULTED("merger-magnetic-field-prescription")) {                                                                     // merger product surface magnetic field
+            std::tie(found, m_MergerMagneticFieldPrescription.type) = utils::GetMapKey(m_MergerMagneticFieldPrescription.typeString, MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL, m_MergerMagneticFieldPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Merger Magnetic Field Prescription");
+        }
+
         if (!DEFAULTED("surface-magnetic-field-distribution")) {                                                                    // ZAMS stellar surface magnetic field distribution
             std::tie(found, m_SurfaceMagneticFieldDistribution.type) = utils::GetMapKey(m_SurfaceMagneticFieldDistribution.typeString, SURFACE_MAGNETIC_FIELD_DISTRIBUTION_LABEL, m_SurfaceMagneticFieldDistribution.type);
             COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Distribution");
@@ -3095,6 +3125,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_LuminousBlueVariableFactor < 0.0, "LBV multiplier (--luminous-blue-variable-multiplier) < 0");
 
         COMPLAIN_IF(m_MagneticFieldAmplificationFactorMerger < 0.0, "Magnetic field amplification factor for merger (--magnetic-field-amplification-factor-merger) < 0");
+        COMPLAIN_IF(m_MergerMagneticFieldDistributionSigma < 0.0, "Merger magnetic field sigma (--merger-magnetic-field-distribution-sigma) < 0");
+        COMPLAIN_IF(m_PulsarBirthMagneticFluxFraction <= 0.0, "Pulsar birth magnetic flux fraction (--pulsar-birth-magnetic-flux-fraction) <= 0");
 
         COMPLAIN_IF(m_MassChangeFraction < 0.0, "Mass change fraction per timestep (--mass-change-fraction) < 0");
         
@@ -3376,6 +3408,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("mass-transfer-thermal-limit-accretor-multiplier")   : POPULATE_RET(MT_THERMALLY_LIMITED_VARIATION_LABEL);               break;
         case _("metallicity-distribution")                          : POPULATE_RET(METALLICITY_DISTRIBUTION_LABEL);                     break;
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                               break;
+        case _("merger-magnetic-field-prescription")                : POPULATE_RET(MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL);           break;
         case _("msp-birth-magnetic-field-distribution")             : POPULATE_RET(MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);        break;
         case _("msp-birth-spin-period-distribution")                : POPULATE_RET(MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);              break;
@@ -5549,6 +5582,11 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::LBV_MASS_LOSS_PRESCRIPTION                     : value = static_cast<int>(LBVMassLossPrescription());                          break;
         
         case PROGRAM_OPTION::MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER     : value = MagneticFieldAmplificationFactorMerger();                             break;
+        case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_PRESCRIPTION             : value = static_cast<int>(MergerMagneticFieldPrescription());                  break;
+        case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN        : value = MergerMagneticFieldDistributionMean();                                break;
+        case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA       : value = MergerMagneticFieldDistributionSigma();                               break;
+        case PROGRAM_OPTION::PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION         : value = static_cast<int>(PulsarBirthMagneticFieldAssumption());               break;
+        case PROGRAM_OPTION::PULSAR_BIRTH_MAGNETIC_FLUX_FRACTION            : value = PulsarBirthMagneticFluxFraction();                                    break;
 
         case PROGRAM_OPTION::MAGNETIC_BRAKING_GAMMA                         : value = MagneticBrakingGamma();                                               break;
         case PROGRAM_OPTION::MAGNETIC_BRAKING_PRESCRIPTION                  : value = static_cast<int>(MagneticBrakingPrescription());                      break;

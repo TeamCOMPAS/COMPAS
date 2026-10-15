@@ -894,10 +894,21 @@ const COMPASUnorderedMap<SURFACE_MAGNETIC_FIELD_DISTRIBUTION, std::string> SURFA
 };
 
 // Pulsar birth magnetic field assumption
-enum class PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION: int { RANDOM_DRAW, FLUX_CONSERVATION };
+// RANDOM_DRAW: from --pulsar-birth-magnetic-field-distribution; FLUX_CONSERVATION: from the progenitor's surface magnetic flux;
+// HYBRID: the larger of the two (e.g. a dynamo-generated field, or the fossil field where that is stronger)
+enum class PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION: int { RANDOM_DRAW, FLUX_CONSERVATION, HYBRID };
 const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION, std::string> PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION_LABEL = {
     { PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::RANDOM_DRAW,       "RANDOM_DRAW" },
-    { PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION, "FLUX_CONSERVATION" }
+    { PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::FLUX_CONSERVATION, "FLUX_CONSERVATION" },
+    { PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION::HYBRID,            "HYBRID" }
+};
+
+// Surface magnetic field of the product of a main sequence merger: AMPLIFY = the primary's flux x --magnetic-field-amplification-factor-merger;
+// DRAW = a field drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent of the pre-merger field
+enum class MERGER_MAGNETIC_FIELD_PRESCRIPTION: int { AMPLIFY, DRAW };
+const COMPASUnorderedMap<MERGER_MAGNETIC_FIELD_PRESCRIPTION, std::string> MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL = {
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::AMPLIFY, "AMPLIFY" },
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW,    "DRAW" }
 };
 
 // pulsar birth magnetic field distributions
