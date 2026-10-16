@@ -1982,6 +1982,12 @@
 //                                         an arbitrary SN_Kick_Mean_Anomaly (and could read garbage 'specified' flags). The struct is now value-initialised,
 //                                         and MEAN_ANOMALY (an orbital quantity, meaningless for a single star) is removed from the default SSE supernova
 //                                         record (SSE_SUPERNOVAE_REC) and its documentation.
+//  03.52.00  SS - October 16, 2026      - Enhancement:
+//                                       - --surface-magnetic-field-primordial-fraction (default 0): with this probability any star (single, primary or
+//                                         secondary, any orbital period) gets a strong-field ZAMS surface field (MAKARENKO21 high component), independently
+//                                         of the other channels: fields in place at birth whatever the multiplicity, the only channel for magnetic stars
+//                                         in close binaries. BaseStar::ApplyPrimordialSurfaceMagneticField(), applied at construction (SSE) or by the
+//                                         binary after its strong-field restrictions (BSE); seeded generators, so the evolution is unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1993,7 +1999,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.51.01";
+const std::string VERSION_STRING = "03.52.00";
 
 
 # endif // __changelog_h__

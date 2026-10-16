@@ -360,7 +360,8 @@ public:
     virtual double          TAMSCoreMass() const                                                                { return 0.0; }                                                     // Except MS stars
     
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
-            void            RestrictSurfaceMagneticFieldToLowComponent();                                                                                                           // BSE: no strong ZAMS field for this star
+            void            RestrictSurfaceMagneticFieldToLowComponent();
+            void            ApplyPrimordialSurfaceMagneticField();                                                                                                           // BSE: no strong ZAMS field for this star
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 
             STELLAR_TYPE    UpdateAttributesAndAgeOneTimestep(const double p_DeltaMass,

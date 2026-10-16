@@ -1744,6 +1744,14 @@ BSE only: stars in binaries with an initial orbital period (days) below this val
 merged before the main sequence: the merger product keeps the wide orbit of the former tertiary. |br|
 Default = 0.0
 
+**--surface-magnetic-field-primordial-fraction** |br|
+Fraction of all stars - singles, primaries and secondaries, in orbits of any period - given a ZAMS surface field from the strong-field component of
+``--surface-magnetic-field-distribution MAKARENKO21``, independently of the other channels (``--surface-magnetic-field-distribution-flow``,
+``--surface-magnetic-field-minimum-orbital-period``, ``--surface-magnetic-field-strong-star`` and main sequence mergers). It represents fields that are
+in place at birth whatever the multiplicity (e.g. fossil fields), and is the only channel that gives magnetic stars in close binaries. Stars that
+already have a strong field are unchanged; draws use generators seeded by the star. |br|
+Default = 0.0
+
 **--surface-magnetic-field-strong-star** |br|
 BSE only: which star(s) of a binary can draw the strong-field component of ``--surface-magnetic-field-distribution MAKARENKO21`` at ZAMS. |br|
 Options: { BOTH, PRIMARY, SECONDARY } |br|
@@ -1968,7 +1976,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
 --surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger,
 --merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma, --merger-magnetic-field-fraction,
---surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star, --main-sequence-magnetic-flux-decay,
+--surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star, --surface-magnetic-field-primordial-fraction, --main-sequence-magnetic-flux-decay,
 --main-sequence-magnetic-flux-decay-rate, --main-sequence-magnetic-flux-decay-minimum-mass
 
 :ref:`Back to Top <options-props-top>`

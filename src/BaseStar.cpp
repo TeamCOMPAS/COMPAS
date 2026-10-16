@@ -127,6 +127,7 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SurfaceMagneticFieldStrengthZAMS         = CalculateZAMSSurfaceMagneticFieldStrength();
     m_SurfaceMagneticFlux                      = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
     m_SurfaceMagneticFieldStrengthPrev         = m_SurfaceMagneticFieldStrengthZAMS;
+    if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) ApplyPrimordialSurfaceMagneticField();    // BSE: applied by the binary, after its restrictions
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
     m_RZAMS0                                   = m_RZAMS;
@@ -4363,6 +4364,31 @@ void BaseStar::RestrictSurfaceMagneticFieldToLowComponent() {
     m_SurfaceMagneticFlux                 = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
     m_SurfaceMagneticFieldStrengthPrev    = m_SurfaceMagneticFieldStrengthZAMS;
     m_SurfaceMagneticFieldStrongComponent = false;
+}
+
+
+/*
+ * Primordial strong ZAMS surface field (--surface-magnetic-field-primordial-fraction): with that probability any star - single, primary or
+ * secondary, in an orbit of any period - is given a field drawn from the high component of --surface-magnetic-field-distribution MAKARENKO21,
+ * independently of the other channels (MAKARENKO21 flow, --surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star,
+ * main sequence mergers). Stars that already have a strong field are unchanged. Draws use generators seeded by the star.
+ * Called at construction for SSE, and by the binary after its restrictions for BSE.
+ *
+ *
+ * void ApplyPrimordialSurfaceMagneticField()
+ */
+void BaseStar::ApplyPrimordialSurfaceMagneticField() {
+    double fraction = OPTIONS->SurfaceMagneticFieldPrimordialFraction();
+    if (fraction <= 0.0 || m_SurfaceMagneticFieldStrongComponent ||
+        OPTIONS->SurfaceMagneticFieldDistribution() != SURFACE_MAGNETIC_FIELD_DISTRIBUTION::MAKARENKO21) return;                    // nothing to do
+    std::mt19937_64 choose = MagneticFieldGenerator(0x9FB21C651E98DF25ULL);
+    if (std::uniform_real_distribution<double>(0.0, 1.0)(choose) >= fraction) return;                                              // not primordial
+    std::mt19937_64 draw = MagneticFieldGenerator(0xD6E8FEB86659FD93ULL);
+    double log10B = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + OPTIONS->SurfaceMagneticFieldDistributionHighStd() * std::normal_distribution<double>(0.0, 1.0)(draw);
+    m_SurfaceMagneticFieldStrengthZAMS    = PPOW(10.0, log10B);
+    m_SurfaceMagneticFlux                 = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
+    m_SurfaceMagneticFieldStrengthPrev    = m_SurfaceMagneticFieldStrengthZAMS;
+    m_SurfaceMagneticFieldStrongComponent = true;
 }
 
 

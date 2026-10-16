@@ -1288,6 +1288,7 @@ public:
             double                                              m_SurfaceMagneticFieldDistributionHighMean;
             double                                              m_SurfaceMagneticFieldDistributionHighStd;
             double                                              m_SurfaceMagneticFieldMinimumOrbitalPeriod;                     // BSE: strong-field component only for initial orbital periods >= this (days)
+            double                                              m_SurfaceMagneticFieldPrimordialFraction;                       // fraction of all stars given a strong ZAMS field regardless of multiplicity
             ENUM_OPT<SURFACE_MAGNETIC_FIELD_STRONG_STAR>        m_SurfaceMagneticFieldStrongStar;                               // BSE: which star(s) can draw the strong-field component
             
             // Pulsar birth magnetic field distribution 
@@ -1979,6 +1980,7 @@ public:
     double                                      SurfaceMagneticFieldDistributionHighMean() const                        { return OPT_VALUE("surface-magnetic-field-distribution-high-mean", m_SurfaceMagneticFieldDistributionHighMean, true); }
     double                                      SurfaceMagneticFieldDistributionHighStd() const                         { return OPT_VALUE("surface-magnetic-field-distribution-high-std",  m_SurfaceMagneticFieldDistributionHighStd,  true); }
     double                                      SurfaceMagneticFieldMinimumOrbitalPeriod() const                        { return OPT_VALUE("surface-magnetic-field-minimum-orbital-period", m_SurfaceMagneticFieldMinimumOrbitalPeriod, true); }
+    double                                      SurfaceMagneticFieldPrimordialFraction() const                          { return OPT_VALUE("surface-magnetic-field-primordial-fraction", m_SurfaceMagneticFieldPrimordialFraction, true); }
     SURFACE_MAGNETIC_FIELD_STRONG_STAR          SurfaceMagneticFieldStrongStar() const                                  { return OPT_VALUE("surface-magnetic-field-strong-star", m_SurfaceMagneticFieldStrongStar.type, true); }
     
     bool                                        SwitchLog() const                                                       { return m_CmdLine.optionValues.m_SwitchLog; }

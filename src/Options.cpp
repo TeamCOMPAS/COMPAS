@@ -685,6 +685,7 @@ void Options::OptionValues::Initialise() {
     m_SurfaceMagneticFieldDistributionHighMean                      = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_MEAN;
     m_SurfaceMagneticFieldDistributionHighStd                       = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
     m_SurfaceMagneticFieldMinimumOrbitalPeriod                      = 0.0;
+    m_SurfaceMagneticFieldPrimordialFraction                        = 0.0;
     m_SurfaceMagneticFieldStrongStar.type                           = SURFACE_MAGNETIC_FIELD_STRONG_STAR::BOTH;
     m_SurfaceMagneticFieldStrongStar.typeString                     = SURFACE_MAGNETIC_FIELD_STRONG_STAR_LABEL.at(m_SurfaceMagneticFieldStrongStar.type);
 
@@ -2119,6 +2120,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         )
 
         (
+            "surface-magnetic-field-primordial-fraction",
+            po::value<double>(&p_Options->m_SurfaceMagneticFieldPrimordialFraction)->default_value(p_Options->m_SurfaceMagneticFieldPrimordialFraction),
+            ("Fraction of all stars (singles, primaries and secondaries in orbits of any period) given a strong-field ZAMS surface field (high component of --surface-magnetic-field-distribution MAKARENKO21), independently of the other channels (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldPrimordialFraction) + ")").c_str()
+        )
+        (
             "surface-magnetic-field-minimum-orbital-period",
             po::value<double>(&p_Options->m_SurfaceMagneticFieldMinimumOrbitalPeriod)->default_value(p_Options->m_SurfaceMagneticFieldMinimumOrbitalPeriod),
             ("BSE: only stars in binaries with an initial orbital period >= this (days) can draw the strong-field component of --surface-magnetic-field-distribution MAKARENKO21 (default = " + std::to_string(p_Options->m_SurfaceMagneticFieldMinimumOrbitalPeriod) + ")").c_str()
@@ -3209,6 +3215,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MergerMagneticFieldFraction < 0.0 || m_MergerMagneticFieldFraction > 1.0, "Merger magnetic field fraction (--merger-magnetic-field-fraction) must be between 0 and 1");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayRate < 0.0, "Main sequence magnetic flux decay rate (--main-sequence-magnetic-flux-decay-rate) < 0");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayMinimumMass <= 0.0, "Main sequence magnetic flux decay minimum mass (--main-sequence-magnetic-flux-decay-minimum-mass) <= 0");
+        COMPLAIN_IF(m_SurfaceMagneticFieldPrimordialFraction < 0.0 || m_SurfaceMagneticFieldPrimordialFraction > 1.0, "Surface magnetic field primordial fraction (--surface-magnetic-field-primordial-fraction) must be between 0 and 1");
         COMPLAIN_IF(m_SurfaceMagneticFieldMinimumOrbitalPeriod < 0.0, "Surface magnetic field minimum orbital period (--surface-magnetic-field-minimum-orbital-period) < 0");
         COMPLAIN_IF(m_PulsarBirthMagneticFluxFraction <= 0.0, "Pulsar birth magnetic flux fraction (--pulsar-birth-magnetic-flux-fraction) <= 0");
 
@@ -5678,6 +5685,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY              : value = static_cast<int>(MainSequenceMagneticFluxDecay());                    break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_RATE         : value = MainSequenceMagneticFluxDecayRate();                                  break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MINIMUM_MASS : value = MainSequenceMagneticFluxDecayMinimumMass();                           break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_PRIMORDIAL_FRACTION     : value = SurfaceMagneticFieldPrimordialFraction();                             break;
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_MINIMUM_ORBITAL_PERIOD  : value = SurfaceMagneticFieldMinimumOrbitalPeriod();                           break;
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_STRONG_STAR             : value = static_cast<int>(SurfaceMagneticFieldStrongStar());                   break;
         case PROGRAM_OPTION::PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION         : value = static_cast<int>(PulsarBirthMagneticFieldAssumption());               break;

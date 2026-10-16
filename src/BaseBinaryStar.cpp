@@ -233,6 +233,8 @@ BaseBinaryStar::BaseBinaryStar(const unsigned long int p_Seed, const long int p_
             SURFACE_MAGNETIC_FIELD_STRONG_STAR strongStar = OPTIONS->SurfaceMagneticFieldStrongStar();
             if (!wide || strongStar == SURFACE_MAGNETIC_FIELD_STRONG_STAR::SECONDARY) m_Star1->RestrictSurfaceMagneticFieldToLowComponent();
             if (!wide || strongStar == SURFACE_MAGNETIC_FIELD_STRONG_STAR::PRIMARY)   m_Star2->RestrictSurfaceMagneticFieldToLowComponent();
+            m_Star1->ApplyPrimordialSurfaceMagneticField();                                                                             // primordial strong fields, any star and period
+            m_Star2->ApplyPrimordialSurfaceMagneticField();
         }
         SetRemainingValues();                                                                                                           // complete the construction of the binary
     }
