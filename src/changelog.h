@@ -1993,6 +1993,10 @@
 //                                         drawn from a log-normal in log10(Phi / G Rsol^2) (--merger-magnetic-flux-distribution-mean/sigma, default
 //                                         4.80/0.30: magnetic early-B stars with tau < 0.2, Shultz et al. 2019) instead of the field; the same normal
 //                                         deviate as DRAW. A field drawn in B gives large (O-type) merger products ~10x the flux of HD 148937.
+//  03.53.01  SS - October 17, 2026      - Defect repair:
+//                                       - Options::OptionValue() had no case for MSP_MAGNETIC_FIELD_DISTRIBUTION_MEAN/SIGMA,
+//                                         MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MEAN/SIGMA (MSP options) and PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER,
+//                                         so any run with --grid stopped with 'Unexpected program option' before evolving a star.
 //
 
 // Version string format is MM.mm.rr, where
@@ -2004,7 +2008,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.53.00";
+const std::string VERSION_STRING = "03.53.01";
 
 
 # endif // __changelog_h__

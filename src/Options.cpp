@@ -5741,10 +5741,14 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION                : value = static_cast<int>(MSPBirthMagneticFieldDistribution());                break;
         case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MAX            : value = MSPBirthMagneticFieldDistributionMax();                               break;
         case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MIN            : value = MSPBirthMagneticFieldDistributionMin();                               break;
+        case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_MEAN           : value = MSPBirthMagneticFieldDistributionMean();                              break;
+        case PROGRAM_OPTION::MSP_MAGNETIC_FIELD_DISTRIBUTION_SIGMA          : value = MSPBirthMagneticFieldDistributionSigma();                             break;
 
         case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION             : value = static_cast<int>(MSPBirthSpinPeriodDistribution());                   break;
         case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MAX         : value = MSPBirthSpinPeriodDistributionMax();                                  break;
         case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MIN         : value = MSPBirthSpinPeriodDistributionMin();                                  break;
+        case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MEAN        : value = MSPBirthSpinPeriodDistributionMean();                                 break;
+        case PROGRAM_OPTION::MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_SIGMA       : value = MSPBirthSpinPeriodDistributionSigma();                                break;
 
         case PROGRAM_OPTION::MT_ACCRETION_EFFICIENCY_PRESCRIPTION           : value = static_cast<int>(MassTransferAccretionEfficiencyPrescription());      break;
         case PROGRAM_OPTION::MT_ANG_MOM_LOSS_PRESCRIPTION                   : value = static_cast<int>(MassTransferAngularMomentumLossPrescription());      break;
@@ -5815,6 +5819,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
 
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_MASS_SCALE         : value = PulsarMagneticFieldDecayMassscale();                                  break;
         case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE         : value = PulsarMagneticFieldDecayTimescale();                                  break;
+        case PROGRAM_OPTION::PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER   : value = PulsarMagneticFieldDecayTimescalePower();                             break;
 
         case PROGRAM_OPTION::PPI_PRESCRIPTION                               : value = static_cast<int>(PulsationalPairInstabilityPrescription());           break;
         case PROGRAM_OPTION::PPI_LOWER_LIMIT                                : value = PulsationalPairInstabilityLowerLimit();                               break;
