@@ -1988,6 +1988,11 @@
 //                                         of the other channels: fields in place at birth whatever the multiplicity, the only channel for magnetic stars
 //                                         in close binaries. BaseStar::ApplyPrimordialSurfaceMagneticField(), applied at construction (SSE) or by the
 //                                         binary after its strong-field restrictions (BSE); seeded generators, so the evolution is unchanged.
+//  03.53.00  SS - October 17, 2026      - Enhancement:
+//                                       - --merger-magnetic-field-prescription DRAW_FLUX: the surface magnetic flux of main sequence merger products is
+//                                         drawn from a log-normal in log10(Phi / G Rsol^2) (--merger-magnetic-flux-distribution-mean/sigma, default
+//                                         4.80/0.30: magnetic early-B stars with tau < 0.2, Shultz et al. 2019) instead of the field; the same normal
+//                                         deviate as DRAW. A field drawn in B gives large (O-type) merger products ~10x the flux of HD 148937.
 //
 
 // Version string format is MM.mm.rr, where
@@ -1999,7 +2004,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.52.00";
+const std::string VERSION_STRING = "03.53.00";
 
 
 # endif // __changelog_h__

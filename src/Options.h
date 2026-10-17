@@ -1273,6 +1273,8 @@ public:
             ENUM_OPT<MERGER_MAGNETIC_FIELD_PRESCRIPTION>        m_MergerMagneticFieldPrescription;                              // AMPLIFY or DRAW
             double                                              m_MergerMagneticFieldDistributionMean;                          // DRAW: mean of log10(B/G)
             double                                              m_MergerMagneticFieldDistributionSigma;                         // DRAW: standard deviation (dex) of log10(B/G)
+            double                                              m_MergerMagneticFluxDistributionMean;                           // DRAW_FLUX: mean of log10(Phi / G Rsol^2)
+            double                                              m_MergerMagneticFluxDistributionSigma;                          // DRAW_FLUX: standard deviation (dex) of log10(Phi / G Rsol^2)
             double                                              m_MergerMagneticFieldFraction;                                  // fraction of merger products whose field is set by the prescription
 
             // Surface magnetic flux decay on the main sequence
@@ -1765,6 +1767,8 @@ public:
     MERGER_MAGNETIC_FIELD_PRESCRIPTION          MergerMagneticFieldPrescription() const                                 { return OPT_VALUE("merger-magnetic-field-prescription", m_MergerMagneticFieldPrescription.type, true); }
     double                                      MergerMagneticFieldDistributionMean() const                             { return OPT_VALUE("merger-magnetic-field-distribution-mean", m_MergerMagneticFieldDistributionMean, true); }
     double                                      MergerMagneticFieldDistributionSigma() const                            { return OPT_VALUE("merger-magnetic-field-distribution-sigma", m_MergerMagneticFieldDistributionSigma, true); }
+    double                                      MergerMagneticFluxDistributionMean() const                              { return OPT_VALUE("merger-magnetic-flux-distribution-mean", m_MergerMagneticFluxDistributionMean, true); }
+    double                                      MergerMagneticFluxDistributionSigma() const                             { return OPT_VALUE("merger-magnetic-flux-distribution-sigma", m_MergerMagneticFluxDistributionSigma, true); }
     double                                      MergerMagneticFieldFraction() const                                     { return OPT_VALUE("merger-magnetic-field-fraction", m_MergerMagneticFieldFraction, true); }
     MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY           MainSequenceMagneticFluxDecay() const                                   { return OPT_VALUE("main-sequence-magnetic-flux-decay", m_MainSequenceMagneticFluxDecay.type, true); }
     double                                      MainSequenceMagneticFluxDecayRate() const                               { return OPT_VALUE("main-sequence-magnetic-flux-decay-rate", m_MainSequenceMagneticFluxDecayRate, true); }

@@ -953,6 +953,17 @@ Default = 2.82
 For ``--merger-magnetic-field-prescription DRAW``: standard deviation (dex) of :math:`\log_{10}(B/{\rm G})` of the surface field of main sequence merger products. |br|
 Default = 0.65
 
+**--merger-magnetic-flux-distribution-mean** |br|
+For ``--merger-magnetic-field-prescription DRAW_FLUX``: mean of :math:`\log_{10}(\Phi / {\rm G}\,R_\odot^2)` of the surface magnetic flux
+:math:`\Phi = B R^2` of main sequence merger products. The default is the flux of magnetic early B-type stars with fractional main sequence
+age :math:`\tau < 0.2` (Shultz et al. 2019). |br|
+Default = 4.80
+
+**--merger-magnetic-flux-distribution-sigma** |br|
+For ``--merger-magnetic-field-prescription DRAW_FLUX``: standard deviation (dex) of :math:`\log_{10}(\Phi / {\rm G}\,R_\odot^2)` of the surface
+magnetic flux of main sequence merger products. |br|
+Default = 0.30
+
 **--merger-magnetic-field-fraction** |br|
 Fraction of main sequence merger products whose surface field is set by ``--merger-magnetic-field-prescription`` (e.g. if only some mergers leave a lasting strong
 field); the others keep the primary's pre-merger flux. |br|
@@ -960,10 +971,13 @@ Default = 1.0
 
 **--merger-magnetic-field-prescription** |br|
 Surface magnetic field of the product of a main sequence merger (``--evolve-main-sequence-mergers``). |br|
-Options: { AMPLIFY, DRAW } |br|
+Options: { AMPLIFY, DRAW, DRAW_FLUX } |br|
 ``AMPLIFY`` : the primary's surface magnetic flux times ``--magnetic-field-amplification-factor-merger``. |br|
 ``DRAW`` : a surface field drawn from a log-normal (``--merger-magnetic-field-distribution-mean``, ``--merger-magnetic-field-distribution-sigma``) at the radius of the
 merger product, independent of the pre-merger field: in MHD simulations the field generated in the merger saturates whatever the seed (Ohlmann et al. 2026). |br|
+``DRAW_FLUX`` : as ``DRAW``, but the surface magnetic flux is drawn (``--merger-magnetic-flux-distribution-mean``, ``--merger-magnetic-flux-distribution-sigma``),
+so that the field of a large (e.g. O-type) merger product is proportionally weaker: a field drawn in B and calibrated on early B-type stars gives
+~10 kG for the ~30 :math:`M_\odot` merger product HD 148937, which has ~1 kG (Frost et al. 2024). |br|
 Default = AMPLIFY
 
 **--main-sequence-core-hydrogen-prescription** |br|
@@ -1975,7 +1989,8 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 
 --surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
 --surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger,
---merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma, --merger-magnetic-field-fraction,
+--merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma, --merger-magnetic-flux-distribution-mean,
+--merger-magnetic-flux-distribution-sigma, --merger-magnetic-field-fraction,
 --surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star, --surface-magnetic-field-primordial-fraction, --main-sequence-magnetic-flux-decay,
 --main-sequence-magnetic-flux-decay-rate, --main-sequence-magnetic-flux-decay-minimum-mass
 

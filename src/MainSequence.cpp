@@ -1450,6 +1450,10 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
  *             --magnetic-field-amplification-factor-merger
  *    DRAW:    the surface field is drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent
  *             of the pre-merger field: the field generated in the merger saturates whatever the seed (Ohlmann et al. 2026)
+ *    DRAW_FLUX: as DRAW, but the surface magnetic flux Phi = B R^2 is drawn (--merger-magnetic-flux-distribution-mean/sigma,
+ *             log10(Phi / G Rsol^2)), so that a large merger product gets a proportionally weaker field; the default is the flux
+ *             of young magnetic early-B stars (Shultz et al. 2019), which also matches the merger product HD 148937 (Frost et al.
+ *             2024: ~1 kG at 9.7 Rsol).  The same normal deviate as DRAW, so the two prescriptions differ only in what is drawn.
  *
  * Only a fraction --merger-magnetic-field-fraction of merger products is affected; the others keep the primary's flux.
  * The field then follows B = Phi / R^2.  The draws use generators seeded by the star, not the COMPAS random number stream.
@@ -1473,6 +1477,12 @@ void MainSequence::ResolveMergerMagneticField() {
             std::mt19937_64 generator = MagneticFieldGenerator(0x94D049BB133111EBULL);
             double log10B = OPTIONS->MergerMagneticFieldDistributionMean() + OPTIONS->MergerMagneticFieldDistributionSigma() * std::normal_distribution<double>(0.0, 1.0)(generator);
             m_SurfaceMagneticFlux = PPOW(10.0, log10B) * m_Radius * m_Radius;
+            } break;
+
+        case MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW_FLUX: {
+            std::mt19937_64 generator = MagneticFieldGenerator(0x94D049BB133111EBULL);                // same deviate as DRAW
+            double log10Phi = OPTIONS->MergerMagneticFluxDistributionMean() + OPTIONS->MergerMagneticFluxDistributionSigma() * std::normal_distribution<double>(0.0, 1.0)(generator);
+            m_SurfaceMagneticFlux = PPOW(10.0, log10Phi);
             } break;
 
         default:

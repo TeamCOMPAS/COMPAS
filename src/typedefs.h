@@ -913,11 +913,13 @@ const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION, std::string> PU
 };
 
 // Surface magnetic field of the product of a main sequence merger: AMPLIFY = the primary's flux x --magnetic-field-amplification-factor-merger;
-// DRAW = a field drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent of the pre-merger field
-enum class MERGER_MAGNETIC_FIELD_PRESCRIPTION: int { AMPLIFY, DRAW };
+// DRAW = a field drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent of the pre-merger field;
+// DRAW_FLUX = the same, but the surface magnetic flux is drawn (--merger-magnetic-flux-distribution-mean/sigma), so the field scales as 1 / R^2
+enum class MERGER_MAGNETIC_FIELD_PRESCRIPTION: int { AMPLIFY, DRAW, DRAW_FLUX };
 const COMPASUnorderedMap<MERGER_MAGNETIC_FIELD_PRESCRIPTION, std::string> MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL = {
-    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::AMPLIFY, "AMPLIFY" },
-    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW,    "DRAW" }
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::AMPLIFY,   "AMPLIFY" },
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW,      "DRAW" },
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW_FLUX, "DRAW_FLUX" }
 };
 
 // Surface magnetic flux on the main sequence: NONE = conserved (B = Phi / R^2); EXPONENTIAL = Phi falls exponentially with fractional
