@@ -2003,6 +2003,13 @@
 //                                         Schneider et al. 2025, eq. 11) +- --merger-magnetic-flux-distribution-sigma; Phi proportional to M.
 //                                       - --surface-magnetic-field-distribution-high-quantity FIELD | FLUX | FLUX_PER_MASS: what the strong ZAMS
 //                                         component (MAKARENKO21 high component, primordial fraction) draws. FIELD (default) is unchanged.
+//  03.54.01  SS - October 17, 2026      - Defect repair:
+//                                       - 15 Options accessors looked their option up under a name that differs from the registered one (case:
+//                                         critical-mass-ratio-{MS,HG,helium-MS,helium-HG}-* and common-envelope-allow-immediate-RLOF-post-CE-survive;
+//                                         name: eccentricity-{min,max} and metallicity-{min,max} as *-distribution-*). OPT_VALUE() then never finds
+//                                         the option among the grid-line values, so with --grid the command-line value was silently replaced by the
+//                                         default (e.g. --critical-mass-ratio-MS-high-mass-non-degenerate-accretor had no effect). Runs without
+//                                         --grid were not affected.
 //
 
 // Version string format is MM.mm.rr, where
@@ -2014,7 +2021,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.54.00";
+const std::string VERSION_STRING = "03.54.01";
 
 
 # endif // __changelog_h__
