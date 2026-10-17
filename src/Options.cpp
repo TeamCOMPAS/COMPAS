@@ -670,6 +670,9 @@ void Options::OptionValues::Initialise() {
     m_MergerMagneticFieldDistributionSigma                          = SURFACE_MAGNETIC_FIELD_DISTRIBUTION_MAKARENKO_HIGH_SIGMA;
     m_MergerMagneticFluxDistributionMean                            = MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN;                     // young magnetic early-B stars (Shultz et al. 2019)
     m_MergerMagneticFluxDistributionSigma                           = MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA;
+    m_MergerMagneticFluxPerMassMean                                 = MERGER_MAGNETIC_FLUX_PER_MASS_MEAN;                          // equipartition (Schneider et al. 2025)
+    m_SurfaceMagneticFieldDistributionHighQuantity.type             = SURFACE_MAGNETIC_FIELD_QUANTITY::FIELD;
+    m_SurfaceMagneticFieldDistributionHighQuantity.typeString       = SURFACE_MAGNETIC_FIELD_QUANTITY_LABEL.at(m_SurfaceMagneticFieldDistributionHighQuantity.type);
     m_MergerMagneticFieldFraction                                   = 1.0;
 
     // Surface magnetic flux decay on the main sequence
@@ -1698,7 +1701,12 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
         (
             "merger-magnetic-flux-distribution-sigma",
             po::value<double>(&p_Options->m_MergerMagneticFluxDistributionSigma)->default_value(p_Options->m_MergerMagneticFluxDistributionSigma),
-            ("Standard deviation (dex) of log10(Phi / G Rsol^2) of the surface magnetic flux of main sequence merger products, for --merger-magnetic-field-prescription DRAW_FLUX (default = " + std::to_string(p_Options->m_MergerMagneticFluxDistributionSigma) + ")").c_str()
+            ("Standard deviation (dex) of log10(Phi / G Rsol^2) of the surface magnetic flux of main sequence merger products, for --merger-magnetic-field-prescription DRAW_FLUX or EQUIPARTITION (default = " + std::to_string(p_Options->m_MergerMagneticFluxDistributionSigma) + ")").c_str()
+        )
+        (
+            "merger-magnetic-flux-per-mass-mean",
+            po::value<double>(&p_Options->m_MergerMagneticFluxPerMassMean)->default_value(p_Options->m_MergerMagneticFluxPerMassMean),
+            ("Mean of log10((Phi / M) / G Rsol^2 Msol^-1) of main sequence merger products, for --merger-magnetic-field-prescription EQUIPARTITION (default = " + std::to_string(p_Options->m_MergerMagneticFluxPerMassMean) + ", Schneider et al. 2025)").c_str()
         )
         (
             "main-sequence-magnetic-flux-decay-minimum-mass",
@@ -2525,9 +2533,14 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Surface magnetic flux on the main sequence: conserved (NONE) or decaying exponentially with fractional main sequence age at a mass-dependent rate (EXPONENTIAL) (" + AllowedOptionValuesFormatted("main-sequence-magnetic-flux-decay") + ", default = '" + p_Options->m_MainSequenceMagneticFluxDecay.typeString + "')").c_str()
         )
         (
+            "surface-magnetic-field-distribution-high-quantity",
+            po::value<std::string>(&p_Options->m_SurfaceMagneticFieldDistributionHighQuantity.typeString)->default_value(p_Options->m_SurfaceMagneticFieldDistributionHighQuantity.typeString),
+            ("What the high (strong) component of --surface-magnetic-field-distribution MAKARENKO21 and the primordial fraction draw from the log-normal (--surface-magnetic-field-distribution-high-mean/std): the field log10(B/G) (FIELD), the flux log10(Phi / G Rsol^2) at ZAMS (FLUX) or the flux per unit mass log10((Phi / M) / G Rsol^2 Msol^-1) (FLUX_PER_MASS) (" + AllowedOptionValuesFormatted("surface-magnetic-field-distribution-high-quantity") + ", default = '" + p_Options->m_SurfaceMagneticFieldDistributionHighQuantity.typeString + "')").c_str()
+        )
+        (
             "merger-magnetic-field-prescription",
             po::value<std::string>(&p_Options->m_MergerMagneticFieldPrescription.typeString)->default_value(p_Options->m_MergerMagneticFieldPrescription.typeString),
-            ("Surface magnetic field of main sequence merger products: the primary's flux amplified (AMPLIFY), or a field (DRAW) or flux (DRAW_FLUX) drawn independently of the pre-merger field (" + AllowedOptionValuesFormatted("merger-magnetic-field-prescription") + ", default = '" + p_Options->m_MergerMagneticFieldPrescription.typeString + "')").c_str()
+            ("Surface magnetic field of main sequence merger products: the primary's flux amplified (AMPLIFY), or a field (DRAW), flux (DRAW_FLUX) or flux per unit mass (EQUIPARTITION) drawn independently of the pre-merger field (" + AllowedOptionValuesFormatted("merger-magnetic-field-prescription") + ", default = '" + p_Options->m_MergerMagneticFieldPrescription.typeString + "')").c_str()
         )
         (
             "pulsar-birth-magnetic-field-distribution",                    
@@ -3147,6 +3160,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Main Sequence Magnetic Flux Decay");
         }
 
+        if (!DEFAULTED("surface-magnetic-field-distribution-high-quantity")) {                                                      // what the strong ZAMS component draws
+            std::tie(found, m_SurfaceMagneticFieldDistributionHighQuantity.type) = utils::GetMapKey(m_SurfaceMagneticFieldDistributionHighQuantity.typeString, SURFACE_MAGNETIC_FIELD_QUANTITY_LABEL, m_SurfaceMagneticFieldDistributionHighQuantity.type);
+            COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Distribution High Quantity");
+        }
+
         if (!DEFAULTED("merger-magnetic-field-prescription")) {                                                                     // merger product surface magnetic field
             std::tie(found, m_MergerMagneticFieldPrescription.type) = utils::GetMapKey(m_MergerMagneticFieldPrescription.typeString, MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL, m_MergerMagneticFieldPrescription.type);
             COMPLAIN_IF(!found, "Unknown Merger Magnetic Field Prescription");
@@ -3517,6 +3535,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                               break;
         case _("main-sequence-magnetic-flux-decay")                 : POPULATE_RET(MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_LABEL);            break;
         case _("merger-magnetic-field-prescription")                : POPULATE_RET(MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL);           break;
+        case _("surface-magnetic-field-distribution-high-quantity") : POPULATE_RET(SURFACE_MAGNETIC_FIELD_QUANTITY_LABEL);              break;
         case _("msp-birth-magnetic-field-distribution")             : POPULATE_RET(MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);        break;
         case _("msp-birth-spin-period-distribution")                : POPULATE_RET(MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);           break;
         case _("neutrino-mass-loss-BH-formation")                   : POPULATE_RET(NEUTRINO_MASS_LOSS_PRESCRIPTION_LABEL);              break;
@@ -5697,6 +5716,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_FRACTION                 : value = MergerMagneticFieldFraction();                                        break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN         : value = MergerMagneticFluxDistributionMean();                                 break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA        : value = MergerMagneticFluxDistributionSigma();                                break;
+        case PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_PER_MASS_MEAN             : value = MergerMagneticFluxPerMassMean();                                      break;
+        case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_DISTRIBUTION_HIGH_QUANTITY : value = static_cast<int>(SurfaceMagneticFieldDistributionHighQuantity()); break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY              : value = static_cast<int>(MainSequenceMagneticFluxDecay());                    break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_RATE         : value = MainSequenceMagneticFluxDecayRate();                                  break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MINIMUM_MASS : value = MainSequenceMagneticFluxDecayMinimumMass();                           break;

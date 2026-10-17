@@ -1454,6 +1454,9 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
  *             log10(Phi / G Rsol^2)), so that a large merger product gets a proportionally weaker field; the default is the flux
  *             of young magnetic early-B stars (Shultz et al. 2019), which also matches the merger product HD 148937 (Frost et al.
  *             2024: ~1 kG at 9.7 Rsol).  The same normal deviate as DRAW, so the two prescriptions differ only in what is drawn.
+ *    EQUIPARTITION: the flux per unit mass is drawn (--merger-magnetic-flux-per-mass-mean, scatter --merger-magnetic-flux-distribution-sigma):
+ *             saturation at equipartition with Keplerian turbulence gives B ~ 1e3 G (M / 5 Msol)(3 Rsol / R)^2, i.e. Phi / M constant
+ *             (Schneider et al. 2025, ARA&A, eq. 11; Wickramasinghe, Tout & Ferrario 2014). Same normal deviate as DRAW.
  *
  * Only a fraction --merger-magnetic-field-fraction of merger products is affected; the others keep the primary's flux.
  * The field then follows B = Phi / R^2.  The draws use generators seeded by the star, not the COMPAS random number stream.
@@ -1477,6 +1480,13 @@ void MainSequence::ResolveMergerMagneticField() {
             std::mt19937_64 generator = MagneticFieldGenerator(0x94D049BB133111EBULL);
             double log10B = OPTIONS->MergerMagneticFieldDistributionMean() + OPTIONS->MergerMagneticFieldDistributionSigma() * std::normal_distribution<double>(0.0, 1.0)(generator);
             m_SurfaceMagneticFlux = PPOW(10.0, log10B) * m_Radius * m_Radius;
+            } break;
+
+        case MERGER_MAGNETIC_FIELD_PRESCRIPTION::EQUIPARTITION: {
+            std::mt19937_64 generator = MagneticFieldGenerator(0x94D049BB133111EBULL);                // same deviate as DRAW
+            double log10Phi = OPTIONS->MergerMagneticFluxPerMassMean() + OPTIONS->MergerMagneticFluxDistributionSigma() * std::normal_distribution<double>(0.0, 1.0)(generator)
+                            + std::log10(m_Mass);
+            m_SurfaceMagneticFlux = PPOW(10.0, log10Phi);
             } break;
 
         case MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW_FLUX: {

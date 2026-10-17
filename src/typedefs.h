@@ -914,12 +914,23 @@ const COMPASUnorderedMap<PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION, std::string> PU
 
 // Surface magnetic field of the product of a main sequence merger: AMPLIFY = the primary's flux x --magnetic-field-amplification-factor-merger;
 // DRAW = a field drawn from a log-normal (--merger-magnetic-field-distribution-mean/sigma), independent of the pre-merger field;
-// DRAW_FLUX = the same, but the surface magnetic flux is drawn (--merger-magnetic-flux-distribution-mean/sigma), so the field scales as 1 / R^2
-enum class MERGER_MAGNETIC_FIELD_PRESCRIPTION: int { AMPLIFY, DRAW, DRAW_FLUX };
+// DRAW_FLUX = the same, but the surface magnetic flux is drawn (--merger-magnetic-flux-distribution-mean/sigma), so the field scales as 1 / R^2;
+// EQUIPARTITION = the flux per unit mass is drawn (--merger-magnetic-flux-per-mass-mean, --merger-magnetic-flux-distribution-sigma): Phi proportional to M
+enum class MERGER_MAGNETIC_FIELD_PRESCRIPTION: int { AMPLIFY, DRAW, DRAW_FLUX, EQUIPARTITION };
 const COMPASUnorderedMap<MERGER_MAGNETIC_FIELD_PRESCRIPTION, std::string> MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL = {
     { MERGER_MAGNETIC_FIELD_PRESCRIPTION::AMPLIFY,   "AMPLIFY" },
     { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW,      "DRAW" },
-    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW_FLUX, "DRAW_FLUX" }
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::DRAW_FLUX, "DRAW_FLUX" },
+    { MERGER_MAGNETIC_FIELD_PRESCRIPTION::EQUIPARTITION, "EQUIPARTITION" }
+};
+
+// What the high (strong) component of --surface-magnetic-field-distribution MAKARENKO21 (and the primordial fraction) draws:
+// FIELD = log10(B / G); FLUX = log10(Phi / G Rsol^2), Phi = B R_ZAMS^2; FLUX_PER_MASS = log10((Phi / M) / G Rsol^2 Msol^-1)
+enum class SURFACE_MAGNETIC_FIELD_QUANTITY: int { FIELD, FLUX, FLUX_PER_MASS };
+const COMPASUnorderedMap<SURFACE_MAGNETIC_FIELD_QUANTITY, std::string> SURFACE_MAGNETIC_FIELD_QUANTITY_LABEL = {
+    { SURFACE_MAGNETIC_FIELD_QUANTITY::FIELD,         "FIELD" },
+    { SURFACE_MAGNETIC_FIELD_QUANTITY::FLUX,          "FLUX" },
+    { SURFACE_MAGNETIC_FIELD_QUANTITY::FLUX_PER_MASS, "FLUX_PER_MASS" }
 };
 
 // Surface magnetic flux on the main sequence: NONE = conserved (B = Phi / R^2); EXPONENTIAL = Phi falls exponentially with fractional

@@ -4302,7 +4302,7 @@ double BaseStar::CalculateZAMSSurfaceMagneticFieldStrength() {
             }
             else{                                                                                   // Draw from high-field subpopulation
                 r2 = normal(OPTIONS->SurfaceMagneticFieldDistributionHighStd());
-                log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + r2;
+                log10Bsurf = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + r2 + StrongFieldQuantityOffset();   // drawn as a field, flux or flux per unit mass
                 m_SurfaceMagneticFieldStrongComponent = true;
             }
 
@@ -4377,6 +4377,23 @@ void BaseStar::RestrictSurfaceMagneticFieldToLowComponent() {
  *
  * void ApplyPrimordialSurfaceMagneticField()
  */
+/*
+ * log10(B) minus the drawn log10 quantity of the strong ZAMS field component (--surface-magnetic-field-distribution-high-quantity):
+ * FIELD: 0; FLUX (log10(Phi / G Rsol^2), Phi = B R_ZAMS^2): -2 log10(R_ZAMS); FLUX_PER_MASS (log10(Phi / M)): log10(M_ZAMS) - 2 log10(R_ZAMS).
+ * With B drawn (FIELD) the flux of a star at ZAMS grows as R_ZAMS^2 ~ M^1.1; with FLUX it is independent of mass; with FLUX_PER_MASS ~ M.
+ *
+ * double StrongFieldQuantityOffset() const
+ */
+double BaseStar::StrongFieldQuantityOffset() const {
+    switch (OPTIONS->SurfaceMagneticFieldDistributionHighQuantity()) {
+        case SURFACE_MAGNETIC_FIELD_QUANTITY::FIELD:         return 0.0;
+        case SURFACE_MAGNETIC_FIELD_QUANTITY::FLUX:          return -2.0 * std::log10(m_RZAMS);
+        case SURFACE_MAGNETIC_FIELD_QUANTITY::FLUX_PER_MASS: return std::log10(m_MZAMS) - 2.0 * std::log10(m_RZAMS);
+        default:                                             return 0.0;
+    }
+}
+
+
 void BaseStar::ApplyPrimordialSurfaceMagneticField() {
     double fraction = OPTIONS->SurfaceMagneticFieldPrimordialFraction();
     if (fraction <= 0.0 || m_SurfaceMagneticFieldStrongComponent ||
@@ -4384,7 +4401,8 @@ void BaseStar::ApplyPrimordialSurfaceMagneticField() {
     std::mt19937_64 choose = MagneticFieldGenerator(0x9FB21C651E98DF25ULL);
     if (std::uniform_real_distribution<double>(0.0, 1.0)(choose) >= fraction) return;                                              // not primordial
     std::mt19937_64 draw = MagneticFieldGenerator(0xD6E8FEB86659FD93ULL);
-    double log10B = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + OPTIONS->SurfaceMagneticFieldDistributionHighStd() * std::normal_distribution<double>(0.0, 1.0)(draw);
+    double log10B = OPTIONS->SurfaceMagneticFieldDistributionHighMean() + OPTIONS->SurfaceMagneticFieldDistributionHighStd() * std::normal_distribution<double>(0.0, 1.0)(draw)
+                  + StrongFieldQuantityOffset();
     m_SurfaceMagneticFieldStrengthZAMS    = PPOW(10.0, log10B);
     m_SurfaceMagneticFlux                 = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
     m_SurfaceMagneticFieldStrengthPrev    = m_SurfaceMagneticFieldStrengthZAMS;

@@ -361,6 +361,7 @@ public:
     
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
             void            RestrictSurfaceMagneticFieldToLowComponent();
+            double          StrongFieldQuantityOffset() const;                                                                                                               // log10 B - drawn log10 quantity, strong ZAMS component
             void            ApplyPrimordialSurfaceMagneticField();                                                                                                           // BSE: no strong ZAMS field for this star
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
 

@@ -959,8 +959,14 @@ For ``--merger-magnetic-field-prescription DRAW_FLUX``: mean of :math:`\log_{10}
 age :math:`\tau < 0.2` (Shultz et al. 2019). |br|
 Default = 4.80
 
+**--merger-magnetic-flux-per-mass-mean** |br|
+For ``--merger-magnetic-field-prescription EQUIPARTITION``: mean of :math:`\log_{10}((\Phi / M) / {\rm G}\,R_\odot^2\,M_\odot^{-1})` of main sequence
+merger products. The default is equipartition with Keplerian turbulence, :math:`B \approx 10^3\,{\rm G}\,(M / 5\,M_\odot)(3\,R_\odot / R)^2` (Schneider et al.
+2025, ARA&A); magnetic early B-type stars with :math:`\tau < 0.2` (Shultz et al. 2019) have 3.98. |br|
+Default = 3.255
+
 **--merger-magnetic-flux-distribution-sigma** |br|
-For ``--merger-magnetic-field-prescription DRAW_FLUX``: standard deviation (dex) of :math:`\log_{10}(\Phi / {\rm G}\,R_\odot^2)` of the surface
+For ``--merger-magnetic-field-prescription DRAW_FLUX`` or ``EQUIPARTITION``: standard deviation (dex) of :math:`\log_{10}(\Phi / {\rm G}\,R_\odot^2)` of the surface
 magnetic flux of main sequence merger products. |br|
 Default = 0.30
 
@@ -971,13 +977,15 @@ Default = 1.0
 
 **--merger-magnetic-field-prescription** |br|
 Surface magnetic field of the product of a main sequence merger (``--evolve-main-sequence-mergers``). |br|
-Options: { AMPLIFY, DRAW, DRAW_FLUX } |br|
+Options: { AMPLIFY, DRAW, DRAW_FLUX, EQUIPARTITION } |br|
 ``AMPLIFY`` : the primary's surface magnetic flux times ``--magnetic-field-amplification-factor-merger``. |br|
 ``DRAW`` : a surface field drawn from a log-normal (``--merger-magnetic-field-distribution-mean``, ``--merger-magnetic-field-distribution-sigma``) at the radius of the
 merger product, independent of the pre-merger field: in MHD simulations the field generated in the merger saturates whatever the seed (Ohlmann et al. 2026). |br|
 ``DRAW_FLUX`` : as ``DRAW``, but the surface magnetic flux is drawn (``--merger-magnetic-flux-distribution-mean``, ``--merger-magnetic-flux-distribution-sigma``),
 so that the field of a large (e.g. O-type) merger product is proportionally weaker: a field drawn in B and calibrated on early B-type stars gives
 ~10 kG for the ~30 :math:`M_\odot` merger product HD 148937, which has ~1 kG (Frost et al. 2024). |br|
+``EQUIPARTITION`` : the flux per unit mass is drawn (``--merger-magnetic-flux-per-mass-mean``, ``--merger-magnetic-flux-distribution-sigma``), so that
+:math:`\Phi \propto M`, as for saturation at equipartition with the merger's Keplerian turbulence (Schneider et al. 2025; Wickramasinghe et al. 2014). |br|
 Default = AMPLIFY
 
 **--main-sequence-core-hydrogen-prescription** |br|
@@ -1783,6 +1791,15 @@ Default = 2.82
 Standard deviation (dex) of :math:`\log_{10}(B/{\rm G})` of the high-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
 Default = 0.65
 
+**--surface-magnetic-field-distribution-high-quantity** |br|
+What the high (strong) component of ``--surface-magnetic-field-distribution MAKARENKO21``, and ``--surface-magnetic-field-primordial-fraction``, draw from the
+log-normal of ``--surface-magnetic-field-distribution-high-mean``/``-high-std``. |br|
+Options: { FIELD, FLUX, FLUX_PER_MASS } |br|
+``FIELD`` : :math:`\log_{10}(B/{\rm G})` (the flux at ZAMS then grows with mass as :math:`R_{\rm ZAMS}^2 \sim M^{1.1}`). |br|
+``FLUX`` : :math:`\log_{10}(\Phi / {\rm G}\,R_\odot^2)` with :math:`\Phi = B R_{\rm ZAMS}^2`, independent of mass. |br|
+``FLUX_PER_MASS`` : :math:`\log_{10}((\Phi / M) / {\rm G}\,R_\odot^2\,M_\odot^{-1})`. |br|
+Default = FIELD
+
 **--surface-magnetic-field-distribution-low-mean** |br|
 Mean of :math:`\log_{10}(B/{\rm G})` of the low-field component of ``--surface-magnetic-field-distribution MAKARENKO21``. |br|
 Default = 0.14
@@ -1990,7 +2007,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --surface-magnetic-field-distribution, --surface-magnetic-field-distribution-flow, --surface-magnetic-field-distribution-low-mean, --surface-magnetic-field-distribution-low-std,
 --surface-magnetic-field-distribution-high-mean, --surface-magnetic-field-distribution-high-std, --magnetic-field-amplification-factor-merger,
 --merger-magnetic-field-prescription, --merger-magnetic-field-distribution-mean, --merger-magnetic-field-distribution-sigma, --merger-magnetic-flux-distribution-mean,
---merger-magnetic-flux-distribution-sigma, --merger-magnetic-field-fraction,
+--merger-magnetic-flux-distribution-sigma, --merger-magnetic-flux-per-mass-mean, --surface-magnetic-field-distribution-high-quantity, --merger-magnetic-field-fraction,
 --surface-magnetic-field-minimum-orbital-period, --surface-magnetic-field-strong-star, --surface-magnetic-field-primordial-fraction, --main-sequence-magnetic-flux-decay,
 --main-sequence-magnetic-flux-decay-rate, --main-sequence-magnetic-flux-decay-minimum-mass
 

@@ -1997,6 +1997,12 @@
 //                                       - Options::OptionValue() had no case for MSP_MAGNETIC_FIELD_DISTRIBUTION_MEAN/SIGMA,
 //                                         MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_MEAN/SIGMA (MSP options) and PULSAR_MAGNETIC_FIELD_DECAY_TIME_SCALE_POWER,
 //                                         so any run with --grid stopped with 'Unexpected program option' before evolving a star.
+//  03.54.00  SS - October 17, 2026      - Enhancement:
+//                                       - --merger-magnetic-field-prescription EQUIPARTITION: the flux per unit mass of MS merger products is drawn,
+//                                         log10(Phi / M) = --merger-magnetic-flux-per-mass-mean (default 3.255: equipartition with Keplerian turbulence,
+//                                         Schneider et al. 2025, eq. 11) +- --merger-magnetic-flux-distribution-sigma; Phi proportional to M.
+//                                       - --surface-magnetic-field-distribution-high-quantity FIELD | FLUX | FLUX_PER_MASS: what the strong ZAMS
+//                                         component (MAKARENKO21 high component, primordial fraction) draws. FIELD (default) is unchanged.
 //
 
 // Version string format is MM.mm.rr, where
@@ -2008,7 +2014,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.53.01";
+const std::string VERSION_STRING = "03.54.00";
 
 
 # endif // __changelog_h__
