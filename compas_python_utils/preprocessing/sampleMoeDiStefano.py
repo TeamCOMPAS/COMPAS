@@ -487,6 +487,11 @@ def createParameterDistributionsAndSampler(testing=False):
     
         return myM1, myM2, myP, mye
 
+    # Expose the tabulated distributions, e.g. to draw the outer companions of higher-order systems: the frequency of companions
+    # (q > 0.1) per decade of period flogP_sq[logP, M1], the probability probbin[logP, M1] that a companion at that period is the
+    # inner binary (so flogP_sq * (1 - probbin) are outer companions), and the cumulative q and e distributions given (logP, M1)
+    parameterSampler.grids = dict(M1v=M1v, logPv=logPv, qv=qv, ev=ev, flogP_sq=flogP_sq, probbin=probbin,
+                                  cumqdist=cumqdist, cumedist=cumedist, cumPbindist=cumPbindist)
     return parameterSampler
 
 
