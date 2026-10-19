@@ -2020,8 +2020,12 @@
 //
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
+//  03.54.02  SS - October 19, 2026      - Enhancement:
+//                                       - New option --main-sequence-magnetic-flux-decay-maximum-mass (M_sat, default 0 = none): the main
+//                                         sequence surface magnetic flux decay rate saturates at its value for M_sat above M_sat.
 
-const std::string VERSION_STRING = "03.54.01";
+
+const std::string VERSION_STRING = "03.54.02";
 
 
 # endif // __changelog_h__

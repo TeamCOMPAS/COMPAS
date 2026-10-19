@@ -1284,6 +1284,7 @@ public:
             ENUM_OPT<MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY>         m_MainSequenceMagneticFluxDecay;                                // NONE or EXPONENTIAL
             double                                              m_MainSequenceMagneticFluxDecayRate;                            // EXPONENTIAL: A in d log10(Phi) / d tau = -A log10(M / M_min)
             double                                              m_MainSequenceMagneticFluxDecayMinimumMass;                     // EXPONENTIAL: M_min (Msol), no decay below
+            double                                              m_MainSequenceMagneticFluxDecayMaximumMass;                     // EXPONENTIAL: M_sat (Msol), rate saturates above (0: none)
 
             // Stellar surface magnetic field distribution
             ENUM_OPT<SURFACE_MAGNETIC_FIELD_DISTRIBUTION>       m_SurfaceMagneticFieldDistribution;
@@ -1778,6 +1779,7 @@ public:
     MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY           MainSequenceMagneticFluxDecay() const                                   { return OPT_VALUE("main-sequence-magnetic-flux-decay", m_MainSequenceMagneticFluxDecay.type, true); }
     double                                      MainSequenceMagneticFluxDecayRate() const                               { return OPT_VALUE("main-sequence-magnetic-flux-decay-rate", m_MainSequenceMagneticFluxDecayRate, true); }
     double                                      MainSequenceMagneticFluxDecayMinimumMass() const                        { return OPT_VALUE("main-sequence-magnetic-flux-decay-minimum-mass", m_MainSequenceMagneticFluxDecayMinimumMass, true); }
+    double                                      MainSequenceMagneticFluxDecayMaximumMass() const                        { return OPT_VALUE("main-sequence-magnetic-flux-decay-maximum-mass", m_MainSequenceMagneticFluxDecayMaximumMass, true); }
 
     double                                      MassChangeFraction() const                                              { return m_CmdLine.optionValues.m_MassChangeFraction; }
     

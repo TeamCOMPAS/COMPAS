@@ -680,6 +680,7 @@ void Options::OptionValues::Initialise() {
     m_MainSequenceMagneticFluxDecay.typeString                      = MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_LABEL.at(m_MainSequenceMagneticFluxDecay.type);
     m_MainSequenceMagneticFluxDecayRate                             = MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_RATE;               // Shultz et al. (2019)
     m_MainSequenceMagneticFluxDecayMinimumMass                      = MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MINIMUM_MASS;
+    m_MainSequenceMagneticFluxDecayMaximumMass                      = MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MAXIMUM_MASS;
 
     // Stellar surface magnetic field distribution
     m_SurfaceMagneticFieldDistribution.type                         = SURFACE_MAGNETIC_FIELD_DISTRIBUTION::ZERO;
@@ -1712,6 +1713,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             "main-sequence-magnetic-flux-decay-minimum-mass",
             po::value<double>(&p_Options->m_MainSequenceMagneticFluxDecayMinimumMass)->default_value(p_Options->m_MainSequenceMagneticFluxDecayMinimumMass),
             ("Mass M_min (Msol) above which the surface magnetic flux decays on the main sequence, for --main-sequence-magnetic-flux-decay EXPONENTIAL (default = " + std::to_string(p_Options->m_MainSequenceMagneticFluxDecayMinimumMass) + ")").c_str()
+        )
+        (
+            "main-sequence-magnetic-flux-decay-maximum-mass",
+            po::value<double>(&p_Options->m_MainSequenceMagneticFluxDecayMaximumMass)->default_value(p_Options->m_MainSequenceMagneticFluxDecayMaximumMass),
+            ("Mass M_sat (Msol) above which the main sequence surface magnetic flux decay rate saturates at its value for M_sat, for --main-sequence-magnetic-flux-decay EXPONENTIAL; 0 for no saturation (default = " + std::to_string(p_Options->m_MainSequenceMagneticFluxDecayMaximumMass) + ")").c_str()
         )
         (
             "main-sequence-magnetic-flux-decay-rate",
@@ -3246,6 +3252,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MergerMagneticFieldFraction < 0.0 || m_MergerMagneticFieldFraction > 1.0, "Merger magnetic field fraction (--merger-magnetic-field-fraction) must be between 0 and 1");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayRate < 0.0, "Main sequence magnetic flux decay rate (--main-sequence-magnetic-flux-decay-rate) < 0");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayMinimumMass <= 0.0, "Main sequence magnetic flux decay minimum mass (--main-sequence-magnetic-flux-decay-minimum-mass) <= 0");
+        COMPLAIN_IF(m_MainSequenceMagneticFluxDecayMaximumMass < 0.0 || (m_MainSequenceMagneticFluxDecayMaximumMass > 0.0 && m_MainSequenceMagneticFluxDecayMaximumMass <= m_MainSequenceMagneticFluxDecayMinimumMass), "Main sequence magnetic flux decay maximum mass (--main-sequence-magnetic-flux-decay-maximum-mass) must be 0 (none) or > the minimum mass");
         COMPLAIN_IF(m_SurfaceMagneticFieldPrimordialFraction < 0.0 || m_SurfaceMagneticFieldPrimordialFraction > 1.0, "Surface magnetic field primordial fraction (--surface-magnetic-field-primordial-fraction) must be between 0 and 1");
         COMPLAIN_IF(m_SurfaceMagneticFieldMinimumOrbitalPeriod < 0.0, "Surface magnetic field minimum orbital period (--surface-magnetic-field-minimum-orbital-period) < 0");
         COMPLAIN_IF(m_PulsarBirthMagneticFluxFraction <= 0.0, "Pulsar birth magnetic flux fraction (--pulsar-birth-magnetic-flux-fraction) <= 0");
@@ -5721,6 +5728,7 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY              : value = static_cast<int>(MainSequenceMagneticFluxDecay());                    break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_RATE         : value = MainSequenceMagneticFluxDecayRate();                                  break;
         case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MINIMUM_MASS : value = MainSequenceMagneticFluxDecayMinimumMass();                           break;
+        case PROGRAM_OPTION::MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MAXIMUM_MASS : value = MainSequenceMagneticFluxDecayMaximumMass();                           break;
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_PRIMORDIAL_FRACTION     : value = SurfaceMagneticFieldPrimordialFraction();                             break;
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_MINIMUM_ORBITAL_PERIOD  : value = SurfaceMagneticFieldMinimumOrbitalPeriod();                           break;
         case PROGRAM_OPTION::SURFACE_MAGNETIC_FIELD_STRONG_STAR             : value = static_cast<int>(SurfaceMagneticFieldStrongStar());                   break;

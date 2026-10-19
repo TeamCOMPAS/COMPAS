@@ -178,6 +178,7 @@ constexpr double MERGER_MAGNETIC_FLUX_PER_MASS_MEAN                         = 3.
 // -0.7 dex per unit tau below 9 Msol, -1.1 above, -1.6 to -2.1 extrapolated to 30-60 Msol, and no flux decay below ~4 Msol
 constexpr double MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_RATE         = 1.66;                                             // A (dex per unit tau per dex of mass)
 constexpr double MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MINIMUM_MASS = 3.3;                                              // M_min (Msol)
+constexpr double MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_MAXIMUM_MASS = 0.0;                                              // M_sat (Msol): the decay rate saturates above it (0: no saturation)
 
 // Default factor by which the surface magnetic flux is amplified in a main sequence merger
 constexpr double MAGNETIC_FIELD_AMPLIFICATION_FACTOR_MERGER = 100.0;

@@ -1509,7 +1509,8 @@ void MainSequence::ResolveMergerMagneticField() {
  *
  *                     d log10(Phi) / d tau = -A log10(M / M_min)  for M > M_min (no decay below M_min),
  *
- *                 with A = --main-sequence-magnetic-flux-decay-rate and M_min = --main-sequence-magnetic-flux-decay-minimum-mass.
+ *                 with A = --main-sequence-magnetic-flux-decay-rate and M_min = --main-sequence-magnetic-flux-decay-minimum-mass;
+ *                 with --main-sequence-magnetic-flux-decay-maximum-mass M_sat > 0 the rate saturates above M_sat (M -> min(M, M_sat)).
  *                 The defaults (A = 1.66, M_min = 3.3 Msol) fit the magnetic early B-type stars of Shultz et al. (2019, MNRAS 490,
  *                 274): d log10(Phi) / d tau = -0.7 below 9 Msol and -1.1 above, -1.6 to -2.1 extrapolated to 30-60 Msol, and
  *                 constant flux below ~4 Msol (A/B stars); this also gives the dearth of magnetic stars late on the main sequence,
@@ -1532,9 +1533,11 @@ void MainSequence::DecaySurfaceMagneticFlux(const double p_TauPrev) {
 
     switch (OPTIONS->MainSequenceMagneticFluxDecay()) {
 
-        case MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::EXPONENTIAL:
-            m_SurfaceMagneticFlux *= PPOW(10.0, -OPTIONS->MainSequenceMagneticFluxDecayRate() * log10(m_Mass / OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) * dTau);
-            break;
+        case MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::EXPONENTIAL: {
+            double mSat  = OPTIONS->MainSequenceMagneticFluxDecayMaximumMass();                             // rate saturates above M_sat (0: none)
+            double mRate = (mSat > 0.0) ? std::min(m_Mass, mSat) : m_Mass;
+            m_SurfaceMagneticFlux *= PPOW(10.0, -OPTIONS->MainSequenceMagneticFluxDecayRate() * log10(mRate / OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) * dTau);
+            } break;
 
         default:
             THROW_ERROR(ERROR::UNKNOWN_MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY);
