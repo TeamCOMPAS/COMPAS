@@ -1280,6 +1280,10 @@ public:
             ENUM_OPT<SURFACE_MAGNETIC_FIELD_QUANTITY>           m_SurfaceMagneticFieldDistributionHighQuantity;                 // what the strong ZAMS component draws
             double                                              m_MergerMagneticFieldFraction;                                  // fraction of merger products whose field is set by the prescription
 
+            // Surface magnetic field made in main sequence accretors (carried alongside the fossil field)
+            ENUM_OPT<ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION>      m_AccretorMagneticFieldPrescription;                            // NONE or EQUIPARTITION
+            double                                              m_AccretorMagneticFieldMassGain;                                // fractional mass gain (over M_ZAMS) that triggers it
+
             // Surface magnetic flux decay on the main sequence
             ENUM_OPT<MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY>         m_MainSequenceMagneticFluxDecay;                                // NONE or EXPONENTIAL
             double                                              m_MainSequenceMagneticFluxDecayRate;                            // EXPONENTIAL: A in d log10(Phi) / d tau = -A log10(M / M_min)
@@ -1776,6 +1780,8 @@ public:
     double                                      MergerMagneticFluxPerMassMean() const                                   { return OPT_VALUE("merger-magnetic-flux-per-mass-mean", m_MergerMagneticFluxPerMassMean, true); }
     SURFACE_MAGNETIC_FIELD_QUANTITY             SurfaceMagneticFieldDistributionHighQuantity() const                    { return OPT_VALUE("surface-magnetic-field-distribution-high-quantity", m_SurfaceMagneticFieldDistributionHighQuantity.type, true); }
     double                                      MergerMagneticFieldFraction() const                                     { return OPT_VALUE("merger-magnetic-field-fraction", m_MergerMagneticFieldFraction, true); }
+    ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION        AccretorMagneticFieldPrescription() const                               { return OPT_VALUE("accretor-magnetic-field-prescription", m_AccretorMagneticFieldPrescription.type, true); }
+    double                                      AccretorMagneticFieldMassGain() const                                   { return OPT_VALUE("accretor-magnetic-field-mass-gain", m_AccretorMagneticFieldMassGain, true); }
     MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY           MainSequenceMagneticFluxDecay() const                                   { return OPT_VALUE("main-sequence-magnetic-flux-decay", m_MainSequenceMagneticFluxDecay.type, true); }
     double                                      MainSequenceMagneticFluxDecayRate() const                               { return OPT_VALUE("main-sequence-magnetic-flux-decay-rate", m_MainSequenceMagneticFluxDecayRate, true); }
     double                                      MainSequenceMagneticFluxDecayMinimumMass() const                        { return OPT_VALUE("main-sequence-magnetic-flux-decay-minimum-mass", m_MainSequenceMagneticFluxDecayMinimumMass, true); }

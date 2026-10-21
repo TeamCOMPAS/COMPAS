@@ -197,6 +197,8 @@ enum class STRING_QUALIFIER: int { NONE, FIXED_LENGTH, VARIABLE_LENGTH };
     INITIAL_STELLAR_TYPE,                            \
     INITIAL_STELLAR_TYPE_NAME,                       \
     INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,         \
+    ACCRETOR_MAGNETIC_FIELD_STRENGTH,                \
+    ACCRETOR_MAGNETIC_FIELD_TIME,                    \
     IS_AIC,                                          \
     IS_CCSN,                                         \
     IS_HeSD,                                         \
@@ -359,6 +361,8 @@ const COMPASUnorderedMap<STAR_PROPERTY, std::string> STAR_PROPERTY_LABEL = {
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE,                            "INITIAL_STELLAR_TYPE" },
     { STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                       "INITIAL_STELLAR_TYPE_NAME" },
     { STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,         "INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH" },
+    { STAR_PROPERTY::ACCRETOR_MAGNETIC_FIELD_STRENGTH,                "ACCRETOR_MAGNETIC_FIELD_STRENGTH" },
+    { STAR_PROPERTY::ACCRETOR_MAGNETIC_FIELD_TIME,                    "ACCRETOR_MAGNETIC_FIELD_TIME" },
     { STAR_PROPERTY::IS_AIC,                                          "IS_AIC" },
     { STAR_PROPERTY::IS_CCSN,                                         "IS_CCSN" },
     { STAR_PROPERTY::IS_HeSD,                                         "IS_HeSD" },
@@ -914,6 +918,8 @@ enum class PROGRAM_OPTION: int {
     MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN,
     MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA,
     MERGER_MAGNETIC_FIELD_FRACTION,
+    ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION,
+    ACCRETOR_MAGNETIC_FIELD_MASS_GAIN,
     MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN,
     MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA,
     MERGER_MAGNETIC_FLUX_PER_MASS_MEAN,
@@ -1198,6 +1204,8 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN,          "MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN" },
     { PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA,         "MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA" },
     { PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_FRACTION,                   "MERGER_MAGNETIC_FIELD_FRACTION" },
+    { PROGRAM_OPTION::ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION,             "ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION" },
+    { PROGRAM_OPTION::ACCRETOR_MAGNETIC_FIELD_MASS_GAIN,                "ACCRETOR_MAGNETIC_FIELD_MASS_GAIN" },
     { PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN,           "MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN" },
     { PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA,          "MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA" },
     { PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_PER_MASS_MEAN,               "MERGER_MAGNETIC_FLUX_PER_MASS_MEAN" },
@@ -1490,6 +1498,8 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE,                              { TYPENAME::STELLAR_TYPE,     "Stellar_Type@ZAMS",               "-",                 4, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME,                         { TYPENAME::STRING,           "Stellar_Type@ZAMS",               "-",                42, 1 }},
     { ANY_STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH,           { TYPENAME::DOUBLE,           "Surface_Magnetic_Field_Strength@ZAMS", "Gauss",       24, 15}},
+    { ANY_STAR_PROPERTY::ACCRETOR_MAGNETIC_FIELD_STRENGTH,                  { TYPENAME::DOUBLE,           "Accretor_Magnetic_Field_Strength", "Gauss",           24, 15}},
+    { ANY_STAR_PROPERTY::ACCRETOR_MAGNETIC_FIELD_TIME,                      { TYPENAME::DOUBLE,           "Accretor_Magnetic_Field_Time",    "Myr",              24, 15}},
     { ANY_STAR_PROPERTY::IS_AIC,                                            { TYPENAME::BOOL,             "AIC",                             "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_CCSN,                                           { TYPENAME::BOOL,             "CCSN",                            "State",             0, 0 }},
     { ANY_STAR_PROPERTY::IS_HeSD,                                           { TYPENAME::BOOL,             "HeSD",                            "State",             0, 0 }},
@@ -1850,6 +1860,8 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN,                  { TYPENAME::DOUBLE,     "PO_Merger_Mag_Field_Dstrbtn_Mean",          "-",         24, 15}},
     { PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA,                 { TYPENAME::DOUBLE,     "PO_Merger_Mag_Field_Dstrbtn_Sigma",         "-",         24, 15}},
     { PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_FRACTION,                           { TYPENAME::DOUBLE,     "PO_Merger_Mag_Field_Fraction",              "-",         24, 15}},
+    { PROGRAM_OPTION::ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION,                     { TYPENAME::INT,        "PO_Accretor_Mag_Field_Prscrptn",            "-",          4, 1 }},
+    { PROGRAM_OPTION::ACCRETOR_MAGNETIC_FIELD_MASS_GAIN,                        { TYPENAME::DOUBLE,     "PO_Accretor_Mag_Field_Mass_Gain",           "-",         24, 15}},
     { PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN,                   { TYPENAME::DOUBLE,     "PO_Merger_Mag_Flux_Dstrbtn_Mean",           "-",         24, 15}},
     { PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA,                  { TYPENAME::DOUBLE,     "PO_Merger_Mag_Flux_Dstrbtn_Sigma",          "-",         24, 15}},
     { PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_PER_MASS_MEAN,                       { TYPENAME::DOUBLE,     "PO_Merger_Mag_Flux_Per_Mass_Mean",          "-",         24, 15}},

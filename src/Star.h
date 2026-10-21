@@ -267,6 +267,8 @@ public:
     void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass)                                         { m_Star->UpdateAfterMerger(p_Mass, p_HydrogenMass); }
     void            RestrictSurfaceMagneticFieldToLowComponent()                                                    { m_Star->RestrictSurfaceMagneticFieldToLowComponent(); }
     void            ApplyPrimordialSurfaceMagneticField()                                                           { m_Star->ApplyPrimordialSurfaceMagneticField(); }
+    void            ResolveAccretorMagneticField()                                                                  { m_Star->ResolveAccretorMagneticField(); }
+    double          AccretorMagneticFieldTime() const                                                               { return m_Star->AccretorMagneticFieldTime(); }
     void            UpdateAgeAfterMassLoss()                                                                        { m_Star->UpdateAgeAfterMassLoss(); }
 
     void            UpdateAttributes()                                                                              { (void)UpdateAttributes(0.0, 0.0, true); }

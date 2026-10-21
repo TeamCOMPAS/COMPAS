@@ -1413,6 +1413,8 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     m_Mass0                          = m_Mass;
     m_MainSequenceCoreMass           = 0.0;
     m_ExhaustedCoreMassStart         = -1.0;                                                                     // merger product is rejuvenated - reset core hydrogen exhaustion records
+    m_AccretorMagneticFlux           = 0.0;                                                                      // a merger product is not an accretor: its field is the merger field
+    m_AccretorMagneticFieldTime      = -1.0;
     m_ExhaustedCoreMassTarget        = -1.0;
     m_ExhaustedCoreRemainingLifetime = -1.0;
     
@@ -1529,14 +1531,16 @@ void MainSequence::DecaySurfaceMagneticFlux(const double p_TauPrev) {
     if (!utils::IsOneOf(m_StellarType, MAIN_SEQUENCE)) return;                                          // later phases inherit from MainSequence
 
     double dTau = m_Tau - p_TauPrev;
-    if (dTau <= 0.0 || m_SurfaceMagneticFlux <= 0.0 || m_Mass <= OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) return;
+    if (dTau <= 0.0 || (m_SurfaceMagneticFlux <= 0.0 && m_AccretorMagneticFlux <= 0.0) || m_Mass <= OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) return;
 
     switch (OPTIONS->MainSequenceMagneticFluxDecay()) {
 
         case MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::EXPONENTIAL: {
-            double mSat  = OPTIONS->MainSequenceMagneticFluxDecayMaximumMass();                             // rate saturates above M_sat (0: none)
-            double mRate = (mSat > 0.0) ? std::min(m_Mass, mSat) : m_Mass;
-            m_SurfaceMagneticFlux *= PPOW(10.0, -OPTIONS->MainSequenceMagneticFluxDecayRate() * log10(mRate / OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) * dTau);
+            double mSat   = OPTIONS->MainSequenceMagneticFluxDecayMaximumMass();                            // rate saturates above M_sat (0: none)
+            double mRate  = (mSat > 0.0) ? std::min(m_Mass, mSat) : m_Mass;
+            double factor = PPOW(10.0, -OPTIONS->MainSequenceMagneticFluxDecayRate() * log10(mRate / OPTIONS->MainSequenceMagneticFluxDecayMinimumMass()) * dTau);
+            m_SurfaceMagneticFlux  *= factor;
+            m_AccretorMagneticFlux *= factor;                                                               // an accretor field decays from when it was made
             } break;
 
         default:

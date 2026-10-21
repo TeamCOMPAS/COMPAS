@@ -111,6 +111,9 @@ public:
     double              InitialHydrogenAbundance() const                                { return m_InitialHydrogenAbundance; }
     double              InitialMainSequenceCoreMass() const                             { return m_InitialMainSequenceCoreMass; }
     double              InitialSurfaceMagneticFieldStrength() const                     { return m_SurfaceMagneticFieldStrengthZAMS; }
+    double              AccretorMagneticFlux() const                                    { return m_AccretorMagneticFlux; }
+    double              AccretorMagneticFieldStrength() const                           { return (m_AccretorMagneticFlux > 0.0 && utils::Compare(m_Radius, 0.0) > 0) ? m_AccretorMagneticFlux / (m_Radius * m_Radius) : 0.0; }   // G; 0 if none
+    double              AccretorMagneticFieldTime() const                               { return m_AccretorMagneticFieldTime; }                 // Myr; -1 if none
     bool                IsAIC() const                                                   { return (m_SupernovaDetails.events.current & SN_EVENT::AIC) == SN_EVENT::AIC; }
     bool                IsCCSN() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::CCSN) == SN_EVENT::CCSN; }
     bool                IsHeSD() const                                                  { return (m_SupernovaDetails.events.current & SN_EVENT::HeSD) == SN_EVENT::HeSD; }
@@ -361,6 +364,7 @@ public:
     
     virtual void            UpdateAfterMerger(double p_Mass, double p_HydrogenMass) { }                                                                                             // Default is NO-OP
             void            RestrictSurfaceMagneticFieldToLowComponent();
+            void            ResolveAccretorMagneticField();
             double          StrongFieldQuantityOffset() const;                                                                                                               // log10 B - drawn log10 quantity, strong ZAMS component
             void            ApplyPrimordialSurfaceMagneticField();                                                                                                           // BSE: no strong ZAMS field for this star
     virtual void            UpdateAgeAfterMassLoss() { }                                                                                                                            // Default is NO-OP
@@ -474,6 +478,8 @@ protected:
     double                  m_Mu;                                       // Current small envelope parameter mu
     double                  m_Radius;                                   // Current radius (Rsol)
     double                  m_SurfaceMagneticFlux;                      // Current surface magnetic flux, B R^2 (G Rsol^2) - conserved, except in main sequence mergers
+    double                  m_AccretorMagneticFlux;                     // Surface magnetic flux the star would have if magnetised as an accretor (G Rsol^2; 0 if none; --accretor-magnetic-field-prescription)
+    double                  m_AccretorMagneticFieldTime;                // Time at which the accretor field was made (Myr; -1 if none)
     double                  m_Tau;                                      // Relative time
     double                  m_Temperature;                              // Current temperature (Tsol)
     double                  m_Time;                                     // Current physical time the star has been evolved (Myr)

@@ -3566,6 +3566,14 @@ void BaseBinaryStar::EvaluateBinary(const double p_Dt) {
         ResolveMassChanges();                                                                                           // apply mass loss and mass transfer as necessary
         (void)PrintDetailedOutput(m_Id, BSE_DETAILED_RECORD_TYPE::POST_MASS_RESOLUTION);                                // print (log) detailed output
 
+        if (OPTIONS->AccretorMagneticFieldPrescription() != ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::NONE &&            // accretor fields: a main sequence star
+            !HasOneOf({ STELLAR_TYPE::MASSLESS_REMNANT })) {                                                            // of an unmerged binary that has gained
+            for (BinaryConstituentStar* star : { m_Star1, m_Star2 }) {                                                  // more than the threshold of its ZAMS mass
+                if (star->AccretorMagneticFieldTime() < 0.0 && star->IsOneOf(MAIN_SEQUENCE) &&
+                    star->Mass() > (1.0 + OPTIONS->AccretorMagneticFieldMassGain()) * star->MZAMS()) star->ResolveAccretorMagneticField();
+            }
+        }
+
         if (HasStarsTouching()) {                                                                                       // if stars emerged from mass transfer as touching, it's a merger
             m_Flags.stellarMerger = true;
 		

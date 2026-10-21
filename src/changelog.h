@@ -2023,9 +2023,19 @@
 //  03.54.02  SS - October 19, 2026      - Enhancement:
 //                                       - New option --main-sequence-magnetic-flux-decay-maximum-mass (M_sat, default 0 = none): the main
 //                                         sequence surface magnetic flux decay rate saturates at its value for M_sat above M_sat.
+// 03.55.00  SS - October 21, 2026      - Enhancement:
+//                                       - Surface magnetic fields made in main sequence accretors (e.g. Plaskett's star): new options
+//                                         --accretor-magnetic-field-prescription NONE|EQUIPARTITION (default NONE) and
+//                                         --accretor-magnetic-field-mass-gain (default 0.1). With EQUIPARTITION, when a main sequence star of an
+//                                         unmerged binary has gained more than that fraction of its ZAMS mass, it is given (once) an accretor flux
+//                                         drawn as a flux per unit mass, as for EQUIPARTITION merger products, at its current mass; the flux decays
+//                                         with --main-sequence-magnetic-flux-decay from then on. It is carried alongside the fossil flux (which is
+//                                         unchanged), and logged as the new star properties ACCRETOR_MAGNETIC_FIELD_STRENGTH (G; 0 if none) and
+//                                         ACCRETOR_MAGNETIC_FIELD_TIME (Myr; -1 if none). A main sequence merger product loses its accretor field.
+//                                         Default runs are unchanged.
 
 
-const std::string VERSION_STRING = "03.54.02";
+const std::string VERSION_STRING = "03.55.00";
 
 
 # endif // __changelog_h__

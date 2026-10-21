@@ -675,6 +675,11 @@ void Options::OptionValues::Initialise() {
     m_SurfaceMagneticFieldDistributionHighQuantity.typeString       = SURFACE_MAGNETIC_FIELD_QUANTITY_LABEL.at(m_SurfaceMagneticFieldDistributionHighQuantity.type);
     m_MergerMagneticFieldFraction                                   = 1.0;
 
+    // Surface magnetic field made in main sequence accretors
+    m_AccretorMagneticFieldPrescription.type                        = ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::NONE;
+    m_AccretorMagneticFieldPrescription.typeString                  = ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION_LABEL.at(m_AccretorMagneticFieldPrescription.type);
+    m_AccretorMagneticFieldMassGain                                 = 0.1;
+
     // Surface magnetic flux decay on the main sequence
     m_MainSequenceMagneticFluxDecay.type                            = MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY::NONE;
     m_MainSequenceMagneticFluxDecay.typeString                      = MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_LABEL.at(m_MainSequenceMagneticFluxDecay.type);
@@ -1685,6 +1690,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Mean of log10(B/G) of the surface field of main sequence merger products, for --merger-magnetic-field-prescription DRAW (default = " + std::to_string(p_Options->m_MergerMagneticFieldDistributionMean) + ")").c_str()
         )
         (
+            "accretor-magnetic-field-mass-gain",
+            po::value<double>(&p_Options->m_AccretorMagneticFieldMassGain)->default_value(p_Options->m_AccretorMagneticFieldMassGain),
+            ("Fractional mass gain M / M_ZAMS - 1 of a main sequence star in an unmerged binary above which --accretor-magnetic-field-prescription makes its accretor field (default = " + std::to_string(p_Options->m_AccretorMagneticFieldMassGain) + ")").c_str()
+        )
+        (
             "merger-magnetic-field-fraction",
             po::value<double>(&p_Options->m_MergerMagneticFieldFraction)->default_value(p_Options->m_MergerMagneticFieldFraction),
             ("Fraction of main sequence merger products whose surface field is set by --merger-magnetic-field-prescription; the others keep the primary's flux (default = " + std::to_string(p_Options->m_MergerMagneticFieldFraction) + ")").c_str()
@@ -2544,6 +2554,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("What the high (strong) component of --surface-magnetic-field-distribution MAKARENKO21 and the primordial fraction draw from the log-normal (--surface-magnetic-field-distribution-high-mean/std): the field log10(B/G) (FIELD), the flux log10(Phi / G Rsol^2) at ZAMS (FLUX) or the flux per unit mass log10((Phi / M) / G Rsol^2 Msol^-1) (FLUX_PER_MASS) (" + AllowedOptionValuesFormatted("surface-magnetic-field-distribution-high-quantity") + ", default = '" + p_Options->m_SurfaceMagneticFieldDistributionHighQuantity.typeString + "')").c_str()
         )
         (
+            "accretor-magnetic-field-prescription",
+            po::value<std::string>(&p_Options->m_AccretorMagneticFieldPrescription.typeString)->default_value(p_Options->m_AccretorMagneticFieldPrescription.typeString),
+            ("Surface magnetic field made in a main sequence accretor, carried alongside the fossil field and logged as Accretor_Magnetic_Field_Strength: none (NONE), or a flux per unit mass drawn as for EQUIPARTITION merger products when the star has gained more than --accretor-magnetic-field-mass-gain of its ZAMS mass, decaying as the fossil flux from then on (EQUIPARTITION) (" + AllowedOptionValuesFormatted("accretor-magnetic-field-prescription") + ", default = '" + p_Options->m_AccretorMagneticFieldPrescription.typeString + "')").c_str()
+        )
+        (
             "merger-magnetic-field-prescription",
             po::value<std::string>(&p_Options->m_MergerMagneticFieldPrescription.typeString)->default_value(p_Options->m_MergerMagneticFieldPrescription.typeString),
             ("Surface magnetic field of main sequence merger products: the primary's flux amplified (AMPLIFY), or a field (DRAW), flux (DRAW_FLUX) or flux per unit mass (EQUIPARTITION) drawn independently of the pre-merger field (" + AllowedOptionValuesFormatted("merger-magnetic-field-prescription") + ", default = '" + p_Options->m_MergerMagneticFieldPrescription.typeString + "')").c_str()
@@ -3171,6 +3186,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Surface Magnetic Field Distribution High Quantity");
         }
 
+        if (!DEFAULTED("accretor-magnetic-field-prescription")) {                                                                   // accretor surface magnetic field
+            std::tie(found, m_AccretorMagneticFieldPrescription.type) = utils::GetMapKey(m_AccretorMagneticFieldPrescription.typeString, ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION_LABEL, m_AccretorMagneticFieldPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Accretor Magnetic Field Prescription");
+        }
+
         if (!DEFAULTED("merger-magnetic-field-prescription")) {                                                                     // merger product surface magnetic field
             std::tie(found, m_MergerMagneticFieldPrescription.type) = utils::GetMapKey(m_MergerMagneticFieldPrescription.typeString, MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL, m_MergerMagneticFieldPrescription.type);
             COMPLAIN_IF(!found, "Unknown Merger Magnetic Field Prescription");
@@ -3250,6 +3270,7 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_MergerMagneticFieldDistributionSigma < 0.0, "Merger magnetic field sigma (--merger-magnetic-field-distribution-sigma) < 0");
         COMPLAIN_IF(m_MergerMagneticFluxDistributionSigma < 0.0, "Merger magnetic flux sigma (--merger-magnetic-flux-distribution-sigma) < 0");
         COMPLAIN_IF(m_MergerMagneticFieldFraction < 0.0 || m_MergerMagneticFieldFraction > 1.0, "Merger magnetic field fraction (--merger-magnetic-field-fraction) must be between 0 and 1");
+        COMPLAIN_IF(m_AccretorMagneticFieldMassGain < 0.0, "Accretor magnetic field mass gain (--accretor-magnetic-field-mass-gain) must be >= 0");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayRate < 0.0, "Main sequence magnetic flux decay rate (--main-sequence-magnetic-flux-decay-rate) < 0");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayMinimumMass <= 0.0, "Main sequence magnetic flux decay minimum mass (--main-sequence-magnetic-flux-decay-minimum-mass) <= 0");
         COMPLAIN_IF(m_MainSequenceMagneticFluxDecayMaximumMass < 0.0 || (m_MainSequenceMagneticFluxDecayMaximumMass > 0.0 && m_MainSequenceMagneticFluxDecayMaximumMass <= m_MainSequenceMagneticFluxDecayMinimumMass), "Main sequence magnetic flux decay maximum mass (--main-sequence-magnetic-flux-decay-maximum-mass) must be 0 (none) or > the minimum mass");
@@ -3542,6 +3563,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("mode")                                              : POPULATE_RET(EVOLUTION_MODE_LABEL);                               break;
         case _("main-sequence-magnetic-flux-decay")                 : POPULATE_RET(MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY_LABEL);            break;
         case _("merger-magnetic-field-prescription")                : POPULATE_RET(MERGER_MAGNETIC_FIELD_PRESCRIPTION_LABEL);           break;
+        case _("accretor-magnetic-field-prescription")              : POPULATE_RET(ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION_LABEL);         break;
         case _("surface-magnetic-field-distribution-high-quantity") : POPULATE_RET(SURFACE_MAGNETIC_FIELD_QUANTITY_LABEL);              break;
         case _("msp-birth-magnetic-field-distribution")             : POPULATE_RET(MSP_BIRTH_MAGNETIC_FIELD_DISTRIBUTION_LABEL);        break;
         case _("msp-birth-spin-period-distribution")                : POPULATE_RET(MSP_BIRTH_SPIN_PERIOD_DISTRIBUTION_LABEL);           break;
@@ -5721,6 +5743,8 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_MEAN        : value = MergerMagneticFieldDistributionMean();                                break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_DISTRIBUTION_SIGMA       : value = MergerMagneticFieldDistributionSigma();                               break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FIELD_FRACTION                 : value = MergerMagneticFieldFraction();                                        break;
+        case PROGRAM_OPTION::ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION           : value = static_cast<int>(AccretorMagneticFieldPrescription());                break;
+        case PROGRAM_OPTION::ACCRETOR_MAGNETIC_FIELD_MASS_GAIN              : value = AccretorMagneticFieldMassGain();                                      break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_MEAN         : value = MergerMagneticFluxDistributionMean();                                 break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_DISTRIBUTION_SIGMA        : value = MergerMagneticFluxDistributionSigma();                                break;
         case PROGRAM_OPTION::MERGER_MAGNETIC_FLUX_PER_MASS_MEAN             : value = MergerMagneticFluxPerMassMean();                                      break;

@@ -48,6 +48,7 @@ protected:
         m_Radius      = 0.0;
         m_Temperature = 0.0;
         m_SurfaceMagneticFlux = 0.0;
+        m_AccretorMagneticFlux = 0.0;
     }
 
     // member functions

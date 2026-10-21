@@ -127,6 +127,8 @@ BaseStar::BaseStar(const unsigned long int p_RandomSeed,
     m_SurfaceMagneticFieldStrengthZAMS         = CalculateZAMSSurfaceMagneticFieldStrength();
     m_SurfaceMagneticFlux                      = m_SurfaceMagneticFieldStrengthZAMS * m_RZAMS * m_RZAMS;
     m_SurfaceMagneticFieldStrengthPrev         = m_SurfaceMagneticFieldStrengthZAMS;
+    m_AccretorMagneticFlux                     = 0.0;                                               // set by ResolveAccretorMagneticField()
+    m_AccretorMagneticFieldTime                = -1.0;
     if (OPTIONS->EvolutionMode() == EVOLUTION_MODE::SSE) ApplyPrimordialSurfaceMagneticField();    // BSE: applied by the binary, after its restrictions
 
     // Effective initial Zero Age Main Sequence parameters corresponding to Mass0
@@ -349,6 +351,8 @@ COMPAS_VARIABLE BaseStar::StellarPropertyValue(const T_ANY_PROPERTY p_Property) 
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE:                               value = InitialStellarType();                                   break;
         case ANY_STAR_PROPERTY::INITIAL_STELLAR_TYPE_NAME:                          value = STELLAR_TYPE_LABEL.at(InitialStellarType());            break;
         case ANY_STAR_PROPERTY::INITIAL_SURFACE_MAGNETIC_FIELD_STRENGTH:            value = InitialSurfaceMagneticFieldStrength();                  break;
+        case ANY_STAR_PROPERTY::ACCRETOR_MAGNETIC_FIELD_STRENGTH:                   value = AccretorMagneticFieldStrength();                        break;
+        case ANY_STAR_PROPERTY::ACCRETOR_MAGNETIC_FIELD_TIME:                       value = AccretorMagneticFieldTime();                            break;
         case ANY_STAR_PROPERTY::IS_AIC:                                             value = IsAIC();                                                break;
         case ANY_STAR_PROPERTY::IS_CCSN:                                            value = IsCCSN();                                               break;
         case ANY_STAR_PROPERTY::IS_HeSD:                                            value = IsHeSD();                                               break;
@@ -4390,6 +4394,35 @@ double BaseStar::StrongFieldQuantityOffset() const {
         case SURFACE_MAGNETIC_FIELD_QUANTITY::FLUX:          return -2.0 * std::log10(m_RZAMS);
         case SURFACE_MAGNETIC_FIELD_QUANTITY::FLUX_PER_MASS: return std::log10(m_MZAMS) - 2.0 * std::log10(m_RZAMS);
         default:                                             return 0.0;
+    }
+}
+
+
+/*
+ * Make the surface magnetic field of a main sequence accretor (--accretor-magnetic-field-prescription), once: called by the binary when
+ * a main sequence star of an unmerged binary has gained more than --accretor-magnetic-field-mass-gain of its ZAMS mass. The field is
+ * carried alongside the fossil field (m_SurfaceMagneticFlux, unchanged), so that post-processing can give a star the fossil field or the
+ * accretor field depending on what made it magnetic. EQUIPARTITION: flux per unit mass drawn as for EQUIPARTITION merger products
+ * (--merger-magnetic-flux-per-mass-mean, --merger-magnetic-flux-distribution-sigma), at the current mass; it then decays on the main
+ * sequence as the fossil flux does (MainSequence::DecaySurfaceMagneticFlux()) and is conserved afterwards. The draw uses a generator
+ * seeded by the star, with its own salt (independent of the ZAMS and merger draws).
+ *
+ *
+ * void ResolveAccretorMagneticField()
+ */
+void BaseStar::ResolveAccretorMagneticField() {
+    if (m_AccretorMagneticFieldTime >= 0.0) return;                                                                                // made already
+    switch (OPTIONS->AccretorMagneticFieldPrescription()) {
+        case ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::NONE: return;
+        case ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::EQUIPARTITION: {
+            std::mt19937_64 generator = MagneticFieldGenerator(0x5851F42D4C957F2DULL);
+            double log10Phi = OPTIONS->MergerMagneticFluxPerMassMean() + OPTIONS->MergerMagneticFluxDistributionSigma() * std::normal_distribution<double>(0.0, 1.0)(generator)
+                            + std::log10(m_Mass);
+            m_AccretorMagneticFlux      = PPOW(10.0, log10Phi);
+            m_AccretorMagneticFieldTime = m_Time;
+            } break;
+        default:
+            THROW_ERROR(ERROR::UNKNOWN_ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION);
     }
 }
 

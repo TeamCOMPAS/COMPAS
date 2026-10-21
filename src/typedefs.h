@@ -924,6 +924,16 @@ const COMPASUnorderedMap<MERGER_MAGNETIC_FIELD_PRESCRIPTION, std::string> MERGER
     { MERGER_MAGNETIC_FIELD_PRESCRIPTION::EQUIPARTITION, "EQUIPARTITION" }
 };
 
+// Surface magnetic field made in a main sequence accretor (e.g. Plaskett's star; Grunhut et al. 2013, Wade et al. 2026), carried
+// alongside the fossil field: NONE = none; EQUIPARTITION = when a main sequence star in an unmerged binary has gained more than
+// --accretor-magnetic-field-mass-gain of its ZAMS mass, a flux per unit mass is drawn as for EQUIPARTITION merger products
+// (--merger-magnetic-flux-per-mass-mean, --merger-magnetic-flux-distribution-sigma), Phi proportional to the mass at that time
+enum class ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION: int { NONE, EQUIPARTITION };
+const COMPASUnorderedMap<ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION, std::string> ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION_LABEL = {
+    { ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::NONE,          "NONE" },
+    { ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::EQUIPARTITION, "EQUIPARTITION" }
+};
+
 // What the high (strong) component of --surface-magnetic-field-distribution MAKARENKO21 (and the primordial fraction) draws:
 // FIELD = log10(B / G); FLUX = log10(Phi / G Rsol^2), Phi = B R_ZAMS^2; FLUX_PER_MASS = log10((Phi / M) / G Rsol^2 Msol^-1)
 enum class SURFACE_MAGNETIC_FIELD_QUANTITY: int { FIELD, FLUX, FLUX_PER_MASS };

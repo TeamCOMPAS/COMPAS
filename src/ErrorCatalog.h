@@ -187,6 +187,7 @@ enum class ERROR: int {
     UNKNOWN_PROPERTY_TYPE,                                          // unknown property type
     UNKNOWN_MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY,                      // unknown main sequence magnetic flux decay prescription
     UNKNOWN_MERGER_MAGNETIC_FIELD_PRESCRIPTION,                     // unknown merger magnetic field prescription
+    UNKNOWN_ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION,                   // unknown accretor magnetic field prescription
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION,                 // unknown pulsar birth magnetic field assumption
     UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,               // unknown pulsar birth magnetic field distribution
     UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,                  // unknown pulsar birth spin period distribution
@@ -373,6 +374,7 @@ const COMPASUnorderedMap<ERROR, std::tuple<ERROR_SCOPE, std::string>> ERROR_CATA
     { ERROR::UNKNOWN_PROPERTY_TYPE,                                 { ERROR_SCOPE::ALWAYS,              "Unknown property type" }},
     { ERROR::UNKNOWN_MAIN_SEQUENCE_MAGNETIC_FLUX_DECAY,             { ERROR_SCOPE::ALWAYS,              "Unknown main sequence magnetic flux decay prescription" }},
     { ERROR::UNKNOWN_MERGER_MAGNETIC_FIELD_PRESCRIPTION,            { ERROR_SCOPE::ALWAYS,              "Unknown merger magnetic field prescription" }},
+    { ERROR::UNKNOWN_ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION,          { ERROR_SCOPE::ALWAYS,              "Unknown accretor magnetic field prescription" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_ASSUMPTION,        { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field assumption" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_MAGNETIC_FIELD_DISTRIBUTION,      { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth magnetic field distribution" }},
     { ERROR::UNKNOWN_PULSAR_BIRTH_SPIN_PERIOD_DISTRIBUTION,         { ERROR_SCOPE::ALWAYS,              "Unknown pulsar birth spin period distribution" }},
