@@ -2033,9 +2033,13 @@
 //                                         unchanged), and logged as the new star properties ACCRETOR_MAGNETIC_FIELD_STRENGTH (G; 0 if none) and
 //                                         ACCRETOR_MAGNETIC_FIELD_TIME (Myr; -1 if none). A main sequence merger product loses its accretor field.
 //                                         Default runs are unchanged.
+// 03.55.01  SS - October 25, 2026      - Enhancement:
+//                                       - Neutron-star birth fields from accretor fields: with --accretor-magnetic-field-prescription other than
+//                                         NONE, the flux-conserved (FLUX_CONSERVATION, HYBRID) birth field of a neutron star uses the larger of its
+//                                         progenitor's fossil and accretor fluxes at collapse. Default runs are unchanged.
 
 
-const std::string VERSION_STRING = "03.55.00";
+const std::string VERSION_STRING = "03.55.01";
 
 
 # endif // __changelog_h__

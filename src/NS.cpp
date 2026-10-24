@@ -331,7 +331,8 @@ double NS::CalculateBirthMagneticField() {
 
 /*
  * Calculate the birth magnetic field (in G) of the neutron star from its progenitor's surface magnetic flux:
- * B = f Phi / R_NS^2, with f = --pulsar-birth-magnetic-flux-fraction
+ * B = f Phi / R_NS^2, with f = --pulsar-birth-magnetic-flux-fraction. With --accretor-magnetic-field-prescription other than NONE,
+ * Phi is the larger of the progenitor's fossil flux and its accretor flux at collapse.
  *
  *
  * double CalculateFluxConservedBirthMagneticField() const
@@ -340,7 +341,11 @@ double NS::CalculateBirthMagneticField() {
  */
 double NS::CalculateFluxConservedBirthMagneticField() const {
     double radius = CalculateRadiusOnPhase();                                                                   // NS radius (Rsol)
-    return OPTIONS->PulsarBirthMagneticFluxFraction() * m_SurfaceMagneticFlux / (radius * radius);
+    double flux   = m_SurfaceMagneticFlux;                                                                      // progenitor's surface flux at collapse
+    if (OPTIONS->AccretorMagneticFieldPrescription() != ACCRETOR_MAGNETIC_FIELD_PRESCRIPTION::NONE) {
+        flux = std::max(flux, m_AccretorMagneticFlux);                                                          // or its accretor flux, if larger
+    }
+    return OPTIONS->PulsarBirthMagneticFluxFraction() * flux / (radius * radius);
 }
 
 
