@@ -1,12 +1,10 @@
 # ! /usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created for Python 3
 @author: Sebastian M. Gaebel
 @email: sgaebel@star.sr.bham.ac.uk
 """
 
-from __future__ import division, print_function
 import h5py
 import numpy as np
 import os
@@ -145,11 +143,11 @@ class Interpolator:
         """
         if isinstance(first_arg, str) and isinstance(second_arg, str):
             if not os.path.isfile(first_arg):
-                raise FileNotFoundError('HDF5 file expected: %r' % first_arg)
+                raise FileNotFoundError(f'HDF5 file expected: {first_arg!r}')
             with h5py.File(first_arg, 'r') as hdf:
                 mass_axis = hdf['mass_axis'][...]
                 if second_arg not in hdf['snr_values']:
-                    raise ValueError('Group %r not found.' % second_arg)
+                    raise ValueError(f'Group {second_arg!r} not found.')
                 snr_grid = hdf['snr_values'][second_arg][...]
         else:
             mass_axis = first_arg
@@ -164,7 +162,7 @@ class Interpolator:
             self.mass_axis = np.log(mass_axis)
             self.snr_grid = snr_grid
         else:
-            raise ValueError('Invalid mode: %r' % mode)
+            raise ValueError(f'Invalid mode: {mode!r}')
 
     def __call__(self, m1, m2):
         """

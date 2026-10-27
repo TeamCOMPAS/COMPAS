@@ -108,11 +108,11 @@ def read(*parts):
 
 def find_meta(meta, meta_file=read(META_PATH)):
     meta_match = re.search(
-        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta), meta_file, re.M
+        rf"^__{meta}__ = ['\"]([^'\"]*)['\"]", meta_file, re.M
     )
     if meta_match:
         return meta_match.group(1)
-    raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
+    raise RuntimeError(f"Unable to find __{meta}__ string.")
 
 
 def find_version(version_file=read(CPP_VERSION_FILE)):

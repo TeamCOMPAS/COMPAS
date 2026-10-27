@@ -500,7 +500,7 @@ class MSSFR:
 
         SFR = 10**9 *a * (tGyrs**b * np.exp(-tGyrs/c) + d*np.exp(d*(tGyrs-t0)/c))
         if np.isnan(SFR.any()):
-            raise ValueError("Nan in SFR calculation for %s" %(self.SFRprescription))
+            raise ValueError(f"Nan in SFR calculation for {self.SFRprescription}")
         return SFR #Msun yr-1 Gpc-3 in comoving volume
 
     def SFR_Neijssel(self, z):

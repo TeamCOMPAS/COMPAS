@@ -28,7 +28,7 @@ def _make_tmp_ini(tmp_path) -> str:
     Make a temporary ini file for testing
     uncomment all default options to ensure they can be parsed
     """
-    with open(DEFAULT_CONFIG_FILE, "r") as f:
+    with open(DEFAULT_CONFIG_FILE) as f:
         lines = f.read()
         lines = lines.replace("\n#", "\n")
     ini = f"{tmp_path}/test.ini"

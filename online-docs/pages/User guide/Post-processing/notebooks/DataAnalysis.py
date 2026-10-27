@@ -227,7 +227,7 @@ m_tot_old = calculate_total_masses_naive(path_data=path_to_data)
 end     = time.time()
 time_diff_naive = end-start
 
-print('%s seconds, using for loops.' %(time_diff_naive)) 
+print(f'{time_diff_naive} seconds, using for loops.') 
 
 # %% [markdown]
 # ### I) Optimizing the above loop
@@ -297,7 +297,7 @@ m1_zams  = SPs['Mass@ZAMS(1)'][()]
 # - see numpy.isin documentation for details
 mask = np.isin(seeds_SP, seeds_DC)
 
-print("The occurrence rate of DCOs is {}/{}".format(sum(mask), len(mask)))
+print(f"The occurrence rate of DCOs is {sum(mask)}/{len(mask)}")
 
 # %%
 seeds_DC = DCs['SEED'][()]
@@ -345,9 +345,9 @@ time_diff_optimized = end-start
 n_DCos = len(seeds_DC)
 
 print('Compare')
-print('%s seconds, using For Loops.'     %(time_diff_naive)) 
-print('%s seconds, using Optimizations.' %(time_diff_optimized)) 
-print('Using %s DCO systems'             %(n_DCos))
+print(f'{time_diff_naive} seconds, using For Loops.') 
+print(f'{time_diff_optimized} seconds, using Optimizations.') 
+print(f'Using {n_DCos} DCO systems')
 
 # %% [markdown]
 # *Note:* The time difference will depend heavily on the number of systems under investigation, as well as the number of bypassed For Loops. If you used the path to the pre-generated tutorial data set, you should see very little improvement. 
@@ -402,7 +402,7 @@ time_diff_bbh = end-start
 # calculate number of BBH systems
 n_bbh = len(m_tot_bbh)
     
-print('%s seconds for all %s BBH systems.' %(time_diff_bbh, n_bbh)) 
+print(f'{time_diff_bbh} seconds for all {n_bbh} BBH systems.') 
 
 # %% [markdown]
 # Note that the `print_compas_details_dataframe` function can also optionally take a mask as argument. The mask array must have the same length as the data arrays for the given category.

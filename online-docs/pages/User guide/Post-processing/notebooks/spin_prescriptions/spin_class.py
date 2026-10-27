@@ -20,7 +20,7 @@ class calculate_spin:
         if (self.path is None):
             print("Warning: your hdf5 path is set to 'None'")
         elif not  os.path.isfile(data_path):
-            raise ValueError("h5 file not found. Wrong path given?", "path given = %s"%data_path)
+            raise ValueError("h5 file not found. Wrong path given?", f"path given = {data_path}")
         elif os.path.isfile(data_path):
             self.h5file           = h5.File(data_path)
             
@@ -364,7 +364,7 @@ class calculate_spin_olderCOMPASdata:
         if (self.path is None):
             print("Warning: your hdf5 path is set to 'None'")
         elif not  os.path.isfile(data_path):
-            raise ValueError("h5 file not found. Wrong path given?", "path given = %s"%data_path)
+            raise ValueError("h5 file not found. Wrong path given?", f"path given = {data_path}")
         elif os.path.isfile(data_path):
             self.h5file           = h5.File(data_path)
             

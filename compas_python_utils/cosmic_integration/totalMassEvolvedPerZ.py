@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 import h5py as h5
 import functools
 
-@functools.lru_cache()
+@functools.lru_cache
 def __get_imf_normalisation_values(m1=0.01, m2=0.08, m3=0.5, m4=200.0, a12=0.3, a23=1.3, a34=2.3):
     b1 = 1 / (
             (m2 ** (1 - a12) - m1 ** (1 - a12)) / (1 - a12)
