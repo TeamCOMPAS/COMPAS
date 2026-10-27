@@ -6,7 +6,7 @@ from astropy import constants as c
 
 
 
-class calculate_spin(object):
+class calculate_spin:
     """
     This class calculates the Black Hole (BH) or Neutron Star (NS) spin based on a given spin prescription
     It returns the spin of the compact object M1, and compact object M2    
@@ -350,7 +350,7 @@ class calculate_spin(object):
 
 
 
-class calculate_spin_olderCOMPASdata(object):
+class calculate_spin_olderCOMPASdata:
     """
     This class calculates the Black Hole (BH) or Neutron Star (NS) spin based on a given spin prescription
     It returns the spin of the compact object M1, and compact object M2    

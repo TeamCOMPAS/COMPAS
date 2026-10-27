@@ -5,7 +5,7 @@ import os
 import old_totalMassEvolvedPerZ as MPZ
 import astropy.units as u
 
-class COMPASData(object):
+class COMPASData:
     def __init__(
         self,
         path=None,

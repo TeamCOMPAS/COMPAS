@@ -8,7 +8,7 @@ import astropy.units as u
 
 
 
-class MSSFR(object):
+class MSSFR:
     """
     This class is to calculate the metallicity specific star formation
     rate in a specific metallicity bin.
