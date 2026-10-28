@@ -660,7 +660,7 @@ def append_rates(path, detection_rate, formation_rate, merger_rate, redshifts, C
 
     #Always close your files again ;)
     h_new.close()
-    print(('Done with append_rates :) your new files are here: {}'.format(path)))
+    print('Done with append_rates :) your new files are here: {}'.format(path))
 
 
 
