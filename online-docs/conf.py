@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
 #
@@ -223,7 +222,7 @@ html_css_files = ['css/COMPAS.css']
 
 # -- rst globals ------------------------------------------------------------- JR
 
-rst_prolog = open('globals.rst', 'r').read()
+rst_prolog = open('globals.rst').read()
 
 
 # -- shinx bibtext------------------------------------------------------------ JR

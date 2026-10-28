@@ -62,7 +62,7 @@ def gather_maximum_radius_data(folder, files, max_ev_time=13700.0):
     R_ZAMS = np.zeros(n_masses)
     maximum_radius = np.zeros((len(stellar_types) - 1, n_masses))
     for i in range(len(files)):
-        file_path = "{}/Detailed_Output/BSE_Detailed_Output_{}.h5".format(folder, files[i])
+        file_path = f"{folder}/Detailed_Output/BSE_Detailed_Output_{files[i]}.h5"
         m_1, time, stellar_type, radius = get_detailed_output_vars(file_path, ["Mass(1)",
                                                                                "Time",
                                                                                "Stellar_Type(1)",
@@ -191,7 +191,7 @@ def plot_max_R(masses, R_ZAMS, max_R, Z, mass_label_list,
 
     ax.set_xlim((np.min(masses), np.max(masses)))
 
-    ax.annotate(r"$Z = {}$".format(Z), xy=zloc, xycoords="axes fraction", ha="right", va="bottom", fontsize=0.7 * fs)
+    ax.annotate(rf"$Z = {Z}$", xy=zloc, xycoords="axes fraction", ha="right", va="bottom", fontsize=0.7 * fs)
 
     # add mass limits
     for mass, label in mass_label_list:

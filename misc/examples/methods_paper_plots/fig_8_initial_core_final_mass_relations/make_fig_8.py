@@ -134,7 +134,7 @@ def remnant_mass_across_metallicity(file, fig=None, ax=None, show=True):
             y_quantity = m_final if uni_types[i] in [10, 11, 12] else m_co_core_atCO
             ax.loglog(m_ZAMS[matching_Z][matching_type], y_quantity[matching_Z][matching_type],
                        lw=2, linestyle=style, markevery=25, color=plt.get_cmap("tab10")(i / 10),
-                       label=r"$Z = {{{}}}$".format(Z_match) if i == len(uni_types) - 1 else None)
+                       label=rf"$Z = {{{Z_match}}}$" if i == len(uni_types) - 1 else None)
 
             # for black holes also plot in the inset axis
             if uni_types[i] == 14:
@@ -161,7 +161,7 @@ def remnant_mass_prescription_comparison(prescriptions, fig=None, ax=None, show=
         fig, ax = plt.subplots(figsize=(10, 8))
 
     for file, style, label in prescriptions:
-        with h5.File("COMPAS_Output_{}/COMPAS_Output_{}.h5".format(file, file), "r") as compas:    
+        with h5.File(f"COMPAS_Output_{file}/COMPAS_Output_{file}.h5", "r") as compas:    
             m_ZAMS, m_final, Z, stellar_type = get_COMPAS_vars(compas, "SSE_System_Parameters",
                                                                ["Mass@ZAMS",
                                                                 "Mass",
