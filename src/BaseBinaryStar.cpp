@@ -2185,7 +2185,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                 // check if pulsations remove envelope in the middle of mass transfer; if so, only remove envelope up to that point during mass transfer, leave pulsation itself to next time step
                 double massPulsation    = m_Donor->Luminosity() / PPOW(10.0, OPTIONS->LuminosityToMassThreshold());     // mass at which the pulsation threshold would be passed, log_10 (L/M) = LuminosityToMassThreshold, assumes unchanged L
                 if(massPulsation > m_Donor->CoreMass()) {
-                    massDiffDonor = m_Donor->Mass() - massPulsation;
+                    massDiffDonor = massPulsation - m_Donor->Mass();
                     isEnvelopeRemoved = false;
                 }
             }
