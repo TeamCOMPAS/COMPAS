@@ -255,6 +255,26 @@ constexpr unsigned int ABSOLUTE_MAXIMUM_TIMESTEPS       = 1000000;              
 constexpr int    MAX_BSE_INITIAL_CONDITIONS_ITERATIONS  = 100;                                                      // Maximum loop iterations looking for initial conditions for binary systems
 constexpr int    MAX_TIMESTEP_RETRIES                   = 30;                                                       // Maximum retries to find a good timestep for stellar evolution
 
+// Circumbinary disk (CBD) model limits and physical prescription coefficients.
+// General timestep and option bounds are kept here, as for tides and mass loss.
+constexpr double CBD_MAXIMUM_SUPPLIED_MASS_FRACTION_PER_TIMESTEP       = 1.0E-3;  // Maximum CBD mass supplied per timestep as a fraction of current binary mass
+constexpr double CBD_MAXIMUM_ENVELOPE_MASS_FRACTION_SUPPLIED          = 0.2;     // Maximum fraction of CE mass lost allowed for the CBD reservoir
+
+// Siwek23 lookup-table domain (values outside the domain are clamped).
+constexpr double CBD_SIWEK23_Q_MIN                                    = 0.1;
+constexpr double CBD_SIWEK23_Q_MAX                                    = 1.0;
+constexpr double CBD_SIWEK23_E_MIN                                    = 0.0;
+constexpr double CBD_SIWEK23_E_MAX                                    = 0.8;
+
+// CBD-specific Eddington normalizations and TM23 retention prescription.
+constexpr double CBD_BH_EDDINGTON_RATE_AT_REFERENCE_MASS              = 4.42E-7;
+constexpr double CBD_BH_EDDINGTON_REFERENCE_MASS_MSOL                  = 10.0;
+constexpr double CBD_NS_EDDINGTON_REFERENCE_RADIUS_RSOL                = 1.4374E-5;
+constexpr double CBD_NS_EDDINGTON_RATE_AT_REFERENCE_RADIUS            = 3.0E-8;
+constexpr double CBD_WD_EDDINGTON_RATE_PER_RADIUS                      = 2.08E-3 / 1.7;
+constexpr double CBD_TM23_RETENTION_COEFFICIENT                       = 0.6;
+constexpr double CBD_TM23_RETENTION_EXPONENT                          = 0.6;
+
 constexpr double MAXIMUM_MASS_LOSS_FRACTION             = 0.001;                                                    // Maximum allowable mass loss - 0.1% (of mass) expressed as a fraction
 constexpr double MAXIMUM_RADIAL_CHANGE                  = 0.1;                                                      // Maximum allowable radial change - 10% (of radius) expressed as a fraction
 constexpr double MAXIMUM_WIND_MASS_LOSS_RATE            = 0.1;                                                      // Maximum wind mass loss rates (in solar masses per year) to avoid convergence issues

@@ -478,6 +478,11 @@ enum class BINARY_PROPERTY: int {
     NONE,
     CIRCULARIZATION_TIMESCALE,
     CIRCUMBINARY_DISK_FORMED,
+    CIRCUMBINARY_DISK_FORMATION_TIME,
+    CIRCUMBINARY_DISK_MASS_1_AT_FORMATION,
+    CIRCUMBINARY_DISK_MASS_2_AT_FORMATION,
+    CIRCUMBINARY_DISK_STELLAR_TYPE_1_AT_FORMATION,
+    CIRCUMBINARY_DISK_STELLAR_TYPE_2_AT_FORMATION,
     CIRCUMBINARY_DISK_INITIAL_MASS,
     CIRCUMBINARY_DISK_MASS_RETAINED_1,
     CIRCUMBINARY_DISK_MASS_RETAINED_2,
@@ -645,6 +650,11 @@ const COMPASUnorderedMap<BINARY_PROPERTY, std::string> BINARY_PROPERTY_LABEL = {
     { BINARY_PROPERTY::NONE,                                               "NONE" },
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                          "CIRCULARIZATION_TIMESCALE" },
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_FORMED,                            "CIRCUMBINARY_DISK_FORMED" },
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_FORMATION_TIME,                    "CIRCUMBINARY_DISK_FORMATION_TIME" },
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_1_AT_FORMATION,               "CIRCUMBINARY_DISK_MASS_1_AT_FORMATION" },
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_2_AT_FORMATION,               "CIRCUMBINARY_DISK_MASS_2_AT_FORMATION" },
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_STELLAR_TYPE_1_AT_FORMATION,       "CIRCUMBINARY_DISK_STELLAR_TYPE_1_AT_FORMATION" },
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_STELLAR_TYPE_2_AT_FORMATION,       "CIRCUMBINARY_DISK_STELLAR_TYPE_2_AT_FORMATION" },
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_INITIAL_MASS,                      "CIRCUMBINARY_DISK_INITIAL_MASS" },
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_RETAINED_1,                   "CIRCUMBINARY_DISK_MASS_RETAINED_1" },
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_RETAINED_2,                   "CIRCUMBINARY_DISK_MASS_RETAINED_2" },
@@ -833,7 +843,6 @@ enum class PROGRAM_OPTION: int {
     CIRCULARISE_BINARY_DURING_MT,
 
     CIRCUMBINARY_DISK,
-    CIRCUMBINARY_DISK_USE_SYNCHRONIZED_ENVELOPE_ANGULAR_MOMENTUM,
     CIRCUMBINARY_DISK_BETA,
     CIRCUMBINARY_DISK_EDDINGTON_CAP_FACTOR,
     CIRCUMBINARY_DISK_EDDINGTON_GE23_FACTOR,
@@ -842,7 +851,6 @@ enum class PROGRAM_OPTION: int {
     CIRCUMBINARY_DISK_LIFETIME,
     CIRCUMBINARY_DISK_STRUCTURE_FACTOR,
     CIRCUMBINARY_DISK_ENVELOPE_MASS_FRACTION_SUPPLIED,
-    CIRCUMBINARY_DISK_EVOLUTION_MODE,
     POST_COMMON_ENVELOPE_ECCENTRICITY_CAP,
     POST_COMMON_ENVELOPE_ECCENTRICITY_FRACTION,
     POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION,
@@ -1085,7 +1093,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                     "CIRCULARISE_BINARY_DURING_MT" },
 
     { PROGRAM_OPTION::CIRCUMBINARY_DISK,                              "CIRCUMBINARY_DISK" },
-    { PROGRAM_OPTION::CIRCUMBINARY_DISK_USE_SYNCHRONIZED_ENVELOPE_ANGULAR_MOMENTUM, "CIRCUMBINARY_DISK_USE_SYNCHRONIZED_ENVELOPE_ANGULAR_MOMENTUM" },
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_BETA,                         "CIRCUMBINARY_DISK_BETA" },
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_CAP_FACTOR,         "CIRCUMBINARY_DISK_EDDINGTON_CAP_FACTOR" },
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_GE23_FACTOR,        "CIRCUMBINARY_DISK_EDDINGTON_GE23_FACTOR" },
@@ -1094,7 +1101,6 @@ const COMPASUnorderedMap<PROGRAM_OPTION, std::string> PROGRAM_OPTION_LABEL = {
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_LIFETIME,                     "CIRCUMBINARY_DISK_LIFETIME" },
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_STRUCTURE_FACTOR,             "CIRCUMBINARY_DISK_STRUCTURE_FACTOR" },
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_ENVELOPE_MASS_FRACTION_SUPPLIED, "CIRCUMBINARY_DISK_ENVELOPE_MASS_FRACTION_SUPPLIED" },
-    { PROGRAM_OPTION::CIRCUMBINARY_DISK_EVOLUTION_MODE,               "CIRCUMBINARY_DISK_EVOLUTION_MODE" },
     { PROGRAM_OPTION::POST_COMMON_ENVELOPE_ECCENTRICITY_CAP,              "POST_COMMON_ENVELOPE_ECCENTRICITY_CAP" },
     { PROGRAM_OPTION::POST_COMMON_ENVELOPE_ECCENTRICITY_FRACTION,     "POST_COMMON_ENVELOPE_ECCENTRICITY_FRACTION" },
     { PROGRAM_OPTION::POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION, "POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION" },
@@ -1512,6 +1518,11 @@ const std::map<ANY_STAR_PROPERTY, PROPERTY_DETAILS> ANY_STAR_PROPERTY_DETAIL = {
 const std::map<BINARY_PROPERTY, PROPERTY_DETAILS> BINARY_PROPERTY_DETAIL = {
     { BINARY_PROPERTY::CIRCULARIZATION_TIMESCALE,                           { TYPENAME::DOUBLE,           "Tau_Circ",                  "Myr",              24, 15}},
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_FORMED,                             { TYPENAME::BOOL,             "CBD",                       "Event",             0, 0 }},
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_FORMATION_TIME,                     { TYPENAME::DOUBLE,           "Time",                      "Myr",              24, 15}},
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_1_AT_FORMATION,                { TYPENAME::DOUBLE,           "Mass(1)",                   "Msol",             24, 15}},
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_2_AT_FORMATION,                { TYPENAME::DOUBLE,           "Mass(2)",                   "Msol",             24, 15}},
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_STELLAR_TYPE_1_AT_FORMATION,        { TYPENAME::STELLAR_TYPE,     "Stellar_Type(1)",           "-",                 4, 1 }},
+    { BINARY_PROPERTY::CIRCUMBINARY_DISK_STELLAR_TYPE_2_AT_FORMATION,        { TYPENAME::STELLAR_TYPE,     "Stellar_Type(2)",           "-",                 4, 1 }},
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_INITIAL_MASS,                       { TYPENAME::DOUBLE,           "Initial_CBD_Mass",          "Msol",             24, 15}},
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_RETAINED_1,                    { TYPENAME::DOUBLE,           "CBD_Mass_Retained(1)",      "Msol",             24, 15}},
     { BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_RETAINED_2,                    { TYPENAME::DOUBLE,           "CBD_Mass_Retained(2)",      "Msol",             24, 15}},
@@ -1700,8 +1711,6 @@ const std::map<PROGRAM_OPTION, PROPERTY_DETAILS> PROGRAM_OPTION_DETAIL = {
     { PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT,                             { TYPENAME::BOOL,       "PO_Circularise@MT",                         "Flag",       0, 0 }},
 
     { PROGRAM_OPTION::CIRCUMBINARY_DISK,                                        { TYPENAME::BOOL,       "PO_CBD",                                    "Flag",       0, 0 }},
-    { PROGRAM_OPTION::CIRCUMBINARY_DISK_USE_SYNCHRONIZED_ENVELOPE_ANGULAR_MOMENTUM, { TYPENAME::BOOL,    "PO_CBD_Use_Synchronized_Envelope_AM",    "Flag",       0, 0 }},
-    { PROGRAM_OPTION::CIRCUMBINARY_DISK_EVOLUTION_MODE,                         { TYPENAME::INT,        "PO_CBD_Evolution_Mode",                    "-",          4, 1 }},
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_MODE,                         { TYPENAME::INT,        "PO_CBD_Eddington_Mode",                    "-",          4, 1 }},
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_CAP_FACTOR,                   { TYPENAME::DOUBLE,     "PO_CBD_Eddington_Cap_Factor",              "-",         24, 15}},
     { PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_GE23_FACTOR,                  { TYPENAME::DOUBLE,     "PO_CBD_Eddington_GE23_Factor",             "-",         24, 15}},
@@ -1981,12 +1990,11 @@ enum class BSE_DETAILED_RECORD_TYPE: unsigned int {                             
     STELLAR_TYPE_CHANGE_DURING_CHE_EQUILIBRATION,                                                                   //  9 - record was logged immediately following a stellar type change during mass equilibration for CHE
     POST_MT,                                                                                                        // 10 - record was logged immediately following a mass transfer event
     POST_WINDS,                                                                                                     // 11 - record was logged immediately following winds mass loss
-    POST_CEE,                                                                                                       // 12 - record was logged immediately following a common envelope event, before any instantaneous circumbinary disk interaction
+    POST_CEE,                                                                                                       // 12 - record was logged immediately following a common envelope event
     POST_SN,                                                                                                        // 13 - record was logged immediately following a supernova event
     POST_MASS_RESOLUTION,                                                                                           // 14 - record was logged immediately following mass resolution (i.e. after winds mass loss & mass transfer complete)
     POST_MASS_RESOLUTION_MERGER,                                                                                    // 15 - record was logged immediately following a merger after mass resolution
-    PRE_STELLAR_TIMESTEP,                                                                                           // 16 - record was logged immediately prior to stellar timestep (i.e. the evolution of the constituent stars for a single timestep)
-    POST_CBD                                                                                                        // 17 - record was logged immediately following instantaneous circumbinary disk evolution after a common envelope event
+    PRE_STELLAR_TIMESTEP                                                                                            // 16 - record was logged immediately prior to stellar timestep (i.e. the evolution of the constituent stars for a single timestep)
 };
 
 enum class SSE_DETAILED_RECORD_TYPE: unsigned int {                                                                 // SSE_DETAILED_OUTPUT file record type
@@ -2236,13 +2244,16 @@ const ANY_PROPERTY_VECTOR BSE_DETAILED_OUTPUT_REC = {
 // Default record definition for the BSE Circumbinary Disks logfile.
 //
 // This file is event-based: one row is written for each CBD that forms.
-// INSTANTANEOUS mode writes the row after the full interaction.  TIMESTEPPED
-// mode writes the row when the active disk is exhausted or truncated by an
-// ordinary COMPAS termination/event boundary.
+// The row is written when the active disk is exhausted or truncated by an
+// ordinary COMPAS termination/event boundary. Time, Mass(1/2), and
+// Stellar_Type(1/2) are cached at CBD formation rather than sampled at write time.
+// Initial_CBD_Mass is the disk
+// reservoir defined at formation; CBD_Mass_Supplied is the amount actually
+// processed before the row is written.
 //
 const ANY_PROPERTY_VECTOR BSE_CIRCUMBINARY_DISKS_REC = {
     BINARY_PROPERTY::RANDOM_SEED,
-    BINARY_PROPERTY::TIME,
+    BINARY_PROPERTY::CIRCUMBINARY_DISK_FORMATION_TIME,
     BINARY_PROPERTY::CIRCUMBINARY_DISK_INITIAL_MASS,
     BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_SUPPLIED,
     BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_RETAINED_1,
@@ -2251,10 +2262,10 @@ const ANY_PROPERTY_VECTOR BSE_CIRCUMBINARY_DISKS_REC = {
     BINARY_PROPERTY::CIRCUMBINARY_DISK_SEMI_MAJOR_AXIS_POST,
     BINARY_PROPERTY::CIRCUMBINARY_DISK_ECCENTRICITY_PRE,
     BINARY_PROPERTY::CIRCUMBINARY_DISK_ECCENTRICITY_POST,
-    STAR_1_PROPERTY::MASS,
-    STAR_1_PROPERTY::STELLAR_TYPE,
-    STAR_2_PROPERTY::MASS,
-    STAR_2_PROPERTY::STELLAR_TYPE
+    BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_1_AT_FORMATION,
+    BINARY_PROPERTY::CIRCUMBINARY_DISK_STELLAR_TYPE_1_AT_FORMATION,
+    BINARY_PROPERTY::CIRCUMBINARY_DISK_MASS_2_AT_FORMATION,
+    BINARY_PROPERTY::CIRCUMBINARY_DISK_STELLAR_TYPE_2_AT_FORMATION
 };
 // BSE_DOUBLE_COMPACT_OBJECT_REC
 //

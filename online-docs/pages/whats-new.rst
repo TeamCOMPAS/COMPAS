@@ -3,6 +3,10 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**Unreleased — circumbinary-disk integration**
+
+* Added post-common-envelope circumbinary disk formation and evolution following Grichener et al. (2026), including new CBD program options and the ``BSE_Circumbinary_Disks`` logfile.
+
 **03.29.00 January 30, 2026**
 * Added new tidal prescription based on Zahn (1977) and Hurley et. al (2002), called ``ZAHN1977``.
 * Renamed the ``KAPIL2025`` tides prescription to ``KAPIL2026`` to match paper date.

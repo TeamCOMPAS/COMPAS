@@ -347,38 +347,9 @@ DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will s
      - PO_CBD_Eddington_GE23_Factor
 
 
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
-
-   * - :cspan:`2` **CIRCUMBINARY_DISK_EVOLUTION_MODE**
-     -
-   * - Data type:
-     - INT
-   * - COMPAS variable:
-     - Options::m_CircumbinaryDiskEvolutionMode
-   * - Description:
-     - Value of program option ``--circumbinary-disk-evolution-mode``
-   * - Header String:
-     - PO_CBD_Evolution_Mode
 
 
-.. flat-table::
-   :widths: 25 75 1 1
-   :header-rows: 0
-   :class: aligned-text
 
-   * - :cspan:`2` **CIRCUMBINARY_DISK_USE_SYNCHRONIZED_ENVELOPE_ANGULAR_MOMENTUM**
-     -
-   * - Data type:
-     - BOOL
-   * - COMPAS variable:
-     - Options::m_CircumbinaryDiskUseSynchronizedEnvelopeAngularMomentum
-   * - Description:
-     - Value of program option ``--circumbinary-disk-use-synchronized-envelope-angular-momentum``
-   * - Header String:
-     - PO_CBD_Use_Synchronized_Envelope_AM
 
 .. flat-table::
    :widths: 25 75 1 1

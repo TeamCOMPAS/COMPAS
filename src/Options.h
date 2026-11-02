@@ -474,11 +474,9 @@ private:
         "circumbinary-disk-eddington-ge23-factor",
         "circumbinary-disk-eddington-mode",
         "circumbinary-disk-envelope-mass-fraction-supplied",
-        "circumbinary-disk-evolution-mode",
         "circumbinary-disk-inner-radius-over-separation",
         "circumbinary-disk-lifetime",
         "circumbinary-disk-structure-factor",
-        "circumbinary-disk-use-synchronized-envelope-angular-momentum",
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-alpha", 
         "common-envelope-alpha-thermal",
@@ -609,11 +607,9 @@ private:
         "circumbinary-disk-eddington-ge23-factor",
         "circumbinary-disk-eddington-mode",
         "circumbinary-disk-envelope-mass-fraction-supplied",
-        "circumbinary-disk-evolution-mode",
         "circumbinary-disk-inner-radius-over-separation",
         "circumbinary-disk-lifetime",
         "circumbinary-disk-structure-factor",
-        "circumbinary-disk-use-synchronized-envelope-angular-momentum",
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-formalism",
         "common-envelope-lambda-prescription",
@@ -1132,7 +1128,6 @@ public:
             double                                              m_PostCommonEnvelopeEccentricityCap;                              // Eccentricity cap assigned after common envelope evolution when requested
             double                                              m_PostCommonEnvelopeEccentricityFraction;                      // Fraction of the pre-RLOF eccentricity retained after common envelope evolution when requested
             bool                                                m_CircumbinaryDisk;                                             // Whether to apply post-CE CBD evolution where the formation criterion is satisfied
-            bool                                                m_CircumbinaryDiskUseSynchronizedEnvelopeAngularMomentum;       // Whether to use the synchronized-envelope angular-momentum estimate for CBD formation
             double                                              m_CircumbinaryDiskBeta;                                         // CBD angular-momentum parameter beta = fJ/fM
             ENUM_OPT<CIRCUMBINARY_DISK_EDDINGTON_MODE>          m_CircumbinaryDiskEddingtonMode;                                // CBD Eddington-limited accretion mode: CAP, GE23, or TM23
             double                                              m_CircumbinaryDiskEddingtonCapFactor;                           // CAP-mode multiplier applied to the Eddington rate
@@ -1141,7 +1136,6 @@ public:
             double                                              m_CircumbinaryDiskLifetime;                                     // CBD lifetime in yr
             double                                              m_CircumbinaryDiskStructureFactor;                              // Disk-structure factor multiplying the CBD angular-momentum threshold
             double                                              m_CircumbinaryDiskEnvelopeMassFractionSupplied;                 // Fraction of CE mass loss supplied through a CBD; assumed to yield initial m_CBD << post-CE binary mass
-            ENUM_OPT<CIRCUMBINARY_DISK_EVOLUTION_MODE>          m_CircumbinaryDiskEvolutionMode;                                // INSTANTANEOUS evolves the full CBD during CE; TIMESTEPPED evolves it over later COMPAS timesteps
 
             // Common Envelope options
             double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter
@@ -1474,7 +1468,6 @@ public:
     bool                                        CommandLineGrid() const                                                 { return m_CmdLine.complexOptionValues.size() != 0; }
     
     bool                                        CircumbinaryDisk() const                                                { return OPT_VALUE("circumbinary-disk", m_CircumbinaryDisk, true); }
-    bool                                        CircumbinaryDiskUseSynchronizedEnvelopeAngularMomentum() const          { return OPT_VALUE("circumbinary-disk-use-synchronized-envelope-angular-momentum", m_CircumbinaryDiskUseSynchronizedEnvelopeAngularMomentum, true); }
     double                                      CircumbinaryDiskBeta() const                                            { return OPT_VALUE("circumbinary-disk-beta", m_CircumbinaryDiskBeta, true); }
     CIRCUMBINARY_DISK_EDDINGTON_MODE            CircumbinaryDiskEddingtonMode() const                                   { return OPT_VALUE("circumbinary-disk-eddington-mode", m_CircumbinaryDiskEddingtonMode.type, true); }
     double                                      CircumbinaryDiskEddingtonCapFactor() const                              { return OPT_VALUE("circumbinary-disk-eddington-cap-factor", m_CircumbinaryDiskEddingtonCapFactor, true); }
@@ -1483,7 +1476,6 @@ public:
     double                                      CircumbinaryDiskLifetime() const                                         { return OPT_VALUE("circumbinary-disk-lifetime", m_CircumbinaryDiskLifetime, true); }
     double                                      CircumbinaryDiskStructureFactor() const                                  { return OPT_VALUE("circumbinary-disk-structure-factor", m_CircumbinaryDiskStructureFactor, true); }
     double                                      CircumbinaryDiskEnvelopeMassFractionSupplied() const                    { return OPT_VALUE("circumbinary-disk-envelope-mass-fraction-supplied", m_CircumbinaryDiskEnvelopeMassFractionSupplied, true); }
-    CIRCUMBINARY_DISK_EVOLUTION_MODE            CircumbinaryDiskEvolutionMode() const                                   { return OPT_VALUE("circumbinary-disk-evolution-mode", m_CircumbinaryDiskEvolutionMode.type, true); }
     double                                      PostCommonEnvelopeEccentricityCap() const                                  { return OPT_VALUE("post-common-envelope-eccentricity-cap", m_PostCommonEnvelopeEccentricityCap, true); }
     double                                      PostCommonEnvelopeEccentricityFraction() const                          { return OPT_VALUE("post-common-envelope-eccentricity-fraction", m_PostCommonEnvelopeEccentricityFraction, true); }
     POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION PostCommonEnvelopeEccentricityPrescription() const                    { return OPT_VALUE("post-common-envelope-eccentricity-prescription", m_PostCommonEnvelopeEccentricityPrescription.type, true); }

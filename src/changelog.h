@@ -1703,9 +1703,16 @@
 //                                          - Fixed HeSDs not being recorded in the Supernovae logs (mentioned in issue 1350).
 //  03.29.04  IM - April 19, 2026       - Enhancement:
 //                                          - Corrected the M&M NS remnant mass prescription to never return a remnant mass larger than the CO core mass (see issue #1468)
-//  03.29.05  AG - May 26, 2026          - Defect repair:
-//                                       - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
-//  03.30.00  AG - June 05, 2026         - Enhancement:
+//  03.29.05  AG - May 26, 2026         - Defect repair:
+//                                          - Fix for generalized issue #1378: reinstate "false" fallback option for SN kick angle options (mistakenly changed to "true" in v03.00.00)
+//  03.29.06  DH - September 23, 2026    - Defect repair:
+//                                       - Fix for issue #1484: reversed interpolation factors for mass transfer stability with Ge's model q_crit, in MainSequence and HeMS
+//  03.30.00  IM - Sep 23, 2026         - Enhancement:
+//                                          - Include the possibility of pulsational (L/M threshold) mass loss in the middle of a thermal-timescale mass transfer episode that removes entire envelope
+//                                          - Add option (MIN) to lose specific angular momentum during non-conservative mass transfer that is the smaller of isotropic re-emission and Jeans mode mass loss
+//                                      - Defect repair:
+//                                          - Corrected orbital separation re-computation following pulsational (L/M threshold) mass loss
+//  03.31.00  AG - November 01, 2026    - Enhancement:
 //                                          Added a post-common-envelope circumbinary disk (CBD) framework – disabled by default - based on the formalism 
 //                                          described in Grichener et al. (2026). The framework assumes that after common-envelope 
 //                                          evolution (CEE), a fraction of the pre-RLOF envelope mass and the binary's total angular 
@@ -1733,7 +1740,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.30.00";
+const std::string VERSION_STRING = "03.31.00";
 
 
 # endif // __changelog_h__

@@ -719,13 +719,13 @@ double HeMS::InterpolateGeEtAlQCrit() {
     double logRadius = log10(m_Radius);
     double qCritLowerMass = (logRadius < lowerLogRadiusLowerMass) ? qLowLow
                           : (logRadius > upperLogRadiusLowerMass) ? qLowUpp
-                          : qLowLow + (upperLogRadiusLowerMass - logRadius) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowUpp - qLowLow);
+                          : qLowLow + (logRadius - lowerLogRadiusLowerMass) / (upperLogRadiusLowerMass - lowerLogRadiusLowerMass) * (qLowUpp - qLowLow);
     double qCritUpperMass = (logRadius < lowerLogRadiusUpperMass) ? qUppLow
                           : (logRadius > upperLogRadiusUpperMass) ? qUppUpp 
-                          : qUppLow + (upperLogRadiusUpperMass - logRadius) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUpp - qUppLow);
+                          : qUppLow + (logRadius - lowerLogRadiusUpperMass) / (upperLogRadiusUpperMass - lowerLogRadiusUpperMass) * (qUppUpp - qUppLow);
 
     double logMass = log10(m_Mass);
     return   (logMass < logLowerMass) ? qCritLowerMass
            : (logMass > logUpperMass) ? qCritUpperMass
-           : qCritLowerMass + (logUpperMass - logMass) / (logUpperMass - logLowerMass) * (qCritUpperMass - qCritLowerMass);
+           : qCritLowerMass + (logMass - logLowerMass) / (logUpperMass - logLowerMass) * (qCritUpperMass - qCritLowerMass);
 }
