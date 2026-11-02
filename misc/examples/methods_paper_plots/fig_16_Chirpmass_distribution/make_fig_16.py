@@ -55,16 +55,11 @@
 # +
 import numpy as np
 import h5py as h5
-from astropy.table import Table, Column
 
-import astropy.units as u
-from astropy import constants as const
 
 import matplotlib.pyplot as plt
-from matplotlib import ticker, cm
 
 from scipy import stats
-import time 
 import sys 
 
 ######################################

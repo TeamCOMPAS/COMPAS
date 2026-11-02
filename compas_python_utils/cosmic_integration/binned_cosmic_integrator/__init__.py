@@ -1,1 +1,1 @@
-from .detection_matrix import DetectionMatrix
+from .detection_matrix import DetectionMatrix  # noqa: F401

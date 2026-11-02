@@ -1,9 +1,6 @@
 import numpy as np
-import subprocess
 import sys
 import os
-import pickle
-import itertools 
 from subprocess import call
 import yaml
 

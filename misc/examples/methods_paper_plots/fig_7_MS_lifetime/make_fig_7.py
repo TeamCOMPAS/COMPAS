@@ -21,11 +21,7 @@
 # <img src="https://compas.science/images/COMPAS_CasA.png" style="width:50%; display:block; margin:auto; margin-bottom:20px">
 
 import numpy as np
-import h5py as h5
 import matplotlib.pyplot as plt
-import astropy.constants as consts
-import matplotlib
-import astropy.units as u
 
 # +
 # make the plots pretty

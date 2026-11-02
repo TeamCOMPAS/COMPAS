@@ -7,9 +7,7 @@ from compas_python_utils.cosmic_integration.binned_cosmic_integrator.binary_popu
 import numpy as np
 
 import matplotlib.pyplot as plt
-import h5py as h5
 
-import pytest
 
 # Testvalues defined in py_tests/test_values.py
 from test_values import MAKE_PLOTS, M1_MIN, M1_MAX, M2_MIN, F_BIN

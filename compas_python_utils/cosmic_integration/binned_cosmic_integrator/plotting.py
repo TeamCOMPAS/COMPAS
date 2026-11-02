@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from corner import corner
-from typing import List, Tuple
+from typing import List
 import warnings
 from .conversions import m1_m2_to_eta_chirp_mass
 

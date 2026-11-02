@@ -1,6 +1,5 @@
 import os.path
 import time
-import pytest
 
 from compas_python_utils.detailed_evolution_plotter import plot_detailed_evolution
 

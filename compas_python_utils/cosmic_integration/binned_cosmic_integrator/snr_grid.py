@@ -1,5 +1,4 @@
-import matplotlib.pyplot as plt
-from .conversions import chirp_mass_eta_to_m1_m2, m1_m2_to_eta_chirp_mass
+from .conversions import chirp_mass_eta_to_m1_m2
 from .gpu_utils import xp
 from ..selection_effects import SNRinterpolator, detection_probability_from_snr
 from .plotting import plot_snr_grid

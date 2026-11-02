@@ -8,7 +8,6 @@ from compas_python_utils.debugging_utils import (
     get_event_history,
     get_event_strings,
     get_mt_data_tuple,
-    get_sn_data_tuple,
     print_compas_details_dataframe,
 )
 

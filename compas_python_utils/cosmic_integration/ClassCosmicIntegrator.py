@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
-import h5py  as h5
-import os
 
-import scipy.special
 from   scipy.optimize import newton
 import astropy.units as u
 
@@ -11,7 +8,6 @@ from . import ClassCOMPAS
 from . import ClassMSSFR
 from .cosmology import get_cosmology
 import selection_effects
-import totalMassEvolvedPerZ as MPZ
 class CosmicIntegrator(object):
     """
 

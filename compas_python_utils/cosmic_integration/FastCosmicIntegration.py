@@ -1,10 +1,7 @@
 import numpy as np
 import h5py  as h5
-import os
-import sys
 import time
 import matplotlib.pyplot as plt
-import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm as NormDist
 import warnings
