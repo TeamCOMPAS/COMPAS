@@ -3,7 +3,7 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
-**XX.XX.XX June 5, 2026**
+**03.31.00 November 2, 2026**
 
 * Added post-common-envelope circumbinary disk formation and evolution following Grichener et al. (2026), including new CBD program options and the ``BSE_Circumbinary_Disks`` logfile.
 
