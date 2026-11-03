@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.55.02 November 3, 2026**
+
+* Main sequence mergers using the ``MIST`` core-hydrogen prescription now use its hydrogen-processed-mass fraction in the hydrogen budget
+  and invert the core-hydrogen relation to assign remnant ages. Recalculating a fully mixed remnant preserves its supplied composition.
+  This changes MIST merger evolution; populations using that prescription should be rerun before updating quantitative conclusions.
+* Focused regression tests and the recorded baseline comparisons are included under ``cpp_tests``. Local source backup files have been removed.
+
 **03.45.00 October 14, 2026**
 
 * New options ``--electron-capture-supernova-unstripped-minimum-core-mass`` and ``--electron-capture-supernova-unstripped-maximum-core-mass`` (default off):

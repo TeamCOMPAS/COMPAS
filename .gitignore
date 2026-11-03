@@ -50,3 +50,7 @@ compas_python_utils/bundled/COMPAS-linux-x86_64/
 
 /utils/examples/*.ipynb
 /utils/examples/*.h5
+
+# Local source backups
+src/*.pre_shibazaki_cumulative_*.bak
+src/NS_original.cpp

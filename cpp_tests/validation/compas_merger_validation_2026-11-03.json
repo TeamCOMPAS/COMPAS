@@ -1,0 +1,223 @@
+{
+  "scope": "Focused COMPAS regressions and six illustrative binary configurations, not a reproduction or refit of the paper populations.",
+  "base_commit": "2e527d1d71c717ffbf570d457cf0e9d1f09eeb56",
+  "branch": "magnetars-msp",
+  "source_state": "Original validation used the working-tree implementation subsequently committed as 24b5161283543d1065ca18c7b1c20bec481c3b31.",
+  "patch_sha256": "bdafe3b913ef3cc96cee68eb7bd032d5a66b0aafe1f48d23183316b83ae5f61e",
+  "patch_applies_to_base": true,
+  "cpp_regressions": {
+    "configurations": 6,
+    "passed_checks": 2557,
+    "failures": 0,
+    "original_mist_failed_checks": 82,
+    "original_linear_passed_checks": 426
+  },
+  "binary_run_settings": {
+    "metallicity": 0.0142,
+    "random_seed": 42,
+    "eccentricity": 0,
+    "maximum_evolution_time_Myr": 40,
+    "main_sequence_mergers": true,
+    "retain_exhausted_core_evolution": true,
+    "match_hertzsprung_gap_core_mass": true,
+    "critical_mass_ratio_scope": "NS_BH_ACCRETORS",
+    "merger_magnetic_field": "EQUIPARTITION",
+    "log10_merger_flux_per_mass_mean": 4.15,
+    "merger_flux_scatter": 0,
+    "main_sequence_magnetic_flux_decay": "EXPONENTIAL",
+    "other_options": "Build defaults"
+  },
+  "binary_configurations": {
+    "fiducial": {
+      "initial_masses_Msun": [
+        14.2,
+        8.3
+      ],
+      "orbital_period_days": 1.0
+    },
+    "equal": {
+      "initial_masses_Msun": [
+        8.6,
+        8.4
+      ],
+      "orbital_period_days": 1.5
+    },
+    "wide": {
+      "initial_masses_Msun": [
+        14.2,
+        8.3
+      ],
+      "orbital_period_days": 10000.0
+    }
+  },
+  "binary_tracks": {
+    "fiducial_mist": {
+      "all_detailed_datasets_identical": false,
+      "baseline_rows": 8365,
+      "patched_rows": 8330,
+      "baseline": {
+        "first_merger_row": 228,
+        "merger_time_Myr": 2.5578625093910006,
+        "remnant_effective_age_Myr": 0.20113587896549237,
+        "remnant_mass_Msun": 20.87155703415992,
+        "core_H_at_first_merger_row": 0.7127112289412556,
+        "surface_H_at_first_merger_row": 0.700673428923084,
+        "first_compact_object_time_Myr": 12.057218015805944
+      },
+      "patched": {
+        "first_merger_row": 228,
+        "merger_time_Myr": 2.5578625093910006,
+        "remnant_effective_age_Myr": 0.43158437731192273,
+        "remnant_mass_Msun": 20.87155703415992,
+        "core_H_at_first_merger_row": 0.7052279790197131,
+        "surface_H_at_first_merger_row": 0.705227979019713,
+        "first_compact_object_time_Myr": 11.822991510956935
+      },
+      "pre_merger_datasets_identical": true
+    },
+    "fiducial_linear": {
+      "all_detailed_datasets_identical": true,
+      "baseline_rows": 8365,
+      "patched_rows": 8365,
+      "baseline": {
+        "first_merger_row": 228,
+        "merger_time_Myr": 2.5578625093910006,
+        "remnant_effective_age_Myr": 0.20113587896549237,
+        "remnant_mass_Msun": 20.87155703415992,
+        "core_H_at_first_merger_row": 0.700673428923084,
+        "surface_H_at_first_merger_row": 0.700673428923084,
+        "first_compact_object_time_Myr": 12.057218015805944
+      },
+      "patched": {
+        "first_merger_row": 228,
+        "merger_time_Myr": 2.5578625093910006,
+        "remnant_effective_age_Myr": 0.20113587896549237,
+        "remnant_mass_Msun": 20.87155703415992,
+        "core_H_at_first_merger_row": 0.700673428923084,
+        "surface_H_at_first_merger_row": 0.700673428923084,
+        "first_compact_object_time_Myr": 12.057218015805944
+      }
+    },
+    "equal_mist": {
+      "all_detailed_datasets_identical": false,
+      "baseline_rows": 9982,
+      "patched_rows": 9905,
+      "baseline": {
+        "first_merger_row": 564,
+        "merger_time_Myr": 23.699540579589012,
+        "remnant_effective_age_Myr": 1.8683681007174935,
+        "remnant_mass_Msun": 15.688893570567117,
+        "core_H_at_first_merger_row": 0.6684171741932148,
+        "surface_H_at_first_merger_row": 0.6087156533718783,
+        "first_compact_object_time_Myr": 35.628576961389975
+      },
+      "patched": {
+        "first_merger_row": 564,
+        "merger_time_Myr": 23.699540579589012,
+        "remnant_effective_age_Myr": 3.341667555618741,
+        "remnant_mass_Msun": 15.688893570567117,
+        "core_H_at_first_merger_row": 0.614597536736615,
+        "surface_H_at_first_merger_row": 0.6145975367366149,
+        "first_compact_object_time_Myr": 34.144417712323914
+      },
+      "pre_merger_datasets_identical": true
+    },
+    "equal_linear": {
+      "all_detailed_datasets_identical": true,
+      "baseline_rows": 9982,
+      "patched_rows": 9982,
+      "baseline": {
+        "first_merger_row": 564,
+        "merger_time_Myr": 23.699540579589012,
+        "remnant_effective_age_Myr": 1.8683681007174935,
+        "remnant_mass_Msun": 15.688893570567117,
+        "core_H_at_first_merger_row": 0.6087156533718783,
+        "surface_H_at_first_merger_row": 0.6087156533718783,
+        "first_compact_object_time_Myr": 35.628576961389975
+      },
+      "patched": {
+        "first_merger_row": 564,
+        "merger_time_Myr": 23.699540579589012,
+        "remnant_effective_age_Myr": 1.8683681007174935,
+        "remnant_mass_Msun": 15.688893570567117,
+        "core_H_at_first_merger_row": 0.6087156533718783,
+        "surface_H_at_first_merger_row": 0.6087156533718783,
+        "first_compact_object_time_Myr": 35.628576961389975
+      }
+    },
+    "fiducial_brcek": {
+      "all_detailed_datasets_identical": true,
+      "baseline_rows": 8484,
+      "patched_rows": 8484,
+      "baseline": {
+        "first_merger_row": 396,
+        "merger_time_Myr": 4.548843210874999,
+        "remnant_effective_age_Myr": 0.43936677063088314,
+        "remnant_mass_Msun": 20.865211927399212,
+        "core_H_at_first_merger_row": 0.6808745872945355,
+        "surface_H_at_first_merger_row": 0.6808745872945355,
+        "first_compact_object_time_Myr": 15.250653303678963
+      },
+      "patched": {
+        "first_merger_row": 396,
+        "merger_time_Myr": 4.548843210874999,
+        "remnant_effective_age_Myr": 0.43936677063088314,
+        "remnant_mass_Msun": 20.865211927399212,
+        "core_H_at_first_merger_row": 0.6808745872945355,
+        "surface_H_at_first_merger_row": 0.6808745872945355,
+        "first_compact_object_time_Myr": 15.250653303678963
+      }
+    },
+    "wide_mist": {
+      "all_detailed_datasets_identical": true,
+      "baseline_rows": 8041,
+      "patched_rows": 8041
+    }
+  },
+  "implementation_commit": "24b5161283543d1065ca18c7b1c20bec481c3b31",
+  "release_ref": "03.55.02",
+  "release_verification": {
+    "release_ref": "03.55.02",
+    "version_output": "COMPAS v03.55.02 (gsl v2.7, boost v1.79.0, HDF5 v1.13.1)",
+    "fresh_build": true,
+    "compiler": "g++ (GCC) 11.3.0",
+    "compiler_flags": "-std=c++17 -O0 -Wall",
+    "source_manifest_sha256": "82146e1b753b3435ec41f5d04a2e6db4e2325bf4c0a8e5512927e1e2d8dc0bdd",
+    "source_manifest_definition": "SHA256 of sorted paths for tracked src .cpp/.h/Makefile files and the C++ test driver, each as path + NUL + content + NUL.",
+    "regression_configurations": 6,
+    "passed_checks": 2557,
+    "failures": 0,
+    "binary_cases": {
+      "fiducial_mist": {
+        "matches_recorded_corrected_track": true,
+        "detailed_datasets": 95,
+        "rows": 8330
+      },
+      "fiducial_linear": {
+        "matches_recorded_corrected_track": true,
+        "detailed_datasets": 95,
+        "rows": 8365
+      },
+      "equal_mist": {
+        "matches_recorded_corrected_track": true,
+        "detailed_datasets": 95,
+        "rows": 9905
+      },
+      "equal_linear": {
+        "matches_recorded_corrected_track": true,
+        "detailed_datasets": 95,
+        "rows": 9982
+      },
+      "fiducial_brcek": {
+        "matches_recorded_corrected_track": true,
+        "detailed_datasets": 95,
+        "rows": 8484
+      },
+      "wide_mist": {
+        "matches_recorded_corrected_track": true,
+        "detailed_datasets": 95,
+        "rows": 8041
+      }
+    }
+  }
+}

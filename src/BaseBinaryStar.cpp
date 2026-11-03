@@ -2242,7 +2242,7 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     m_MassTransferTimescale == MT_TIMESCALE::THERMAL &&
                     m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR, STELLAR_TYPE::BLACK_HOLE })) {                                // EXTENDED_ACCRETION (NS/BH accretors only): the accretor accretes at its
                     double tX       = OPTIONS->CompactAccretorThermalMTDurationFactor() * m_Donor->CalculateThermalTimescale();  // maximum acceptance rate (at the thermal rate)
-                    double accRate  = m_FractionAccreted * donorMassLossRateThermal;                                            // for t_X = f x tau_KH(onset) (Msol/Myr, Myr)
+                    double accretionRate = m_FractionAccreted * donorMassLossRateThermal;                                            // for t_X = f x tau_KH(onset) (Msol/Myr, Myr)
 
                     if (OPTIONS->CaseBBAccretion() == CASE_BB_ACCRETION::TAURIS2015 &&
                         m_Donor->IsOneOf({ STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH })) {  // case BB/BC: the duration is set by the
@@ -2250,10 +2250,10 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                         tX = CASE_BB_DURATION_TAURIS2015_NORM * PPOW(pOrbDays, CASE_BB_DURATION_TAURIS2015_PORB_INDEX) *        // fit to the case BB durations of Tauris, Langer &
                              PPOW(m_Donor->Mass(), CASE_BB_DURATION_TAURIS2015_MASS_INDEX);                                     // Podsiadlowski (2015) and Tauris et al. (2012, 2017) (Myr)
                         if (m_Accretor->IsOneOf({ STELLAR_TYPE::NEUTRON_STAR })) {                                              // helium-rich accretion: Eddington limit higher by (1 + X) = 1.7
-                            accRate = std::min(OPTIONS->NeutronStarAccretionEfficiencyParameter() * donorMassLossRateThermal, 1.7 * accRate);
+                            accretionRate = std::min(OPTIONS->NeutronStarAccretionEfficiencyParameter() * donorMassLossRateThermal, 1.7 * accretionRate);
                         }
                     }
-                    double accreted = std::min(envMassDonor, accRate * tX);
+                    double accreted = std::min(envMassDonor, accretionRate * tX);
                     m_FractionAccreted          = accreted / envMassDonor;
                     m_AccretionDurationOverride = tX;
                 }

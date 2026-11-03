@@ -807,10 +807,10 @@ double NS::GraberFieldShape(const double p_Age) const {
     double aLate   = OPTIONS->PulsarLateMagneticFieldDecayIndex();
     double f1      = std::log1p(tYr / tau1);
     double f2      = std::log1p(tYr / tau2);
-    double fLate   = std::log1p(tYr / tauLate);
-    double lnShape = (tau2 < tauLate) ? PULSAR_GRABER_ALPHA1 * f1 + (PULSAR_GRABER_ALPHA2 - PULSAR_GRABER_ALPHA1) * f2 + (aLate - PULSAR_GRABER_ALPHA2) * fLate
-                   : (tau1 < tauLate) ? PULSAR_GRABER_ALPHA1 * f1 + (aLate - PULSAR_GRABER_ALPHA1) * fLate
-                   : aLate * fLate;
+    double logLateFactor = std::log1p(tYr / tauLate);
+    double lnShape = (tau2 < tauLate) ? PULSAR_GRABER_ALPHA1 * f1 + (PULSAR_GRABER_ALPHA2 - PULSAR_GRABER_ALPHA1) * f2 + (aLate - PULSAR_GRABER_ALPHA2) * logLateFactor
+                   : (tau1 < tauLate) ? PULSAR_GRABER_ALPHA1 * f1 + (aLate - PULSAR_GRABER_ALPHA1) * logLateFactor
+                   : aLate * logLateFactor;
     return std::exp(lnShape);
 }
 
