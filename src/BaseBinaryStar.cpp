@@ -1823,10 +1823,12 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
     double finalMass               = (1.0 - phi) * (mass1 + mass2);
     double initialHydrogenFraction = m_Star1->InitialHydrogenAbundance();
     
+    bool brcekCore1 = OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&
+                      utils::Compare(m_Star1->MZAMS(), OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0;
+    bool brcekCore2 = OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&
+                      utils::Compare(m_Star2->MZAMS(), OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0;
     double finalHydrogenMass;
-    if ((OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK) &&
-        (utils::Compare(m_Star1->MZAMS(), OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)                &&
-        (utils::Compare(m_Star2->MZAMS(), OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0)) {
+    if (brcekCore1 && brcekCore2) {
         
         // total hydrogen masses (from the core, envelope, and the intermediate region between the core and envelope)
         double hydrogenMass1 = m_Star1->HydrogenAbundanceCore() * m_Star1->MainSequenceCoreMass() + (m_Star1->HydrogenAbundanceCore() + m_Star1->HydrogenAbundanceSurface()) * (std::min(m_Star1->InitialMainSequenceCoreMass(), m_Star1->Mass()) - m_Star1->MainSequenceCoreMass()) / 2.0 + m_Star1->HydrogenAbundanceSurface() * std::max(m_Star1->Mass() - m_Star1->InitialMainSequenceCoreMass(), 0.0);
@@ -1835,7 +1837,15 @@ void BaseBinaryStar::ResolveMainSequenceMerger() {
         // final hydrogen mass in the merger product, assuming that the lost mass comes from the envelope of the star with higher surface hydrogen abundance
         finalHydrogenMass = hydrogenMass1 + hydrogenMass2 - (m_Star1->Mass() + m_Star2->Mass() - finalMass) * std::max(m_Star1->HydrogenAbundanceSurface(), m_Star2->HydrogenAbundanceSurface());
     }
-    else finalHydrogenMass = finalMass * initialHydrogenFraction - tau1 * TAMSCoreMass1 * initialHydrogenFraction - tau2 * TAMSCoreMass2 * initialHydrogenFraction;
+    else {
+        // Use the same hydrogen-processed mass as the selected MS core prescription, not a linear age
+        // fraction when MIST is selected. Explicit BRCEK cores and CHE retain their age-based mapping.
+        double processed1 = brcekCore1 || m_Star1->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
+                            ? tau1 : MainSequence::CalculateMinimumCoreMassFraction(tau1, m_Star1->Mass0());
+        double processed2 = brcekCore2 || m_Star2->StellarType() == STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS
+                            ? tau2 : MainSequence::CalculateMinimumCoreMassFraction(tau2, m_Star2->Mass0());
+        finalHydrogenMass = finalMass * initialHydrogenFraction - processed1 * TAMSCoreMass1 * initialHydrogenFraction - processed2 * TAMSCoreMass2 * initialHydrogenFraction;
+    }
        
     m_SemiMajorAxis = std::numeric_limits<float>::infinity();                                   // set separation to infinity to avoid subsequent fake interactions with a massless companion (RLOF, CE, etc.)
     

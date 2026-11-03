@@ -18,6 +18,9 @@ public:
 
     MainSequence(const BaseStar& p_BaseStar) : BaseStar(p_BaseStar) {}
 
+    // Fraction of the TAMS hydrogen-processed mass, shared by donor core growth and merger hydrogen budgets.
+    static double CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass);
+
     MT_CASE DetermineMassTransferTypeAsDonor() const                                        { return MT_CASE::A; }                                                  // Always case A
     
     const std::tuple <DBL_VECTOR, DBL_VECTOR, DBL_VECTOR> SHIKAUCHI_COEFFICIENTS = InterpolateShikauchiCoefficients(m_Metallicity);                                 // Interpolate Shikauchi coefficients for the given metallicity
@@ -64,6 +67,7 @@ protected:
     
     double          CalculateHydrogenAbundanceCoreAtPhaseEnd() const                        { return CalculateHydrogenAbundanceCoreOnPhase(); } 
     double          CalculateHydrogenAbundanceCoreFraction(const double p_Tau, const double p_Mass) const;
+    double          CalculateTauFromHydrogenAbundanceCoreFraction(const double p_Fraction, const double p_Mass) const;
     double          CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) const;                                                          
     double          CalculateHydrogenAbundanceCoreOnPhase() const                           { return CalculateHydrogenAbundanceCoreOnPhase(m_Tau); }                // Use class member variables                                 
     
@@ -72,7 +76,6 @@ protected:
     
     double          CalculateLifetimeOnPhase(const double p_Mass, const double p_TBGB) const;
 
-    double          CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass) const;
     double          CalculateMinimumCoreMassAfterCoreHydrogenExhaustion(const double p_MinimumCoreMass);
 
     double          CalculateLuminosityAtPhaseEnd(const double p_Mass) const;

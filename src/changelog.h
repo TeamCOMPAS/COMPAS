@@ -2039,6 +2039,13 @@
 //                                         progenitor's fossil and accretor fluxes at collapse. Default runs are unchanged.
 
 
+// Unreleased - November 3, 2026       - Bug fix:
+//                                       - With --main-sequence-core-hydrogen-prescription MIST, main-sequence mergers use the MIST
+//                                         hydrogen-processed-mass fraction in their hydrogen budget and invert the core-hydrogen fit
+//                                         to assign the fully mixed remnant's fractional age. Attribute recalculation now preserves
+//                                         the supplied mixed core composition. LINEAR, explicit BRCEK core compositions, and CHE
+//                                         retain their existing age mappings.
+
 const std::string VERSION_STRING = "03.55.01";
 
 

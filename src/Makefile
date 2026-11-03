@@ -154,3 +154,19 @@ $(ODIR)/%.o: %.cpp
 clean:
 	@echo "Removing generated files..."
 	@rm -rf $(ODIR) $(BDIR) COMPAS
+
+# Focused C++ regression tests. Use a fresh ODIR after changing headers, as for a normal COMPAS build.
+MERGER_TEST_EXE := $(BDIR)/test_main_sequence_mergers
+.PHONY: test-main-sequence-mergers
+
+test-main-sequence-mergers: $(MERGER_TEST_EXE)
+	$(MERGER_TEST_EXE) --main-sequence-core-hydrogen-prescription LINEAR
+	$(MERGER_TEST_EXE) --main-sequence-core-hydrogen-prescription MIST
+	$(MERGER_TEST_EXE) --main-sequence-core-hydrogen-prescription MIST --main-sequence-core-mass-prescription HURLEY
+	$(MERGER_TEST_EXE) --main-sequence-core-hydrogen-prescription LINEAR --main-sequence-core-mass-prescription BRCEK
+	$(MERGER_TEST_EXE) --main-sequence-core-hydrogen-prescription MIST --main-sequence-core-mass-prescription BRCEK
+	$(MERGER_TEST_EXE) --main-sequence-core-hydrogen-prescription MIST --main-sequence-magnetic-flux-decay EXPONENTIAL
+
+$(MERGER_TEST_EXE): $(filter-out $(ODIR)/main.o,$(OBJS)) ../cpp_tests/test_main_sequence_mergers.cpp
+	@mkdir -p $(BDIR)
+	$(CPP) $(CXXFLAGS) $(ICFLAGS) ../cpp_tests/test_main_sequence_mergers.cpp $(filter-out $(ODIR)/main.o,$(OBJS)) $(LFLAGS) -o $@

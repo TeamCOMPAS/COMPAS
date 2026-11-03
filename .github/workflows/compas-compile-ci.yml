@@ -9,6 +9,7 @@ on:
       - src/**
       - compas_python_utils/**
       - py_tests/**
+      - cpp_tests/**
       - .github/workflows/**
   push:
     branches:
@@ -46,6 +47,9 @@ jobs:
           make DOCKER_BUILD=1 CPP="g++" -j "$(nproc)" -f Makefile
           ./COMPAS -v
           echo "COMPAS build completed successfully!"
+
+      - name: Run main-sequence merger regression tests
+        run: make -C src DOCKER_BUILD=1 CPP="g++" test-main-sequence-mergers
 
       - name: Install Python dependencies
         run: |

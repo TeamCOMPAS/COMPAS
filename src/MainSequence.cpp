@@ -108,6 +108,34 @@ double MainSequence::CalculateHydrogenAbundanceCoreFraction(const double p_Tau, 
 
 
 /*
+ * Invert the selected core-hydrogen prescription for the fractional main-sequence age.
+ * Used after a fully mixed merger so a zero-time attribute update preserves the supplied composition.
+ * Bisection also covers the MIST interpolation between radiative and convective cores without a separate fit.
+ * A hydrogen-free remnant is placed at the end of the main sequence.
+ *
+ * @param   [IN]    p_Fraction                 Core hydrogen abundance relative to its initial value
+ * @param   [IN]    p_Mass                     Effective initial mass in Msol
+ * @return                                    Fractional main-sequence age in [0, 1]
+ */
+double MainSequence::CalculateTauFromHydrogenAbundanceCoreFraction(const double p_Fraction, const double p_Mass) const {
+
+    double fraction = std::min(1.0, std::max(0.0, p_Fraction));
+    if (fraction >= 1.0) return 0.0;
+    if (fraction <= 0.0) return 1.0;
+    if (OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::LINEAR) return 1.0 - fraction;
+
+    double lower = 0.0;
+    double upper = 1.0;
+    for (int i = 0; i < 64; i++) {
+        double mid = lower + 0.5 * (upper - lower);
+        if (CalculateHydrogenAbundanceCoreFraction(mid, p_Mass) > fraction) lower = mid;
+        else                                                             upper = mid;
+    }
+    return lower + 0.5 * (upper - lower);
+}
+
+
+/*
  * Calculate timescales in units of Myr
  *
  * Timescales depend on a star's mass, so this needs to be called at least each timestep
@@ -1169,8 +1197,8 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
 
 
 /*
- * Calculate the fraction of the TAMS core mass used for the minimum core mass of MS stars that lose mass
- * (MANDEL core mass prescription, and BRCEK below the BRCEK minimum mass)
+ * Calculate the fraction of the TAMS hydrogen-processed mass, used for the minimum core mass of MS donors
+ * (MANDEL, and BRCEK below its minimum mass) and for the hydrogen budget of main-sequence mergers.
  *
  * LINEAR: tau
  * MIST:   tau^k, k = 1.15 + 0.72 max(0, 1.4 - M), the hydrogen-processed mass (integral of L_H dt / (Q X_0)) relative to
@@ -1184,7 +1212,7 @@ double MainSequence::CalculateLifetimeOnPhase(const double p_Mass, const double 
  * @param   [IN]    p_Mass                      (Effective initial) mass in Msol
  * @return                                      Minimum core mass as a fraction of the TAMS core mass
  */
-double MainSequence::CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass) const {
+double MainSequence::CalculateMinimumCoreMassFraction(const double p_Tau, const double p_Mass) {
 
     if (OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::LINEAR) return p_Tau;
 
@@ -1423,7 +1451,13 @@ void MainSequence::UpdateAfterMerger(double p_Mass, double p_HydrogenMass) {
     CalculateTimescales();
     CalculateGBParams();
             
-    m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;      // assumes uniformly mixed merger product and a uniform rate of H fusion on main sequence
+    bool brcekCore = OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&
+                     utils::Compare(m_MZAMS, OPTIONS->MainSequenceCoreMassBrcekMinimumMass()) >= 0;
+    m_Tau = (initialHydrogenFraction - p_HydrogenMass / m_Mass) / initialHydrogenFraction;      // LINEAR, explicit BRCEK composition and CHE retain their age mapping
+    if (!brcekCore && m_StellarType != STELLAR_TYPE::CHEMICALLY_HOMOGENEOUS &&
+        OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::MIST) {
+        m_Tau = CalculateTauFromHydrogenAbundanceCoreFraction(p_HydrogenMass / (m_Mass * initialHydrogenFraction), m_Mass0);
+    }
     
     m_Age = m_Tau * timescales(tMS);
     
