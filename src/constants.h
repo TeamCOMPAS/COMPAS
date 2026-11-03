@@ -380,7 +380,8 @@ constexpr double Q_CNO                                  = 9.9073E4;             
 // Fits to the core hydrogen abundance and hydrogen-processed mass of MIST v2.5 ([Fe/H] = 0, [a/Fe] = 0, v/vcrit = 0) stellar tracks (https://mist.science)
 // between ZAMS and TAMS (X_c = 1E-12), used when --main-sequence-core-hydrogen-prescription = MIST (see MainSequence::CalculateHydrogenAbundanceCoreFraction())
 // Radiative cores    (M <= MIST_RADIATIVE_CORE_MAXIMUM_MASS):  X_c / X_0 = max(0, 1 - tau / tau_0)^q, tau_0 = a0 + a1 M + a2 M^2, q = b0 + b1 M + b2 M^2 (M >= MIST_RADIATIVE_CORE_MINIMUM_MASS)
-// Convective cores   (M >= MIST_CONVECTIVE_CORE_MINIMUM_MASS): X_c / X_0 = (1 - tau^p)^q, p = c0 + c1 s, q = d0 + d1 s, s = (MIST_CONVECTIVE_CORE_MINIMUM_MASS / M)^3
+// Convective cores   (M >= MIST_CONVECTIVE_CORE_MINIMUM_MASS): X_c / X_0 = (1 - tau^p)^q, p = c0 + c1 s + c2 L, q = d0 + d1 s + d2 L, s = (MIST_CONVECTIVE_CORE_MINIMUM_MASS / M)^3,
+//                    L = max(0, log10(M / MIST_XC_HIGH_MASS_BREAK)); c0, c1, d0, d1 fitted to 1.3 - 20 Msol (v03.55.00), c2, d2 to 8 - 150 Msol (v03.55.03)
 // In between, X_c / X_0 is interpolated linearly in mass
 // Hydrogen-processed mass relative to its value at TAMS: tau^k, k = e0 + e1 max(0, e2 - M) (used to scale the MANDEL minimum core mass)
 constexpr double MIST_RADIATIVE_CORE_MINIMUM_MASS       = 0.7;                                                      // Radiative-core fit coefficients are evaluated at max(M, 0.7) Msol (lowest MIST mass fitted)
@@ -388,8 +389,9 @@ constexpr double MIST_RADIATIVE_CORE_MAXIMUM_MASS       = 1.15;                 
 constexpr double MIST_CONVECTIVE_CORE_MINIMUM_MASS      = 1.30;                                                     // Minimum mass (Msol) for which the convective-core fit is used
 const DBL_VECTOR MIST_XC_TAU0_COEFFICIENTS              = { 0.5907, 1.0543, -0.8663 };                              // a0, a1, a2
 const DBL_VECTOR MIST_XC_RADIATIVE_Q_COEFFICIENTS       = { 1.3628, 0.1727, -0.6219 };                              // b0, b1, b2
-const DBL_VECTOR MIST_XC_CONVECTIVE_P_COEFFICIENTS      = { 1.2467, -0.1960 };                                      // c0, c1
-const DBL_VECTOR MIST_XC_CONVECTIVE_Q_COEFFICIENTS      = { 0.7074, 0.1585 };                                       // d0, d1
+const DBL_VECTOR MIST_XC_CONVECTIVE_P_COEFFICIENTS      = { 1.2467, -0.1960, -0.0926 };                             // c0, c1, c2
+const DBL_VECTOR MIST_XC_CONVECTIVE_Q_COEFFICIENTS      = { 0.7074, 0.1585, 0.1133 };                               // d0, d1, d2
+constexpr double MIST_XC_HIGH_MASS_BREAK                = 8.0;                                                      // Mass (Msol) above which the high-mass terms c2 L, d2 L apply (fit unchanged below)
 const DBL_VECTOR MIST_PROCESSED_MASS_EXPONENT_COEFFICIENTS = { 1.15, 0.72, 1.4 };                                   // e0, e1, e2
 // Hydrogen-processed mass at TAMS, integral of L_H dt / (Q X_0) with Q = 6.3E18 erg/g (Msol): f0 + f1 M, fitted to MIST for M = 0.7 - 1.3 Msol (to within 5%), M clamped to that range
 // (used with --retain-exhausted-core-evolution; only needed for stars whose core hydrogen is exhausted before the end of the MS)

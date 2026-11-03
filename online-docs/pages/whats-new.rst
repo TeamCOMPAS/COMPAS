@@ -3,6 +3,13 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.55.03 November 3, 2026**
+
+* ``MIST`` core-hydrogen prescription: the convective-core fit :math:`X_c/X_0 = (1 - \tau^p)^q` was fitted to 1.3 - 20 :math:`M_\odot` and drifted
+  from MIST above that (by 0.054 at 40 and 0.10 at 150 :math:`M_\odot`). Above 8 :math:`M_\odot`, :math:`p` and :math:`q` now change linearly in
+  :math:`\log_{10} M`, fitted to MIST v2.5 up to 150 :math:`M_\odot` (to within 0.023); the fit is unchanged below 8 :math:`M_\odot`. This changes
+  the ages assigned to massive main-sequence merger products (03.55.02) and the core composition of massive MS stars.
+
 **03.55.02 November 3, 2026**
 
 * Main sequence mergers using the ``MIST`` core-hydrogen prescription now use its hydrogen-processed-mass fraction in the hydrogen budget

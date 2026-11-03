@@ -65,10 +65,14 @@ double MainSequence::CalculateHydrogenAbundanceCoreOnPhase(const double p_Tau) c
  *         - radiative cores  (M <= 1.15 Msol): X_c / X_0 = max(0, 1 - tau / tau_0)^q
  *           The core hydrogen is exhausted at tau = tau_0 (~0.9 at 0.7 Msol, ~0.66 at 1.15 Msol); the remainder of the MS is spent
  *           building up the hydrogen-exhausted core by burning in a thick shell
- *         - convective cores (M >= 1.30 Msol): X_c / X_0 = (1 - tau^p)^q
+ *         - convective cores (M >= 1.30 Msol): X_c / X_0 = (1 - tau^p)^q, with p and q depending on mass (see constants.h); above
+ *           MIST_XC_HIGH_MASS_BREAK (8 Msol) both change linearly in log10(M), because MIST X_c(tau) steepens with mass
  *         - linear interpolation in mass in between
- *         The fits reproduce the MIST tracks (0.7 - 20 Msol) to within |delta X_c| <= 0.03 for M <= 1.15 Msol and M >= 1.5 Msol, and
- *         < 0.04 for 1.3 - 1.5 Msol; MIST X_c(tau) is irregular for 1.15 - 1.3 Msol, where the interpolation is good to ~0.12
+ *         The fits reproduce the MIST tracks (0.7 - 150 Msol) to within |delta X_c| <= 0.03 for M <= 1.15 Msol and 1.5 - 8 Msol,
+ *         <= 0.023 for 8 - 150 Msol, and < 0.04 for 1.3 - 1.5 Msol; MIST X_c(tau) is irregular for 1.15 - 1.3 Msol, where the
+ *         interpolation is good to ~0.12. Without the high-mass terms (before v03.55.03) the error grew from 0.036 at 20 Msol to
+ *         0.054 at 40 Msol and 0.10 at 150 Msol. The fits are in initial mass; MIST stars above ~30 Msol lose >10 per cent of their
+ *         mass on the MS (35 per cent at 100 Msol)
  *
  * Following Hurley et al. (2000), main sequence properties are functions of the effective initial mass (m_Mass0) and fractional age (tau)
  *
@@ -94,8 +98,9 @@ double MainSequence::CalculateHydrogenAbundanceCoreFraction(const double p_Tau, 
 
     auto convectiveCoreFraction = [tau](const double p_M) {
         double s = PPOW(MIST_CONVECTIVE_CORE_MINIMUM_MASS / std::max(p_M, MIST_CONVECTIVE_CORE_MINIMUM_MASS), 3.0);
-        double p = MIST_XC_CONVECTIVE_P_COEFFICIENTS[0] + MIST_XC_CONVECTIVE_P_COEFFICIENTS[1] * s;
-        double q = MIST_XC_CONVECTIVE_Q_COEFFICIENTS[0] + MIST_XC_CONVECTIVE_Q_COEFFICIENTS[1] * s;
+        double L = std::max(0.0, log10(p_M / MIST_XC_HIGH_MASS_BREAK));                       // high-mass steepening (v03.55.03)
+        double p = MIST_XC_CONVECTIVE_P_COEFFICIENTS[0] + MIST_XC_CONVECTIVE_P_COEFFICIENTS[1] * s + MIST_XC_CONVECTIVE_P_COEFFICIENTS[2] * L;
+        double q = MIST_XC_CONVECTIVE_Q_COEFFICIENTS[0] + MIST_XC_CONVECTIVE_Q_COEFFICIENTS[1] * s + MIST_XC_CONVECTIVE_Q_COEFFICIENTS[2] * L;
         return PPOW(std::max(0.0, 1.0 - PPOW(tau, p)), q);
     };
 

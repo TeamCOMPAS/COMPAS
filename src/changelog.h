@@ -2046,7 +2046,14 @@
 //                                         the supplied mixed core composition. LINEAR, explicit BRCEK core compositions, and CHE
 //                                         retain their existing age mappings.
 
-const std::string VERSION_STRING = "03.55.02";
+// 03.55.03  SS - November 3, 2026    - Enhancement:
+//                                       - --main-sequence-core-hydrogen-prescription MIST: the convective-core fit of X_c / X_0 (fitted to
+//                                         1.3 - 20 Msol) gains high-mass terms, p and q linear in log10(M / 8 Msol) above 8 Msol, fitted to
+//                                         MIST v2.5 tracks up to 150 Msol (max |dX_c / X_0| 0.023; was 0.054 at 40 and 0.10 at 150 Msol).
+//                                         Unchanged below 8 Msol. Affects the fractional ages of massive MS merger products (03.55.02)
+//                                         and the core composition of massive MS stars.
+
+const std::string VERSION_STRING = "03.55.03";
 
 
 # endif // __changelog_h__

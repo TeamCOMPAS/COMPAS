@@ -44,6 +44,7 @@ public:
     double Lifetime() const { return this->m_Timescales[static_cast<int>(TIMESCALE::tMS)]; }
     double Flux() const { return this->m_SurfaceMagneticFlux; }
     double ProcessedFraction(double tau, double mass) const { return MainSequence::CalculateMinimumCoreMassFraction(tau, mass); }
+    double CoreHydrogenFraction(double tau, double mass) const { return MainSequence::CalculateHydrogenAbundanceCoreFraction(tau, mass); }
 };
 
 template <typename Phase>
@@ -96,7 +97,21 @@ int main(int argc, char* argv[]) {
     bool mist = OPTIONS->MainSequenceCoreHydrogenPrescription() == CORE_HYDROGEN_PRESCRIPTION::MIST;
     bool explicitCore = OPTIONS->MainSequenceCoreMassPrescription() == CORE_MASS_PRESCRIPTION::BRCEK &&
                         example.MZAMS() >= OPTIONS->MainSequenceCoreMassBrcekMinimumMass();
-    Check(Close(example.Tau(), mist && !explicitCore ? 0.3503778302887089 : 0.2), "20-Msol review example: fractional age");
+    // 0.3503778302887089 with the MIST fit of v03.55.02 (fitted to 1.3 - 20 Msol); v03.55.03 adds the high-mass terms above 8 Msol
+    Check(Close(example.Tau(), mist && !explicitCore ? 0.3248657515089267 : 0.2), "20-Msol review example: fractional age");
+
+    // MIST convective-core fit of X_c / X_0, independently: the v03.55.00 coefficients below 8 Msol (L = 0, unchanged) and the
+    // v03.55.03 high-mass terms c2 L, d2 L above it
+    for (double mass : {1.3, 5.0, 8.0, 20.0, 40.0, 100.0}) {
+        double s = std::pow(1.3 / mass, 3.0);
+        double L = std::max(0.0, std::log10(mass / 8.0));
+        double p = 1.2467 - 0.1960 * s - 0.0926 * L;
+        double q = 0.7074 + 0.1585 * s + 0.1133 * L;
+        for (double tau : {0.1, 0.5, 0.9}) {
+            double expected = mist ? std::pow(std::max(0.0, 1.0 - std::pow(tau, p)), q) : 1.0 - tau;
+            Check(Close(example.CoreHydrogenFraction(tau, mass), expected), "core hydrogen fit at M=" + std::to_string(mass) + ", tau=" + std::to_string(tau));
+        }
+    }
 
     for (double mass : {1.0, 8.0, 20.0}) {
         double tau = 0.5;
