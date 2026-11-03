@@ -1640,7 +1640,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, 
 --revised-energy-formalism-nandez-ivanova, --common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription, --post-common-envelope-eccentricity-prescription, --post-common-envelope-eccentricity-cap, --post-common-envelope-eccentricity-fraction
 
---circumbinary-disk, --circumbinary-disk-beta, --circumbinary-disk-envelope-mass-fraction-supplied, --circumbinary-disk-inner-radius-over-separation, --circumbinary-disk-lifetime, 
+--circumbinary-disk, --circumbinary-disk-beta, --circumbinary-disk-envelope-mass-fraction-supplied, --circumbinary-disk-inner-radius-over-separation, --circumbinary-disk-lifetime,
 --circumbinary-disk-structure-factor, --circumbinary-disk-eddington-mode, --circumbinary-disk-eddington-cap-factor, --circumbinary-disk-eddington-ge23-factor
 
 

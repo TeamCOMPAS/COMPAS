@@ -1713,14 +1713,14 @@
 //                                      - Defect repair:
 //                                          - Corrected orbital separation re-computation following pulsational (L/M threshold) mass loss
 //  03.31.00  AG - November 01, 2026    - Enhancement:
-//                                          Added a post-common-envelope circumbinary disk (CBD) framework – disabled by default - based on the formalism 
-//                                          described in Grichener et al. (2026). The framework assumes that after common-envelope 
-//                                          evolution (CEE), a fraction of the pre-RLOF envelope mass and the binary's total angular 
+//                                          Added a post-common-envelope circumbinary disk (CBD) framework – disabled by default - based on the formalism
+//                                          described in Grichener et al. (2026). The framework assumes that after common-envelope
+//                                          evolution (CEE), a fraction of the pre-RLOF envelope mass and the binary's total angular
 //                                          momentum (AM) might remain available for CBD formation.  If the available AM suffices to support a CBD of the retained mass, one is formed.
-//                                          The CBD is then accreted back by the binary, with the evolution based on spindler-c (*), modified to account for the Eddington accretion limit. 
+//                                          The CBD is then accreted back by the binary, with the evolution based on spindler-c (*), modified to account for the Eddington accretion limit.
 //                                          Non-accreted material is assumed to be lost in winds carrying the accretor's specific orbital angular momentum.
-//                                          CBD related output is written in a new file called BSE_Circumbinary_Disks. 
-//                                          Main user options: 
+//                                          CBD related output is written in a new file called BSE_Circumbinary_Disks.
+//                                          Main user options:
 //                                            --circumbinary-disk enables the CBD framework
 //                                            --circumbinary-disk-beta controls the likelihood of CBD formation
 //                                            --circumbinary-disk-envelope-mass-fraction-supplied controls the CBD mass

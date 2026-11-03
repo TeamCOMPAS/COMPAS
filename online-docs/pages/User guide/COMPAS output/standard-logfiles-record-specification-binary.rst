@@ -49,7 +49,7 @@ Binary Properties
    * - Header String:
      - Tau_Circ
 
- 
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0
