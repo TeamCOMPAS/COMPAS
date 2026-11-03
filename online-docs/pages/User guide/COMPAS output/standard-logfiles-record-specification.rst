@@ -50,6 +50,7 @@ Log file definitions file specification
                      "BSE_DCO_REC"          |   # BSE only
                      "BSE_SNE_REC"          |   # BSE only
                      "BSE_CEE_REC"          |   # BSE only
+					 "BSE_CBD_REC"          |   # BSE only
                      "BSE_PULSARS_REC"      |   # BSE only
                      "BSE_RLOF_REC"         |   # BSE only
                      "BSE_DETAILED_REC"     |   # BSE only

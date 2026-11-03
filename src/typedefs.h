@@ -352,6 +352,18 @@ const COMPASUnorderedMap<CASE_BB_STABILITY_PRESCRIPTION, std::string> CASE_BB_ST
     { CASE_BB_STABILITY_PRESCRIPTION::ALWAYS_UNSTABLE,         "ALWAYS_UNSTABLE" }
 };
 
+
+// circumbinary disk Eddington-limited accretion modes
+// CAP applies a user-scaled Eddington cap; GE23 applies a fixed retained
+// fraction motivated by Ghodla & Eldridge; TM23 applies the Tuna & Metzger
+// compact-object prescription.
+enum class CIRCUMBINARY_DISK_EDDINGTON_MODE: int { CAP, GE23, TM23 };
+const COMPASUnorderedMap<CIRCUMBINARY_DISK_EDDINGTON_MODE, std::string> CIRCUMBINARY_DISK_EDDINGTON_MODE_LABEL = {
+    { CIRCUMBINARY_DISK_EDDINGTON_MODE::CAP,  "CAP"  },
+    { CIRCUMBINARY_DISK_EDDINGTON_MODE::GE23, "GE23" },
+    { CIRCUMBINARY_DISK_EDDINGTON_MODE::TM23, "TM23" }
+};
+
 // common envelope cccretion prescriptions
 enum class CE_ACCRETION_PRESCRIPTION: int { ZERO, CONSTANT, UNIFORM, MACLEOD, CHEVALIER };
 const COMPASUnorderedMap<CE_ACCRETION_PRESCRIPTION, std::string> CE_ACCRETION_PRESCRIPTION_LABEL = {
@@ -760,6 +772,18 @@ const COMPASUnorderedMap<OBJECT_TYPE, std::string> OBJECT_TYPE_LABEL = {
     { OBJECT_TYPE::BINARY_STAR,             "BinaryStar" },
     { OBJECT_TYPE::BASE_BINARY_STAR,        "BaseBinaryStar" },
     { OBJECT_TYPE::BINARY_CONSTITUENT_STAR, "BinaryConstituentStar" }
+};
+
+
+// post-common-envelope eccentricity prescriptions
+// CIRCULAR uses the usual e=0 CE outcome; PRE_RLOF_CAP uses
+// min(e_pre_RLOF, eccentricity_cap); PRE_RLOF_FRACTION uses
+// eccentricity_fraction * e_pre_RLOF.
+enum class POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION: int { CIRCULAR, PRE_RLOF_CAP, PRE_RLOF_FRACTION };
+const COMPASUnorderedMap<POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION, std::string> POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION_LABEL = {
+    { POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION::CIRCULAR,          "CIRCULAR"          },
+    { POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION::PRE_RLOF_CAP,      "PRE_RLOF_CAP"      },
+    { POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION::PRE_RLOF_FRACTION, "PRE_RLOF_FRACTION" }
 };
 
 // program options origin indicator (command line or gridfile line)

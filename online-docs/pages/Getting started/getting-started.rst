@@ -11,7 +11,7 @@ To start using COMPAS, `git clone` the code, install dependencies and build COMP
 Install dependencies
 --------------------
 
-COMPAS requires a ``C++`` compiler, and the ``gsl``, ``boost``, and ``hdf5`` libraries.  ``Python`` is required for the COMPAS post-processing tools.
+COMPAS requires a ``C++`` compiler, and the ``gsl``, ``boost``, and ``hdf5`` libraries.  ``Python`` is required for the COMPAS post-processing tools. Use of the circumbinary disk module requires installing `spindler-c <https://github.com/ruggero-valli/spindler-c>`_.
 
 
 .. tabs::

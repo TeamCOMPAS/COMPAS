@@ -68,9 +68,22 @@ SOURCES :=						\
 								\
 	BinaryConstituentStar.cpp   \
 	BaseBinaryStar.cpp          \
+	CircumbinaryDiskFormation.cpp       \
 	BinaryStar.cpp              \
 								\
 	main.cpp
+
+# Optional spindler-c backend.  Default OFF keeps ordinary COMPAS builds
+# independent of the external spindler-c and librinterpolate libraries.
+# To enable the backend, either set this here or provide it on the make command
+# line, e.g. make SPINDLER_C_ROOT=/path/to/spindler-c
+SPINDLER_C_ROOT ?=
+
+ifneq ($(strip $(SPINDLER_C_ROOT)),)
+SOURCES += CircumbinaryDiskEvolutionSpindler.cpp
+else
+SOURCES += CircumbinaryDiskEvolutionUnavailable.cpp
+endif
 
 OBJS := $(patsubst %.cpp,$(ODIR)/%.o,$(SOURCES))
 
@@ -85,6 +98,50 @@ BOOSTLIBDIR ?= /lib
 # hdf5 directories
 HDF5INCDIR ?= /usr/include/hdf5/serial
 HDF5LIBDIR ?= /usr/lib/$(shell $(CPP) -print-multiarch)/hdf5/serial
+
+# spindler-c include/link flags are populated only when SPINDLER_C_ROOT is
+# nonempty.
+SPINDLER_C_CPPFLAGS :=
+SPINDLER_C_LDFLAGS :=
+SPINDLER_C_LIBS :=
+
+ifneq ($(strip $(SPINDLER_C_ROOT)),)
+
+SPINDLER_C_INCDIR ?= $(SPINDLER_C_ROOT)/include
+SPINDLER_C_LIBDIR ?= $(SPINDLER_C_ROOT)/lib
+
+# librinterpolate is a dependency of spindler-c, linked as -lrinterpolate.
+# Leave RINTERPOLATE_ROOT empty if librinterpolate is installed in a standard
+# compiler/linker search path. Otherwise, set it here or on the make command
+# line, e.g. make SPINDLER_C_ROOT=/path/to/spindler-c RINTERPOLATE_ROOT=/path/to/rinterpolate
+RINTERPOLATE_ROOT ?=
+RINTERPOLATE_INCDIR ?=
+RINTERPOLATE_LIBDIR ?=
+
+ifneq ($(strip $(RINTERPOLATE_ROOT)),)
+ifeq ($(strip $(RINTERPOLATE_INCDIR)),)
+RINTERPOLATE_INCDIR := $(RINTERPOLATE_ROOT)/include
+endif
+ifeq ($(strip $(RINTERPOLATE_LIBDIR)),)
+RINTERPOLATE_LIBDIR := $(RINTERPOLATE_ROOT)/lib
+endif
+endif
+
+SPINDLER_C_CPPFLAGS += -DCOMPAS_ENABLE_SPINDLER_C
+SPINDLER_C_CPPFLAGS += -I$(SPINDLER_C_INCDIR)
+ifneq ($(strip $(RINTERPOLATE_INCDIR)),)
+SPINDLER_C_CPPFLAGS += -I$(RINTERPOLATE_INCDIR)
+endif
+SPINDLER_C_CPPFLAGS += -DSPINDLER_C_ROOT=\"$(SPINDLER_C_ROOT)\"
+SPINDLER_C_LDFLAGS += -L$(SPINDLER_C_LIBDIR) \
+                      -Wl,-rpath,$(SPINDLER_C_LIBDIR)
+ifneq ($(strip $(RINTERPOLATE_LIBDIR)),)
+SPINDLER_C_LDFLAGS += -L$(RINTERPOLATE_LIBDIR) \
+                      -Wl,-rpath,$(RINTERPOLATE_LIBDIR)
+endif
+SPINDLER_C_LIBS += -lspindler -lrinterpolate
+
+endif
 
 # Homebrew defaults for macOS local builds
 ifeq ($(UNAME_S),Darwin)
@@ -108,7 +165,7 @@ endif
 # might need -Wno-vla-cxx-extension for clang>18?
 EXTRA_WARN_SUPPRESS := -Wno-vla-extension 
 
-CXXFLAGS := -std=c++17 -Wall $(OPTFLAGS) $(CXXFLAGS_SPECIFIC) $(EXTRA_WARN_SUPPRESS)
+CXXFLAGS := -std=c++17 -Wall $(OPTFLAGS) $(CXXFLAGS_SPECIFIC) $(EXTRA_WARN_SUPPRESS) $(SPINDLER_C_CPPFLAGS)
 ICFLAGS := -I$(GSLINCDIR) -I$(BOOSTINCDIR) -I$(HDF5INCDIR) -I.
 
 LIBS := -lm -lz -ldl -lpthread
@@ -120,7 +177,7 @@ ifeq ($(wildcard $(BOOSTLIBDIR)/libboost_system*),)
 endif
 endif
 HDF5LIBS := -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5
-LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) -Xlinker -rpath -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS) $(LFLAGS_SPECIFIC)
+LFLAGS := -L$(GSLLIBDIR) -L$(BOOSTLIBDIR) -L$(HDF5LIBDIR) $(SPINDLER_C_LDFLAGS) -Xlinker -rpath -Xlinker $(BOOSTLIBDIR) $(HDF5LIBS) $(LIBS) $(GSLLIBS) $(BOOSTLIBS) $(SPINDLER_C_LIBS) $(LFLAGS_SPECIFIC)
 
 .PHONY: all static fast staticfast clean link
 

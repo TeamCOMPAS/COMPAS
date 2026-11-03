@@ -1,5 +1,5 @@
 ##~!!~## COMPAS option values
-##~!!~## File Created Mon Feb  2 10:03:24 2026 by COMPAS v03.29.00
+##~!!~## File Created Sun Nov  1 20:57:27 2026 by COMPAS v03.31.00
 ##~!!~##
 ##~!!~## The default COMPAS YAML file (``compasConfigDefault.yaml``), as distributed, has
 ##~!!~## all COMPAS option entries commented so that the COMPAS default value for the
@@ -52,6 +52,9 @@ booleanChoices:
 #    --common-envelope-lambda-nanjing-interpolate-in-metallicity: True     # Default: True
 #    --common-envelope-lambda-nanjing-use-rejuvenated-mass: False          # Default: False
 #    --revised-energy-formalism-nandez-ivanova: False                      # Default: False
+
+    ### CIRCUMBINARY DISK
+#    --circumbinary-disk: False                                            # Default: False
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --allow-non-stripped-ECSN: False                                      # Default: False
@@ -169,6 +172,17 @@ numericalChoices:
 #    --common-envelope-second-stage-beta: 0.000000                         # Default: 0.000000
 #    --common-envelope-slope-kruckow: -0.833333                            # Default: -0.833333
 #    --maximum-mass-donor-nandez-ivanova: 2.000000                         # Default: 2.000000
+#    --post-common-envelope-eccentricity-cap: 0.100000                     # Default: 0.100000
+#    --post-common-envelope-eccentricity-fraction: 0.100000                # Default: 0.100000
+
+    ### CIRCUMBINARY DISK
+#    --circumbinary-disk-beta: 3.000000                                    # Default: 3.000000
+#    --circumbinary-disk-eddington-cap-factor: 1.000000                    # Default: 1.000000
+#    --circumbinary-disk-eddington-ge23-factor: 0.666667                   # Default: 0.666667
+#    --circumbinary-disk-envelope-mass-fraction-supplied: 0.050000         # Default: 0.050000
+#    --circumbinary-disk-inner-radius-over-separation: 2.500000            # Default: 2.500000
+#    --circumbinary-disk-lifetime: 100000.00                               # Default: 100000.00
+#    --circumbinary-disk-structure-factor: 4.000000                        # Default: 4.000000
 
     ### SUPERNOVAE, KICKS AND REMNANTS
 #    --eddington-accretion-factor: 1.000000                                # Default: 1.000000                                                                                                                                                                         # multiplication Factor for eddington accretion onto NS&BH
@@ -264,7 +278,7 @@ stringChoices:
 #    --case-BB-stability-prescription: 'ALWAYS_STABLE'                     # Default: 'ALWAYS_STABLE'               # Options: ['ALWAYS_UNSTABLE','TREAT_AS_OTHER_MT','ALWAYS_STABLE_ONTO_NSBH','ALWAYS_STABLE']
 #    --critical-mass-ratio-prescription: 'NONE'                            # Default: 'NONE'                        # Options: ['HURLEY_HJELLMING_WEBBINK','GE','GE_IC','CLAEYS','NONE']
 #    --stellar-zeta-prescription: 'SOBERMAN'                               # Default: 'SOBERMAN'                    # Options: ['ARBITRARY','HURLEY','SOBERMAN']
-#    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
+#    --mass-transfer-angular-momentum-loss-prescription: 'ISOTROPIC'       # Default: 'ISOTROPIC'                   # Options: ['MIN','ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
 #    --mass-transfer-accretion-efficiency-prescription: 'THERMAL'          # Default: 'THERMAL'                     # Options: ['HAMSTARS','FIXED','THERMAL']
 #    --mass-transfer-rejuvenation-prescription: 'STARTRACK'                # Default: 'STARTRACK'                   # Options: ['STARTRACK','HURLEY']
 #    --mass-transfer-thermal-limit-accretor-multiplier: 'CFACTOR'          # Default: 'CFACTOR'                     # Options: ['ROCHELOBE','CFACTOR']
@@ -274,7 +288,11 @@ stringChoices:
 #    --common-envelope-formalism: 'ENERGY'                                 # Default: 'ENERGY'                      # Options: ['TWO_STAGE','ENERGY']
 #    --common-envelope-lambda-prescription: 'LAMBDA_NANJING'               # Default: 'LAMBDA_NANJING'              # Options: ['LAMBDA_DEWI','LAMBDA_KRUCKOW','LAMBDA_NANJING','LAMBDA_LOVERIDGE','LAMBDA_FIXED']                                                     # Xu & Li 2010
 #    --common-envelope-mass-accretion-prescription: 'ZERO'                 # Default: 'ZERO'                        # Options: ['CHEVALIER','MACLEOD','UNIFORM','CONSTANT','ZERO']
-#    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
+#    --common-envelope-second-stage-gamma-prescription: 'ISOTROPIC'        # Default: 'ISOTROPIC'                   # Options: ['MIN','ARBITRARY','KLENCKI_LINEAR','MACLEOD_LINEAR','CIRCUMBINARY','ISOTROPIC','JEANS']
+#    --post-common-envelope-eccentricity-prescription: 'CIRCULAR'          # Default: 'CIRCULAR'                    # Options: ['PRE_RLOF_FRACTION','PRE_RLOF_CAP','CIRCULAR']
+
+    ### CIRCUMBINARY DISK
+#    --circumbinary-disk-eddington-mode: 'GE23'                            # Default: 'GE23'                        # Options: ['TM23','GE23','CAP']
 
     ### TIDES
 #    --tides-prescription: 'NONE'                                          # Default: 'NONE'                        # Options: ['ZAHN1977','KAPIL2026','PERFECT','NONE']

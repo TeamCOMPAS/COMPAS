@@ -285,6 +285,7 @@ void Log::Start(const string      p_LogBasePathString,
 
         // BSE
         if (NotesPropertyPresent(m_BSE_CEE_Rec         )) m_BSE_CEE_Notes          = BOOL_VECTOR(m_BSE_CEE_Notes.size(), true);
+        if (NotesPropertyPresent(m_BSE_CBD_Rec         )) m_BSE_CBD_Notes          = BOOL_VECTOR(m_BSE_CBD_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_DCO_Rec         )) m_BSE_DCO_Notes          = BOOL_VECTOR(m_BSE_DCO_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_Detailed_Rec    )) m_BSE_Detailed_Notes     = BOOL_VECTOR(m_BSE_Detailed_Notes.size(), true);
         if (NotesPropertyPresent(m_BSE_Pulsars_Rec     )) m_BSE_Pulsars_Notes      = BOOL_VECTOR(m_BSE_Pulsars_Notes.size(), true);
@@ -2071,6 +2072,11 @@ std::tuple<ANY_PROPERTY_VECTOR, STR_VECTOR, BOOL_VECTOR> Log::GetStandardLogFile
                 annotations      = m_BSE_CEE_Notes;                                                                                 // logfile annotations
                 break;
 
+            case LOGFILE::BSE_CIRCUMBINARY_DISKS:                                                                                   // BSE_CIRCUMBINARY_DISKS
+                recordProperties = m_BSE_CBD_Rec;                                                                                   // record properties
+                annotations      = m_BSE_CBD_Notes;                                                                                 // logfile annotations
+                break;
+
             case LOGFILE::BSE_DETAILED_OUTPUT:                                                                                      // BSE_DETAILED_OUTPUT
                 recordProperties = m_BSE_Detailed_Rec;                                                                              // record properties
                 annotations      = m_BSE_Detailed_Notes;                                                                            // logfile annotations
@@ -2438,6 +2444,13 @@ LogfileDetailsT Log::StandardLogFileDetails(const LOGFILE p_Logfile, const strin
                     fileDetails.recordTypes      = OPTIONS->LogfileCommonEnvelopesRecordTypes();
                     fileDetails.recordProperties = m_BSE_CEE_Rec;
                     fileDetails.annotations      = m_BSE_CEE_Notes;
+                    break;
+
+                case LOGFILE::BSE_CIRCUMBINARY_DISKS:                                                                                           // BSE_CIRCUMBINARY_DISKS
+                    fileDetails.filename         = std::get<0>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_CIRCUMBINARY_DISKS));
+                    fileDetails.recordTypes      = {1U};
+                    fileDetails.recordProperties = m_BSE_CBD_Rec;
+                    fileDetails.annotations      = m_BSE_CBD_Notes;
                     break;
 
                 case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS:                                                                                       // BSE_DOUBLE_COMPACT_OBJECTS
@@ -3147,6 +3160,10 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
             if (p_UseDefaultProps) baseProps = m_BSE_CEE_Rec;
             baseNotes = m_BSE_CEE_Notes;
             break;
+        case LOGFILE::BSE_CIRCUMBINARY_DISKS:
+            if (p_UseDefaultProps) baseProps = m_BSE_CBD_Rec;
+            baseNotes = m_BSE_CBD_Notes;
+            break;
         case LOGFILE::BSE_DETAILED_OUTPUT:
             if (p_UseDefaultProps) baseProps = m_BSE_Detailed_Rec;
             baseNotes = m_BSE_Detailed_Notes;
@@ -3294,6 +3311,7 @@ void Log::UpdateLogfileRecordSpecs(const LOGFILE             p_Logfile,
     // replace existing props and annotations vector for given logfile
     switch (p_Logfile) {
         case LOGFILE::BSE_COMMON_ENVELOPES      : m_BSE_CEE_Rec          = newProps; m_BSE_CEE_Notes          = newNotes; break;
+        case LOGFILE::BSE_CIRCUMBINARY_DISKS   : m_BSE_CBD_Rec          = newProps; m_BSE_CBD_Notes          = newNotes; break;
         case LOGFILE::BSE_DETAILED_OUTPUT       : m_BSE_Detailed_Rec     = newProps; m_BSE_Detailed_Notes     = newNotes; break;
         case LOGFILE::BSE_DOUBLE_COMPACT_OBJECTS: m_BSE_DCO_Rec          = newProps; m_BSE_DCO_Notes          = newNotes; break;
         case LOGFILE::BSE_PULSAR_EVOLUTION      : m_BSE_Pulsars_Rec      = newProps; m_BSE_Pulsars_Notes      = newNotes; break;

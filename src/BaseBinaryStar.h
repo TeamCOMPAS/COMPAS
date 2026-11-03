@@ -44,6 +44,9 @@ public:
         m_CircularizationTimescale         = p_Star.m_CircularizationTimescale;
 
         m_CEDetails                        = p_Star.m_CEDetails;
+        m_CircumbinaryDiskDetails           = p_Star.m_CircumbinaryDiskDetails;
+        m_ActiveCircumbinaryDisk            = p_Star.m_ActiveCircumbinaryDisk;
+        m_RestartTimestepAfterImmediateEvent = p_Star.m_RestartTimestepAfterImmediateEvent;
 
         m_Unbound                          = p_Star.m_Unbound;
 
@@ -55,6 +58,7 @@ public:
         m_EccentricityAtDCOFormation       = p_Star.m_EccentricityAtDCOFormation;
         m_EccentricityInitial              = p_Star.m_EccentricityInitial;
         m_EccentricityPreSN                = p_Star.m_EccentricityPreSN;
+        m_EccentricityPreRLOF              = p_Star.m_EccentricityPreRLOF;
         m_EccentricityPrev                 = p_Star.m_EccentricityPrev;
 
         m_Flags                            = p_Star.m_Flags;
@@ -93,6 +97,7 @@ public:
         m_SemiMajorAxisAtDCOFormation      = p_Star.m_SemiMajorAxisAtDCOFormation;
         m_SemiMajorAxisInitial             = p_Star.m_SemiMajorAxisInitial;
         m_SemiMajorAxisPreSN               = p_Star.m_SemiMajorAxisPreSN;
+        m_SemiMajorAxisPreRLOF             = p_Star.m_SemiMajorAxisPreRLOF;
         m_SemiMajorAxisPrev                = p_Star.m_SemiMajorAxisPrev;
 
         m_SupernovaState                   = p_Star.m_SupernovaState;
@@ -112,6 +117,7 @@ public:
 
         m_TotalAngularMomentumPrev         = p_Star.m_TotalAngularMomentumPrev;
         m_TotalAngularMomentum             = p_Star.m_TotalAngularMomentum;
+        m_TotalAngularMomentumPreRLOF      = p_Star.m_TotalAngularMomentumPreRLOF;
 
         m_TotalEnergy                      = p_Star.m_TotalEnergy;
 
@@ -162,6 +168,20 @@ public:
     bool                CEAtLeastOnce() const                       { return m_CEDetails.CEEcount > 0; }
     unsigned int        CEEventCount() const                        { return m_CEDetails.CEEcount; }
     double              CircularizationTimescale() const            { return m_CircularizationTimescale; }
+    bool                CircumbinaryDiskFormed() const              { return m_CircumbinaryDiskDetails.formed; }
+    double              CircumbinaryDiskInitialMass() const         { return m_CircumbinaryDiskDetails.initialReservoirMass; }
+    double              CircumbinaryDiskMassSupplied() const        { return m_CircumbinaryDiskDetails.massSupplied; }
+    double              CircumbinaryDiskMassRetained1() const       { return m_CircumbinaryDiskDetails.massRetained1; }
+    double              CircumbinaryDiskMassRetained2() const       { return m_CircumbinaryDiskDetails.massRetained2; }
+    double              CircumbinaryDiskSemiMajorAxisPre() const    { return m_CircumbinaryDiskDetails.semiMajorAxisPre; }
+    double              CircumbinaryDiskSemiMajorAxisPost() const   { return m_CircumbinaryDiskDetails.semiMajorAxisPost; }
+    double              CircumbinaryDiskEccentricityPre() const     { return m_CircumbinaryDiskDetails.eccentricityPre; }
+    double              CircumbinaryDiskEccentricityPost() const    { return m_CircumbinaryDiskDetails.eccentricityPost; }
+    double              CircumbinaryDiskFormationTime() const      { return m_CircumbinaryDiskDetails.formationTime; }
+    double              CircumbinaryDiskMass1AtFormation() const   { return m_CircumbinaryDiskDetails.mass1AtFormation; }
+    double              CircumbinaryDiskMass2AtFormation() const   { return m_CircumbinaryDiskDetails.mass2AtFormation; }
+    STELLAR_TYPE        CircumbinaryDiskStellarType1AtFormation() const { return m_CircumbinaryDiskDetails.stellarType1AtFormation; }
+    STELLAR_TYPE        CircumbinaryDiskStellarType2AtFormation() const { return m_CircumbinaryDiskDetails.stellarType2AtFormation; }
     unsigned int        CommonEnvelopeEventCount() const            { return m_CEDetails.CEEcount; }
     bool                Unbound() const                             { return m_Unbound; }
     bool                DoubleCoreCE() const                        { return m_CEDetails.doubleCoreCE; }
@@ -309,6 +329,39 @@ private:
 
     BinaryCEDetailsT    m_CEDetails;                                                        // Common Event details
 
+    // Cached initial and final quantities written to one CBD event record.
+    struct CircumbinaryDiskDetailsT {
+        bool   formed            = false;                                                    // A post-CE circumbinary disk formed and was evolved
+        double initialReservoirMass = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Initial CBD reservoir intended to be supplied (Msol)
+        double massSupplied      = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Mass actually supplied to the binary through the CBD (Msol)
+        double massRetained1     = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Mass retained by star 1 during CBD accretion (Msol)
+        double massRetained2     = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Mass retained by star 2 during CBD accretion (Msol)
+        double semiMajorAxisPre  = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Semi-major axis before CBD evolution (Rsol)
+        double semiMajorAxisPost = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Semi-major axis after CBD evolution (Rsol)
+        double eccentricityPre   = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Eccentricity before CBD evolution
+        double eccentricityPost  = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Eccentricity after CBD evolution
+        double formationTime     = DEFAULT_INITIAL_DOUBLE_VALUE;                             // COMPAS time at CBD formation (Myr)
+        double mass1AtFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Star 1 mass at CBD formation (Msol)
+        double mass2AtFormation  = DEFAULT_INITIAL_DOUBLE_VALUE;                             // Star 2 mass at CBD formation (Msol)
+        STELLAR_TYPE stellarType1AtFormation = STELLAR_TYPE::NONE;                           // Star 1 type at CBD formation
+        STELLAR_TYPE stellarType2AtFormation = STELLAR_TYPE::NONE;                           // Star 2 type at CBD formation
+    }                   m_CircumbinaryDiskDetails{};
+
+    // Persistent reservoir and delivery state for an active CBD that is
+    // still being evolved alongside ordinary COMPAS timesteps.
+    struct ActiveCircumbinaryDiskT {
+        bool   active                    = false;                                             // CBD is currently draining over ordinary COMPAS timesteps
+        double initialReservoirMass      = 0.0;                                               // Intended mass of CBD reservoir at formation (Msol)
+        double remainingReservoirMass    = 0.0;                                               // CBD reservoir mass not yet supplied (Msol)
+        double supplyRateMsolPerYear     = 0.0;                                               // Uniform CBD supply rate (Msol yr^-1)
+        double remainingLifetimeYears    = 0.0;                                               // CBD lifetime still to be evolved (yr)
+        double massSupplied             = 0.0;                                               // Cumulative mass actually supplied through the CBD (Msol)
+        double massRetained1            = 0.0;                                               // Cumulative CBD-supplied mass retained by star 1 (Msol)
+        double massRetained2            = 0.0;                                               // Cumulative CBD-supplied mass retained by star 2 (Msol)
+    }                   m_ActiveCircumbinaryDisk{};
+
+    bool                m_RestartTimestepAfterImmediateEvent;                                // Restart the timestep before aging stars after an instantaneous event
+
     double              m_CircularizationTimescale;
    
     bool                m_Unbound;                                                          // Binary unbound?
@@ -319,6 +372,7 @@ private:
     double              m_EccentricityAtDCOFormation;                                       // Eccentricity at DCO formation
     double              m_EccentricityInitial;                                              // Record initial eccentricity
     double              m_EccentricityPreSN;                                                // Eccentricity prior to supernova
+    double              m_EccentricityPreRLOF;                                              // Eccentricity immediately before first RLOF in the current episode
     double              m_EccentricityPrev;                                                 // Eccentricity at previous timestep
 
     struct FLAGS {                                                                          // Miscellaneous flags
@@ -365,6 +419,7 @@ private:
     double              m_SemiMajorAxisAtDCOFormation;                                      // Semi-major axis at DCO formation
     double              m_SemiMajorAxisInitial;                                             // Record initial semi-major axis
     double              m_SemiMajorAxisPreSN;                                               // Semi-major axis prior to supernova
+    double              m_SemiMajorAxisPreRLOF;                                             // Semi-major axis immediately before first RLOF in the current episode
     double              m_SemiMajorAxisPrev;                                                // Semi-major axis at previous timestep
 
     SN_STATE            m_SupernovaState;                                                   // Indicates which star (or stars) are undergoing / have undergone a supernova event
@@ -384,6 +439,7 @@ private:
     double              m_DCOFormationTime;                                                 // Time of DCO formation
 
     double              m_TotalAngularMomentum;
+    double              m_TotalAngularMomentumPreRLOF;
     double              m_TotalAngularMomentumPrev;
 
     double              m_TotalEnergy;
@@ -493,6 +549,22 @@ private:
 
     void    EvaluateSupernovae();
 
+    // CE/CBD helper functions.  The CBD physics lives in the CircumbinaryDisk* implementation files;
+    // these helpers keep ResolveCommonEnvelopeEvent() focused on the CE flow
+    // while handling COMPAS-specific state mutation, immediate-RLOF checks,
+    // AIC state changes, and CBD event logging.
+    double  CalculatePostCommonEnvelopeEccentricity() const;
+    void    ApplyCircumbinaryDiskAfterCommonEnvelope(const STELLAR_TYPE p_StellarType1PreCE,
+                                                     const STELLAR_TYPE p_StellarType2PreCE,
+                                                     const double       p_Mass1PreCE,
+                                                     const double       p_Mass2PreCE,
+                                                     const bool         p_EnvelopeFlag1,
+                                                     const bool         p_EnvelopeFlag2);
+    void    EvolveActiveCircumbinaryDiskOneTimestep(const double p_Dt);
+    void    FinaliseActiveCircumbinaryDisk();
+    void    ApplyCircumbinaryDiskMassChange(BinaryConstituentStar *p_Star,
+                                            const double           p_FinalMass);
+
     ERROR   EvolveOneTimestep(const double p_Dt);
     void    EvolveOneTimestepPreamble(const double p_Dt);
 
@@ -562,6 +634,11 @@ private:
     
     bool PrintCommonEnvelope(const CE_RECORD_TYPE p_RecordType = CE_RECORD_TYPE::DEFAULT) const {
         return LOGGING->LogCommonEnvelope(this, p_RecordType);
+    }
+
+    // Write the current CBD event through the standard BSE CBD logfile.
+    bool PrintCircumbinaryDisk() const {
+        return LOGGING->LogCircumbinaryDisk(this);
     }
     
     bool PrintPulsarEvolutionParameters(const BSE_PULSAR_RECORD_TYPE p_RecordType) const {

@@ -49,6 +49,240 @@ Binary Properties
    * - Header String:
      - Tau_Circ
 
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_FORMED**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.formed
+   * - Description:
+     - Flag to indicate if a post-common-envelope circumbinary disk formed and was evolved.
+   * - Header String:
+     - CBD
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_MASS_SUPPLIED**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.massSupplied
+   * - Description:
+     - Mass supplied to the binary through the circumbinary disk, potentially less than the initial reservoir if interrupted (\ :math:`M_\odot`).
+   * - Header String:
+     - CBD_Mass_Supplied
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_MASS_RETAINED_1**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.massRetained1
+   * - Description:
+     - Mass retained by star 1 during circumbinary disk accretion (\ :math:`M_\odot`).
+   * - Header String:
+     - CBD_Mass_Retained(1)
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_MASS_RETAINED_2**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.massRetained2
+   * - Description:
+     - Mass retained by star 2 during circumbinary disk accretion (\ :math:`M_\odot`).
+   * - Header String:
+     - CBD_Mass_Retained(2)
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_SEMI_MAJOR_AXIS_PRE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.semiMajorAxisPre
+   * - Description:
+     - Semi-major axis before circumbinary disk evolution (\ :math:`R_\odot`).
+   * - Header String:
+     - SemiMajorAxis<CBD
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_SEMI_MAJOR_AXIS_POST**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.semiMajorAxisPost
+   * - Description:
+     - Semi-major axis after circumbinary disk evolution (\ :math:`R_\odot`).
+   * - Header String:
+     - SemiMajorAxis>CBD
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_ECCENTRICITY_PRE**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.eccentricityPre
+   * - Description:
+     - Eccentricity before circumbinary disk evolution.
+   * - Header String:
+     - Eccentricity<CBD
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_ECCENTRICITY_POST**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.eccentricityPost
+   * - Description:
+     - Eccentricity after circumbinary disk evolution.
+   * - Header String:
+     - Eccentricity>CBD
+
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_FORMATION_TIME**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.formationTime
+   * - Description:
+     - Time at which the disk formed (Myr).
+   * - Header String:
+     - Time
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_INITIAL_MASS**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.initialReservoirMass
+   * - Description:
+     - Initial mass assigned to the CBD reservoir (\ :math:`M_\odot`).
+   * - Header String:
+     - Initial_CBD_Mass
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_MASS_1_AT_FORMATION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.mass1AtFormation
+   * - Description:
+     - Mass of star 1 when the CBD formed (\ :math:`M_\odot`).
+   * - Header String:
+     - Mass(1)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_MASS_2_AT_FORMATION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.mass2AtFormation
+   * - Description:
+     - Mass of star 2 when the CBD formed (\ :math:`M_\odot`).
+   * - Header String:
+     - Mass(2)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_STELLAR_TYPE_1_AT_FORMATION**
+     -
+   * - Data type:
+     - STELLAR_TYPE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.stellarType1AtFormation
+   * - Description:
+     - Stellar type of star 1 when the CBD formed.
+   * - Header String:
+     - Stellar_Type(1)
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_STELLAR_TYPE_2_AT_FORMATION**
+     -
+   * - Data type:
+     - STELLAR_TYPE
+   * - COMPAS variable:
+     - BaseBinaryStar::m_CircumbinaryDiskDetails.stellarType2AtFormation
+   * - Description:
+     - Stellar type of star 2 when the CBD formed.
+   * - Header String:
+     - Stellar_Type(2)
+
 .. flat-table::
    :widths: 25 75 1 1
    :header-rows: 0

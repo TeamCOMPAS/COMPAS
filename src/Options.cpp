@@ -555,6 +555,21 @@ void Options::OptionValues::Initialise() {
     m_CommonEnvelopeMassAccretionConstant                           = 0.0;
 
     // Common envelope formalism
+    m_PostCommonEnvelopeEccentricityPrescription.type               = POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION::CIRCULAR;
+    m_PostCommonEnvelopeEccentricityPrescription.typeString         = POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION_LABEL.at(m_PostCommonEnvelopeEccentricityPrescription.type);
+    m_PostCommonEnvelopeEccentricityCap                                = 0.1;
+    m_PostCommonEnvelopeEccentricityFraction                        = 0.1;
+    m_CircumbinaryDisk                                              = false;
+    m_CircumbinaryDiskBeta                                          = 3.0;
+    m_CircumbinaryDiskEddingtonMode.type                            = CIRCUMBINARY_DISK_EDDINGTON_MODE::GE23;
+    m_CircumbinaryDiskEddingtonMode.typeString                      = CIRCUMBINARY_DISK_EDDINGTON_MODE_LABEL.at(m_CircumbinaryDiskEddingtonMode.type);
+    m_CircumbinaryDiskEddingtonCapFactor                            = 1.0;
+    m_CircumbinaryDiskEddingtonGe23Factor                           = 2.0 / 3.0;
+    m_CircumbinaryDiskInnerRadiusOverSeparation                     = 2.5;
+    m_CircumbinaryDiskLifetime                                      = 1.0e5;
+    m_CircumbinaryDiskStructureFactor                               = 4.0;
+    m_CircumbinaryDiskEnvelopeMassFractionSupplied                  = 0.05;
+
     m_CommonEnvelopeFormalism.type                                  = CE_FORMALISM::ENERGY;
     m_CommonEnvelopeFormalism.typeString                            = CE_FORMALISM_LABEL.at(m_CommonEnvelopeFormalism.type);
     
@@ -851,6 +866,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Circularise binary when it enters a Mass Transfer episode (default = " + std::string(p_Options->m_CirculariseBinaryDuringMassTransfer ? "TRUE" : "FALSE") + ")").c_str()
         )
         (
+            "circumbinary-disk",
+            po::value<bool>(&p_Options->m_CircumbinaryDisk)->default_value(p_Options->m_CircumbinaryDisk)->implicit_value(true),
+            ("Apply post-common-envelope circumbinary-disk evolution where the CBD formation criterion is satisfied (default = " + std::string(p_Options->m_CircumbinaryDisk ? "TRUE" : "FALSE") + ")").c_str()
+        )
+        (
             "common-envelope-allow-immediate-RLOF-post-CE-survive",
             po::value<bool>(&p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope)->default_value(p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope)->implicit_value(true),
             ("Allow immediate post CE RLOF to survive common envelope evolution (default = " + std::string(p_Options->m_AllowImmediateRLOFpostCEToSurviveCommonEnvelope ? "TRUE" : "FALSE") + ")").c_str()
@@ -1137,6 +1157,62 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
 
         // double
 
+        // Circumbinary-disk and post-CE eccentricity options.
+        (
+            "circumbinary-disk-beta",
+            po::value<double>(&p_Options->m_CircumbinaryDiskBeta)->default_value(p_Options->m_CircumbinaryDiskBeta),
+            ("Circumbinary disk angular-momentum retention parameter beta = fJ/fM; must be non-negative, and beta * fM must be <= 1 (default = " + std::to_string(p_Options->m_CircumbinaryDiskBeta) + ")").c_str()
+        )
+        (
+            "circumbinary-disk-eddington-cap-factor",
+            po::value<double>(&p_Options->m_CircumbinaryDiskEddingtonCapFactor)->default_value(p_Options->m_CircumbinaryDiskEddingtonCapFactor),
+            ("Multiplier applied to the Eddington accretion rate in CBD Eddington mode CAP (default = " + std::to_string(p_Options->m_CircumbinaryDiskEddingtonCapFactor) + ")").c_str()
+        )
+        (
+            "circumbinary-disk-eddington-ge23-factor",
+            po::value<double>(&p_Options->m_CircumbinaryDiskEddingtonGe23Factor)->default_value(p_Options->m_CircumbinaryDiskEddingtonGe23Factor),
+            ("Retained fraction of the requested super-Eddington CBD accretion rate in Eddington mode GE23; must satisfy 0 < f <= 1 (default = " + std::to_string(p_Options->m_CircumbinaryDiskEddingtonGe23Factor) + ")").c_str()
+        )
+        (
+            "circumbinary-disk-inner-radius-over-separation",
+            po::value<double>(&p_Options->m_CircumbinaryDiskInnerRadiusOverSeparation)->default_value(p_Options->m_CircumbinaryDiskInnerRadiusOverSeparation),
+            ("Inner circumbinary-disk radius in units of post-CE binary separation; must be >= 1 (default = " + std::to_string(p_Options->m_CircumbinaryDiskInnerRadiusOverSeparation) + ")").c_str()
+        )
+        (
+            "circumbinary-disk-lifetime",
+            po::value<double>(&p_Options->m_CircumbinaryDiskLifetime)->default_value(p_Options->m_CircumbinaryDiskLifetime),
+            ("Circumbinary-disk lifetime in years; must be > 0 (default = " + std::to_string(p_Options->m_CircumbinaryDiskLifetime) + ")").c_str()
+        )
+        (
+            "circumbinary-disk-structure-factor",
+            po::value<double>(&p_Options->m_CircumbinaryDiskStructureFactor)->default_value(p_Options->m_CircumbinaryDiskStructureFactor),
+            ("Disk-structure factor multiplying the CBD angular-momentum threshold; must be > 1 (default = " + std::to_string(p_Options->m_CircumbinaryDiskStructureFactor) + ")").c_str()
+        )
+        (
+            "circumbinary-disk-envelope-mass-fraction-supplied",
+            po::value<double>(&p_Options->m_CircumbinaryDiskEnvelopeMassFractionSupplied)->default_value(p_Options->m_CircumbinaryDiskEnvelopeMassFractionSupplied),
+            ("Fraction of the total binary mass lost during common-envelope evolution that is supplied through a circumbinary disk; the resulting initial CBD mass (logged as Initial_CBD_Mass) is assumed to be much smaller than the post-CE binary mass in the Spindler formalism; must be between 0 and 0.2 (default = " + std::to_string(p_Options->m_CircumbinaryDiskEnvelopeMassFractionSupplied) + ")").c_str()
+        )
+        (
+            "post-common-envelope-eccentricity-prescription",
+            po::value<std::string>(&p_Options->m_PostCommonEnvelopeEccentricityPrescription.typeString)->default_value(p_Options->m_PostCommonEnvelopeEccentricityPrescription.typeString),
+            ("Post-common-envelope eccentricity prescription: CIRCULAR, PRE_RLOF_CAP, or PRE_RLOF_FRACTION (default = " + p_Options->m_PostCommonEnvelopeEccentricityPrescription.typeString + ")").c_str()
+        )
+        (
+            "circumbinary-disk-eddington-mode",
+            po::value<std::string>(&p_Options->m_CircumbinaryDiskEddingtonMode.typeString)->default_value(p_Options->m_CircumbinaryDiskEddingtonMode.typeString),
+            ("CBD Eddington-limited accretion mode: CAP, TM23, or GE23 (default = " + p_Options->m_CircumbinaryDiskEddingtonMode.typeString + ")").c_str()
+        )
+        (
+            "post-common-envelope-eccentricity-cap",
+            po::value<double>(&p_Options->m_PostCommonEnvelopeEccentricityCap)->default_value(p_Options->m_PostCommonEnvelopeEccentricityCap),
+            ("Upper cap on the post-common-envelope eccentricity when --post-common-envelope-eccentricity-prescription is PRE_RLOF_CAP; must be in [0, 1) (default = " + std::to_string(p_Options->m_PostCommonEnvelopeEccentricityCap) + ")").c_str()
+        )
+        (
+            "post-common-envelope-eccentricity-fraction",
+            po::value<double>(&p_Options->m_PostCommonEnvelopeEccentricityFraction)->default_value(p_Options->m_PostCommonEnvelopeEccentricityFraction),
+            ("Fraction of the pre-RLOF eccentricity retained after common envelope evolution when --post-common-envelope-eccentricity-prescription is PRE_RLOF_FRACTION; must be in [0, 1] (default = " + std::to_string(p_Options->m_PostCommonEnvelopeEccentricityFraction) + ")").c_str()
+        )
         (
             "common-envelope-alpha",                                       
             po::value<double>(&p_Options->m_CommonEnvelopeAlpha)->default_value(p_Options->m_CommonEnvelopeAlpha),                                                                                
@@ -2376,6 +2452,16 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Mass Transfer Angular Momentum Loss Prescription for 2-stage CE");
         }
 
+        if (!DEFAULTED("circumbinary-disk-eddington-mode")) {
+            std::tie(found, m_CircumbinaryDiskEddingtonMode.type) = utils::GetMapKey(m_CircumbinaryDiskEddingtonMode.typeString, CIRCUMBINARY_DISK_EDDINGTON_MODE_LABEL, m_CircumbinaryDiskEddingtonMode.type);
+            COMPLAIN_IF(!found, "Unknown circumbinary disk Eddington mode: use CAP, GE23, or TM23");
+        }
+
+        if (!DEFAULTED("post-common-envelope-eccentricity-prescription")) {
+            std::tie(found, m_PostCommonEnvelopeEccentricityPrescription.type) = utils::GetMapKey(m_PostCommonEnvelopeEccentricityPrescription.typeString, POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION_LABEL, m_PostCommonEnvelopeEccentricityPrescription.type);
+            COMPLAIN_IF(!found, "Unknown post-CE eccentricity prescription (--post-common-envelope-eccentricity-prescription). Allowed: CIRCULAR, PRE_RLOF_CAP, PRE_RLOF_FRACTION");
+        }
+
         if (!DEFAULTED("critical-mass-ratio-prescription")) {                                                                       // critical mass ratio prescription
             std::tie(found, m_QCritPrescription.type) = utils::GetMapKey(m_QCritPrescription.typeString, QCRIT_PRESCRIPTION_LABEL, m_QCritPrescription.type);
             COMPLAIN_IF(!found, "Unknown qCrit Prescription");
@@ -2565,6 +2651,32 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         }
 
         // constraint/value/range checks - alphabetically (where possible)
+
+        COMPLAIN_IF(utils::Compare(m_PostCommonEnvelopeEccentricityCap, 0.0) < 0 || utils::Compare(m_PostCommonEnvelopeEccentricityCap, 1.0) >= 0,
+                    "Post-CE eccentricity cap (--post-common-envelope-eccentricity-cap) must be in [0, 1)");
+        COMPLAIN_IF(utils::Compare(m_PostCommonEnvelopeEccentricityFraction, 0.0) < 0 || utils::Compare(m_PostCommonEnvelopeEccentricityFraction, 1.0) > 0,
+                    "Post-CE eccentricity fraction (--post-common-envelope-eccentricity-fraction) must be in [0, 1]");
+
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskBeta, 0.0) < 0,
+                    "CBD beta (--circumbinary-disk-beta) must be >= 0");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskEddingtonCapFactor, 0.0) <= 0,
+                    "CBD Eddington CAP factor (--circumbinary-disk-eddington-cap-factor) must be > 0");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskEddingtonGe23Factor, 0.0) <= 0 || utils::Compare(m_CircumbinaryDiskEddingtonGe23Factor, 1.0) > 0,
+                    "CBD Eddington GE23 factor (--circumbinary-disk-eddington-ge23-factor) must satisfy 0 < f <= 1");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskEnvelopeMassFractionSupplied, 0.0) < 0 || utils::Compare(m_CircumbinaryDiskEnvelopeMassFractionSupplied, CBD_MAXIMUM_ENVELOPE_MASS_FRACTION_SUPPLIED) > 0,
+                    "CBD CE mass-loss fraction supplied (--circumbinary-disk-envelope-mass-fraction-supplied) must be between 0 and 0.2");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskBeta * m_CircumbinaryDiskEnvelopeMassFractionSupplied, 1.0) > 0,
+                    "CBD beta * CE mass-loss fraction supplied must be <= 1");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskInnerRadiusOverSeparation, 1.0) < 0,
+                    "CBD inner radius over separation (--circumbinary-disk-inner-radius-over-separation) must be >= 1");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskLifetime, 0.0) <= 0,
+                    "CBD lifetime (--circumbinary-disk-lifetime) must be > 0 yr");
+        COMPLAIN_IF(utils::Compare(m_CircumbinaryDiskStructureFactor, 1.0) <= 0,
+                    "CBD structure factor (--circumbinary-disk-structure-factor) must be > 1");
+#ifndef COMPAS_ENABLE_SPINDLER_C
+        COMPLAIN_IF(m_CircumbinaryDisk,
+                    "Circumbinary-disk evolution was requested, but this COMPAS executable was built without spindler-c support. Rebuild with SPINDLER_C_ROOT set to the spindler-c build tree.");
+#endif
 
         COMPLAIN_IF(m_CommonEnvelopeAlpha < 0.0, "CE alpha (--common-envelope-alpha) < 0");
         COMPLAIN_IF(m_CommonEnvelopeAlphaThermal < 0.0 || m_CommonEnvelopeAlphaThermal > 1.0, "CE alpha thermal (--common-envelope-alpha-thermal) must be between 0 and 1");
@@ -2819,6 +2931,8 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("chemically-homogeneous-evolution-mode")             : POPULATE_RET(CHE_MODE_LABEL);                                 break;
         case _("common-envelope-formalism")                         : POPULATE_RET(CE_FORMALISM_LABEL);                             break;
         case _("common-envelope-lambda-prescription")               : POPULATE_RET(CE_LAMBDA_PRESCRIPTION_LABEL);                   break;
+        case _("circumbinary-disk-eddington-mode")                  : POPULATE_RET(CIRCUMBINARY_DISK_EDDINGTON_MODE_LABEL);             break;
+        case _("post-common-envelope-eccentricity-prescription")    : POPULATE_RET(POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION_LABEL); break;
         case _("common-envelope-mass-accretion-prescription")       : POPULATE_RET(CE_ACCRETION_PRESCRIPTION_LABEL);                break;
         case _("common-envelope-second-stage-gamma-prescription")   : POPULATE_RET(MT_ANGULAR_MOMENTUM_LOSS_PRESCRIPTION_LABEL);    break;
         case _("critical-mass-ratio-prescription")                  : POPULATE_RET(QCRIT_PRESCRIPTION_LABEL);                       break;
@@ -4928,6 +5042,19 @@ COMPAS_VARIABLE Options::OptionValue(const T_ANY_PROPERTY p_Property) const {
         case PROGRAM_OPTION::CHE_MODE                                       : value = static_cast<int>(CHEMode());                                          break;
 
         case PROGRAM_OPTION::CIRCULARISE_BINARY_DURING_MT                   : value = CirculariseBinaryDuringMassTransfer();                                break;
+
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK                              : value = CircumbinaryDisk();                                                break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_BETA                         : value = CircumbinaryDiskBeta();                                            break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_CAP_FACTOR         : value = CircumbinaryDiskEddingtonCapFactor();                               break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_GE23_FACTOR        : value = CircumbinaryDiskEddingtonGe23Factor();                              break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_EDDINGTON_MODE               : value = static_cast<int>(CircumbinaryDiskEddingtonMode());                                    break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_INNER_RADIUS_OVER_SEPARATION : value = CircumbinaryDiskInnerRadiusOverSeparation();                       break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_LIFETIME                     : value = CircumbinaryDiskLifetime();                                         break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_STRUCTURE_FACTOR             : value = CircumbinaryDiskStructureFactor();                                  break;
+        case PROGRAM_OPTION::CIRCUMBINARY_DISK_ENVELOPE_MASS_FRACTION_SUPPLIED : value = CircumbinaryDiskEnvelopeMassFractionSupplied();                 break;
+        case PROGRAM_OPTION::POST_COMMON_ENVELOPE_ECCENTRICITY_CAP              : value = PostCommonEnvelopeEccentricityCap();                                  break;
+        case PROGRAM_OPTION::POST_COMMON_ENVELOPE_ECCENTRICITY_FRACTION     : value = PostCommonEnvelopeEccentricityFraction();                          break;
+        case PROGRAM_OPTION::POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION : value = static_cast<int>(PostCommonEnvelopeEccentricityPrescription());                      break;
 
         case PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA                          : value = CommonEnvelopeAlpha();                                                break;
         case PROGRAM_OPTION::COMMON_ENVELOPE_ALPHA_THERMAL                  : value = CommonEnvelopeAlphaThermal();                                         break;

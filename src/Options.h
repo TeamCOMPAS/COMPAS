@@ -19,7 +19,6 @@
 #include <limits>
 
 #include "constants.h"
-
 #include <boost/algorithm/string.hpp>   // Boost string manipulation
 #include <boost/program_options.hpp>    // Boost command line options tools
 #include <boost/filesystem.hpp>         // Boost filesystem tools for handling paths etc.
@@ -469,6 +468,15 @@ private:
 
         "case-BB-stability-prescription",
         "circularise-binary-during-mass-transfer",
+        "circumbinary-disk",
+        "circumbinary-disk-beta",
+        "circumbinary-disk-eddington-cap-factor",
+        "circumbinary-disk-eddington-ge23-factor",
+        "circumbinary-disk-eddington-mode",
+        "circumbinary-disk-envelope-mass-fraction-supplied",
+        "circumbinary-disk-inner-radius-over-separation",
+        "circumbinary-disk-lifetime",
+        "circumbinary-disk-structure-factor",
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-alpha", 
         "common-envelope-alpha-thermal",
@@ -544,6 +552,10 @@ private:
         "orbital-period-max",
         "orbital-period-min",
 
+        "post-common-envelope-eccentricity-cap",
+        "post-common-envelope-eccentricity-fraction",
+        "post-common-envelope-eccentricity-prescription",
+
         "rlof-printing",
         "rotational-frequency-1",
         "rotational-frequency-2",
@@ -589,6 +601,15 @@ private:
         "check-photon-tiring-limit",
         "chemically-homogeneous-evolution-mode",
         "circularise-binary-during-mass-transfer",
+        "circumbinary-disk",
+        "circumbinary-disk-beta",
+        "circumbinary-disk-eddington-cap-factor",
+        "circumbinary-disk-eddington-ge23-factor",
+        "circumbinary-disk-eddington-mode",
+        "circumbinary-disk-envelope-mass-fraction-supplied",
+        "circumbinary-disk-inner-radius-over-separation",
+        "circumbinary-disk-lifetime",
+        "circumbinary-disk-structure-factor",
         "common-envelope-allow-main-sequence-survive",
         "common-envelope-formalism",
         "common-envelope-lambda-prescription",
@@ -1102,6 +1123,20 @@ public:
             double                                              m_MassTransferCriticalMassRatioWhiteDwarfNonDegenerateAccretor; // Critical mass ratio for MT from a white dwarf
             double                                              m_MassTransferCriticalMassRatioWhiteDwarfDegenerateAccretor;    // Critical mass ratio for MT from a white dwarf on to a degenerate accretor
 
+            // Circumbinary disk and post-CE eccentricity options
+            ENUM_OPT<POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION> m_PostCommonEnvelopeEccentricityPrescription;                  // Prescription for setting eccentricity after common envelope evolution
+            double                                              m_PostCommonEnvelopeEccentricityCap;                              // Eccentricity cap assigned after common envelope evolution when requested
+            double                                              m_PostCommonEnvelopeEccentricityFraction;                      // Fraction of the pre-RLOF eccentricity retained after common envelope evolution when requested
+            bool                                                m_CircumbinaryDisk;                                             // Whether to apply post-CE CBD evolution where the formation criterion is satisfied
+            double                                              m_CircumbinaryDiskBeta;                                         // CBD angular-momentum parameter beta = fJ/fM
+            ENUM_OPT<CIRCUMBINARY_DISK_EDDINGTON_MODE>          m_CircumbinaryDiskEddingtonMode;                                // CBD Eddington-limited accretion mode: CAP, GE23, or TM23
+            double                                              m_CircumbinaryDiskEddingtonCapFactor;                           // CAP-mode multiplier applied to the Eddington rate
+            double                                              m_CircumbinaryDiskEddingtonGe23Factor;                          // GE23-mode retained fraction for super-Eddington requested accretion
+            double                                              m_CircumbinaryDiskInnerRadiusOverSeparation;                    // Inner CBD radius in units of post-CE binary separation
+            double                                              m_CircumbinaryDiskLifetime;                                     // CBD lifetime in yr
+            double                                              m_CircumbinaryDiskStructureFactor;                              // Disk-structure factor multiplying the CBD angular-momentum threshold
+            double                                              m_CircumbinaryDiskEnvelopeMassFractionSupplied;                 // Fraction of CE mass loss supplied through a CBD; assumed to yield initial m_CBD << post-CE binary mass
+
             // Common Envelope options
             double                                              m_CommonEnvelopeAlpha;                                          // Common envelope efficiency alpha parameter
             double                                              m_CommonEnvelopeLambda;                                         // Common envelope Lambda parameter
@@ -1432,6 +1467,18 @@ public:
 
     bool                                        CommandLineGrid() const                                                 { return m_CmdLine.complexOptionValues.size() != 0; }
     
+    bool                                        CircumbinaryDisk() const                                                { return OPT_VALUE("circumbinary-disk", m_CircumbinaryDisk, true); }
+    double                                      CircumbinaryDiskBeta() const                                            { return OPT_VALUE("circumbinary-disk-beta", m_CircumbinaryDiskBeta, true); }
+    CIRCUMBINARY_DISK_EDDINGTON_MODE            CircumbinaryDiskEddingtonMode() const                                   { return OPT_VALUE("circumbinary-disk-eddington-mode", m_CircumbinaryDiskEddingtonMode.type, true); }
+    double                                      CircumbinaryDiskEddingtonCapFactor() const                              { return OPT_VALUE("circumbinary-disk-eddington-cap-factor", m_CircumbinaryDiskEddingtonCapFactor, true); }
+    double                                      CircumbinaryDiskEddingtonGe23Factor() const                             { return OPT_VALUE("circumbinary-disk-eddington-ge23-factor", m_CircumbinaryDiskEddingtonGe23Factor, true); }
+    double                                      CircumbinaryDiskInnerRadiusOverSeparation() const                       { return OPT_VALUE("circumbinary-disk-inner-radius-over-separation", m_CircumbinaryDiskInnerRadiusOverSeparation, true); }
+    double                                      CircumbinaryDiskLifetime() const                                         { return OPT_VALUE("circumbinary-disk-lifetime", m_CircumbinaryDiskLifetime, true); }
+    double                                      CircumbinaryDiskStructureFactor() const                                  { return OPT_VALUE("circumbinary-disk-structure-factor", m_CircumbinaryDiskStructureFactor, true); }
+    double                                      CircumbinaryDiskEnvelopeMassFractionSupplied() const                    { return OPT_VALUE("circumbinary-disk-envelope-mass-fraction-supplied", m_CircumbinaryDiskEnvelopeMassFractionSupplied, true); }
+    double                                      PostCommonEnvelopeEccentricityCap() const                                  { return OPT_VALUE("post-common-envelope-eccentricity-cap", m_PostCommonEnvelopeEccentricityCap, true); }
+    double                                      PostCommonEnvelopeEccentricityFraction() const                          { return OPT_VALUE("post-common-envelope-eccentricity-fraction", m_PostCommonEnvelopeEccentricityFraction, true); }
+    POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION PostCommonEnvelopeEccentricityPrescription() const                    { return OPT_VALUE("post-common-envelope-eccentricity-prescription", m_PostCommonEnvelopeEccentricityPrescription.type, true); }
     double                                      CommonEnvelopeAlpha() const                                             { return OPT_VALUE("common-envelope-alpha", m_CommonEnvelopeAlpha, true); }
     double                                      CommonEnvelopeAlphaThermal() const                                      { return OPT_VALUE("common-envelope-alpha-thermal", m_CommonEnvelopeAlphaThermal, true); }
     CE_FORMALISM                                CommonEnvelopeFormalism() const                                         { return OPT_VALUE("common-envelope-formalism", m_CommonEnvelopeFormalism.type, true); }

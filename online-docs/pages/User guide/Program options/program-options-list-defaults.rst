@@ -124,6 +124,46 @@ Default = PESSIMISTIC |br|
 Circularise binary when it enters a Mass Transfer episode. |br|
 Default = TRUE
 
+**--circumbinary-disk** |br|
+Enable post-common-envelope circumbinary disk formation and evolution.
+|br| Default = FALSE
+
+**--circumbinary-disk-beta** |br|
+Ratio between the fraction of the binary angular momentum and the fraction of the common-envelope mass available for circumbinary disk formation.
+|br| Default = 3.0
+
+**--circumbinary-disk-envelope-mass-fraction-supplied** |br|
+Fraction of the common-envelope mass supplied to the post-common-envelope binary through a circumbinary disk.
+|br| Default = 0.05
+
+**--circumbinary-disk-inner-radius-over-separation** |br|
+Inner radius of the circumbinary disk in units of the post-common-envelope binary separation.
+|br| Default = 2.5
+
+**--circumbinary-disk-lifetime** |br|
+Duration, in yr, over which the supplied circumbinary disk mass is delivered to the binary.
+|br| Default = :math:`10^{5}`
+
+**--circumbinary-disk-structure-factor** |br|
+Disk structure factor multiplying the circumbinary disk angular-momentum threshold.
+|br| Default = 4.0
+
+**--circumbinary-disk-eddington-mode** |br|
+Eddington-limited accretion prescription used during circumbinary disk evolution.
+|br| Options: { CAP, GE23, TM23 }
+|br| ``CAP`` limits the accretion to ``--circumbinary-disk-eddington-cap-factor`` times the Eddington accretion rate.
+|br| ``GE23`` reduces the super-Eddington retained accretion rate by a factor of ``--circumbinary-disk-eddington-ge23-factor``, following Ghodla & Eldridge 2023.
+|br| ``TM23`` applies the Tuna & Metzger 2023 compact-object accretion prescription.
+|br| Default = GE23
+
+**--circumbinary-disk-eddington-cap-factor** |br|
+Multiplier applied to the Eddington accretion rate in ``CAP`` mode.
+|br| Default = 1.0
+
+**--circumbinary-disk-eddington-ge23-factor** |br|
+Retained fraction of the requested super-Eddington accretion rate in ``GE23`` mode.
+|br| Default = :math:`2 / 3`
+
 **--common-envelope-allow-immediate-RLOF-post-CE-survive** |br|
 Allow binaries that experience Roche lobe overflow immediately at the end of the CE phase to survive. |br|
 Default = FALSE
@@ -207,7 +247,7 @@ Default = ZERO
 Recombination energy density (erg g−1). |br|
 Default = :math:`1.5 \times 10^{13}`
 
-**common-envelope-second-stage-beta** |br|
+**--common-envelope-second-stage-beta** |br|
 The fraction of the mass lost during the second stage of a 2-stage common envelope that is accreted. |br|
 Default = 0
  
@@ -1136,6 +1176,24 @@ Default = 135.0
 Print details of population. |br|
 Default = FALSE
 
+**--post-common-envelope-eccentricity-prescription** |br|
+Prescription for setting the eccentricity immediately after common-envelope evolution.
+|br| Options: { CIRCULAR, PRE_RLOF_CAP, PRE_RLOF_FRACTION }
+|br| ``CIRCULAR`` assigns :math:`e_{\rm postCE} = 0`.
+|br| ``PRE_RLOF_CAP`` assigns :math:`e_{\rm postCE} = \min(e_{\rm preRLOF}, e_{\rm CE,max})`, where :math:`e_{\rm CE,max}` is set by ``--post-common-envelope-eccentricity-cap``.
+|br| ``PRE_RLOF_FRACTION`` assigns :math:`e_{\rm postCE} = f_e e_{\rm preRLOF}`, where :math:`f_e` is set by ``--post-common-envelope-eccentricity-fraction``.
+|br| Default = CIRCULAR
+
+**--post-common-envelope-eccentricity-cap** |br|
+Upper cap on the post-common-envelope eccentricity when ``--post-common-envelope-eccentricity-prescription`` is ``PRE_RLOF_CAP``.
+|br| In this mode, :math:`e_{\rm postCE} = \min(e_{\rm preRLOF}, e_{\rm CE,max})`.
+|br| Default = 0.1
+
+**--post-common-envelope-eccentricity-fraction** |br|
+Fraction of the pre-RLOF eccentricity retained after common-envelope evolution when ``--post-common-envelope-eccentricity-prescription`` is ``PRE_RLOF_FRACTION``.
+|br| In this mode, :math:`e_{\rm postCE} = f_e e_{\rm preRLOF}`.
+|br| Default = 0.1
+
 **--PPI-CO-Core-Shift-Hendriks** |br|
 Shift in CO core mass for PPI (in Msol) for the Hendriks+23 PPI prescription
 Default = 0.0
@@ -1580,7 +1638,11 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 --common-envelope-lambda-nanjing-use_rejuvenated-mass, --common-envelope-allow-main-sequence-survive, --common-envelope-allow-radiative-envelope-survive, 
 --common-envelope-allow-immediate-RLOF-post-CE-survive, --common-envelope-mass-accretion-prescription, --common-envelope-mass-accretion-constant, 
 --common-envelope-mass-accretion-min, --common-envelope-mass-accretion-max, --common-envelope-recombination-energy-density, --maximum-mass-donor-nandez-ivanova, 
---revised-energy-formalism-nandez-ivanova, common-envelope-second-stage-beta, common-envelope-second-stage-gamma-prescription
+--revised-energy-formalism-nandez-ivanova, --common-envelope-second-stage-beta, --common-envelope-second-stage-gamma-prescription, --post-common-envelope-eccentricity-prescription, --post-common-envelope-eccentricity-cap, --post-common-envelope-eccentricity-fraction
+
+--circumbinary-disk, --circumbinary-disk-beta, --circumbinary-disk-envelope-mass-fraction-supplied, --circumbinary-disk-inner-radius-over-separation, --circumbinary-disk-lifetime,
+--circumbinary-disk-structure-factor, --circumbinary-disk-eddington-mode, --circumbinary-disk-eddington-cap-factor, --circumbinary-disk-eddington-ge23-factor
+
 
 :ref:`Back to Top <options-props-top>`
 

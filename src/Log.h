@@ -570,6 +570,7 @@ private:
     // logfile record specifications
     // BSE
     ANY_PROPERTY_VECTOR m_BSE_CEE_Rec          = BSE_COMMON_ENVELOPES_REC;          // default specification
+    ANY_PROPERTY_VECTOR m_BSE_CBD_Rec          = BSE_CIRCUMBINARY_DISKS_REC;          // default specification
     ANY_PROPERTY_VECTOR m_BSE_DCO_Rec          = BSE_DOUBLE_COMPACT_OBJECTS_REC;    // default specification
     ANY_PROPERTY_VECTOR m_BSE_Detailed_Rec     = BSE_DETAILED_OUTPUT_REC;           // default specification
     ANY_PROPERTY_VECTOR m_BSE_Pulsars_Rec      = BSE_PULSAR_EVOLUTION_REC;          // default specification
@@ -603,6 +604,7 @@ private:
 
     // BSE
     BOOL_VECTOR m_BSE_CEE_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
+    BOOL_VECTOR m_BSE_CBD_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_DCO_Notes          = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_Detailed_Notes     = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
     BOOL_VECTOR m_BSE_Pulsars_Notes      = BOOL_VECTOR(OPTIONS->NotesHdrs().size(), false);
@@ -1243,6 +1245,10 @@ public:
     template <class T>
     bool LogCommonEnvelope(const T* const p_Binary,
                            const CE_RECORD_TYPE p_RecordType)                           { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_COMMON_ENVELOPES)), 0, LOGFILE::BSE_COMMON_ENVELOPES, static_cast<LOGRECORDTYPE>(p_RecordType), p_Binary); }
+
+    // Write one circumbinary-disk event to the standard CBD logfile.
+    template <class T>
+    bool LogCircumbinaryDisk(const T* const p_Binary)                                    { return LogStandardRecord(std::get<2>(LOGFILE_DESCRIPTOR.at(LOGFILE::BSE_CIRCUMBINARY_DISKS)), 0, LOGFILE::BSE_CIRCUMBINARY_DISKS, 1U, p_Binary); }
 
     template <class T>
     bool LogDoubleCompactObject(const T* const p_Binary,

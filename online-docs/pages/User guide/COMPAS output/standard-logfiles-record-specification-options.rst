@@ -199,6 +199,163 @@ DEPRECATION NOTICE: property ``BLACK_HOLE_KICKS`` has been deprecated and will s
    :header-rows: 0
    :class: aligned-text
 
+   * - :cspan:`2` **CIRCUMBINARY_DISK**
+     -
+   * - Data type:
+     - BOOL
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDisk
+   * - Description:
+     - Value of program option ``--circumbinary-disk``
+   * - Header String:
+     - PO_CBD
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_BETA**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskBeta
+   * - Description:
+     - Value of program option ``--circumbinary-disk-beta``
+   * - Header String:
+     - PO_CBD_Beta
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_ENVELOPE_MASS_FRACTION_SUPPLIED**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskEnvelopeMassFractionSupplied
+   * - Description:
+     - Value of program option ``--circumbinary-disk-envelope-mass-fraction-supplied``
+   * - Header String:
+     - PO_CBD_Envelope_Mass_Fraction_Supplied
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_INNER_RADIUS_OVER_SEPARATION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskInnerRadiusOverSeparation
+   * - Description:
+     - Value of program option ``--circumbinary-disk-inner-radius-over-separation``
+   * - Header String:
+     - PO_CBD_Inner_Radius_Over_Separation
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_LIFETIME**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskLifetime
+   * - Description:
+     - Value of program option ``--circumbinary-disk-lifetime``
+   * - Header String:
+     - PO_CBD_Lifetime
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_STRUCTURE_FACTOR**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskStructureFactor
+   * - Description:
+     - Value of program option ``--circumbinary-disk-structure-factor``
+   * - Header String:
+     - PO_CBD_Structure_Factor
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_EDDINGTON_MODE**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskEddingtonMode
+   * - Description:
+     - Value of program option ``--circumbinary-disk-eddington-mode``
+   * - Header String:
+     - PO_CBD_Eddington_Mode
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_EDDINGTON_CAP_FACTOR**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskEddingtonCapFactor
+   * - Description:
+     - Value of program option ``--circumbinary-disk-eddington-cap-factor``
+   * - Header String:
+     - PO_CBD_Eddington_Cap_Factor
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **CIRCUMBINARY_DISK_EDDINGTON_GE23_FACTOR**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_CircumbinaryDiskEddingtonGe23Factor
+   * - Description:
+     - Value of program option ``--circumbinary-disk-eddington-ge23-factor``
+   * - Header String:
+     - PO_CBD_Eddington_GE23_Factor
+
+
+
+
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
    * - :cspan:`2` **COMMON_ENVELOPE_ALPHA**
      -
    * - Data type:
@@ -1619,6 +1776,57 @@ DEPRECATION NOTICE: property ``LBV_PRESCRIPTION`` has been deprecated and will s
      - Value of program option ``--PISN-upper-limit``
    * - Header String:
      - PO_PISN_Upper_Limit
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **POST_COMMON_ENVELOPE_ECCENTRICITY_PRESCRIPTION**
+     -
+   * - Data type:
+     - INT
+   * - COMPAS variable:
+     - Options::m_PostCommonEnvelopeEccentricityPrescription
+   * - Description:
+     - Value of program option ``--post-common-envelope-eccentricity-prescription``
+   * - Header String:
+     - PO_Post_CE_Eccentricity_Prescription
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **POST_COMMON_ENVELOPE_ECCENTRICITY_CAP**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_PostCommonEnvelopeEccentricityCap
+   * - Description:
+     - Value of program option ``--post-common-envelope-eccentricity-cap``
+   * - Header String:
+     - PO_Post_CE_Eccentricity_Cap
+
+
+.. flat-table::
+   :widths: 25 75 1 1
+   :header-rows: 0
+   :class: aligned-text
+
+   * - :cspan:`2` **POST_COMMON_ENVELOPE_ECCENTRICITY_FRACTION**
+     -
+   * - Data type:
+     - DOUBLE
+   * - COMPAS variable:
+     - Options::m_PostCommonEnvelopeEccentricityFraction
+   * - Description:
+     - Value of program option ``--post-common-envelope-eccentricity-fraction``
+   * - Header String:
+     - PO_Post_CE_Eccentricity_Fraction
+
 
 .. flat-table::
    :widths: 25 75 1 1

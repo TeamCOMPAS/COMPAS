@@ -27,6 +27,7 @@ For Binary Star Evolution (BSE):
    standard-logfiles-default-record-specifications-BSE-supernovae
    standard-logfiles-default-record-specifications-BSE-dco
    standard-logfiles-default-record-specifications-BSE-ce
+   standard-logfiles-default-record-specifications-BSE-circumbinary-disks
    standard-logfiles-default-record-specifications-BSE-pulsars
    standard-logfiles-default-record-specifications-BSE-rlof
    standard-logfiles-default-record-specifications-BSE-switchlog

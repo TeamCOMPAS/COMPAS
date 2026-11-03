@@ -35,6 +35,7 @@ Each standard log file has its own set of record types - select a file below to 
    standard-logfiles-record-types-bse-pulsar-evolution
    standard-logfiles-record-types-bse-double-compact-objects
    standard-logfiles-record-types-bse-common-envelopes
+   standard-logfiles-record-types-bse-circumbinary-disks
    standard-logfiles-record-types-bse-detailed-output
    standard-logfiles-record-types-bse-system-snapshot
 

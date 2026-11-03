@@ -45,6 +45,12 @@ The standard log files are:
          - Records summary information for all binary systems that experience CEEs during BSE.
        * -
          -
+       * - Circumbinary Disks
+         - Records summary information for each post-common-envelope circumbinary disk that forms during BSE.
+       * -
+         - Enable with program option ``--circumbinary-disk``.
+       * -
+         -
        * - Pulsar Evolution
          - Records detailed Pulsar evolution information during SSE/BSE.
        * -
