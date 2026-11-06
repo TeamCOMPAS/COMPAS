@@ -2053,7 +2053,16 @@
 //                                         Unchanged below 8 Msol. Affects the fractional ages of massive MS merger products (03.55.02)
 //                                         and the core composition of massive MS stars.
 
-const std::string VERSION_STRING = "03.55.03";
+// 03.55.04  SS - November 6, 2026    - Defect repair:
+//                                       - NS::ChooseTimestep(): the fine neutron-star timesteps (10 yr below an age of 100 yr, 100 yr below 1 kyr,
+//                                         and 1 Myr from 1 Myr to 3 Gyr) are now used only with --evolve-pulsars, which they exist to resolve.
+//                                         Without --evolve-pulsars, neutron stars use the earlier, coarser schedule (1 kyr below 10 kyr, rising to
+//                                         1 Myr at 1 - 10 Myr, then logarithmically to 500 Myr). The fine schedule applied to every neutron star
+//                                         and limited the timestep of binaries with a long-lived companion. Changes results without --evolve-pulsars;
+//                                         results with --evolve-pulsars are unchanged (except at an age of exactly 3000 Myr, which now takes the
+//                                         100 Myr step instead of falling through to the 500 Myr default).
+
+const std::string VERSION_STRING = "03.55.04";
 
 
 # endif // __changelog_h__

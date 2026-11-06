@@ -39,18 +39,26 @@ double NS::ChooseTimestep(const double p_Time) const {
 
     double result = 500.0;                                      // default value
 
-         if (p_Time < 0.0001) result = 0.00001;                 // For pulsars younger than 10^-4 Myr = 100 yrs, timestep = 10^-5 Myr = 10 yrs
-    else if (p_Time < 0.001 ) result = 0.0001;                  // For pulsars younger than 10^-3 Myr = 1000 yrs, take 10^-4 Myr = 100 yr timesteps
-    else if (p_Time < 0.01 ) result = 0.001;
-    else if (p_Time < 0.1  ) result = 0.01;
-    else if (p_Time < 1.0  ) result = 0.1;
-    else if (p_Time < 3000.0 ) result = 1.0;
-    else if (p_Time > 3000.0 ) result = 100.0;
-    // else if (p_Time < 500.0) {
-    //     double slope      = 1.58859191006;                      // 1.58859191006 = log10(500.0) / (log10(500.0) - 1.0)
-    //     double log10_step = slope * (log10(p_Time) - 1.0);
-    //     result            = PPOW(10.0, log10_step);
-    // }
+    if (OPTIONS->EvolvePulsars()) {                             // fine timesteps only when pulsar spin and field are evolved
+             if (p_Time < 0.0001) result = 0.00001;             // For pulsars younger than 10^-4 Myr = 100 yrs, timestep = 10^-5 Myr = 10 yrs
+        else if (p_Time < 0.001 ) result = 0.0001;              // For pulsars younger than 10^-3 Myr = 1000 yrs, take 10^-4 Myr = 100 yr timesteps
+        else if (p_Time < 0.01  ) result = 0.001;
+        else if (p_Time < 0.1   ) result = 0.01;
+        else if (p_Time < 1.0   ) result = 0.1;
+        else if (p_Time < 3000.0) result = 1.0;
+        else                      result = 100.0;               // was (p_Time > 3000.0), which left p_Time == 3000.0 at the 500 Myr default
+    }
+    else {                                                      // pulsars not evolved: the coarser schedule used before the pulsar timesteps were refined
+             if (p_Time < 0.01 ) result = 0.001;
+        else if (p_Time < 0.1  ) result = 0.01;
+        else if (p_Time < 1.0  ) result = 0.1;
+        else if (p_Time < 10.0 ) result = 1.0;
+        else if (p_Time < 500.0) {
+            double slope      = 1.58859191006;                  // 1.58859191006 = log10(500.0) / (log10(500.0) - 1.0)
+            double log10_step = slope * (log10(p_Time) - 1.0);
+            result            = PPOW(10.0, log10_step);
+        }
+    }
 
     return result;
 }
