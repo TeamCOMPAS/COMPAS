@@ -708,6 +708,7 @@ private:
         "notes-hdrs",
         "neutrino-mass-loss-BH-formation",
         "neutron-star-equation-of-state",
+        "neutron-star-mass-prescription",
 
         "OB-mass-loss-prescription",
         "orbital-period-distribution",
@@ -1007,6 +1008,10 @@ public:
             double                                              m_KickMagnitudeLognormalMu;                                     // LOGNORMAL (CCSN): mean of ln(v / km s^-1)
             double                                              m_KickMagnitudeLognormalSigma;                                  // LOGNORMAL (CCSN): standard deviation of ln(v / km s^-1)
             double                                              m_KickMagnitudeLognormalMaximum;                                // LOGNORMAL (CCSN): truncation (km s^-1)
+            ENUM_OPT<NEUTRON_STAR_MASS_PRESCRIPTION>            m_NeutronStarMassPrescription;                                  // MALTSEV2024 core-collapse NS masses: FIXED (1.40) or CORE (core-coupled, with scatter)
+            double                                              m_NeutronStarMassCoreNormalisation;                             // CORE: mean NS gravitational mass (Msol) at M_CO = NS_MASS_CORE_REFERENCE_MASS
+            double                                              m_NeutronStarMassCoreSlope;                                     // CORE: d(mean NS mass) / d log10(M_CO) (Msol per dex)
+            double                                              m_NeutronStarMassCoreSigma;                                     // CORE: Gaussian scatter (Msol) about the mean NS mass
 	        double                                              m_KickMagnitudeDistributionSigmaForECSN;			            // Kick magnitude sigma for ECSN in km s^-1
 	        double                                              m_KickMagnitudeDistributionSigmaForUSSN;			            // Kick magnitude sigma for USSN in km s^-1
 	        double                                              m_KickScalingFactor;								            // Arbitrary factor for scaling kicks
@@ -1677,6 +1682,10 @@ public:
     double                                      KickMagnitudeLognormalMaximum() const                                   { return OPT_VALUE("kick-magnitude-lognormal-max", m_KickMagnitudeLognormalMaximum, true); }
     double                                      KickMagnitudeLognormalMu() const                                        { return OPT_VALUE("kick-magnitude-lognormal-mu", m_KickMagnitudeLognormalMu, true); }
     double                                      KickMagnitudeLognormalSigma() const                                     { return OPT_VALUE("kick-magnitude-lognormal-sigma", m_KickMagnitudeLognormalSigma, true); }
+    NEUTRON_STAR_MASS_PRESCRIPTION              NeutronStarMassPrescription() const                                     { return OPT_VALUE("neutron-star-mass-prescription", m_NeutronStarMassPrescription.type, true); }
+    double                                      NeutronStarMassCoreNormalisation() const                                { return OPT_VALUE("neutron-star-mass-core-normalisation", m_NeutronStarMassCoreNormalisation, true); }
+    double                                      NeutronStarMassCoreSlope() const                                        { return OPT_VALUE("neutron-star-mass-core-slope", m_NeutronStarMassCoreSlope, true); }
+    double                                      NeutronStarMassCoreSigma() const                                        { return OPT_VALUE("neutron-star-mass-core-sigma", m_NeutronStarMassCoreSigma, true); }
 
     double                                      KickMagnitudeDistributionSigmaCCSN_BH() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-BH", m_KickMagnitudeDistributionSigmaCCSN_BH, true); }
     double                                      KickMagnitudeDistributionSigmaCCSN_NS() const                           { return OPT_VALUE("kick-magnitude-sigma-CCSN-NS", m_KickMagnitudeDistributionSigmaCCSN_NS, true); }

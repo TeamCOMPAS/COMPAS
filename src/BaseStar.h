@@ -727,6 +727,9 @@ protected:
                                                             const double p_Rand,
                                                             const double p_RemnantMass) const;
 
+            double              NeutronStarPhysicsCOCoreMass(const double p_COCoreMass) const;
+            bool                HasHeliumStarCore() const;
+
             double              DrawSNKickMagnitude(const double p_Sigma,
                                                     const double p_COCoreMass,
                                                     const double p_Rand,

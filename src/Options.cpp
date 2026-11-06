@@ -325,6 +325,11 @@ void Options::OptionValues::Initialise() {
     m_KickMagnitudeLognormalMu                                      = DISBERG_MANDEL_MU;          // Disberg & Mandel (2025)
     m_KickMagnitudeLognormalSigma                                   = DISBERG_MANDEL_SIGMA;
     m_KickMagnitudeLognormalMaximum                                 = DISBERG_MANDEL_MAX_KICK;
+    m_NeutronStarMassPrescription.type                              = NEUTRON_STAR_MASS_PRESCRIPTION::FIXED;
+    m_NeutronStarMassPrescription.typeString                        = NEUTRON_STAR_MASS_PRESCRIPTION_LABEL.at(m_NeutronStarMassPrescription.type);
+    m_NeutronStarMassCoreNormalisation                              = 1.26;                       // fitted on mapped cores to the You et al. (2025) birth-mass function (prototype calibration)
+    m_NeutronStarMassCoreSlope                                      = 0.50;
+    m_NeutronStarMassCoreSigma                                      = 0.135;
     m_KickMagnitudeDistributionSigmaForECSN                         = 30.0;
     m_KickMagnitudeDistributionSigmaForUSSN   	                    = 30.0;
 	m_KickScalingFactor						                        = 1.0;
@@ -1602,6 +1607,21 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Standard deviation of ln(v / km s^-1) of the LOGNORMAL kick magnitude distribution (CCSN; Disberg & Mandel 2025: 0.68) (default = " + std::to_string(p_Options->m_KickMagnitudeLognormalSigma) + ")").c_str()
         )
         (
+            "neutron-star-mass-core-normalisation",
+            po::value<double>(&p_Options->m_NeutronStarMassCoreNormalisation)->default_value(p_Options->m_NeutronStarMassCoreNormalisation),
+            ("--neutron-star-mass-prescription CORE: mean NS gravitational mass (Msol) at a CO core mass of 1.38 Msol (default = " + std::to_string(p_Options->m_NeutronStarMassCoreNormalisation) + ")").c_str()
+        )
+        (
+            "neutron-star-mass-core-slope",
+            po::value<double>(&p_Options->m_NeutronStarMassCoreSlope)->default_value(p_Options->m_NeutronStarMassCoreSlope),
+            ("--neutron-star-mass-prescription CORE: increase of the mean NS mass (Msol) per dex in CO core mass (default = " + std::to_string(p_Options->m_NeutronStarMassCoreSlope) + ")").c_str()
+        )
+        (
+            "neutron-star-mass-core-sigma",
+            po::value<double>(&p_Options->m_NeutronStarMassCoreSigma)->default_value(p_Options->m_NeutronStarMassCoreSigma),
+            ("--neutron-star-mass-prescription CORE: Gaussian scatter (Msol) of the NS mass about the mean (default = " + std::to_string(p_Options->m_NeutronStarMassCoreSigma) + ")").c_str()
+        )
+        (
             "kick-magnitude-sigma-CCSN-BH",                                
             po::value<double>(&p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH)->default_value(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH),                                            
             ("Sigma for chosen kick magnitude distribution, in km/s, for black holes (default = " + std::to_string(p_Options->m_KickMagnitudeDistributionSigmaCCSN_BH) + ")").c_str()
@@ -2260,6 +2280,11 @@ bool Options::AddOptions(OptionValues *p_Options, po::options_description *p_Opt
             ("Stable thermal-timescale mass transfer from a donor with a core onto a WD/NS/BH: ENVELOPE_REMOVAL = whole envelope in one step; EXTENDED_ACCRETION = envelope in one step, but the accretor accretes at its maximum rate for --compact-accretor-thermal-mass-transfer-duration-factor x the donor's thermal timescale (" + AllowedOptionValuesFormatted("compact-accretor-thermal-mass-transfer") + ", default = '" + p_Options->m_CompactAccretorThermalMT.typeString + "')").c_str()
         )
         (
+            "neutron-star-mass-prescription",
+            po::value<std::string>(&p_Options->m_NeutronStarMassPrescription.typeString)->default_value(p_Options->m_NeutronStarMassPrescription.typeString),
+            ("Mass of neutron stars formed in core-collapse SNe with --remnant-mass-prescription MALTSEV2024: FIXED = 1.40 Msol; CORE = mean --neutron-star-mass-core-normalisation + --neutron-star-mass-core-slope log10(M_CO / 1.38 Msol), with M_CO mapped onto detailed stellar models, Gaussian scatter --neutron-star-mass-core-sigma, truncated to [1.10 Msol, min(--maximum-neutron-star-mass, M_CO)] (" + AllowedOptionValuesFormatted("neutron-star-mass-prescription") + ", default = '" + p_Options->m_NeutronStarMassPrescription.typeString + "')").c_str()
+        )
+        (
             "ultra-stripped-supernova-prescription",
             po::value<std::string>(&p_Options->m_UltraStrippedSupernovaPrescription.typeString)->default_value(p_Options->m_UltraStrippedSupernovaPrescription.typeString),
             ("Which fully stripped core-collapse supernovae are ultra-stripped (USSN kicks): FULLY_STRIPPED = all (any case BB/BC mass transfer); TAURIS2015 = stripped onto a compact companion with remaining He envelope (Tauris et al. 2015 fits) <= --ultra-stripped-maximum-helium-envelope-mass (" + AllowedOptionValuesFormatted("ultra-stripped-supernova-prescription") + ", default = '" + p_Options->m_UltraStrippedSupernovaPrescription.typeString + "')").c_str()
@@ -2908,6 +2933,11 @@ std::string Options::OptionValues::CheckAndSetOptions() {
             COMPLAIN_IF(!found, "Unknown Compact Accretor Thermal Mass Transfer prescription");
         }
 
+        if (!DEFAULTED("neutron-star-mass-prescription")) {                                                                         // neutron star mass prescription
+            std::tie(found, m_NeutronStarMassPrescription.type) = utils::GetMapKey(m_NeutronStarMassPrescription.typeString, NEUTRON_STAR_MASS_PRESCRIPTION_LABEL, m_NeutronStarMassPrescription.type);
+            COMPLAIN_IF(!found, "Unknown Neutron Star Mass Prescription");
+        }
+
         if (!DEFAULTED("ultra-stripped-supernova-prescription")) {                                                                  // ultra-stripped supernova prescription
             std::tie(found, m_UltraStrippedSupernovaPrescription.type) = utils::GetMapKey(m_UltraStrippedSupernovaPrescription.typeString, ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL, m_UltraStrippedSupernovaPrescription.type);
             COMPLAIN_IF(!found, "Unknown Ultra-stripped Supernova Prescription");
@@ -3413,6 +3443,8 @@ std::string Options::OptionValues::CheckAndSetOptions() {
         COMPLAIN_IF(m_UltraStrippedMaximumHeliumEnvelopeMass < 0.0, "Ultra-stripped maximum helium envelope mass (--ultra-stripped-maximum-helium-envelope-mass) must be >= 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalSigma <= 0.0, "LOGNORMAL kick sigma (--kick-magnitude-lognormal-sigma) must be > 0");
         COMPLAIN_IF(m_KickMagnitudeLognormalMaximum <= 0.0, "LOGNORMAL kick maximum (--kick-magnitude-lognormal-max) must be > 0");
+        COMPLAIN_IF(m_NeutronStarMassCoreSigma < 0.0, "Core-coupled NS mass scatter (--neutron-star-mass-core-sigma) must be >= 0");
+        COMPLAIN_IF(m_NeutronStarMassPrescription.type == NEUTRON_STAR_MASS_PRESCRIPTION::CORE && m_NeutronStarMassCoreNormalisation < NS_MASS_CORE_MINIMUM, "Core-coupled NS mass normalisation (--neutron-star-mass-core-normalisation) must be >= 1.10 Msol");
         COMPLAIN_IF(m_KickMagnitude1 < 0.0, "Kick magnitude (--kick-magnitude-1) must be >= 0");
         COMPLAIN_IF(m_KickMagnitude2 < 0.0, "Kick magnitude (--kick-magnitude-2) must be >= 0");
         COMPLAIN_IF(m_RocketKickMagnitude1 < 0.0, "Rocket Kick magnitude 1 (--rocket-kick-magnitude-1) must be >= 0");
@@ -3528,6 +3560,7 @@ STR_VECTOR Options::AllowedOptionValues(const std::string p_OptionString) {
         case _("black-hole-kicks-mode")                             : POPULATE_RET(BLACK_HOLE_KICKS_MODE_LABEL);                        break;
         case _("case-BB-stability-prescription")                    : POPULATE_RET(CASE_BB_STABILITY_PRESCRIPTION_LABEL);               break;
         case _("ultra-stripped-supernova-prescription")             : POPULATE_RET(ULTRA_STRIPPED_SUPERNOVA_PRESCRIPTION_LABEL);        break;
+        case _("neutron-star-mass-prescription")                    : POPULATE_RET(NEUTRON_STAR_MASS_PRESCRIPTION_LABEL);               break;
         case _("compact-accretor-thermal-mass-transfer")            : POPULATE_RET(COMPACT_ACCRETOR_THERMAL_MT_LABEL);                  break;
         case _("low-mass-donor-thermal-mass-transfer")              : POPULATE_RET(LOW_MASS_DONOR_THERMAL_MT_LABEL);                    break;
         case _("case-BB-accretion")                                 : POPULATE_RET(CASE_BB_ACCRETION_LABEL);                            break;

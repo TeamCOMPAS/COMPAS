@@ -2062,7 +2062,22 @@
 //                                         results with --evolve-pulsars are unchanged (except at an age of exactly 3000 Myr, which now takes the
 //                                         100 Myr step instead of falling through to the 500 Myr default).
 
-const std::string VERSION_STRING = "03.55.04";
+// 03.55.05  SS - November 7, 2026    - Enhancement:
+//                                       - New option --neutron-star-mass-prescription (FIXED (default), CORE), ported from the prototype branch
+//                                         prototypes/magnetars-ns-remnant-kick (879f7306, its 03.46.00 - 03.48.00 entries). With
+//                                         --remnant-mass-prescription MALTSEV2024, CORE draws core-collapse NS gravitational masses from a Gaussian with
+//                                         mean m_a + beta log10(max(M_CO, 1.38) / 1.38) and scatter sigma, truncated (by redrawing) to
+//                                         [1.10, min(--maximum-neutron-star-mass, M_CO)] Msol (--neutron-star-mass-core-normalisation/-slope/-sigma,
+//                                         defaults 1.26 / 0.50 / 0.135, fitted to the You et al. 2025 birth-mass function; prototype calibration).
+//                                         The same draw is the proto-NS mass of MALTSEV2024 partial-fallback BHs; ECSN/AIC NSs are unchanged.
+//                                       - M_CO here (only) is the COMPAS CO core mapped onto detailed models at Zsun (new BaseStar::NeutronStarPhysicsCOCoreMass()
+//                                         and BaseStar::HasHeliumStarCore()): He stars stripped before core-He exhaustion: Woosley 2019 KEPLER He stars
+//                                         (Tauris et al. 2015 agree) at the low end, blending into Schneider et al. 2021 MESA Case B donors; H-rich stars:
+//                                         Burrows et al. 2024 / Schneider et al. 2021 single stars matched at the same ZAMS mass. This is the default
+//                                         (DETAILED) mapping of the prototype's --neutron-star-core-mass-mapping option, which is not ported. The prototype's
+//                                         EJECTA kick distribution is not ported. With the default (FIXED), results are unchanged.
+
+const std::string VERSION_STRING = "03.55.05";
 
 
 # endif // __changelog_h__

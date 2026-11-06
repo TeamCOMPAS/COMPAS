@@ -1273,6 +1273,31 @@ SURFACE indicates mass is directly accreted onto the surface of the NS. |br|
 Options: { ZERO, DISK, SURFACE } |br|
 Default = ZERO
 
+**--neutron-star-mass-core-normalisation** |br|
+``--neutron-star-mass-prescription CORE``: mean NS gravitational mass (:math:`M_\odot`) for a CO core of 1.38 :math:`M_\odot`. |br|
+Default = 1.26
+
+**--neutron-star-mass-core-sigma** |br|
+``--neutron-star-mass-prescription CORE``: Gaussian scatter (:math:`M_\odot`) of the NS mass about the mean. |br|
+Default = 0.135
+
+**--neutron-star-mass-core-slope** |br|
+``--neutron-star-mass-prescription CORE``: increase of the mean NS mass (:math:`M_\odot`) per dex in CO core mass. |br|
+Default = 0.50
+
+**--neutron-star-mass-prescription** |br|
+Mass of neutron stars formed in core-collapse (including ultra-stripped) supernovae with ``--remnant-mass-prescription MALTSEV2024``. |br|
+Options: { FIXED, CORE } |br|
+``FIXED``: 1.40 :math:`M_\odot`. |br|
+``CORE`` (prototype): mean :math:`m_a + \beta \log_{10}(M_{\rm CO}/1.38\,M_\odot)` with Gaussian scatter :math:`\sigma`, truncated to
+[1.10 :math:`M_\odot`, min(``--maximum-neutron-star-mass``, :math:`M_{\rm CO}`)] (``--neutron-star-mass-core-normalisation``, ``--neutron-star-mass-core-slope``,
+``--neutron-star-mass-core-sigma``; the defaults reproduce the You et al. 2025 birth-mass function). :math:`M_{\rm CO}` (floored at 1.38 :math:`M_\odot` in the mean)
+is the COMPAS CO core mapped onto detailed stellar models at :math:`Z_\odot`: He stars stripped before core-helium exhaustion use Woosley (2019) KEPLER He stars
+at the low end (Tauris et al. 2015 agree) and Schneider et al. (2021) MESA Case B donors above; H-rich stars use Burrows et al. (2024) and Schneider et al. (2021)
+single stars, matched at the same ZAMS mass. The remnant-mass prescription itself still uses the COMPAS core. The same mass is the proto-NS of partial-fallback BHs.
+Electron-capture and accretion-induced-collapse NSs keep 1.26 :math:`M_\odot`. |br|
+Default = FIXED
+
 **--neutron-star-equation-of-state** |br|
 Neutron star equation of state. |br|
 Options: { SSE, ARP3 } |br|
@@ -2053,6 +2078,7 @@ Go to :ref:`the top of this page <options-props-top>` for the full alphabetical 
 **Supernovae**
 
 --remnant-mass-prescription, --fryer-supernova-engine, --fryer-22-fmix, --fryer-22-mcrit, --maximum-neutron-star-mass, --mcbur1, --allow-non-stripped-ECSN, --electron-capture-supernova-minimum-core-mass, --electron-capture-supernova-maximum-core-mass, --electron-capture-supernova-unstripped-minimum-core-mass, --electron-capture-supernova-unstripped-maximum-core-mass, 
+--neutron-star-mass-prescription, --neutron-star-mass-core-normalisation, --neutron-star-mass-core-slope, --neutron-star-mass-core-sigma,
 --neutrino-mass-loss-BH-formation, --neutrino-mass-loss-BH-formation-value, --neutron-star-equation-of-state, --pair-instability-supernovae, --PISN-lower-limit, 
 --PISN-upper-limit, --PPI-CO-Core-Shift-Hendriks, --PPI-lower-limit, --PPI-upper-limit, --pulsational-pair-instability, --pulsational-pair-instability-prescription
 

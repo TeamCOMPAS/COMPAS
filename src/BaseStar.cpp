@@ -1,5 +1,6 @@
 // gsl includes
 #include <gsl/gsl_roots.h>
+#include <algorithm>
 #include <gsl/gsl_cdf.h>
 
 #include "Rand.h"
@@ -3941,6 +3942,71 @@ bool BaseStar::IsUltraStrippedProgenitor() const {
                     : mCore * (std::log(std::pow(period, -0.2)) + 1.0) + std::log(std::pow(period, 0.5)) - 1.5;
 
     return utils::Compare(mEnv, OPTIONS->UltraStrippedMaximumHeliumEnvelopeMass()) <= 0;
+}
+
+
+/*
+ * Piecewise-linear interpolation in a table x -> y (x increasing), with linear extrapolation from the end segments
+ */
+static double InterpolateTable(const DBL_VECTOR &p_X, const DBL_VECTOR &p_Y, const double p_Value) {
+    std::size_t n = p_X.size();
+    std::size_t k = p_Value <= p_X[0] ? 1 : (p_Value >= p_X[n - 1] ? n - 1 : (std::size_t)(std::upper_bound(p_X.begin(), p_X.end(), p_Value) - p_X.begin()));
+    return p_Y[k - 1] + (p_Value - p_X[k - 1]) * (p_Y[k] - p_Y[k - 1]) / (p_X[k] - p_X[k - 1]);
+}
+
+
+/*
+ * Whether the star's core evolved as a helium star: a naked helium star whose hydrogen envelope was removed before core helium exhaustion
+ * (case A/B stripping, incl. ultra-stripped). Stars stripped after core helium exhaustion (case C; m_EnvelopeLostAfterCoreHeliumExhaustion),
+ * single stars, accretors and partially stripped stars have H-rich-like cores (Schneider et al. 2021).
+ *
+ *
+ * bool HasHeliumStarCore()
+ *
+ * @return                                      True if the core evolved as a helium star
+ */
+bool BaseStar::HasHeliumStarCore() const {
+    return !m_EnvelopeLostAfterCoreHeliumExhaustion &&
+           utils::IsOneOf(m_StellarType, { STELLAR_TYPE::NAKED_HELIUM_STAR_MS, STELLAR_TYPE::NAKED_HELIUM_STAR_HERTZSPRUNG_GAP, STELLAR_TYPE::NAKED_HELIUM_STAR_GIANT_BRANCH });
+}
+
+
+/*
+ * CO core mass used by --neutron-star-mass-prescription CORE: the COMPAS (Hurley) CO core mapped onto detailed stellar models at Zsun
+ * (constants CORE_MAPPING_*):
+ *   - He stars stripped before core helium exhaustion (case A/B, incl. ultra-stripped). COMPAS He stars follow Hurley's M_CO = 0.773 M_He - 0.35
+ *     with M_He the He-star mass at the SN, i.e. they barely lose mass, while detailed He-star models lose 10-35% of their mass by winds and end
+ *     with smaller cores. Low end (Hurley M_CO <= 2.49): Woosley (2019) KEPLER He stars, M_CO(M_He = (M_CO,Hurley + 0.35) / 0.773), never above
+ *     the Hurley core (Tauris et al. 2015 agree at 2.6-3.2 Msol); above 2.99: Schneider et al. (2021) MESA Case B donors matched at the same ZAMS
+ *     mass to COMPAS Case B primaries (continuity offset beyond 30 Msol ZAMS); linear blend between.
+ *   - H-rich stars (single stars, accretors, case C): Burrows et al. (2024) / Schneider et al. (2021) single stars matched at the same ZAMS mass to
+ *     COMPAS single stars (8-22 Msol; 1.38 Msol below, continuity offset above).
+ * The remnant-mass prescriptions (e.g. MALTSEV2024) still use the Hurley core.
+ * This is the DETAILED (default) core-mass mapping of the prototype --neutron-star-core-mass-mapping option (COMPAS 03.47.00 on branch
+ * prototypes/ns-remnant-kick); that option, whose NONE alternative used the Hurley core, is not ported.
+ *
+ *
+ * double NeutronStarPhysicsCOCoreMass(const double p_COCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                COMPAS CO core mass at the SN (Msol)
+ * @return                                      CO core mass mapped onto detailed models (Msol)
+ */
+double BaseStar::NeutronStarPhysicsCOCoreMass(const double p_COCoreMass) const {
+
+    if (!HasHeliumStarCore()) {                                                                                     // H-rich
+        if (p_COCoreMass < CORE_MAPPING_H_RICH_HURLEY.front()) return CORE_MAPPING_H_RICH_DETAILED.front();
+        if (p_COCoreMass > CORE_MAPPING_H_RICH_HURLEY.back())  return CORE_MAPPING_H_RICH_DETAILED.back() + (p_COCoreMass - CORE_MAPPING_H_RICH_HURLEY.back());
+        return InterpolateTable(CORE_MAPPING_H_RICH_HURLEY, CORE_MAPPING_H_RICH_DETAILED, p_COCoreMass);
+    }
+
+    double heStarMass = (p_COCoreMass + HURLEY_HE_STAR_CO_CORE_OFFSET) / HURLEY_HE_STAR_CO_CORE_SLOPE;               // He-star mass on Hurley's relation
+    double w19        = std::min(InterpolateTable(CORE_MAPPING_W19_HE_STAR_MASS, CORE_MAPPING_W19_CO_CORE_MASS, heStarMass), p_COCoreMass);
+    double caseB      = p_COCoreMass > CORE_MAPPING_CASE_B_HURLEY.back()
+                            ? CORE_MAPPING_CASE_B_DETAILED.back() + (p_COCoreMass - CORE_MAPPING_CASE_B_HURLEY.back())
+                            : InterpolateTable(CORE_MAPPING_CASE_B_HURLEY, CORE_MAPPING_CASE_B_DETAILED, p_COCoreMass);
+    double w          = std::min(std::max((p_COCoreMass - CORE_MAPPING_HE_STAR_BLEND_MINIMUM) / (CORE_MAPPING_HE_STAR_BLEND_MAXIMUM - CORE_MAPPING_HE_STAR_BLEND_MINIMUM), 0.0), 1.0);
+
+    return (1.0 - w) * w19 + w * caseB;
 }
 
 

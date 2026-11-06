@@ -487,6 +487,25 @@ constexpr double DISBERG_MANDEL_MU                      = 5.60;
 constexpr double DISBERG_MANDEL_SIGMA                   = 0.68;
 constexpr double DISBERG_MANDEL_MAX_KICK                = 1000.0;
 
+// Constants for the core-coupled NS mass (--neutron-star-mass-prescription CORE)
+constexpr double NS_MASS_CORE_REFERENCE_MASS            = 1.38;                                                     // CO core mass (Msol) at which the mean NS mass is --neutron-star-mass-core-normalisation (a Chandrasekhar-like ONeMg/Fe core)
+constexpr double NS_MASS_CORE_MINIMUM                   = 1.10;                                                     // Minimum NS gravitational mass (Msol) drawn: m_min of the You et al. (2025) TOP birth-mass function
+
+// Core-mass mapping for --neutron-star-mass-prescription CORE: COMPAS (Hurley) CO core at the SN -> CO core of detailed stellar models at Z = Zsun.
+// He stars stripped before core-He exhaustion: Woosley (2019) KEPLER He stars with mass loss (CO core vs initial He-star mass, Tables 3-4; Tauris et al.
+// 2015 agree at 2.6-3.2 Msol) at the low end, blending into Schneider et al. (2021) MESA Case B donors matched at the same ZAMS mass to COMPAS Case B
+// primaries; H-rich stars: Burrows et al. (2024) / Schneider et al. (2021) single stars matched at the same ZAMS mass to COMPAS single stars.
+constexpr double HURLEY_HE_STAR_CO_CORE_SLOPE           = 0.773;                                                    // Hurley et al. (2000) eq. 75: M_CO = 0.773 M_He - 0.35 (COMPAS He stars lie on it)
+constexpr double HURLEY_HE_STAR_CO_CORE_OFFSET          = 0.35;
+const DBL_VECTOR CORE_MAPPING_W19_HE_STAR_MASS          = { 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.2, 3.5, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 25.0, 30.0, 40.0 };
+const DBL_VECTOR CORE_MAPPING_W19_CO_CORE_MASS          = { 1.37, 1.41, 1.46, 1.51, 1.56, 1.61, 1.70, 1.85, 2.12, 2.38, 2.65, 3.15, 3.63, 4.11, 4.59, 5.07, 5.45, 5.55, 6.11, 6.79, 7.42, 8.01, 9.76, 11.63, 15.67 };
+const DBL_VECTOR CORE_MAPPING_CASE_B_HURLEY             = { 2.486, 2.991, 3.732, 3.994, 4.247, 4.505, 4.762, 5.510, 6.256 };   // ZAMS 15, 17, 20-24, 27, 30 Msol
+const DBL_VECTOR CORE_MAPPING_CASE_B_DETAILED           = { 1.906, 2.456, 3.397, 3.737, 4.079, 4.421, 4.784, 5.882, 7.002 };
+constexpr double CORE_MAPPING_HE_STAR_BLEND_MINIMUM     = 2.49;                                                     // Hurley CO core range over which the He-star mapping blends from W19 to Case B
+constexpr double CORE_MAPPING_HE_STAR_BLEND_MAXIMUM     = 2.99;
+const DBL_VECTOR CORE_MAPPING_H_RICH_HURLEY             = { 1.44, 1.64, 1.75, 2.22, 2.52, 2.83, 3.46, 4.11, 5.29, 6.32 };    // ZAMS 8, 9, 9.5, 11, 12, 13, 15, 17, 20, 22 Msol
+const DBL_VECTOR CORE_MAPPING_H_RICH_DETAILED           = { 1.38, 1.40, 1.50, 1.84, 2.23, 2.60, 3.38, 4.24, 5.62, 6.60 };
+
 constexpr double HOBBS_CORRECTED_SIGMA                  = 217.0;    // Best fit Maxwellian sigma for 48 younger than 10 Myr pulsars with proper motions from Disberg & Mandel (2025) sample; corrects Hobbs+ 2005 missing Jacobian
 
 // Constants for the Maltsev+ 2024 SN remnant mass prescription

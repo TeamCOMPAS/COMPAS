@@ -1021,6 +1021,13 @@ const COMPASUnorderedMap<REMNANT_MASS_PRESCRIPTION, std::string> REMNANT_MASS_PR
     { REMNANT_MASS_PRESCRIPTION::MALTSEV2024,      "MALTSEV2024" }
 };
 
+// neutron star mass prescriptions (--neutron-star-mass-prescription; MALTSEV2024 core-collapse NSs)
+enum class NEUTRON_STAR_MASS_PRESCRIPTION: int { FIXED, CORE };
+const COMPASUnorderedMap<NEUTRON_STAR_MASS_PRESCRIPTION, std::string> NEUTRON_STAR_MASS_PRESCRIPTION_LABEL = {
+    { NEUTRON_STAR_MASS_PRESCRIPTION::FIXED, "FIXED" },
+    { NEUTRON_STAR_MASS_PRESCRIPTION::CORE,  "CORE" }
+};
+
 // maltsev remnant mass prescription variant
 // magnetic braking prescriptions
 enum class MAGNETIC_BRAKING_PRESCRIPTION: int { NONE, RVJ83, IT03, MATT15, GARRAFFO18, CARB };

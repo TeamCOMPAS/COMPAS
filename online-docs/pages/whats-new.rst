@@ -3,6 +3,14 @@ What's new
 
 Following is a brief list of important updates to the COMPAS code.  A complete record of changes can be found in the file ``changelog.h``.
 
+**03.55.05 November 7, 2026**
+
+* New option ``--neutron-star-mass-prescription`` (``FIXED``, the default; ``CORE``): with ``MALTSEV2024`` remnants, ``CORE`` couples core-collapse NS
+  masses to the CO core with scatter, tuned to the You et al. (2025) birth-mass function, instead of a fixed 1.40 :math:`M_\odot`
+  (``--neutron-star-mass-core-normalisation``, ``--neutron-star-mass-core-slope``, ``--neutron-star-mass-core-sigma``). The CO core is mapped onto
+  detailed stellar models (Woosley 2019 / Tauris et al. 2015 He stars, Schneider et al. 2021, Burrows et al. 2024). Ported from the
+  ``prototypes/magnetars-ns-remnant-kick`` prototype. With the default, results are unchanged.
+
 **03.55.03 November 3, 2026**
 
 * ``MIST`` core-hydrogen prescription: the convective-core fit :math:`X_c/X_0 = (1 - \tau^p)^q` was fitted to 1.3 - 20 :math:`M_\odot` and drifted

@@ -1347,9 +1347,13 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
     double    M1, M2, M3;                                                                                               // Z-dependent boundary values for SN outcomes (see Maltsev+ 2025)
     double    remnantMass;
 
+    // proto-NS (gravitational) mass: fixed, or drawn from the core-coupled relation (also the proto-NS of a partial-fallback BH)
+    double    nsMass = NEUTRON_STAR_MASS;
+    if (OPTIONS->NeutronStarMassPrescription() == NEUTRON_STAR_MASS_PRESCRIPTION::CORE) nsMass = DrawNeutronStarMassFromCore(p_COCoreMass);
+
     if (utils::Compare(p_COCoreMass, MALTSEV2024_MMIN) < 0) {                                                           // NS formation regardless of metallicity and MT history
         m_SupernovaDetails.fallbackFraction = 0;
-        remnantMass = NEUTRON_STAR_MASS;
+        remnantMass = nsMass;
     }
     else if (utils::Compare(p_COCoreMass, MALTSEV2024_MMAX) > 0) {                                                      // BH formation regardless of metallicity and MT history
         m_SupernovaDetails.fallbackFraction = 1;
@@ -1437,14 +1441,52 @@ double GiantBranch::CalculateRemnantMassByMaltsev2024(const double p_COCoreMass,
         else if ( utils::Compare(p_COCoreMass, M2) > 0 && utils::Compare(p_COCoreMass, M3) < 0 && utils::Compare(RAND->Random(0, 1), 0.1) <= 0 ) {  // Partial fallback BH formation
             // add fallback back on
             m_SupernovaDetails.fallbackFraction = OPTIONS->MaltsevFallback();
-            remnantMass = (p_HeCoreMass - NEUTRON_STAR_MASS)*m_SupernovaDetails.fallbackFraction + NEUTRON_STAR_MASS;
+            remnantMass = (p_HeCoreMass - nsMass)*m_SupernovaDetails.fallbackFraction + nsMass;
         }
         else {
             m_SupernovaDetails.fallbackFraction = 0;
-            remnantMass = NEUTRON_STAR_MASS;
+            remnantMass = nsMass;
         }
     }
     return remnantMass;
+}
+
+
+/*
+ * Draw a neutron star (gravitational) mass coupled to the CO core mass (--neutron-star-mass-prescription CORE)
+ *
+ * M_CO is the core from NeutronStarPhysicsCOCoreMass() (the COMPAS core mapped onto detailed models).
+ * Mean  mu(M_CO) = --neutron-star-mass-core-normalisation + --neutron-star-mass-core-slope * log10(M_CO / NS_MASS_CORE_REFERENCE_MASS),
+ * with M_CO floored at NS_MASS_CORE_REFERENCE_MASS (1.38 Msol), and Gaussian scatter --neutron-star-mass-core-sigma, truncated (by redrawing,
+ * as the Mandel & Mueller 2020 NS masses) to [NS_MASS_CORE_MINIMUM, min(--maximum-neutron-star-mass, M_CO)].
+ * The default parameters (1.26, 0.50, 0.135, on mapped cores) fit the You et al. (2025) birth-mass function (turn-on power law: m_min 1.10,
+ * delta_m 0.24, alpha 6.47, m_max 2.36) with the NS births of our MSP baseline population (in-house prototype calibration); the slope is close
+ * to Schneider et al. (2021, Fig. 9: NS masses rising from ~1.3 to ~1.6-1.7 Msol over M_CO ~2-15 Msol, ~0.4 Msol per dex), and the low end
+ * (1.26 at 1.38 Msol) joins the ECSN/AIC mass.
+ *
+ *
+ * double DrawNeutronStarMassFromCore(const double p_COCoreMass)
+ *
+ * @param   [IN]    p_COCoreMass                CO core mass at the supernova (Msol)
+ * @return                                      Neutron star gravitational mass (Msol)
+ */
+double GiantBranch::DrawNeutronStarMassFromCore(const double p_COCoreMass) {
+
+    double coMass = NeutronStarPhysicsCOCoreMass(p_COCoreMass);                                                         // mapped onto detailed models
+    double mu     = OPTIONS->NeutronStarMassCoreNormalisation() +
+                    OPTIONS->NeutronStarMassCoreSlope() * log10(std::max(coMass, NS_MASS_CORE_REFERENCE_MASS) / NS_MASS_CORE_REFERENCE_MASS);
+    double sigma  = OPTIONS->NeutronStarMassCoreSigma();
+    double mMax   = std::max(std::min(OPTIONS->MaximumNeutronStarMass(), coMass), NS_MASS_CORE_MINIMUM);
+
+    if (utils::Compare(sigma, 0.0) <= 0) return std::min(std::max(mu, NS_MASS_CORE_MINIMUM), mMax);
+
+    double      mass       = mu + RAND->RandomGaussian(sigma);
+    std::size_t iterations = 1;
+    while ((utils::Compare(mass, NS_MASS_CORE_MINIMUM) < 0 || utils::Compare(mass, mMax) > 0) && iterations++ < MULLERMANDEL_REMNANT_MASS_MAX_ITERATIONS) {
+        mass = mu + RAND->RandomGaussian(sigma);
+    }
+
+    return std::min(std::max(mass, NS_MASS_CORE_MINIMUM), mMax);                                                        // clamp if no draw landed inside the range
 }
 
 
