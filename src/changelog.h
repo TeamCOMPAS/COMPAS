@@ -2077,7 +2077,13 @@
 //                                         (DETAILED) mapping of the prototype's --neutron-star-core-mass-mapping option, which is not ported. The prototype's
 //                                         EJECTA kick distribution is not ported. With the default (FIXED), results are unchanged.
 
-const std::string VERSION_STRING = "03.55.05";
+// 03.55.06  SS - November 8, 2026    - Enhancement:
+//                                       - New --mass-transfer-accretion-efficiency-prescription SCHURMANN2025: accretion efficiency during stable
+//                                         mass transfer onto a non-degenerate star depends on the accretor mass, eps = 1.21 - 0.72 log10(M_A/Msol)
+//                                         for 7-35 Msol, held at 0.6 below 7 Msol and 0.1 above 35 Msol (Schurmann et al. 2025, A&A, eq. 16),
+//                                         evaluated with the current accretor mass; otherwise as FIXED. Default behaviour unchanged.
+
+const std::string VERSION_STRING = "03.55.06";
 
 
 # endif // __changelog_h__

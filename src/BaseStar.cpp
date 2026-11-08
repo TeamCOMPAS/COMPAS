@@ -2766,6 +2766,13 @@ DBL_DBL BaseStar::CalculateMassAcceptanceRate(const double p_DonorMassRate, cons
             acceptanceRate   = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
             break;
 
+        case MT_ACCRETION_EFFICIENCY_PRESCRIPTION::SCHURMANN2025:                                       // accretor-mass-dependent fraction, Schurmann et al. 2025 (A&A; arXiv:2503.23878), eq. 16
+            // epsilon = 1.21 - 0.72 log10(M_A / Msol) for 7 <= M_A <= 35 Msol, held at 0.6 and 0.1 outside that range;
+            // evaluated with the current accretor mass, otherwise treated like FIXED (no thermal-timescale limit)
+            fractionAccreted = std::max(0.1, std::min(0.6, 1.21 - 0.72 * std::log10(Mass())));
+            acceptanceRate   = min(p_DonorMassRate, fractionAccreted * p_DonorMassRate);
+            break;
+
         default:                                                                                        // unknown prescription
             // the only way this can happen is if someone added an MT_ACCRETION_EFFICIENCY_PRESCRIPTION
             // and it isn't accounted for in this code.  We should not default here, with or without a warning.
