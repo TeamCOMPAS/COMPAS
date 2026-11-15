@@ -8,7 +8,7 @@ import astropy.units as u
 
 
 
-class MSSFR(object):
+class MSSFR:
     """
     This class is to calculate the metallicity specific star formation
     rate in a specific metallicity bin.
@@ -416,7 +416,7 @@ class MSSFR(object):
 
     def Langer2005ZM(self, ZZsun, z):
         Mstar  =  7.64*10**10
-        logM   =  np.log10((((ZZsun*(10**(0.3*z)))**2)*Mstar)) 
+        logM   =  np.log10(((ZZsun*(10**(0.3*z)))**2)*Mstar) 
         return logM
 
     def Langer2005OffsetZM(self, ZZsun, z):
