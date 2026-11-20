@@ -113,6 +113,7 @@ void HeHG::CalculateGBParams_Static(const double      p_Mass0,
 
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
     
+    std::cout<<"HeHG p_Mass0"<<p_Mass0<<" pMass"<<p_Mass<<std::endl;
     GiantBranch::CalculateGBParams_Static(p_Mass, p_LogMetallicityXi, p_MassCutoffs, p_AnCoefficients, p_BnCoefficients, p_GBParams);                                     // calculate common values (actually, all)
 
     // recalculate HeHG specific values

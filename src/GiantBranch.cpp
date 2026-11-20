@@ -90,6 +90,7 @@ void GiantBranch::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timesca
  * @return                                      Core mass - Luminosity relation parameter B
  */
 double GiantBranch::CalculateCoreMass_Luminosity_B_Static(const double p_Mass) {
+    std::cout<<"mass"<<p_Mass<<" B"<<std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))))<<std::endl;
     return std::max(3.0E4, (500.0 + (1.75E4 * PPOW(p_Mass, 0.6))));
 }
 
@@ -118,6 +119,11 @@ double GiantBranch::CalculateCoreMass_Luminosity_D_Static(const double p_Mass, c
         if (utils::Compare(p_Mass, 2.5) >= 0) {
             double D2 = (0.5 * D0) - (0.06 * p_Mass);
             logD      = std::max(std::max(-1.0, D1), D2);
+            D1        = D1 > -2.0 ? D1 + 2.0 : 0.0;
+            D2        = D2 > -2.0 ? D2 + 2.0 : 0.0;
+            std::cout<<"D0: "<<D0<<" D1: "<<D1<<" D2: "<<D2 << " logD "<< logD <<" D "<<PPOW(10.0,logD)<<std::endl;
+            logD      = PPOW(PPOW(D1,(100.0/p_Mass)) + PPOW(D2,(100.0/p_Mass)) + 1.0, p_Mass/100.0) - 2.0;
+            std::cout<<"revised log D "<< logD  <<" D "<<PPOW(10.0,logD)<<std::endl;
         }
         else {  // Linear interpolation between end points
             double gradient  = (D0 - D1) / (massCutoffs(MHeF) - 2.5);
@@ -260,6 +266,7 @@ double GiantBranch::CalculateCoreMass_Luminosity_Lx_Static(const DBL_VECTOR &p_G
 void GiantBranch::CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) {
 #define gbParams(x) p_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
 
+    std::cout<<"CalculateGBParams mass"<<p_Mass<<std::endl;
     gbParams(AH)     = CalculateHRateConstant_Static(p_Mass);
     gbParams(AHHe)   = CalculateHHeRateConstant_Static();
     gbParams(AHe)    = CalculateHeRateConstant_Static();
