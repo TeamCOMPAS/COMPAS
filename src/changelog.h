@@ -1712,7 +1712,7 @@
 //                                          - Add option (MIN) to lose specific angular momentum during non-conservative mass transfer that is the smaller of isotropic re-emission and Jeans mode mass loss
 //                                      - Defect repair:
 //                                          - Corrected orbital separation re-computation following pulsational (L/M threshold) mass loss
-//  03.31.00  AG - November 01, 2026    - Enhancement:
+//  03.31.00  AG - Nov 01, 2026         - Enhancement:
 //                                          Added a post-common-envelope circumbinary disk (CBD) framework – disabled by default - based on the formalism
 //                                          described in Grichener et al. (2026). The framework assumes that after common-envelope
 //                                          evolution (CEE), a fraction of the pre-RLOF envelope mass and the binary's total angular
@@ -1728,6 +1728,8 @@
 //                                            --post-common-envelope-eccentricity-prescription controls the post-CEE eccentricity (non-zero values tend to be significantly increased by the CBD-binary interaction)
 //                                          See documentation for more information on the available options.
 //                                          (*) https://github.com/ruggero-valli/spindler-c, installation required to use the CBD module
+//  03.31.00  IM - Nov 20, 2026         - Enhancement:
+//                                          Changed default behaviour of mass losing and mass gaining MS stars to the BRCEK prescription
 
 
 
@@ -1740,7 +1742,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.31.00";
+const std::string VERSION_STRING = "03.32.00";
 
 
 # endif // __changelog_h__
