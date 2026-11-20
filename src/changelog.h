@@ -1728,7 +1728,7 @@
 //                                            --post-common-envelope-eccentricity-prescription controls the post-CEE eccentricity (non-zero values tend to be significantly increased by the CBD-binary interaction)
 //                                          See documentation for more information on the available options.
 //                                          (*) https://github.com/ruggero-valli/spindler-c, installation required to use the CBD module
-//  03.31.00  IM - Nov 20, 2026         - Enhancement:
+//  03.32.00  IM - Nov 20, 2026         - Enhancement:
 //                                          Changed default behaviour of mass losing and mass gaining MS stars to the BRCEK prescription
 
 
