@@ -1080,7 +1080,7 @@ bool EAGB::ShouldSkipPhase() const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
-    double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                       // hack from Hurley fortran code, doesn't seem to be in the paper
+    double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                       // hack from Hurley fortran code (not in the paper), protects in case core mass is already above threshold at base of AGB, but should no longer be needed following D adjustment
     
     return (utils::Compare(McSN, m_COCoreMass) < 0);                                            // skip phase if core is heavy enough to go supernova
 
