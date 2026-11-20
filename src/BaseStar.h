@@ -233,7 +233,6 @@ public:
     
     virtual void            CalculateGBParams(const double p_Mass, DBL_VECTOR &p_GBParams) { }                                                                                      // Default is NO-OP
     virtual void            CalculateGBParams()                                                                 {
-        std::cout<<"BS:GBParams m_Mass:"<<m_Mass<<" m_Mass0:"<<m_Mass0<<std::endl;
         CalculateGBParams(m_Mass0, m_GBParams); }                         // Use class member variables
     
             double          CalculateInitialHeliumAbundance() const                                             { return 0.24 + 2.0 * m_Metallicity; }                              // Pols et al. 1998

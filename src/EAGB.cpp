@@ -37,8 +37,6 @@ void EAGB::CalculateTimescales(const double p_Mass, DBL_VECTOR &p_Timescales) {
     double tBAGB = CalculateLifetimeToBAGB(timescales(tHeI), timescales(tHe));
     double LBAGB = CalculateLuminosityAtBAGB(p_Mass);
     
-    std::cout<<"tBAGB"<<tBAGB<<std::endl;
-
     timescales(tinf1_FAGB) = tBAGB + ((1.0 / (p1 * gbParams(AHe) * gbParams(D))) * PPOW((gbParams(D) / LBAGB), p1_p));
     timescales(tMx_FAGB)   = timescales(tinf1_FAGB) - ((timescales(tinf1_FAGB) - tBAGB) * PPOW((LBAGB / gbParams(Lx)), p1_p));
     timescales(tinf2_FAGB) = timescales(tMx_FAGB) + ((1.0 / (q1 * gbParams(AHe) * gbParams(B))) * PPOW((gbParams(B) / gbParams(Lx)), q1_q));
@@ -883,11 +881,7 @@ double EAGB::CalculateRemnantRadius() const {
 double EAGB::CalculateCOCoreMassOnPhase(const double p_Time) const {
 #define timescales(x) m_Timescales[static_cast<int>(TIMESCALE::x)]  // for convenience and readability - undefined at end of function
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]            // for convenience and readability - undefined at end of function
-
-    double core = utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
-    ? PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
-    : PPOW((gbParams(q) - 1.0) * gbParams(AHe) * gbParams(B) * (timescales(tinf2_FAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
-    std::cout<<"EAGB::CalculateCOCoreMassOnPhase p_Time "<<p_Time<<" t_x " << timescales(tMx_FAGB) << " tinf1 " << timescales(tinf1_FAGB) << " tinf2 "<< timescales(tinf2_FAGB) << " core mass "<< core <<std::endl;
+    
     return utils::Compare(p_Time, timescales(tMx_FAGB)) <= 0
             ? PPOW((gbParams(p) - 1.0) * gbParams(AHe) * gbParams(D) * (timescales(tinf1_FAGB) - p_Time), 1.0 / (1.0 - gbParams(p)))
             : PPOW((gbParams(q) - 1.0) * gbParams(AHe) * gbParams(B) * (timescales(tinf2_FAGB) - p_Time), 1.0 / (1.0 - gbParams(q)));
@@ -1087,9 +1081,6 @@ bool EAGB::ShouldSkipPhase() const {
 
     double McCOBAGB = CalculateCOCoreMassOnPhase(timescales(tHeI) + timescales(tHe));
     double McSN     = std::max(CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)]), 1.05 * McCOBAGB);                       // hack from Hurley fortran code, doesn't seem to be in the paper
-    
-    std::cout<<"McCOBAGB "<<McCOBAGB<<" 1.05*McCOBAGB "<< 1.05*McCOBAGB<<" SN thresh " <<CalculateCoreMassAtSupernova_Static(MCH, m_GBParams[static_cast<int>(GBP::McBAGB)])<< "  CO core " << m_COCoreMass << " Mass "<< m_Mass << " Mass0 "<< m_Mass0<<" Lum "<< m_Luminosity<<std::endl;
-
     
     return (utils::Compare(McSN, m_COCoreMass) < 0);                                            // skip phase if core is heavy enough to go supernova
 

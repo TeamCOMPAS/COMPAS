@@ -1393,7 +1393,6 @@ double BaseStar::CalculateLuminosityAtBAGB(double p_Mass) const {
  */
 double BaseStar::CalculateLuminosityGivenCoreMass(const double p_CoreMass) const {
 #define gbParams(x) m_GBParams[static_cast<int>(GBP::x)]    // for convenience and readability - undefined at end of function
-    std::cout<<"q"<<gbParams(q)<<" p"<<gbParams(p)<<" B"<<gbParams(B)<<" D"<<gbParams(D)<<" first "<<gbParams(B) * PPOW(p_CoreMass, gbParams(q))<<" second "<< gbParams(D) * PPOW(p_CoreMass, gbParams(p)) << " core mass " <<p_CoreMass << " Lum "<< min((gbParams(B) * PPOW(p_CoreMass, gbParams(q))), (gbParams(D) * PPOW(p_CoreMass, gbParams(p)))) << std::endl;
     return min((gbParams(B) * PPOW(p_CoreMass, gbParams(q))), (gbParams(D) * PPOW(p_CoreMass, gbParams(p))));
 #undef gbParams
 }

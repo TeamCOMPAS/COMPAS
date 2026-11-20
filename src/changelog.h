@@ -1728,8 +1728,10 @@
 //                                            --post-common-envelope-eccentricity-prescription controls the post-CEE eccentricity (non-zero values tend to be significantly increased by the CBD-binary interaction)
 //                                          See documentation for more information on the available options.
 //                                          (*) https://github.com/ruggero-valli/spindler-c, installation required to use the CBD module
-//  03.31.00  IM - Nov 20, 2026         - Enhancement:
+//  03.32.00  IM - Nov 20, 2026         - Enhancement:
 //                                          Changed default behaviour of mass losing and mass gaining MS stars to the BRCEK prescription
+//  03.33.00  IM - Nov 20, 2026         - Enhancement:
+//                                          Changed the calculation of the SSE D parameter (above Eq. 39 in Hurley+ 2000) to allow for smooth transitions with mass and prevent excessively high base of the AGB CO core masses for massive stars
 
 
 
@@ -1742,7 +1744,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.32.00";
+const std::string VERSION_STRING = "03.33.00";
 
 
 # endif // __changelog_h__
