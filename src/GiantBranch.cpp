@@ -97,7 +97,8 @@ double GiantBranch::CalculateCoreMass_Luminosity_B_Static(const double p_Mass) {
 /*
  * Calculate the Core mass - Luminosity relation parameter D
  *
- * Hurley et al. 2000, eqs 31 - 38
+ * Hurley et al. 2000, eqs 31 - 38, adjusted to vary smoothly with mass
+ * and prevent AGB stars from having excessively high core masses at the base of the AGB (immediate supernovae)
  *
  *
  * double CalculateCoreMass_Luminosity_D_Static(const double p_Mass, const double p_LogMetallicityXi, DBL_VECTOR &p_MassCutoffs)
@@ -117,7 +118,9 @@ double GiantBranch::CalculateCoreMass_Luminosity_D_Static(const double p_Mass, c
     if (utils::Compare(p_Mass, massCutoffs(MHeF)) > 0) {
         if (utils::Compare(p_Mass, 2.5) >= 0) {
             double D2 = (0.5 * D0) - (0.06 * p_Mass);
-            logD      = std::max(std::max(-1.0, D1), D2);
+            D1        = D1 > -2.0 ? D1 + 2.0 : 0.0;
+            D2        = D2 > -2.0 ? D2 + 2.0 : 0.0;
+            logD      = PPOW(PPOW(D1,(100.0/p_Mass)) + PPOW(D2,(100.0/p_Mass)) + 1.0, p_Mass/100.0) - 2.0;
         }
         else {  // Linear interpolation between end points
             double gradient  = (D0 - D1) / (massCutoffs(MHeF) - 2.5);

@@ -455,7 +455,7 @@ void Options::OptionValues::Initialise() {
     m_ScaleTerminalWindVelocityWithMetallicityPower                 = 0.0;
 
     // Core mass prescription
-    m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::MANDEL;
+    m_MainSequenceCoreMassPrescription.type                         = CORE_MASS_PRESCRIPTION::BRCEK;
     m_MainSequenceCoreMassPrescription.typeString                   = CORE_MASS_PRESCRIPTION_LABEL.at(m_MainSequenceCoreMassPrescription.type);
 
     // Mass transfer options
