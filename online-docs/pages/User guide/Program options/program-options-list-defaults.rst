@@ -867,7 +867,7 @@ Options: {HURLEY, MANDEL, BRCEK} |br|
 ``HURLEY`` : Treatment from Hurley et al. (2000), in which MS stars do not have a distinct core and core evolution is not tracked |br|
 ``MANDEL`` : The core following case A mass transfer is set equal to the expected core mass of a newly formed HG star with mass equal to that of the donor, scaled by the fraction of the donor's MS lifetime at mass transfer |br|
 ``BRCEK``  : Core mass according to Shikauchi et al. (2024) with added rejuvenation of MS accretors and updated stellar tracks |br|
-Default = MANDEL
+Default = BRCEK
 
 **--maltsev-fallback** |br|
 Fixed fallback fraction when using MALTSEV2024 remnant mass prescription (must be between 0 and 1). |br|
