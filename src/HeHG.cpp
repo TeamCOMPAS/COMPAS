@@ -410,8 +410,8 @@ double HeHG::ChooseTimestep(const double p_Time) const {
 bool HeHG::ShouldEvolveOnPhase() const {
 
     double McMax = CalculateMaximumCoreMass(m_Mass);
-    double McSN  = CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)]);
-    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, McSN) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax or McMax >= McSN and envelope is not ejected by pulsations
+    double McSN  = CalculateCoreMassAtSupernova_Static(MCH, m_Mass);
+    return ((utils::Compare(m_COCoreMass, McMax) <= 0 || utils::Compare(McMax, McSN) >= 0) && !ShouldEnvelopeBeExpelledByPulsations());    // Evolve on HeHG phase if McCO <= McMax (see last paragraph of section 6.1 of Hurley+ 2000) and envelope is not ejected by pulsations
 }
 
 
@@ -477,8 +477,15 @@ bool HeHG::IsSupernova() const {
     if (utils::Compare(m_CoreMass, m_Mass) == 0) {      // special case of ultra-stripped-star -- go SN immediately if over ECSN limit
         return (utils::Compare(m_Mass, MECS) > 0);
     }
-        
-    return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
+    double snMass = CalculateInitialSupernovaMass();    // calculate SN initial mass
+    bool isCCSN = utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MCH, m_Mass)) >= 0 &&
+        utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
+    bool isECSN = utils::Compare(snMass, MCBUR2) < 0 && (!m_MassTransferDonorHistory.empty() || OPTIONS->AllowNonStrippedECSN()) &&
+        utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_Mass)) >= 0 &&
+        utils::Compare(snMass, OPTIONS->MCBUR1()) >= 0 && utils::Compare(m_COCoreMass, m_Mass) < 0;
+       
+    return (isCCSN || isECSN);
+    //return (utils::Compare(m_COCoreMass, CalculateCoreMassAtSupernova_Static(MECS, m_GBParams[static_cast<int>(GBP::McBAGB)])) >= 0); // Go supernova if CO core mass large enough
 }
 
 /*

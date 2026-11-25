@@ -2247,7 +2247,7 @@ STELLAR_TYPE GiantBranch::ResolveSupernova() {
         double snMass = CalculateInitialSupernovaMass();                                            // calculate SN initial mass
         
         SetSNHydrogenContent();                                                                     // set H-rich or H-poor  JR: why don't we do this when we initialise the star at change of stellar type?
-
+        
         if (                             OPTIONS->UsePulsationalPairInstability()              &&
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityLowerLimit()) >= 0 &&
             utils::Compare(m_HeCoreMass, OPTIONS->PulsationalPairInstabilityUpperLimit()) <= 0) {   // Pulsational Pair Instability Supernova

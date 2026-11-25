@@ -2546,11 +2546,6 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
         bool isEnvelopeRemoved = false;
 
         if (utils::Compare(m_Donor->CoreMass(), 0.0) > 0 && utils::Compare(envMassDonor, 0.0) > 0) {                            // donor has a core and an envelope
-            if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
-                // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
-                massDiffDonor     = -envMassDonor;
-                isEnvelopeRemoved = true;
-            }
             if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL && OPTIONS->ExpelConvectiveEnvelopeAboveLuminosityThreshold() && m_Donor->DetermineEnvelopeType() == ENVELOPE::CONVECTIVE) {
                 // check if pulsations remove envelope in the middle of mass transfer; if so, only remove envelope up to that point during mass transfer, leave pulsation itself to next time step
                 double massPulsation    = m_Donor->Luminosity() / PPOW(10.0, OPTIONS->LuminosityToMassThreshold());     // mass at which the pulsation threshold would be passed, log_10 (L/M) = LuminosityToMassThreshold, assumes unchanged L
@@ -2559,9 +2554,13 @@ void BaseBinaryStar::CalculateMassTransfer(const double p_Dt) {
                     isEnvelopeRemoved = false;
                 }
             }
-                
+            else if (m_MassTransferTimescale == MT_TIMESCALE::THERMAL || utils::Compare (massDiffDonor, envMassDonor) >= 0) {
+                // remove entire envelope if thermal timescale MT from a giant or if the amount of necessary mass loss exceeds the envelope mass
+                massDiffDonor     = -envMassDonor;
+                isEnvelopeRemoved = true;
+            }
             else
-                massDiffDonor = -massDiffDonor;                                                                                 // set mass difference
+                massDiffDonor = -massDiffDonor;                                                                                 // set mass difference if only part of enevelope removed
         }
         else {                                                                                                                  // donor has no envelope
             if (massDiffDonor <= 0.0) {                                                                                         // no root found
