@@ -1732,7 +1732,9 @@
 //                                          Changed default behaviour of mass losing and mass gaining MS stars to the BRCEK prescription
 //  03.33.00  IM - Nov 20, 2026         - Enhancement:
 //                                          Changed the calculation of the SSE D parameter (above Eq. 39 in Hurley+ 2000) to allow for smooth transitions with mass and prevent excessively high base of the AGB CO core masses for massive stars
-
+//  03.33.01  IM - Nov 25, 2026         - Defect repairs:
+//                                          - Fixed a bug in the mass transfer code (introduced in 03.30.00) that could lead to accretors gaining mass during mass transfer (see issue #1512)
+//                                          - Corrected the treatment of He star SNe to match Hurley+ 2000 and be consistent with other SN treatments (see issue #1511)
 
 
 // Version string format is MM.mm.rr, where
@@ -1744,7 +1746,7 @@
 // if MM is incremented, set mm and rr to 00, even if defect repairs and minor enhancements were also made
 // if mm is incremented, set rr to 00, even if defect repairs were also made
 
-const std::string VERSION_STRING = "03.33.00";
+const std::string VERSION_STRING = "03.33.01";
 
 
 # endif // __changelog_h__
