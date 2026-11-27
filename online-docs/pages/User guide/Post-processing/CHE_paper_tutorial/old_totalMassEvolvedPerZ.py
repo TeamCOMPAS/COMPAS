@@ -35,17 +35,17 @@ def CDFbrokenPowerLaw(x, x1, x2, x3, x4, a1, a2, a3, C1):
     bottom = N1+N2+N3
     
     mask1 = (x>=x1) & (x<x2)
-    top1 = (((1./(a1+1)) * C1 * (x[mask1]**(a1+1)) - (1./(a1+1)) * C1 * (x1**(a1+1))))
+    top1 = ((1./(a1+1)) * C1 * (x[mask1]**(a1+1)) - (1./(a1+1)) * C1 * (x1**(a1+1)))
     yvalues[mask1] = top1/bottom
     
     #calculate values of the x values that are x2<=x<x3
     mask2 = (x>=x2) & (x<x3)
-    top2 =  N1 + (((1./(a2+1)) * C2 * (x[mask2]**(a2+1)) - (1./(a2+1)) * C2 * (x2**(a2+1))))
+    top2 =  N1 + ((1./(a2+1)) * C2 * (x[mask2]**(a2+1)) - (1./(a2+1)) * C2 * (x2**(a2+1)))
     yvalues[mask2] = top2/bottom
     
     #calculate values of the x values that are x3<=x<=x4
     mask3 = (x>=x3) & (x<=x4)
-    top3 =  N1 + N2 + (((1./(a3+1)) * C3 * (x[mask3]**(a3+1)) - (1./(a3+1)) * C3 * (x3**(a3+1))))
+    top3 =  N1 + N2 + ((1./(a3+1)) * C3 * (x[mask3]**(a3+1)) - (1./(a3+1)) * C3 * (x3**(a3+1)))
     yvalues[mask3] = top3/bottom
     return yvalues
 
