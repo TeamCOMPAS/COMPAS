@@ -135,7 +135,7 @@ def plot_HRD(folder_name, file_numbers,
     # go through each detailed output file
     for file in file_numbers:
         # get variables from output file
-        file_path = folder_name + "/Detailed_Output/BSE_Detailed_Output_{}.h5".format(file)
+        file_path = folder_name + f"/Detailed_Output/BSE_Detailed_Output_{file}.h5"
         time, T_eff, L, stellar_type, Z, m_1 = get_detailed_output_vars(file_path, variables=["Time",
                                                                                               "Teff(1)",
                                                                                               "Luminosity(1)",
@@ -154,11 +154,11 @@ def plot_HRD(folder_name, file_numbers,
         
         # annotate each track with its mass
         if label_loc == "start":
-            ax.annotate("{0:1.1f}".format(m_1[0]) + r"${\rm M_\odot}$ ", (log_T_eff[np.isin(stellar_type, stellar_type_range)][0],
+            ax.annotate(f"{m_1[0]:1.1f}" + r"${\rm M_\odot}$ ", (log_T_eff[np.isin(stellar_type, stellar_type_range)][0],
                                                                           log_L[np.isin(stellar_type, stellar_type_range)][0]),
                         ha="right", va="center", fontsize=fs*0.7, zorder=6, bbox=dict(fc="w", ec="w", alpha=0.5, boxstyle="round,pad=0."))
         elif label_loc == "end":
-            ax.annotate("{0:1.1f}".format(m_1[0]) + r"${\rm M_\odot}$ ", (log_T_eff[np.isin(stellar_type, stellar_type_range)][-1], 
+            ax.annotate(f"{m_1[0]:1.1f}" + r"${\rm M_\odot}$ ", (log_T_eff[np.isin(stellar_type, stellar_type_range)][-1], 
                                                                           log_L[np.isin(stellar_type, stellar_type_range)][-1]),
                         ha="right", va="center", fontsize=fs*0.7)
 
@@ -193,7 +193,7 @@ def plot_HRD(folder_name, file_numbers,
                        color=stellar_types[stellar_type[final_mask][-1]]["colour"], zorder=5)
      
     # annotate the plot with the metallicity
-    ax.annotate(r"$Z = {0}$".format(np.round(Z[0], 4)), xy=(0.02, 0.98),
+    ax.annotate(rf"$Z = {np.round(Z[0], 4)}$", xy=(0.02, 0.98),
                 xycoords="axes fraction", color="black", fontsize=fs*0.7, va="top")
     
     # annotate plot with labels for stellar types
@@ -231,9 +231,9 @@ def plot_HRD(folder_name, file_numbers,
         # format the labels nicely with solar radii
         def fmt(x):
             if x < 0:
-                return "{}".format(10**(x)) + r"$\,{\rm R_{\odot}}$"
+                return f"{10**(x)}" + r"$\,{\rm R_{\odot}}$"
             else:
-                return "{}".format(int(np.round(10**(x)))) + r"$\,{\rm R_{\odot}}$"
+                return f"{int(np.round(10**(x)))}" + r"$\,{\rm R_{\odot}}$"
             
         # manually place the labels for the original plot (leave it auto otherwise)
         if stellar_type_range == range(1, 13):

@@ -766,7 +766,7 @@ def cleanStringParameter(str_param):
         # escape any unescaped spaces or quotes within the string
         escapes = [" ", "'", "\""]
         for escape in escapes:
-            str_param = re.sub(r"(?<!\\){}".format(escape), r"\{}".format(escape), str_param)
+            str_param = re.sub(rf"(?<!\\){escape}", rf"\{escape}", str_param)
     return str_param
 
 

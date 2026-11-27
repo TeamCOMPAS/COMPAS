@@ -16,16 +16,14 @@ def sanityChecks(h_old, filename, columns, seeds):
         try:
             test = data[column]
         except:
-            raise ValueError("column %s does not exist in %s"\
-                             %(column, filename))
+            raise ValueError(f"column {column} does not exist in {filename}")
 
     seedData = data['SEED'][()]
 
     mask      = np.in1d(seeds, seedData)
     not_exist = np.logical_not(mask)
     if np.sum(not_exist) !=0:
-        raise ValueError("seed(s) %s do not exist in %s"\
-                         %(seeds[not_exist], filename))
+        raise ValueError(f"seed(s) {seeds[not_exist]} do not exist in {filename}")
 
 
 def createDataInNewH5(h_old, h_new, filename, columns, seeds):
@@ -106,12 +104,12 @@ def printAllColumnsInH5(pathToData):
 
     for File in Files:
         print()
-        print('Filename = %s' %(File))
+        print(f'Filename = {File}')
         print('----------------------')
 
         #Every time you see Xr*' '
         #It means I add X spaces to line it
-        print('\t   column name%sunit%slength'%(29*' ',16*' '))
+        print('\t   column name{}unit{}length'.format(29*' ',16*' '))
         print('\t   '+'-----------------'*4)
         
         #In this file give me all the column names
@@ -128,7 +126,7 @@ def printAllColumnsInH5(pathToData):
             #--
             length = Data[File][column].shape[0]
 
-            print('\t   %s%s%s%s%s'%(column,spaces, unit,spaces2, length))
+            print(f'\t   {column}{spaces}{unit}{spaces2}{length}')
             #Every 4 lines print a dashed line to read output easier
             if (nrc%5==4):
                 print('\t   '+'-----------------'*4)

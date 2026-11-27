@@ -8,7 +8,7 @@ def multiple_injections (path="/Users/ilyam/Work/COMPASresults/popsynth/Arash/",
                          filename="mergers.txt", dz=0.001, Tobs=1./365.25/24/60, T0=1234567):
     random.seed()
     #path="./"
-    input=open(path+filename, 'r')
+    input=open(path+filename)
     input.readline()
     input.readline()
     count=0

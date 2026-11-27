@@ -53,6 +53,6 @@ def __execute_ipynb(notebook_filename: str, execute_dir: str = None) -> bool:
         )
         success = False
     finally:
-        with open(notebook_filename, mode="wt") as f:
+        with open(notebook_filename, mode="w") as f:
             nbformat.write(notebook, f)
     return success
