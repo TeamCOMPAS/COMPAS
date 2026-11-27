@@ -214,16 +214,16 @@ def plotStellarTypeAttributesAndEccentricity(ax=None, Data=None, mask=None, use_
     ### Plot stellar types
     stellarTypes, useTypes, typeNameMap = getStellarTypes(Data)
 
-    handle1 = ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(1)'][()][mask]), linestyle='-', c='r',
+    ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(1)'][()][mask]), linestyle='-', c='r',
                        label='Stellar Type 1')
-    handle2 = ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(2)'][()][mask]), linestyle='-', c='b',
+    ax1.plot(Data['Time'][()][mask], typeNameMap(Data['Stellar_Type(2)'][()][mask]), linestyle='-', c='b',
                        label='Stellar Type 2')
     ax1.set_ylabel('Stellar Type')
     ax1.set_yticks(range(useTypes.shape[0]))
     ax1.set_yticklabels([stellarTypes[typeNum] for typeNum in useTypes])
 
     ### Plot eccentricity
-    handle3 = ax2.plot(Data['Time'][()][mask], Data['Eccentricity'][()][mask] - .01, linestyle='-', c='k',
+    ax2.plot(Data['Time'][()][mask], Data['Eccentricity'][()][mask] - .01, linestyle='-', c='k',
                        label='Eccentricity')  # the minor subtraction makes the curve easier to find
     ax2.set_ylabel('Eccentricity', labelpad=10)
     ax2.set_yticks([0, .25, .5, .75, 1.0])

@@ -311,8 +311,6 @@ print_compas_details_dataframe(DCs, seeds_DC[:3])
 # %%
 def calculate_total_masses_optimized(path_data=None):
     data  = h5.File(path_to_data)
-    
-    total_masses = []
         
     # Retrieve the categories
     SPs = data['BSE_System_Parameters']
@@ -365,8 +363,6 @@ print(np.array_equal(m_tot_old, m_tot_new))
 # %%
 def calculate_total_masses_bbh(path_to_data=None):
     data  = h5.File(path_to_data)
-    
-    total_masses = []
     
     SPs = data['BSE_System_Parameters']
     DCs = data['BSE_Double_Compact_Objects']

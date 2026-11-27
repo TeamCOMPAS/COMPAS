@@ -222,7 +222,6 @@ def rejected_systems(locations, dimensions):
         num_rejected (int): number of systems which can be rejected
     """
     m1 = dimensions[0]
-    q = dimensions[1]
     a = dimensions[2]
     mass_1 = [location.dimensions[m1] for location in locations]
     mass_2 = [location.properties['--initial-mass-2'] for location in locations]
