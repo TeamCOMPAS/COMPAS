@@ -5,4 +5,8 @@ target-version = "py39"
 select = [
     # https://docs.astral.sh/ruff/rules/unused-import/
     "F401",
+    # https://docs.astral.sh/ruff/rules/useless-object-inheritance/
+    "UP004",
+    # https://docs.astral.sh/ruff/rules/extraneous-parentheses/
+    "UP034",
 ]

@@ -16,7 +16,7 @@ except ImportError as exc:
     ) from exc
 
 
-class COMPASData(object):
+class COMPASData:
     def __init__(
         self,
         path=None,

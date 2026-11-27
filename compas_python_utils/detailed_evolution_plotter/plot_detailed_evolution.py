@@ -435,7 +435,7 @@ def space_out(original_vals, min_separation=None):
 ###########################################################
 
 
-class Event(object):
+class Event:
 
     def __init__(self, Data, index, eventClass, stellarTypeMap, use_latex=True, **kwargs):
 
@@ -640,7 +640,7 @@ class Event(object):
         return img
 
 
-class allEvents(object):
+class allEvents:
     def __init__(self, Data):
 
         self.Data = Data
